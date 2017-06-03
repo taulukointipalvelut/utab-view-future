@@ -1,0 +1,43 @@
+{
+  "name": "frontend-regular-boilerplate",
+  "version": "1.0.0",
+  "description": "gulp + webpack + babel + pug + stylus",
+  "main": "index.js",
+  "dependencies": {
+    "babel-polyfill": "^6.23.0"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-latest": "^6.24.1",
+    "babel-register": "^6.24.1",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.0.0",
+    "gulp-eslint": "^3.0.1",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-pug": "^3.3.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-stylus": "^2.6.0",
+    "gulp-uglify": "^3.0.0",
+    "gulp-webserver": "^0.9.1",
+    "run-sequence": "^1.2.2",
+    "webpack": "^2.6.1",
+    "webpack-stream": "^3.2.0"
+  },
+  "scripts": {
+    "start": "npm run gulp",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gulp": "gulp"
+  },
+  "babel": {
+    "presets": ["latest"],
+    "plugins": ["transform-runtime"]
+  },
+  "author": "fj68",
+  "license": "WTFPL"
+}

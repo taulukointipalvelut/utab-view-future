@@ -1,0 +1,41 @@
+- var title = "frontend-regular-boilerplate"
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    title #{ title }
+    link(rel="stylesheet" href="css/main.min.css")
+    script(src="js/main.min.js")
+  body
+    include notify/notify
+    header
+      h1 #{ title }
+    main
+      section
+        h2 What's ready by this boilerplate?
+        p All #[var .pug], #[var .styl] and ES2017 files under #[var src/] will be compiled to #[var build/].
+        | Assets in #[var src/assets/] will be copied to #[var build/assets/], keeping its structure.
+        p These files are watched and on livereload, of course!
+      section
+        h2 What's inside?
+        ul
+          li: a(href="//pugjs.org") Pug
+          li: a(href="//stylus-lang.com") Stylus
+          li #[a(href="//babeljs.io") Babel] with #[a(href="//webpack.js.org") Webpack]
+          li #[a(href="//eslint.org") ESLint] with #[a(href="//standardjs.com") StandardJS]-style coding rules
+          li Minifiers for HTML/CSS/JS
+          li ...etc!
+      section
+        h2 Installation
+        code.
+          $ git clone https://github.com/fj68/frontend-regular-boilerplate.git<br>
+          $ cd frontend-regular-boilerplate<br>
+          $ npm install<br>
+          $ npm start
+      section
+        h2 Customization
+        p All configurations are written in #[var gulpfile.babel.js].
+      section
+        h2 License
+         p #[a(href="//www.wtfpl.net/") WTFPL]
+
