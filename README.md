@@ -10,10 +10,10 @@ These files are watched and on livereload, of course!
 
 ## What's inside?
 
- - Pug
- - Stylus
- - Babel with Webpack
- - ESLint with StandardJS-style coding rules
+ - [Pug](//pugjs.org)
+ - [Stylus](//stylus-lang.com)
+ - [Babel](//babeljs.io) with [Webpack](//webpack.js.org)
+ - [ESLint](//eslint.org) with [StandardJS](//standardjs.com)-style coding rules
  - Minifiers for HTML/CSS/JS
 
 ...etc!
@@ -33,4 +33,4 @@ All configurations are written in `gulpfile.babel.js`.
 
 ## License
 
-WTFPL
+[WTFPL](//www.wtfpl.net)
