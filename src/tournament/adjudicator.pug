@@ -1,0 +1,30 @@
+extends ../layout.pug
+
+block head
+  title Adjudicators - #{ tournament_name }
+
+block content
+  section.page-header
+    h1 Adjudicators
+    h3 #{ tournament_name }
+
+  section
+    h2.legend Round 1
+    ul.menu-list
+      li.menu-list__item: a.menu-list__item-link
+        span.menu-list__item-link__text Draw &amp; Allocation
+        i.fa.fa-chevron-right.menu-list__item-icon
+      li.menu-list__item: a.menu-list__item-link
+        span.menu-list__item-link__text Score Sheets
+        i.fa.fa-chevron-right.menu-list__item-icon
+
+  section
+    h2.legend Round 2
+    ul.menu-list
+      li.menu-list__item: a.menu-list__item-link
+        span.menu-list__item-link__text Draw &amp; Allocation
+        i.fa.fa-chevron-right.menu-list__item-icon
+      li.menu-list__item: a.menu-list__item-link
+        span.menu-list__item-link__text Score Sheets
+        i.fa.fa-chevron-right.menu-list__item-icon
+

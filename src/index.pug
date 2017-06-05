@@ -1,8 +1,24 @@
-doctype html
-html
-  head
-    meta(charset="utf-8")
-    title utab
-    link(rel="stylesheet" href="css/main.min.css")
-    script(src="js/main.min.js")
-  body
+extends layout.pug
+
+block head
+  title utab
+
+block content
+  h1 Welcome!
+
+  section
+    h2.legend Tournament
+    ul.menu-list
+      li.menu-list__item: a.menu-list__item-link(href="tournament/")
+        span.menu-list__item-link__text Tournament 1
+        i.fa.fa-chevron-right.menu-list__item-icon
+      li.menu-list__item: a.menu-list__item-link(href="tournament/")
+        span.menu-list__item-link__text Tournament 2
+        i.fa.fa-chevron-right.menu-list__item-icon
+
+  section
+    h2.legend Admin
+    ul.menu-list
+      li.menu-list__item: a.menu-list__item-link
+        span.menu-list__item-link__text Login
+        i.fa.fa-chevron-right.menu-list__item-icon

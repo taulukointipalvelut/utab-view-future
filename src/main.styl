@@ -1,0 +1,68 @@
+
+$primary-color = #242e67
+$secondary-color = #65a952 // #3b8abf
+$text-color-primary__dark = rgba(0, 0, 0, .87)
+$text-color-secondary__dark = rgba(0, 0, 0, .54)
+$text-color-primary__light = rgba(255, 255, 255, 1)
+$text-color-secondary__light = rgba(255, 255, 255, .7)
+
+@import "import/common"
+@import "import/menu-list"
+
+body
+  margin 0
+  padding 0
+  background #e8e8e8
+  color $text-color-primary__dark
+  font-family 'Droid Serif', serif
+
+main
+  margin 3rem auto
+  width calc(100% - 20px)
+  max-width 600px
+  box-sizing border-box
+
+.page-header,
+.page-header:first-child
+  display flex
+  align-items baseline
+  flex-wrap wrap
+  margin-top 3rem
+
+.back-arrow
+  display block
+  text-decoration none
+  color inherit
+  margin-right 5px
+  font-size: 1.7rem
+  width 25px
+
+  &:hover i.fa
+    color $primary-color
+
+h1
+  font-size 1.5rem
+  margin .5rem 10px .5rem 0
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis  
+
+h1 + h3
+  flex 1
+  color $text-color-secondary__dark
+  font-size 1rem
+  white-space nowrap
+  margin 0 0 .5rem 0
+
+.back-arrow ~ h1 + h3
+  margin-left 30px
+
+section
+  margin 2rem 0
+
+  &:first-child
+    margin-top 0
+  
+  &:last-child
+    margin-bottom 0
+

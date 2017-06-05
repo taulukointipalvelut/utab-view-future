@@ -1,0 +1,40 @@
+extends ../layout.pug
+
+block head
+  title #{ tournament_name }
+
+block content
+  section.page-header
+    a.back-arrow(href="../index.html"): i.fa.fa-arrow-circle-o-left
+    h1 #{ tournament_name }
+
+  section
+    h2.legend Round
+    ul.menu-list
+      li.menu-list__item: a.menu-list__item-link(href="round.html")
+        span.menu-list__item-link__text Round 1
+        i.fa.fa-chevron-right.menu-list__item-icon
+      li.menu-list__item: a.menu-list__item-link(href="round.html")
+        span.menu-list__item-link__text Round 2
+        i.fa.fa-chevron-right.menu-list__item-icon
+
+  section
+    h2.legend Potal
+    ul.menu-list
+      li.menu-list__item: a.menu-list__item-link(href="debater.html")
+        span.menu-list__item-link__text Debater
+        i.fa.fa-chevron-right.menu-list__item-icon
+      li.menu-list__item: a.menu-list__item-link(href="adjudicator.html")
+        span.menu-list__item-link__text Adjudicator
+        i.fa.fa-chevron-right.menu-list__item-icon
+      li.menu-list__item: a.menu-list__item-link(href="audience.html")
+        span.menu-list__item-link__text Audience
+        i.fa.fa-chevron-right.menu-list__item-icon
+
+  section
+    h2.legend Admin
+    p This is PDA Tournament
+    ul.menu-list
+      li.menu-list__item: a.menu-list__item-link
+        span.menu-list__item-link__text Login
+        i.fa.fa-chevron-right.menu-list__item-icon
