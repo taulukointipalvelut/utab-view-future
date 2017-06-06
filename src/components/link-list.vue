@@ -20,11 +20,12 @@
 
 <style lang="stylus">
   .link-list
-    margin 1rem 0 1rem
+    margin 0 0 1.5rem
   .link-list__legend
     font-size .8em
     color rgba(0, 0, 0, .54)
-    margin 0
+    margin-bottom .5rem
+    font-family "Open Sans", sans-serif
   ul.link-list__container
     list-style none
     padding 0

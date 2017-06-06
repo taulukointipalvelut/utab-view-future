@@ -1,7 +1,8 @@
 <template lang="pug">
   #app-content
-    utab-header(icon="arrow-left", icon_href="/", :login="login")
+    utab-header(icon="home", icon_href="/", :login="login")
     main
+      h1 Welcome!
       link-list
         link-list-item Tournaments
         link-list-item Config
