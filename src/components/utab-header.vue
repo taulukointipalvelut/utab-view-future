@@ -9,15 +9,15 @@
           i.caret-collapse-toggle
     nav: ul
       li.spacer
-      li: a(href="tournament.html") PDA Tournament 2018
-      li: a(href="logout.html" v-if="login") Logout
-      li: a(href="login.html" v-if="!login") Login
+      li: a(:href="url(tournament.href)", v-if="tournament") {{ tournament.name }}
+      li: a(:href="url('logout.html')" v-if="login") Logout
+      li: a(:href="url('login.html')" v-if="!login") Login
 </template>
 
 <script>
   import { smartphone } from 'assets/js/media-query'
   export default {
-    props: ['icon', 'icon_href', 'login'],
+    props: ['icon', 'icon_href', 'login', 'base_url', 'tournament'],
     data () {
       return {
         nav_opened: false
@@ -37,17 +37,24 @@
       },
       toggleDropdownMenu () {
         this.nav_opened = !this.nav_opened
+      },
+      url (target) {
+        if (this.base_url.slice(-1) !== '/') {
+          this.base_url + '/'
+        }
+        return this.base_url + target
       }
     }
   }
 </script>
 
 <style lang="stylus">
+  $primary-color = #20a0ff
   $header_height = 5rem
   $line_height = $header_height - 2rem
 
   header
-    background #1d8ce0
+    background $primary-color
     margin 0
     width 100%
     box-sizing border-box
@@ -177,7 +184,7 @@
         min-height 100vh
         flex-basis 100%
         text-align left
-        background #1d8ce0
+        background $primary-color
         z-index 10
         box-sizing border-box
         margin $header_height 0 0

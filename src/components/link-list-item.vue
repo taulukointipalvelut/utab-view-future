@@ -42,12 +42,13 @@
 </script>
 
 <style lang="stylus">
+  $primary-color = #20a0ff
   .link-list-item
     line-height 2rem
-    border-color #dadada #1d8ce0
+    border-color $primary-color
     border-style solid
-    border-width 1px 0 0 5px
-    box-shadow 1px 1px #555
+    border-width 0 0 0 5px
+    box-shadow 0 2px 4px 0 rgba(0,0,0,.12), 0 0 6px 0 rgba(0,0,0,.04)
     margin 0 0 .5rem
     padding 0
     color rgba(0, 0, 0, .87)
@@ -62,7 +63,7 @@
       display flex
       justify-content space-between
       align-items baseline
-      padding .2rem
+      padding .5rem .2rem .2rem .2rem
       
       & *
         margin 0 .5rem
@@ -89,8 +90,8 @@
     
     &:hover
       cursor pointer
-      background #1d8ce0
-      border-color #1d8ce0
+      background $primary-color
+      border-color $primary-color
       color #fff
       
       & .link-list-item__content .link-list-item__content-nav-icon

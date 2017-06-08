@@ -1,15 +1,15 @@
 <template lang="pug">
   #app-content
-    utab-header(icon="home", icon_href="/", :login="login", base_url="./")
+    utab-header(icon="arrow-left", icon_href="/", :login="login", base_url="./", :tournament="tournament")
     main
-      h1 Welcome!
-      link-list
-        link-list-item Tournaments
-        link-list-item Config
+      h1 Adjudicators
+      link-list(v-for="round in rounds", :key="round")
+        legend(slot="legend") {{ round.name }}
+        link-list-item(:href="url('draw.html', round.name)") Draw &amp; Allocation
+        link-list-item(:href="url('ballot/index.html', round.name)") Score Sheet
       link-list
         legend(slot="legend") Admin
         link-list-item(href="login.html") Login
-        link-list-item Config
 </template>
 
 <script>
@@ -25,7 +25,20 @@ export default {
   },
   data () {
     return {
-      login: false
+      login: false,
+      tournament: {
+        name: 'PDA Tournament 2018',
+        href: 'tournament.html'
+      },
+      rounds: [{
+        name: 'Round 1',
+        href: 'round.html?round=Round%201'
+      }]
+    }
+  },
+  methods: {
+    url (target, query) {
+      return `${ target }?round=${ query }&prev=adjudicator.html`
     }
   }
 }
