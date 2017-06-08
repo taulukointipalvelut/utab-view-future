@@ -14,7 +14,7 @@ npm install
 
 Make sure the installation has done.
 
-### Serve with hot reload at localhost:8010
+### Serve with hot reload
 
 ```sh
 npm run dev
@@ -22,11 +22,12 @@ npm run dev
 
 Then visit: [http://localhost:8080/](http://localhost:8080/)
 
-## Build & Serve
+### Build & Serve
 
 ```sh
 # build for production with minification
 npm run build
+# serve them
 node server.js
 ```
 
