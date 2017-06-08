@@ -1,17 +1,18 @@
 <template lang="pug">
   header(:data-nav-opened="nav_opened")
-    #title
-      span.nav-icon
-        a(:href="icon_href"): i.fa(:class="nav_icon_class")
-      h1: a(href="/") utab
-      span.nav-collapse-arrow
-        button(@click="toggleDropdownMenu")
-          i.caret-collapse-toggle
-    nav: ul
-      li.spacer
-      li: a(:href="url(tournament.href)", v-if="tournament") {{ tournament.name }}
-      li: a(:href="url('logout.html')" v-if="login") Logout
-      li: a(:href="url('login.html')" v-if="!login") Login
+    .header-container
+      #title
+        span.nav-icon
+          a(:href="icon_href"): i.fa(:class="nav_icon_class")
+        h1: a(href="/") utab
+        span.nav-collapse-arrow
+          button(@click="toggleDropdownMenu")
+            i.caret-collapse-toggle
+      nav: ul
+        li.spacer
+        li: a(:href="url(tournament.href)", v-if="tournament") {{ tournament.name }}
+        li: a(:href="url('logout.html')" v-if="login") Logout
+        li: a(:href="url('login.html')" v-if="!login") Login
 </template>
 
 <script>
@@ -58,17 +59,24 @@
     margin 0
     width 100%
     box-sizing border-box
-    height $header_height
     display flex
-    justify-content space-between
-    align-items center
+    justify-content center
+    align-items bottom
+    height $header_height
     font-family "Oswald", sans-serif
+    & .header-container
+      max-width 860px
+      flex 1
+      display flex
+      justify-content space-between
+      align-items center
     
     & #title
-      margin 0 1rem 0 0
+      margin-left 3.5%
+      margin-right 1rem
       
       & .nav-icon
-        margin 1rem 0 0 1rem
+        margin 1rem 0 1rem
         display inline-block
         
         & a
@@ -128,7 +136,7 @@
           & a
             color white
             font-size 1rem
-            padding ($header_height - $line_height + .5rem) 1rem 0
+            padding ($header_height - $line_height + .2rem) 1rem 0
             display block
             box-sizing border-box
             vertical-align bottom
@@ -139,12 +147,15 @@
     $caret_size = 8px
     
     header
-      height $header_height
-      flex-direction column
+      justify-content space-between
+      height 3.5rem
+
+      & .header-container
+        flex-direction column
       
       & #title
         width 100%
-        margin 0
+        padding-left 10px
         box-sizing border-box
         display flex
         z-index 11
@@ -209,7 +220,7 @@
           flex-direction column
           
           & li.spacer
-            height .5rem
+            height .3.5rem
           & li
             height auto
             

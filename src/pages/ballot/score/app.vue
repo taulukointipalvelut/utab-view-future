@@ -33,7 +33,7 @@
               el-switch(v-model="result.poi_prize", on-text="Yes", off-text="No")
       section.buttons
         el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-        el-button(type="primary" @click="on_next") Next #[el-icon(name="arrow-right")]
+        el-button(type="primary" @click="on_next", :loading="sending") {{ sending ? 'Sending...' : 'Next' }} #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -56,6 +56,7 @@ export default {
   data () {
     return {
       login: false,
+      sending: false,
       tournament: {
         name: 'PDA Tournament 2018',
         href: 'tournament.html'
@@ -103,6 +104,7 @@ export default {
       location.href = `./speaker.html?name=${ this.name() }`
     },
     on_next () {
+      this.sending = true
       console.log(this.result)
     },
     option_label (speaker_name) {

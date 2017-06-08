@@ -49,7 +49,7 @@
                 el-option(v-for="speaker in opp.speakers", :key="speaker", :label="option_label(speaker.name, opp.name)", :value="speaker.id")
       section.buttons
         el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-        el-button(type="primary" @click="on_next") Next #[el-icon(name="arrow-right")]
+        el-button(type="primary" @click="on_next", :loading="sending") {{ sending ? 'Sending...' : 'Next' }} #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -70,6 +70,7 @@ export default {
   data () {
     return {
       login: false,
+      sending: false,
       tournament: {
         name: 'PDA Tournament 2018',
         href: 'tournament.html'
@@ -133,6 +134,7 @@ export default {
       location.href = "./index.html"
     },
     on_next () {
+      this.sending = true
       location.href = `./score.html?name=${ this.name() }`
     },
     option_label (speaker_name, team_name) {
