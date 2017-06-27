@@ -3,22 +3,48 @@
     .header-container
       #title
         span.nav-icon
-          a(:href="icon_href"): i.fa(:class="nav_icon_class")
+          a(href="/"): i.fa.fa-home
         h1: a(href="/") utab
         span.nav-collapse-arrow
           button(@click="toggleDropdownMenu")
             i.caret-collapse-toggle
       nav: ul
         li.spacer
-        li: a(:href="url(tournament.href)", v-if="tournament") {{ tournament.name }}
-        li: a(:href="url('logout.html')" v-if="login") Logout
-        li: a(:href="url('login.html')" v-if="!login") Login
+        li(v-if="tournament")
+          router-link(v-if="tournament.href.to", :to="tournament.href.to", :replace="tournament.href.replace", :append="tournament.href.append") {{ tournament.name }}
+          a(:href="url(tournament.href)", v-else) {{ tournament.name }}
+        li(v-if="login")
+          router-link(v-if="logout_href.to", :to="logout_href.to", :replace="logout_href.replace", :append="logout_href.append") Logout
+          a(:href="url(logout_href)", v-else) Logout
+        li(v-else)
+          router-link(v-if="login_href.to", :to="login_href.to", :replace="login_href.replace", :append="login_href.append") Login
+          a(:href="url(login_href)", v-else) Login
 </template>
 
 <script>
   import { smartphone } from 'assets/js/media-query'
   export default {
-    props: ['icon', 'icon_href', 'login', 'base_url', 'tournament'],
+    props: {
+      login: {
+        type: Boolean,
+        default: false
+      },
+      base_url: {
+        type: String,
+        default: ''
+      },
+      tournament: {
+        type: null
+      },
+      login_href: {
+        type: null,
+        default: () => { return { to: '/login' } }
+      },
+      logout_href: {
+        type: null,
+        default: () => { return { to: '/logout' } }
+      }
+    },
     data () {
       return {
         nav_opened: false
@@ -27,10 +53,7 @@
     computed: {
       el_menu_mode () {
         return smartphone ? 'vertical' : 'horizontal'
-      },
-      nav_icon_class () {
-        return `fa-${ this.icon }`
-      },
+      }
     },
     methods: {
       on_select (index, indexPath) {
@@ -71,6 +94,10 @@
       justify-content space-between
       align-items center
     
+    & a,
+    & button
+      cursor pointer
+
     & #title
       margin-left 3.5%
       margin-right 1rem
@@ -89,6 +116,7 @@
       & h1
         color white
         margin 0
+        height $header_height + .5rem
         display inline-block
         line-height $line_height
         box-sizing border-box
@@ -148,7 +176,7 @@
     
     header
       justify-content space-between
-      height 3.5rem
+      height $header_height
 
       & .header-container
         flex-direction column
@@ -161,8 +189,13 @@
         z-index 11
 
         & h1
-          line-height $line_height
+          margin 0 0 0 10px
+          height $header_height
+          line-height 1.6
           flex 1
+          
+          & a
+            padding 0
 
         & .nav-collapse-arrow
           display inline-block

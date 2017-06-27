@@ -47,16 +47,17 @@
     },
     methods: {
       updateValue (value) {
+        let val = value
         if (Number.isNaN(value)) {
           return
         }
-        if (this.min && value < this.min) {
-          return
+        if (this.min && Number(value) < this.min) {
+          val = this.min
         }
-        if (this.max && value > this.max) {
-          return
+        if (this.max && Number(value) > this.max) {
+          val = this.max
         }
-        this.$emit('input', Number(value))
+        this.$emit('input', Number(val))
       },
       on_minus () {
         this.updateValue(this.$refs.input.value - 1)

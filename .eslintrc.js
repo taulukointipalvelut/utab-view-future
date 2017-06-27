@@ -12,6 +12,10 @@ module.exports = {
   extends: 'vue',
   // required to lint *.vue files
   plugins: [
-    'html'
-  ]
+    'html',
+    'flowtype-errors'
+  ],
+  rules: {
+    'flowtype-errors/show-errors': 2
+  }
 }

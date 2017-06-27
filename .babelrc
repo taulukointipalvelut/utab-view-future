@@ -1,5 +1,15 @@
 {
   "presets": [
-    ["es2015", { "modules": false }]
+     "vue-app",
+     ["env", {
+       "targets": {
+         "browsers": ["last 2 versions"]
+       }
+     }]
+   ],
+  "plugins": [
+    "transform-class-properties",
+    "syntax-flow",
+    "transform-flow-strip-types"
   ]
 }
