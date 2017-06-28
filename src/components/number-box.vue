@@ -20,7 +20,7 @@
       },
       step: {
         type: [Number, String],
-        default: ''
+        default: 1
       },
       readonly: {
         type: Boolean,
@@ -60,10 +60,10 @@
         this.$emit('input', Number(val))
       },
       on_minus () {
-        this.updateValue(this.$refs.input.value - 1)
+        this.updateValue(this.$refs.input.value - this.step)
       },
       on_plus () {
-        this.updateValue(this.$refs.input.value + 1)
+        this.updateValue(this.$refs.input.value + this.step)
       },
       check_button_disabled () {
         if (this.min){

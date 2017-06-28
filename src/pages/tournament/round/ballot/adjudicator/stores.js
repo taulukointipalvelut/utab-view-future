@@ -2,8 +2,26 @@
 export default {
   namespaced: true,
   state: {
-    steps: ['speaker', 'score', 'winner', 'done'],
-    sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-dupty', 'opp-dupty', 'gov-member', 'opp-member', 'gov-reply', 'opp-reply', '../winner'],
+    steps: ['speaker', 'score', 'winner', 'check', 'done'],
+    roles: ['leader', 'dupty', 'member', 'reply'],
+    sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-dupty', 'opp-dupty', 'gov-member', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
+    style: {
+      roles: {
+        gov: {
+          leader: { long: 'Prime Minister', abbr: 'PM' },
+          dupty: { long: 'Dupty Prime Minister', abbr: 'DPM' },
+          member: { long: 'Member of Government', abbr: 'MG' },
+          reply: { long: 'Government Reply', abbr: 'GR' }
+        },
+        opp: {
+          leader: { long: 'Leader of Opposition', abbr: 'LO' },
+          dupty: { long: 'Dupty Leader of Opposition', abbr: 'DLO' },
+          member: { long: 'Member of Opposition', abbr: 'MO' },
+          reply: { long: 'Opposition Reply', abbr: 'OR' }
+        }
+      }
+    },
+    winner: null,
     gov: {
       side: 'gov',
       team: null,
@@ -31,8 +49,8 @@ export default {
         },
         reply: {
           speaker_id: null,
-          matter: 5,
-          manner: 5,
+          matter: 2.5,
+          manner: 2.5,
           best_debater: false,
           poi_prize: false
         }
@@ -65,8 +83,8 @@ export default {
         },
         reply: {
           speaker_id: null,
-          matter: 5,
-          manner: 5,
+          matter: 2.5,
+          manner: 2.5,
           best_debater: false,
           poi_prize: false
         }
@@ -91,6 +109,9 @@ export default {
     },
     input_result (state, payload) {
       state[payload.side].result[payload.role][payload.key] = payload.value
+    },
+    winner (state, payload) {
+      state.winner = payload.winner
     }
   },
   actions: {

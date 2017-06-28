@@ -3,16 +3,16 @@
     section(v-if="team && team.team")
       el-card(:class="side_name")
         div(slot="header").card-header-container
-          span.card-title {{ role_name }}
+          span.card-title {{ role_name_long(role_name) | camelize }}
           span.card-subtitle {{ side_name | capitalize }}
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
             el-select(:value="result.speaker_id", @input="on_input_result('speaker_id', $event)", placeholder="Select Speaker")
               el-option(v-for="speaker in team.team.speakers", :key="speaker", :label="option_label(speaker.name)", :value="speaker.id")
           el-form-item(label="Matter", required)
-            number-box(:value="result.matter", @input="on_input_result('matter', $event)", :min="1", :max="10")
+            number-box(:value="result.matter", @input="on_input_result('matter', $event)", :min="1", :max="role_name == 'reply' ? 5 : 10", :step="role_name == 'reply' ? 0.5 : 1")
           el-form-item(label="Manner", required)
-            number-box(:value="result.manner", @input="on_input_result('manner', $event)", :min="1", :max="10")
+            number-box(:value="result.manner", @input="on_input_result('manner', $event)", :min="1", :max="role_name == 'reply' ? 5 : 10", :step="role_name == 'reply' ? 0.5 : 1")
           el-form-item(label="Total Score")
             input-label(:value="total_score")
           el-form-item(label="Best Debater")
@@ -21,7 +21,7 @@
             el-switch(:value="result.poi_prize", @input="on_input_result('poi_prize', $event)", on-text="Yes", off-text="No")
     section.buttons(v-if="team && team.team")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :disabled="!loading && !sendable") Next #[el-icon(name="arrow-right")]
+      el-button(type="primary" @click="on_next", :disabled="loading || !sendable") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -74,7 +74,8 @@ export default {
     ...mapState('ballot', [
       'gov',
       'opp',
-      'sequence'
+      'sequence',
+      'style'
     ])
   },
   methods: {
@@ -93,12 +94,19 @@ export default {
       const side = this.side_name
       const role = this.role_name
       this.$store.commit('ballot/input_result', { side, role, key, value })
+    },
+    role_name_long (role_name) {
+      return this.style.roles[this.side_name.toLocaleLowerCase()][role_name.toLocaleLowerCase()].long
     }
   },
   filters: {
-    capitalize (v) {
-      let s = v[0].toUpperCase() + v.slice(1).toLowerCase()
-      return s
+    capitalize (word) {
+      return word[0].toUpperCase() + word.slice(1).toLowerCase()
+    },
+    camelize (v) {
+      const capitalize = word => word[0].toUpperCase() + word.slice(1).toLowerCase()
+      const words = v.split(' ')
+      return words.map(word => word === 'of' ? word : capitalize(word)).join(' ')
     }
   }
 }

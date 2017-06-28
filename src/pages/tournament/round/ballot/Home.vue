@@ -79,9 +79,6 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-  .el-table
-    overflow-x: scroll;
-
   .row:hover
     cursor pointer
 

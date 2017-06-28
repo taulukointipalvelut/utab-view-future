@@ -37,7 +37,7 @@
               el-option(v-for="speaker in opp.team.speakers", :key="speaker", :label="option_label(speaker.name, opp.team.name)", :value="speaker.id")
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :disabled="!loading && !sendable") Next #[el-icon(name="arrow-right")]
+      el-button(type="primary" @click="on_next", :disabled="loading || !sendable") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>
