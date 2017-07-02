@@ -78,7 +78,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
+<style lang="stylus">
   .row:hover
     cursor pointer
 

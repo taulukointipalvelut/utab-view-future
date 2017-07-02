@@ -3,7 +3,7 @@ import ballot from 'pages/tournament/round/ballot/adjudicator/stores'
 export default {
   state: {
     auth: {
-      login: null,
+      session: null,
       href: {
         login: { to: '/login' },
         logout: { to: '/logout' }
@@ -15,12 +15,16 @@ export default {
     adjudicators: []
   },
   getters: {
-    isAuth: state => state.auth !== null && state.auth !== undefined,
+    isAuth: state => { return (state.auth && state.auth.session) ? true: false; },
     current_tournament: state => state.tournaments.find(tournament => tournament.name === state.route.params.tournament_name),
     current_round: state => state.rounds.find(round => round.name === state.route.params.round_name),
     current_adjudicator: state => state.adjudicators.find(adjudicator => adjudicator.name === state.route.params.adjudicator_name)
   },
   mutations: {
+    /* auth.session */
+    session (state, payload) {
+      state.auth.session = payload.session
+    },
     /* tournaments */
     tournaments (state, payload) {
       state.tournaments = payload.tournaments
@@ -203,8 +207,28 @@ export default {
         }, 2000)
       })
     },
-
-
+    login ({ state, commit, dispatch }, payload) {
+      return new Promise(async (resolve, reject) => {
+        if (state.auth.session) {
+          await dispatch('logout', { session: state.auth.session })
+        }
+        let session = null;
+        setTimeout(() => {
+          session = 'c0rjqc+as-wAJwkfj2jrdKSDqce2-qo'
+          commit('session', { session })
+          resolve(true)
+        }, 2000)
+      })
+    },
+    logout ({ state, commit, dispatch }, payload) {
+      return new Promise(async (resolve, reject) => {
+        let session = 'c0rjqc+as-wAJwkfj2jrdKSDqce2-qo';
+        setTimeout(() => {
+          commit('session', { session: null })
+          resolve(true)
+        }, 2000)
+      })
+    }
   },
   modules: {
     ballot

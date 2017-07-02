@@ -1,26 +1,17 @@
 <template lang="pug">
-  #app-content
+  #app-content(v-loading.fillscreen.lock="loading_tournaments", element-loading-text="Loading...")
     utab-header(:login="isAuth")
     main
-      h1 Welcome!
-      link-list(:loading="loading", no_item_text="No Tournament Available")
-        legend(slot="legend") Tournaments
-        router-link(v-for="tournament in tournaments", :to="tournament.href.to", :key="tournament", v-if="!loading")
-          link-list-item {{ tournament.name }}
+      router-view(:tournaments="tournaments", :loading="loading")
 </template>
 
 <script>
-/* @flow */
 import { mapState, mapGetters, mapActions } from 'vuex'
 import utab_header from 'components/utab-header.vue'
-import link_list from 'components/link-list.vue'
-import link_list_item from 'components/link-list-item.vue'
 
 export default {
   components: {
-    'utab-header': utab_header,
-    'link-list': link_list,
-    'link-list-item': link_list_item
+    'utab-header': utab_header
   },
   data () {
     return {
@@ -28,11 +19,11 @@ export default {
     }
   },
   computed: {
-    has_tournaments () {
-      return this.tournaments && this.tournaments.length > 0
+    loading_tournaments () {
+      return !this.tournaments
     },
-    has_tournaments () {
-      return this.tournaments && this.tournaments.length > 0
+    icon_href () {
+      return this.tournament ? this.tournament.href : { to: '/home' }
     },
     ...mapState([
       'auth',
@@ -48,6 +39,9 @@ export default {
     ])
   },
   mounted () {
+    if (!this.isAuth) {
+      this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
+    }
     this.init_tournaments()
       .then(() => {
         this.loading = false
@@ -57,8 +51,6 @@ export default {
 </script>
 
 <style lang="stylus">
-  @import "../common"
-
   body
     background-color #f5f5f5
   #app-content
@@ -71,7 +63,7 @@ export default {
     color inherit
   main
     padding 5%
-    
+
   @media (min-width: 600px)
     main
       max-width 600px

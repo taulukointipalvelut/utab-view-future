@@ -6,20 +6,21 @@
     </div>
     <el-form class="login" :rules="rules" ref="ruleForm" :model="ruleForm" label-width="100px" >
       <el-form-item label="User Name" prop="user_name">
-        <el-input placeholder="Please enter User Name" v-model="ruleForm.user_name" type="text"></el-input>
+        <el-input placeholder="Please enter User Name" v-model="ruleForm.user_name" type="text" autofocus></el-input>
       </el-form-item>
       <el-form-item label="Password" prop="password">
-        <el-input placeholder="Please enter Password" v-model="ruleForm.password" type="password" @keyup.enter="login"></el-input>
+        <el-input placeholder="Please enter Password" v-model="ruleForm.password" type="password" @keyup.enter="onLogin"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="login" :loading="loading">{{ loading ? 'Loading...' : 'Login' }}</el-button>
+        <el-button type="primary" @click="onLogin" :loading="loading">{{ loading ? 'Loading...' : 'Login' }}</el-button>
+        <el-button type="text" @click="onHome">Go back to Home</el-button>
       </el-form-item>
     </el-form>
   </el-card>
 </template>
 
 <script>
-  import qs from 'qs'
+  import { mapState, mapGetters, mapActions } from 'vuex'
   import logo from 'assets/img/logo.png'
 
   export default {
@@ -38,21 +39,32 @@
           password: [
              { required: true, message: 'Password required', trigger: 'blur' }
           ]
-        }
+        },
+        error: null
       }
     },
-
     methods: {
-      login () {
+      onHome () {
+        this.$router.push('/')
+      },
+      onLogin () {
         this.loading = true
-        this.$refs.ruleForm.validate((valid) => {
-          if (!valid) {
-            return
+        this.$refs.ruleForm.validate(async (valid) => {
+          if (valid) {
+            const isAuth = await this.login({ user_name: this.user_name, password: this.password })
+            if (isAuth) {
+              const next = this.$route.query.next
+              this.$router.push(next ? next : '/')
+            } else {
+              this.error = 'Unable to login'
+            }
           }
-          const next = qs.parse(location.search.slice(1)).next
-          location.href = next ? next : '/'
+          this.loading = false
         })
-      }
+      },
+      ...mapActions([
+        'login'
+      ])
     }
   }
 </script>

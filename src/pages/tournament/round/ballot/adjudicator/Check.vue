@@ -13,12 +13,12 @@
                   .inner-table-td {{ style.roles.gov[role].abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(v-if="gov.result[role].best_speaker")
+                    i.fa.fa-star.small(v-if="gov.result[role].best_debater")
                     i.fa.fa-hand-paper-o.small(v-if="gov.result[role].poi_prize")
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ get_speaker(gov.team.speakers, gov.result[role].speaker_id) | defaults('Not specified yet') }}
+                  .inner-table-td {{ get_speaker_name(gov.team.speakers, gov.result[role].speaker_id) | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/gov-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
@@ -51,7 +51,7 @@
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ get_speaker(opp.team.speakers, opp.result[role].speaker_id) | defaults('Not specified yet') }}
+                  .inner-table-td {{ get_speaker_name(opp.team.speakers, opp.result[role].speaker_id) | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/opp-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
@@ -102,7 +102,7 @@ export default {
   data () {
     return {
       sending: false,
-      signature: this.adjudicator.name
+      signature: ''
     }
   },
   computed: {
@@ -142,6 +142,10 @@ export default {
     },
     get_speaker (speakers, id) {
       return speakers.find(speaker => speaker.id === id)
+    },
+    get_speaker_name (speakers, id) {
+      const speaker = this.get_speaker(speakers, id)
+      return speaker ? speaker.name : ''
     }
   },
   filters: {

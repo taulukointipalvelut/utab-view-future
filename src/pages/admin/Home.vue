@@ -1,7 +1,5 @@
 <template lang="pug">
-  #app-content
-    utab-header(:login="isAuth")
-    main
+  .router-view-content
       h1 Welcome!
       link-list(:loading="loading", no_item_text="No Tournament Available")
         legend(slot="legend") Tournaments
@@ -22,42 +20,23 @@ export default {
     'link-list': link_list,
     'link-list-item': link_list_item
   },
-  data () {
-    return {
-      loading: true
-    }
-  },
+  props: ['tournaments', 'loading'],
   computed: {
     has_tournaments () {
       return this.tournaments && this.tournaments.length > 0
     },
-    has_tournaments () {
-      return this.tournaments && this.tournaments.length > 0
-    },
     ...mapState([
-      'auth',
-      'tournaments'
+      'auth'
     ]),
     ...mapGetters([
       'isAuth'
     ])
-  },
-  methods: {
-    ...mapActions([
-      'init_tournaments'
-    ])
-  },
-  mounted () {
-    this.init_tournaments()
-      .then(() => {
-        this.loading = false
-      })
   }
 }
 </script>
 
 <style lang="stylus">
-  @import "../common"
+  @import "../../common"
 
   body
     background-color #f5f5f5

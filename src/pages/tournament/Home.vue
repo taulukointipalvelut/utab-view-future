@@ -12,12 +12,8 @@
           link-list-item Adjudicators
       link-list(:loading="loading", no_item_text="No Round Available")
         legend(slot="legend") Rounds
-        router-link(v-for="round in rounds", :key="round", :to="url(round.href.to)")
+        router-link(v-for="round in rounds", :key="round", :to="url(round.href.to)", v-if="!loading")
           link-list-item {{ round.name }}
-      link-list
-        legend(slot="legend") Admin
-        router-link(:to="auth.href.login.to")
-          link-list-item Login
 </template>
 
 <script>

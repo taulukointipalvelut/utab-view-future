@@ -3,8 +3,8 @@
     .header-container
       #title
         span.nav-icon
-          a(href="/"): i.fa.fa-home
-        h1: a(href="/") utab
+          router-link(to="/"): i.fa.fa-home
+        h1: router-link(to="/") utab
         span.nav-collapse-arrow
           button(@click="toggleDropdownMenu")
             i.caret-collapse-toggle
@@ -12,23 +12,17 @@
         li.spacer
         li(v-if="tournament")
           router-link(v-if="tournament.href.to", :to="tournament.href.to", :replace="tournament.href.replace", :append="tournament.href.append") {{ tournament.name }}
-          a(:href="url(tournament.href)", v-else) {{ tournament.name }}
         li(v-if="login")
-          router-link(v-if="logout_href.to", :to="logout_href.to", :replace="logout_href.replace", :append="logout_href.append") Logout
-          a(:href="url(logout_href)", v-else) Logout
+          router-link(:to="logout_href") Logout
         li(v-else)
-          router-link(v-if="login_href.to", :to="login_href.to", :replace="login_href.replace", :append="login_href.append") Login
-          a(:href="url(login_href)", v-else) Login
+          router-link(:to="login_href") Login
 </template>
 
 <script>
+  import { mapState, mapGetters, mapActions } from 'vuex'
   import { smartphone } from 'assets/js/media-query'
   export default {
     props: {
-      login: {
-        type: Boolean,
-        default: false
-      },
       base_url: {
         type: String,
         default: ''
@@ -36,13 +30,9 @@
       tournament: {
         type: null
       },
-      login_href: {
-        type: null,
-        default: () => { return { to: '/login' } }
-      },
-      logout_href: {
-        type: null,
-        default: () => { return { to: '/logout' } }
+      next: {
+        type: String,
+        default: null
       }
     },
     data () {
@@ -53,7 +43,21 @@
     computed: {
       el_menu_mode () {
         return smartphone ? 'vertical' : 'horizontal'
-      }
+      },
+      login_href () {
+        return { path: '/login', query: { next: this.nextPath } }
+      },
+      logout_href () {
+        return { path: '/logout', query: { next: this.nextPath } }
+      },
+      nextPath () {
+        return this.next ?
+               this.next :
+               this.$route.fullPath.includes('/admin/') ? '/' : this.$route.fullPath
+      },
+      ...mapGetters({
+        login: 'isAuth'
+      })
     },
     methods: {
       on_select (index, indexPath) {
