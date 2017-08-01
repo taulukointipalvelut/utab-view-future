@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     url (round, ...targets) {
-      return `${ round.href.to }/${ targets.join('/') }`
+      return `${ round.href.path }/${ targets.join('/') }`
     }
   }
 }

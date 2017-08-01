@@ -1,11 +1,12 @@
 import Home from './Home'
-//import Tournament from './Tournament'
+import Tournament from './Tournament'
+import Allocation from './Allocation'
 //import Round from './Round'
 
 export default [{
     path: 'home',
     component: Home
-/*  }, {
+  }, {
     path: ':tournament_name/home',
     props: true,
     component: Tournament
@@ -13,6 +14,10 @@ export default [{
     path: ':tournament_name',
     redirect: ':tournament_name/home'
   }, {
+    path: ':tournament_name/allocation',
+    props: true,
+    component: Allocation
+/*  }, {
     path: ':tournament_name/:round_name',
     props: true,
     component: Round

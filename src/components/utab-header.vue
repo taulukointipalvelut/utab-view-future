@@ -11,7 +11,7 @@
       nav: ul
         li.spacer
         li(v-if="tournament")
-          router-link(v-if="tournament.href.to", :to="tournament.href.to", :replace="tournament.href.replace", :append="tournament.href.append") {{ tournament.name }}
+          router-link(v-if="tournament.href", :to="tournament.href") {{ tournament.name }}
         li(v-if="login")
           router-link(:to="logout_href") Logout
         li(v-else)
@@ -45,12 +45,17 @@
         return smartphone ? 'vertical' : 'horizontal'
       },
       login_href () {
-        return { path: '/login', query: { next: this.nextPath } }
+        return { path: '/login', query: { next: this.nextLoginPath } }
       },
       logout_href () {
-        return { path: '/logout', query: { next: this.nextPath } }
+        return { path: '/logout', query: { next: this.nextLogoutPath } }
       },
-      nextPath () {
+      nextLoginPath () {
+        return this.next ?
+               this.next :
+               this.$route.fullPath.includes('/admin/') ? this.$route.fullPath : '/admin/'
+      },
+      nextLogoutPath () {
         return this.next ?
                this.next :
                this.$route.fullPath.includes('/admin/') ? '/' : this.$route.fullPath

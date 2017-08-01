@@ -1,6 +1,6 @@
 <template lang="pug">
     .loading-container(v-loading="loading", element-loading-text="Loading...", :class="{ loading: loading }")
-      slot
+      slot(v-if="!loading")
         span.loading-container__no-item {{ no_item_text }}
 </template>
 

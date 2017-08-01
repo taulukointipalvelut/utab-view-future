@@ -4,15 +4,15 @@
       h1 {{ tournament.name }}
     section
       link-list
-        router-link(:to="url('audience')")
+        router-link(to="audience")
           link-list-item Audience
-        router-link(:to="url('debater')")
+        router-link(to="debater")
           link-list-item Debaters
-        router-link(:to="url('adjudicator')")
+        router-link(to="adjudicator")
           link-list-item Adjudicators
       link-list(:loading="loading", no_item_text="No Round Available")
         legend(slot="legend") Rounds
-        router-link(v-for="round in rounds", :key="round", :to="url(round.href.to)", v-if="!loading")
+        router-link(v-for="round in rounds", :key="round", :to="round.href", v-if="!loading")
           link-list-item {{ round.name }}
 </template>
 
@@ -37,11 +37,6 @@ export default {
     ...mapGetters([
       'isAuth'
     ])
-  },
-  methods: {
-    url (...targets) {
-      return `/${ this.tournament.name }/${ targets.join('/') }`
-    }
   }
 }
 </script>

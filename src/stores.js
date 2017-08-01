@@ -12,13 +12,48 @@ export default {
     tournaments: [],
     rounds: [],
     teams: [],
-    adjudicators: []
+    adjudicators: [],
+    draw: [{
+      venue: '101',
+      gov: {
+        name: 'Team A'
+      },
+      opp: {
+        name: 'Team B'
+      },
+      chairs: [{
+        name: 'Adj A'
+      }],
+      panels: [{
+        name: 'Adj B'
+      }, {
+        name: 'Adj C'
+      }],
+      trainees: []
+    }, {
+      venue: '101',
+      gov: {
+        name: 'Team A'
+      },
+      opp: {
+        name: 'Team B'
+      },
+      chairs: [{
+        name: 'Adj A'
+      }],
+      panels: [{
+          name: 'Adj B'
+        }, {
+          name: 'Adj C'
+        }],
+      trainees: []
+    }]
   },
   getters: {
     isAuth: state => { return (state.auth && state.auth.session) ? true: false; },
     current_tournament: state => state.tournaments.find(tournament => tournament.name === state.route.params.tournament_name),
     current_round: state => state.rounds.find(round => round.name === state.route.params.round_name),
-    current_adjudicator: state => state.adjudicators.find(adjudicator => adjudicator.name === state.route.params.adjudicator_name)
+    current_adjudicator: state => state.adjudicators ? state.adjudicators.find(adjudicator => adjudicator.name === state.route.params.adjudicator_name) : null
   },
   mutations: {
     /* auth.session */
@@ -49,10 +84,11 @@ export default {
       state.rounds.push(payload.round)
     },
     delete_round (state, payload) {
-      state.rounds = state.rounds.filter(x => x.id !== payload.round.id)
+      state.rounds = state.rounds.filter(x => x.round_num !== payload.round.round_num)
     },
     /* adjudicators */
     adjudicators (state, payload) {
+      console.log(payload.adjudicators)
       state.adjudicators = payload.adjudicators
     },
     add_adjudicators (state, payload) {
@@ -83,11 +119,18 @@ export default {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           const tournaments = [{
+            id: 284,
             name: 'PDA Tournament 2018',
-            href: { to: '/PDA Tournament 2018' }
+            href: { path: '/PDA Tournament 2018' },
+            current_round_num: 1,
+            total_round_num: 4,
+            style: {
+              name: 'PDA'
+            }
           }, {
+            id: 283,
             name: 'PDA Tournament 2017',
-            href: { to: '/PDA Tournament 2017' }
+            href: { path: '/PDA Tournament 2017' }
           }]
           commit('tournaments', { tournaments })
           resolve()
@@ -102,10 +145,16 @@ export default {
         setTimeout(() => {
           const rounds = [{
             name: 'Round 1',
-            href: { to: 'Round 1' }
+            href: { path: '/PDA Tournament 2018/Round 1' },
+            round_num: 1,
+            draw_opened: true,
+            allocation_opened: true,
           }, {
             name: 'Round 2',
-            href: { to: 'Round 2' }
+            href: { path: '/PDA Tournament 2018/Round 2' },
+            round_num: 2,
+            draw_opened: false,
+            allocation_opened: false
           }]
           commit('rounds', { rounds })
           resolve()
@@ -116,9 +165,6 @@ export default {
       return new Promise(async (resolve, reject) => {
         if (!state.tournaments || state.rounds.length <= 0) {
           await dispatch('init_tournaments')
-        }
-        if (!state.rounds || state.rounds.length <= 0) {
-          await dispatch('init_rounds')
         }
         setTimeout(() => {
           const adjudicators = [{
@@ -167,14 +213,9 @@ export default {
         if (!state.tournaments || state.rounds.length <= 0) {
           await dispatch('init_tournaments')
         }
-        if (!state.rounds || state.rounds.length <= 0) {
-          await dispatch('init_rounds')
-        }
-        if (!state.adjudicators || state.adjudicators.length <= 0) {
-          await dispatch('init_adjudicators')
-        }
         setTimeout(() => {
           const teams = [{
+              id: 1,
               name: 'Super Duper Jumpin\' Long Team Name',
               speakers: [{
                 id: 1,
@@ -187,6 +228,7 @@ export default {
                 name: 'Speaker 3'
               }]
             }, {
+              id: 3,
               name: 'Team B',
               speakers: [{
                 id: 4,
