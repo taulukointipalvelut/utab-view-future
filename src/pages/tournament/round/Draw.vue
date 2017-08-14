@@ -18,7 +18,7 @@
           template(scope="scope")
             .adjudicator(v-for="adjudicator in scope.row.trainees") {{ scope.row.trainees.length }}
     section(v-else)
-      p Draw for {{ round.name }} is not opened yet.
+      p Draw for {{ round.name }} is not released.
 </template>
 
 <script>
@@ -81,7 +81,7 @@ export default {
   .adjudicator-container
     display flex
     flex-flow column wrap
-  
+
   .adjudicator
     flex 1
 </style>

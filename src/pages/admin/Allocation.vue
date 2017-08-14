@@ -59,12 +59,12 @@ export default {
         panels: [],
         trainees: []
       }, {
-        venues: ['101'],
+        venues: ['102'],
         gov: [{
-          name: 'Team A'
+          name: 'Team C'
         }],
         opp: [{
-          name: 'Team B'
+          name: 'Team D'
         }],
         chairs: [],
         panels: [],
@@ -139,7 +139,7 @@ export default {
 
   .el-table .cell
     padding 0
-  
+
   .el-table .col-cell,
   .el-table th .cell
     padding 0 18px
@@ -148,19 +148,19 @@ export default {
     margin 5px
     min-height 30px
     min-width 20%
-  
+
   .adj-list-container
     width calc(100% - .5rem)
     background rgba(0, 0, 0, .05)
     padding-left .5rem
     padding-bottom .5rem
     min-height 50px
-    
+
     .adj-list.src
       display flex
       flex-flow row wrap
       margin 0
-      
+
       .draggable-item
         margin-right .5rem
         min-width 20%

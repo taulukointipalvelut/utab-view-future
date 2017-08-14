@@ -3,20 +3,20 @@ export default {
   namespaced: true,
   state: {
     steps: ['speaker', 'score', 'winner', 'check', 'done'],
-    roles: ['leader', 'dupty', 'member', 'reply'],
-    sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-dupty', 'opp-dupty', 'gov-member', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
+    roles: ['leader', 'deputy', 'member', 'reply'],
+    sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-deputy', 'opp-deputy', 'gov-member', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
     style: {
       roles: {
         gov: {
           leader: { long: 'Prime Minister', abbr: 'PM' },
-          dupty: { long: 'Dupty Prime Minister', abbr: 'DPM' },
-          member: { long: 'Member of Government', abbr: 'MG' },
+          deputy: { long: 'Member of Government1', abbr: 'MG1' },
+          member: { long: 'Member of Government2', abbr: 'MG2' },
           reply: { long: 'Government Reply', abbr: 'GR' }
         },
         opp: {
           leader: { long: 'Leader of Opposition', abbr: 'LO' },
-          dupty: { long: 'Dupty Leader of Opposition', abbr: 'DLO' },
-          member: { long: 'Member of Opposition', abbr: 'MO' },
+          deputy: { long: 'Member of Opposition1', abbr: 'MO1' },
+          member: { long: 'Member of Opposition2', abbr: 'MO2' },
           reply: { long: 'Opposition Reply', abbr: 'OR' }
         }
       }
@@ -33,7 +33,7 @@ export default {
           best_debater: false,
           poi_prize: false
         },
-        dupty: {
+        deputy: {
           speaker_id: null,
           matter: 5,
           manner: 5,
@@ -67,7 +67,7 @@ export default {
           best_debater: false,
           poi_prize: false
         },
-        dupty: {
+        deputy: {
           speaker_id: null,
           matter: 5,
           manner: 5,
