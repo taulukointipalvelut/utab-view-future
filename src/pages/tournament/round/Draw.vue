@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
     section.page-header
-      h1 {{ round.name }}
+      h1 {{ round.round_name }}
       h3 Ctrl + Scroll to change scale
     section(v-if="draw_opened")
       el-table(stripe, :data="sorted_rows")
@@ -18,7 +18,7 @@
           template(scope="scope")
             .adjudicator(v-for="adjudicator in scope.row.trainees") {{ scope.row.trainees.length }}
     section(v-else)
-      p Draw for {{ round.name }} is not released.
+      p Draw for {{ round.round_name }} is not released.
 </template>
 
 <script>

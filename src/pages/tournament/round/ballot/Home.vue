@@ -2,7 +2,7 @@
   .router-view-content
     section.page-header
       h1 Score Sheet
-      h3 {{ round.name }}
+      h3 {{ round.round_name }}
     loading-container(:loading="loading")
     section(v-if="!loading && has_adjudicators")
       el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
@@ -28,7 +28,7 @@ import { smartphone } from 'assets/js/media-query.js'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'round', 'adjudicators', 'loading'],
+  props: ['tournament', 'round', 'loading'],
   components: {
     'loading-container': loading_container
   },
@@ -38,7 +38,7 @@ export default {
       return this.sorted_adjudicators && this.sorted_adjudicators.length > 0
     },
     sorted_adjudicators () {
-      return this.adjudicators.slice().sort((a, b) => {
+      return this.tournament.adjudicators.slice().sort((a, b) => {
         if (a.done && !b.done) {
           return 1;
         } else if (!a.done && b.done) {
@@ -56,8 +56,8 @@ export default {
       })
     },
     percentage (): number {
-      const adjudicators_done = this.adjudicators.filter((x) => x.done)
-      return Math.round((adjudicators_done.length / this.adjudicators.length) * 1000) / 10
+      const adjudicators_done = this.tournament.adjudicators.filter((x) => x.done)
+      return Math.round((adjudicators_done.length / this.tournament.adjudicators.length) * 1000) / 10
     },
     success (): string {
       return this.percentage >= 100 ? 'success' : ''

@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="tournament")
     section.page-header
-      h1 {{ tournament.name }}
+      h1 {{ tournament.tournament_name }}
     section
       link-list
         router-link(to="audience")
@@ -12,8 +12,8 @@
           link-list-item Adjudicators
       link-list(:loading="loading", no_item_text="No Round Available")
         legend(slot="legend") Rounds
-        router-link(v-for="round in rounds", :key="round", :to="round.href", v-if="!loading")
-          link-list-item {{ round.name }}
+        router-link(v-for="round in tournament.rounds", :key="round.round_num", :to="round.href", v-if="!loading")
+          link-list-item {{ round.round_name }}
 </template>
 
 <script>
@@ -26,10 +26,10 @@ export default {
     'link-list': link_list,
     'link-list-item': link_list_item
   },
-  props: ['tournament', 'rounds', 'loading'],
+  props: ['tournament', 'loading'],
   computed: {
     has_rounds () {
-      return this.rounds && this.rounds.length > 0
+      return this.tournament.rounds && this.tournament.rounds.length > 0
     },
     ...mapState([
       'auth'

@@ -4,8 +4,8 @@
       h1 Adjudicators
     section
       loading-container(:loading="loading", no_item_text="No Round Available")
-        link-list(v-for="round in rounds", :key="round", v-if="!loading")
-          legend(slot="legend") {{ round.name }}
+        link-list(v-for="round in tournament.rounds", :key="round", v-if="!loading")
+          legend(slot="legend") {{ round.round_name }}
           router-link(:to="url(round, 'draw')")
             link-list-item Draw &amp; Allocation
           router-link(:to="url(round, 'ballot')")
@@ -19,7 +19,7 @@ import link_list_item from 'components/link-list-item'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'rounds', 'loading'],
+  props: ['tournament', 'loading'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item,
@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     has_rounds () {
-      return this.rounds && this.rounds.length > 0
+      return this.tournament.rounds && this.tournament.rounds.length > 0
     },
     ...mapState([
       'auth'

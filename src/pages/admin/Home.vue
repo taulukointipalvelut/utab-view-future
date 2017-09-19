@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content
     h1 Welcome!
-    
+
     loading-container(:loading="loading")
       section
         legend Tournaments
@@ -25,19 +25,19 @@
         span(v-if="!loading") No Styles Available
       .operations(v-if="!loading")
         el-button(type="primary") #[el-icon(name="plus")] &nbsp;Define New Style
-    
+
     el-dialog(title="Create New Tournament", :visible.sync="dialog.create.visible")
       .dialog-body
         el-form(ref="dialog_create_form", :model="dialog.create.form.model", :rules="dialog.create.form.rules")
           el-form-item(label="ID", prop="id")
-            el-input(type="number", v-model="dialog.create.form.model.id")
-          el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.create.form.model.name")
+            el-input(type="number", :value="dialog.create.form.model.id", @input="value => dialog.create.form.model.id = parseInt(value)")
+          el-form-item(label="Name", prop="tournament_name")
+            el-input(v-model="dialog.create.form.model.tournament_name")
           el-form-item(label="Style", prop="style_name")
             el-select(placeholder="Select style", v-model="dialog.create.form.model.style_name")
               el-option(label="PDA", value="PDA")
           el-form-item(label="Number of Rounds", prop="round_num")
-            el-input(type="number", v-model="dialog.create.form.model.round_num")
+            el-input(type="number", :value="dialog.create.form.model.round_num", @input="value => dialog.create.form.model.round_num = parseInt(value)")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
@@ -46,8 +46,8 @@
         el-form(ref="dialog_edit_form", :model="dialog.edit.form.model", :rules="dialog.edit.form.rules")
           el-form-item(label="ID", prop="id")
             el-input(type="number", v-model="dialog.edit.form.model.id")
-          el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.edit.form.model.name")
+          el-form-item(label="Name", prop="tournament_name")
+            el-input(v-model="dialog.edit.form.model.tournament_name")
           el-form-item(label="Style", prop="style_name")
             el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_name")
               el-option(label="PDA", value="PDA")
@@ -77,7 +77,7 @@ export default {
           form: {
             model: {
               id: '',
-              name: '',
+              tournament_name: '',
               style_name: '',
               round_num: ''
             },
@@ -86,7 +86,7 @@ export default {
                 { required: true, message: 'Please input Tournament ID' },
                 { type: 'integer', min: 0, message: 'Tournament ID must be a positive integer' }
               ],
-              name: [
+              tournament_name: [
                 { required: true, message: 'Please input Tournamrnt Name' }
               ],
               style_name: [
@@ -105,7 +105,7 @@ export default {
           form: {
             model: {
               id: '',
-              name: '',
+              tournament_name: '',
               style_name: '',
               round_num: ''
             },
@@ -114,7 +114,7 @@ export default {
                 { required: true, message: 'Please input Tournament ID' },
                 { type: 'integer', min: 0, message: 'Tournament ID must be a positive integer' }
               ],
-              name: [
+              tournament_name: [
                 { required: true, message: 'Please input Tournamrnt Name' }
               ],
               style_name: [
@@ -169,7 +169,7 @@ export default {
           console.log(valid)
           const tournament = Object.assign({}, this.dialog.create.form.model)
           tournament.style = { name: this.dialog.create.form.model.style_name }
-          tournament.href = { path: `/${ tournament.name }` }
+          tournament.href = { path: `/${ tournament.tournament_name }` }
           console.log(tournament)
           this.add_tournament({ tournament: tournament })
           this.dialog.create.loading = false
@@ -219,7 +219,7 @@ export default {
     color inherit
   main
     padding 5%
-    
+
   @media (min-width: 600px)
     main
       max-width 600px

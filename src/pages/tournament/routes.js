@@ -10,7 +10,7 @@ export default [{
     path: 'home',
     component: Home
   }, {
-    path: ':round_name',
+    path: ':round_num',
     props: true,
     component: Round,
     children: round_routes

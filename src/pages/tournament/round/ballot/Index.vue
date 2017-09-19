@@ -1,6 +1,6 @@
 <template lang="pug">
   .router-view-content
-    router-view(:tournament="tournament", :round="round", :adjudicators="adjudicators", :loading="loading")
+    router-view(:tournament="tournament", :round="round", :loading="loading")
 </template>
 
 <script>
@@ -15,8 +15,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'auth',
-      'adjudicators'
+      'auth'
     ]),
     ...mapGetters([
       'isAuth'

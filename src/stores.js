@@ -9,51 +9,23 @@ export default {
         logout: { to: '/logout' }
       }
     },
-    tournaments: [],
-    rounds: [],
-    teams: [],
-    adjudicators: [],
-    draw: [{
-      venue: '101',
-      gov: {
-        name: 'Team A'
-      },
-      opp: {
-        name: 'Team B'
-      },
-      chairs: [{
-        name: 'Adj A'
-      }],
-      panels: [{
-        name: 'Adj B'
-      }, {
-        name: 'Adj C'
-      }],
-      trainees: []
-    }, {
-      venue: '101',
-      gov: {
-        name: 'Team A'
-      },
-      opp: {
-        name: 'Team B'
-      },
-      chairs: [{
-        name: 'Adj A'
-      }],
-      panels: [{
-          name: 'Adj B'
-        }, {
-          name: 'Adj C'
-        }],
-      trainees: []
-    }]
+    tournaments: []
   },
   getters: {
     isAuth: state => { return (state.auth && state.auth.session) ? true: false; },
-    current_tournament: state => state.tournaments.find(tournament => tournament.name === state.route.params.tournament_name),
-    current_round: state => state.rounds.find(round => round.name === state.route.params.round_name),
-    current_adjudicator: state => state.adjudicators ? state.adjudicators.find(adjudicator => adjudicator.name === state.route.params.adjudicator_name) : null
+    target_tournament: state => {
+      return state.tournaments.find(t => t.tournament_name === state.route.params.tournament_name)
+    },
+    target_round: (state, getters) => {
+      if (getters.target_tournament) {
+        return getters.target_tournament.rounds ? getters.target_tournament.rounds.find(round => round.round_num === parseInt(state.route.params.round_num)) : null
+      } else {
+        return null
+      }
+    },
+    target_adjudicator: (state, getters) => {
+      return getters.target_tournament ? getters.target_tournament.adjudicators.find(adjudicator => adjudicator.name === state.route.params.adjudicator_name) : null
+    }
   },
   mutations: {
     /* auth.session */
@@ -64,54 +36,62 @@ export default {
     tournaments (state, payload) {
       state.tournaments = payload.tournaments
     },
-    add_tournaments (state, payload) {
+    /*add_tournaments (state, payload) {
       state.tournaments += payload.tournaments
-    },
+    },*/
     add_tournament (state, payload) {
       state.tournaments.push(payload.tournament)
     },
     delete_tournament (state, payload) {
-      state.tournaments = state.tournaments.filter(x => x.id !== payload.tournament.id)
+      state.tournaments = state.tournaments.filter(t => t.tournament_name !== payload.tournament_name)
     },
     /* tournaments */
     rounds (state, payload) {
-      state.rounds = payload.rounds
+      let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+      tournament.rounds = payload.rounds
     },
-    add_rounds (state, payload) {
+    /*add_rounds (state, payload) {
       state.rounds += payload.rounds
-    },
+    },*/
     add_round (state, payload) {
-      state.rounds.push(payload.round)
+      let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+      tournament.rounds.push(payload.round)
     },
     delete_round (state, payload) {
-      state.rounds = state.rounds.filter(x => x.round_num !== payload.round.round_num)
+      let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+      tournament.rounds = state.tournaments[payload.tournament.tournament_name].rounds.filter(x => x.round_num !== payload.round.round_num)
     },
     /* adjudicators */
     adjudicators (state, payload) {
-      console.log(payload.adjudicators)
-      state.adjudicators = payload.adjudicators
-    },
+      let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+      tournament.adjudicators = payload.adjudicators
+    },/*
     add_adjudicators (state, payload) {
-      state.adjudicators += payload.adjudicators
-    },
+      state.tournaments[payload.tournament.tournament_name].adjudicators += payload.adjudicators
+    },*/
     add_adjudicator (state, payload) {
-      state.adjudicators.push(payload.adjudicator)
+      let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+      tournament.adjudicators.push(payload.adjudicator)
     },
     delete_adjudicator (state, payload) {
-      state.adjudicators = state.adjudicators.filter(x => x.id !== payload.adjudicator.id)
+      let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+      tournament.adjudicators = tournament.adjudicators.filter(x => x.id !== payload.adjudicator.id)
     },
     /* teams */
     teams (state, payload) {
-      state.teams = payload.teams
-    },
+      let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+      tournament.teams = payload.teams
+    },/*
     add_teams (state, payload) {
-      state.teams += payload.teams
-    },
+      state.tournaments[payload.tournament.tournament_name].teams += payload.teams
+    },*/
     add_team (state, payload) {
-      state.teams.push(payload.team)
+      let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+      tournament.teams.push(payload.team)
     },
     delete_team (state, payload) {
-      state.teams = state.teams.filter(x => x.id !== payload.team.id)
+      let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+      tournament.teams = tournament.teams.filter(x => x.id !== payload.team.id)
     }
   },
   actions: {
@@ -120,50 +100,102 @@ export default {
         setTimeout(() => {
           const tournaments = [{
             id: 284,
-            name: 'PDA Tournament 2018',
+            tournament_name: 'PDA Tournament 2018',
             href: { path: '/PDA Tournament 2018' },
             current_round_num: 1,
             total_round_num: 4,
+            rounds: [],
+            teams: [],
+            adjudicators: [],
+            draw: [{
+              venue: '101',
+              gov: {
+                name: 'Team A'
+              },
+              opp: {
+                name: 'Team B'
+              },
+              chairs: [{
+                name: 'Adj A'
+              }],
+              panels: [{
+                name: 'Adj B'
+              }, {
+                name: 'Adj C'
+              }],
+              trainees: []
+            }, {
+              venue: '101',
+              gov: {
+                name: 'Team A'
+              },
+              opp: {
+                name: 'Team B'
+              },
+              chairs: [{
+                name: 'Adj A'
+              }],
+              panels: [{
+                  name: 'Adj B'
+                }, {
+                  name: 'Adj C'
+                }],
+              trainees: []
+            }],
             style: {
-              name: 'PDA'
+              score_weights: [
+                1,
+                0.5,
+                0.5,
+                1
+              ],
+              positions_short: [
+                "Gov",
+                "Opp"
+              ],
+              positions: [
+                "Government",
+                "Opposition"
+              ],
+              team_num: 2,
+              name: "PDA3",
+              id: "PDA3"
             }
-          }, {
-            id: 283,
-            name: 'PDA Tournament 2017',
-            href: { path: '/PDA Tournament 2017' }
           }]
+
           commit('tournaments', { tournaments })
           resolve()
-        }, 2000)
+        }, 1000)
       })
     },
     init_rounds ({ state, commit, dispatch }, payload) {
       return new Promise(async (resolve, reject) => {
-        if (!state.tournaments || state.tournaments.length <= 0) {
+        if (state.tournaments.length === 0) {
           await dispatch('init_tournaments')
         }
         setTimeout(() => {
           const rounds = [{
-            name: 'Round 1',
-            href: { path: '/PDA Tournament 2018/Round 1' },
+            href: { path: '/PDA Tournament 2018/1' },
             round_num: 1,
+            round_name: "Round 1",
             draw_opened: true,
             allocation_opened: true,
-          }, {
-            name: 'Round 2',
-            href: { path: '/PDA Tournament 2018/Round 2' },
+          },
+          {
+            href: { path: '/PDA Tournament 2018/2' },
             round_num: 2,
+            round_name: "Round 2",
             draw_opened: false,
             allocation_opened: false
           }]
-          commit('rounds', { rounds })
+          commit('rounds', { tournament: {tournament_name: 'PDA Tournament 2018'}, rounds })
           resolve()
         }, 2000)
       })
     },
     init_adjudicators ({ state, commit, dispatch }, payload) {
       return new Promise(async (resolve, reject) => {
-        if (!state.tournaments || state.rounds.length <= 0) {
+        if (state.tournaments.length === 0) {
           await dispatch('init_tournaments')
         }
         setTimeout(() => {
@@ -203,14 +235,14 @@ export default {
             venue: 'Riso H-286',
             href: { to: `Adjudicator%204` }
           }]
-          commit('adjudicators', { adjudicators })
+          commit('adjudicators', { tournament: {tournament_name: 'PDA Tournament 2018'}, adjudicators })
           resolve()
         }, 2000)
       })
     },
     init_teams ({ state, commit, dispatch }, payload) {
       return new Promise(async (resolve, reject) => {
-        if (!state.tournaments || state.rounds.length <= 0) {
+        if (state.tournaments.length === 0) {
           await dispatch('init_tournaments')
         }
         setTimeout(() => {
@@ -244,7 +276,7 @@ export default {
                 name: 'Speaker 7'
               }]
           }]
-          commit('teams', { teams })
+          commit('teams', { tournament: {tournament_name: 'PDA Tournament 2018'}, teams })
           resolve()
         }, 2000)
       })

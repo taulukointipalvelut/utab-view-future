@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
     section.page-header
-      h1 {{ round.name }}
+      h1 {{ round.round_name }}
     section
       link-list
         legend(slot="legend") Audience

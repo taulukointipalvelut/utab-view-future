@@ -8,20 +8,21 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'rounds', 'round_name', 'loading'],
+  props: ['tournament', 'round_num', 'loading'],
   components: {
     'loading-container': loading_container
   },
   computed: {
     round () {
-      return this.current_round
+      return this.target_round
     },
     ...mapState([
       'auth'
     ]),
     ...mapGetters([
       'isAuth',
-      'current_round'
+      'target_tournament',
+      'target_round'
     ])
   }
 }

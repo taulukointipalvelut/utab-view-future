@@ -11,7 +11,7 @@
       nav: ul
         li.spacer
         li(v-if="tournament")
-          router-link(v-if="tournament.href", :to="tournament.href") {{ tournament.name }}
+          router-link(v-if="tournament.href", :to="tournament.href") {{ tournament.tournament_name }}
         li(v-if="login")
           router-link(:to="logout_href") Logout
         li(v-else)
@@ -102,7 +102,7 @@
       display flex
       justify-content space-between
       align-items center
-    
+
     & a,
     & button
       cursor pointer
@@ -110,15 +110,15 @@
     & #title
       margin-left 3.5%
       margin-right 1rem
-      
+
       & .nav-icon
         margin 1rem 0 1rem
         display inline-block
-        
+
         & a
           display block
           color white
-          
+
           & i.fa
             font-size 2rem
 
@@ -130,15 +130,15 @@
         line-height $line_height
         box-sizing border-box
         font-family "Oswald", sans-serif
-        
+
         &:hover
           background rgba(255, 255, 255, .2)
           cursor pointer
-        
+
         & a
           display block
           padding ($header_height - $line_height) 1rem 0
-    
+
       & .nav-collapse-arrow
         display none
 
@@ -148,7 +148,7 @@
       box-sizing border-box
       flex 1 0 auto
       text-align right
-  
+
       & ul
         list-style none
         margin 0
@@ -156,7 +156,7 @@
         box-sizing border-box
         display flex
         justify-content flex-end
-  
+
         & li.spacer
           flex 1
         & li
@@ -165,7 +165,7 @@
           line-height $line_height
           height $header_height
           padding 0
-          
+
           &:not(.spacer):hover
             cursor pointer
             background rgba(255, 255, 255, .2)
@@ -182,14 +182,14 @@
     $header_height = 3.5rem
     $line_height = $header_height - 3.5rem
     $caret_size = 8px
-    
+
     header
       justify-content space-between
       height $header_height
 
       & .header-container
         flex-direction column
-      
+
       & #title
         width 100%
         padding-left 10px
@@ -202,7 +202,7 @@
           height $header_height
           line-height 1.6
           flex 1
-          
+
           & a
             padding 0
 
@@ -212,7 +212,7 @@
           box-sizing border-box
           color white
           text-align right
-          
+
           & button
             padding 1.5rem 1rem 0
             display inline-block
@@ -230,7 +230,7 @@
         border $caret_size solid transparent
         border-top $caret_size solid #fff
         border-bottom 0 none transparent
-      
+
       & nav
         display none
         width 100%
@@ -241,10 +241,10 @@
         z-index 10
         box-sizing border-box
         margin $header_height 0 0
-        
+
         & ul
           display none
-    
+
     header[data-nav-opened]
       margin-bottom 100vh
 
@@ -256,16 +256,16 @@
 
       & nav
         display block
-        
+
         & ul
           display flex
           flex-direction column
-          
+
           & li.spacer
             height .3.5rem
           & li
             height auto
-            
+
             & a
               padding 1rem 1rem
               line-height 1

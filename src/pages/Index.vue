@@ -6,7 +6,7 @@
       link-list(:loading="loading", no_item_text="No Tournament Available")
         legend(slot="legend") Tournaments
         router-link(v-for="tournament in tournaments", :to="tournament.href", :key="tournament", v-if="!loading")
-          link-list-item {{ tournament.name }}
+          link-list-item {{ tournament.tournament_name }}
 </template>
 
 <script>
@@ -28,9 +28,6 @@ export default {
     }
   },
   computed: {
-    has_tournaments () {
-      return this.tournaments && this.tournaments.length > 0
-    },
     has_tournaments () {
       return this.tournaments && this.tournaments.length > 0
     },
@@ -71,7 +68,7 @@ export default {
     color inherit
   main
     padding 5%
-    
+
   @media (min-width: 600px)
     main
       max-width 600px

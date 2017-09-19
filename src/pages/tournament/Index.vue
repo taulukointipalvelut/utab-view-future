@@ -2,7 +2,7 @@
   #app-content(v-loading.fillscreen.lock="loading_tournament", element-loading-text="Loading...")
     utab-header(:login="isAuth", :tournament="tournament")
     main(v-if="tournament")
-      router-view(:tournament="tournament", :rounds="rounds", :loading="loading")
+      router-view(:tournament="tournament", :loading="loading")
 </template>
 
 <script>
@@ -30,7 +30,7 @@ export default {
       return this.tournament ? this.tournament.href : { to: '/home' }
     },
     tournament () {
-      return this.current_tournament
+      return this.target_tournament
     },
     ...mapState([
       'auth',
@@ -38,12 +38,12 @@ export default {
     ]),
     ...mapGetters([
       'isAuth',
-      'current_tournament'
+      'target_tournament'
     ])
   },
   methods: {
     url (...targets) {
-      return `${ this.tournament.name }/${ targets.join('/') }`
+      return `${ this.tournament.tournament_name }/${ targets.join('/') }`
     },
     ...mapActions([
       'init_rounds'

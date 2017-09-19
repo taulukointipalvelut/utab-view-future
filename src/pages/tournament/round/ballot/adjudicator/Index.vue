@@ -2,7 +2,7 @@
   loading-container.router-view-content(:loading="!round || !adjudicator", no_item_text="Fail to load round/adjudicator data")
     section.page-header(v-if="round && adjudicator")
       h1 {{ adjudicator.name }}
-      h3 {{ round.name }}
+      h3 {{ round.round_name }}
     section(v-if="round && adjudicator")
       el-steps(:active="current_step", finish-status="success", center)
         el-step(title="Speaker")
@@ -19,7 +19,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'round', 'adjudicators', 'adjudicator_name'],
+  props: ['tournament', 'round', 'adjudicator_name'],
   components: {
     'loading-container': loading_container
   },
@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     adjudicator () {
-      return this.current_adjudicator
+      return this.target_adjudicator
     },
     ...mapState([
       'auth',
@@ -38,7 +38,8 @@ export default {
     ]),
     ...mapGetters([
       'isAuth',
-      'current_adjudicator'
+      'target_tournament',
+      'target_adjudicator'
     ]),
     ...mapGetters('ballot', [
       'current_step'
@@ -56,10 +57,10 @@ export default {
     await this.init_teams({
       tournament: this.tournament,
       round: this.round,
-      adjudicator: this.adjudicator
+      adjudicator: this.tournament.adjudicator
     })
     await this.init_ballot({
-      teams: this.teams
+      teams: this.tournament.teams
     })
     this.loading = false
   }

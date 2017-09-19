@@ -18,7 +18,7 @@ export default [{
     props: true,
     component: Allocation
 /*  }, {
-    path: ':tournament_name/:round_name',
+    path: ':tournament_name/:round_num',
     props: true,
     component: Round
 */  }, {

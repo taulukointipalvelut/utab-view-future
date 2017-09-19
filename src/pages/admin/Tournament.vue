@@ -4,7 +4,7 @@ TODO: In edit dialog, need validation
 <template lang="pug">
   .router-view-content
     h1 {{ tournament_name }}
-    
+
     section
       legend Rounds
       loading-container(:loading="loading && !init_flag.rounds")
@@ -63,7 +63,7 @@ TODO: In edit dialog, need validation
       .dialog-footer(slot="footer")
         el-button(@click="dialog.team.visible = false") Cancel
         el-button(type="primary", :loading="dialog.team.loading", @click="on_create_team()") #[el-icon(name="plus", v-if="!dialog.team.loading")] Create
-    
+
     el-dialog(title="Edit Team", :visible.sync="dialog.team_edit.visible")
       .dialog-body
         el-form(ref="dialog_team_edit", :model="dialog.team_edit.form.model")
@@ -187,8 +187,8 @@ export default {
     ]),
     ...mapGetters([
       'isAuth',
-      'current_tournament',
-      'current_round'
+      'target_tournament'/*,
+      'target_round'*/
     ])
   },
   methods: {
@@ -199,9 +199,9 @@ export default {
       this.dialog.round.loading = true
       this.$refs.dialog_round.validate((valid) => {
         if (valid) {
-          const tournament = this.current_tournament
+          const tournament = this.target_tournament
           const round = Object.assign({}, this.dialog.round.form.model)
-          round.href = { path: `/${ tournament.name }/${ round.name }` }
+          round.href = { path: `/${ tournament.tournament_name }/${ round.round_num }` }
           this.add_round({ tournament, round })
           this.dialog.round.loading = false
           this.dialog.round.visible = false
@@ -214,7 +214,7 @@ export default {
     },
     async on_delete_round (selected) {
       const ans = await this.$confirm('Are you sure?')
-      const tournament = this.current_tournament
+      const tournament = this.target_tournament
       if (ans) {
         this.delete_round({ tournament, round: selected })
       }
@@ -225,9 +225,9 @@ export default {
     },
     on_update_round () {
       this.dialog.round_edit.loading = true
-      const tournament = this.current_tournament
+      const tournament = this.target_tournament
       const round = Object.assign({}, this.dialog.round_edit.form.model)
-      round.href = { path: `/${ tournament.name }/${ round.name }` }
+      round.href = { path: `/${ tournament.tournament_name }/${ round.round_num }` }
       this.delete_round({ tournament, round })
       this.add_round({ tournament, round })
       this.dialog.round_edit.loading = false
@@ -242,9 +242,9 @@ export default {
       this.dialog.team.loading = true
       this.$refs.dialog_team.validate((valid) => {
         if (valid) {
-          const tournament = this.current_tournament
+          const tournament = this.target_tournament
           const team = Object.assign({}, this.dialog.team.form.model)
-          team.href = { path: `/${ tournament.name }/${ team.name }` }
+          team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
           this.add_team({ tournament, team })
           this.dialog.team.loading = false
           this.dialog.team.visible = false
@@ -257,7 +257,7 @@ export default {
     },
     async on_delete_team (selected) {
       const ans = await this.$confirm('Are you sure?')
-      const tournament = this.current_tournament
+      const tournament = this.target_tournament
       if (ans) {
         this.delete_team({ tournament, team: selected })
       }
@@ -268,9 +268,9 @@ export default {
     },
     on_update_team () {
       this.dialog.team_edit.loading = true
-      const tournament = this.current_tournament
+      const tournament = this.target_tournament
       const team = Object.assign({}, this.dialog.team_edit.form.model)
-      team.href = { path: `/${ tournament.name }/${ team.name }` }
+      team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
       this.delete_team({ tournament, team })
       this.add_team({ tournament, team })
       this.dialog.team_edit.loading = false
@@ -292,7 +292,7 @@ export default {
     ])
   },
   mounted () {
-    const tournament = this.current_tournament
+    const tournament = this.target_tournament
     this.init_rounds({ tournament }).then(() => {
       this.init_flag.rounds = true
     })
@@ -321,7 +321,7 @@ export default {
     color inherit
   main
     padding 5%
-    
+
   @media (min-width: 600px)
     main
       max-width 600px
