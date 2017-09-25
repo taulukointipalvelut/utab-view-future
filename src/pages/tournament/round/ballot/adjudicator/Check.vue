@@ -72,13 +72,13 @@
         .outer-table.no-border
           .outer-table-tr
             .outer-table-td.label Winner
-            .outer-table-td.winner {{ gov.team.name | defaults('Not specified yet') }}
+            .outer-table-td.winner {{ winner | defaults('Not specified yet') }}
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
           .outer-table-tr.check__label
-            .outer-table-td.label Confirmation
+            .outer-table-td.label I declare the result above is correct
             .outer-table-td
-              el-checkbox(v-model="confirmed")
+              el-checkbox(v-model="confirmed") Yes
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
