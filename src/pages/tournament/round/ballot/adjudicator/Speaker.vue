@@ -46,7 +46,7 @@ import { smartphone } from 'assets/js/media-query'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'round', 'adjudicator', 'teams', 'loading'],
+  props: ['tournament', 'round', 'adjudicator', 'loading'],
   components: {
     'loading-container': loading_container
   },
@@ -55,7 +55,7 @@ export default {
       return true//Object.values(this.gov.result).every(role => role.speaker_id) && Object.values(this.opp.result).every(role => role.speaker_id)
     },
     has_teams () {
-      return this.teams && this.teams.length > 0
+      return this.tournament.teams && this.tournament.teams.length > 0
     },
     ...mapState([
       'auth'

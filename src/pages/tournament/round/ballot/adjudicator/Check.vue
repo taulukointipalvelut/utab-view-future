@@ -75,16 +75,14 @@
             .outer-table-td.winner {{ gov.team.name | defaults('Not specified yet') }}
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
-          .outer-table-tr.sign__label
-            .outer-table-td.label Signature
-          .outer-table-tr.sign
+          .outer-table-tr.check__label
+            .outer-table-td.label Confirmation
             .outer-table-td
-              input.sign__input(type="text", v-model="signature", :placeholder="adjudicator.name")
-              p.notice Enter your name to confirm the validity of this ballot
+              el-checkbox(v-model="confirmed")
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :loading="sending", :disabled="loading || !sendable") {{ sending ? 'Sending...' : 'Send' }} #[i.fa.fa-paper-plane]
+      el-button(type="primary" @click="on_next", :loading="sending", :disabled="loading || !confirmed") {{ sending ? 'Sending...' : 'Send' }} #[i.fa.fa-paper-plane]
 </template>
 
 <script>
@@ -94,7 +92,7 @@ import loading_container from 'components/loading-container'
 import input_label from 'components/input-label'
 
 export default {
-  props: ['tournament', 'round', 'adjudicator', 'teams', 'loading'],
+  props: ['tournament', 'round', 'adjudicator', 'loading'],
   components: {
     'loading-container': loading_container,
     'input-label': input_label
@@ -102,15 +100,12 @@ export default {
   data () {
     return {
       sending: false,
-      signature: ''
+      confirmed: false
     }
   },
   computed: {
-    sendable () {
-      return this.signature.toLocaleLowerCase() === this.adjudicator.name.toLocaleLowerCase()
-    },
     has_teams () {
-      return this.teams && this.teams.length > 0
+      return this.tournament.teams && this.tournament.teams.length > 0
     },
     ...mapState([
       'auth'
@@ -162,40 +157,40 @@ export default {
 <style lang="stylus" scoped>
   .outer-table,
     display block
-    
+
     & .outer-table-tr
       display flex
       justify-content space-between
       padding-bottom 1rem
       margin-bottom 1rem
-      
+
       &:last-child
         padding-bottom 0
         margin-bottom 0
-      
+
       & .outer-table-td
         overflow hidden
         white-space nowrap
         text-overflow ellipsis
         display inline-block
         margin-right 1rem
-        
+
         &:last-child
           margin-right 0
-        
+
         &.flex
           width 75%
 
     &:not(.no-border) .outer-table-tr
         border-bottom 1px solid #dadada
-        
+
         &:last-child
           border-bottom 0 none transparent
-      
+
   .inner-table,
   .inner-table-td
     display inline-block
-  
+
   .outer-table,
   .inner-table
     width 100%
@@ -203,13 +198,13 @@ export default {
   .inner-table-tr
     display flex
     justify-content space-between
-  
+
   .result .inner-table-tr:not(.speaker)
       color rgba(0,0,0,.54)
 
   .right
     text-align right
-  
+
   .total
     border-top 1px dotted #dadada
 
@@ -219,22 +214,22 @@ export default {
     text-overflow ellipsis
     font-weight bold
     margin-bottom 1rem
-  
+
   .role .inner-table-tr
     margin-bottom 1rem
 
   i.fa.small
     font-size .75em
-  
+
   .el-card.flat
     width 100%
     margin-bottom 2rem
-  
+
   .winner
     width 50%
     font-weight bold
-  
-  .outer-table .outer-table-tr.sign__label
+
+  .outer-table .outer-table-tr.check__label
     margin-bottom 0
     padding-bottom 0
 
@@ -249,7 +244,7 @@ export default {
     text-align right
     font-size: 1.3em;
     font-family: 'Rochester', cursive;
-  
+
   .notice
     width 100%
     text-align right
