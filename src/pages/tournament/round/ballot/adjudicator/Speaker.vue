@@ -52,7 +52,7 @@ export default {
   },
   computed: {
     sendable () {
-      return true//Object.values(this.gov.result).every(role => role.speaker_id) && Object.values(this.opp.result).every(role => role.speaker_id)
+      return Object.values(this.gov.result).every(role => role.speaker_id) && Object.values(this.opp.result).every(role => role.speaker_id)
     },
     has_teams () {
       return this.tournament.teams && this.tournament.teams.length > 0

@@ -42,7 +42,7 @@ export default {
   computed: {
     smartphone: smartphone,
     sendable () {
-      return true
+      return this.result.speaker_id
     },
     total_score () {
       return this.result.matter + this.result.manner
@@ -117,7 +117,7 @@ export default {
 
   .el-form-item__content
     width 100%
-    
+
     & .input-label
       text-align center
 
