@@ -10,6 +10,7 @@
       </el-form-item>
       <el-form-item label="Password" prop="password">
         <el-input placeholder="Please enter Password" v-model="ruleForm.password" type="password" @keyup.enter="onLogin"></el-input>
+        <span class="fail-text" v-if="login_failed">Incorrect Name or Password</span>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onLogin" :loading="loading">{{ loading ? 'Loading...' : 'Login' }}</el-button>
@@ -28,6 +29,7 @@
       return {
         logo: logo,
         loading: false,
+        login_failed: false,
         ruleForm: {
           user_name: '',
           password: ''
@@ -51,11 +53,12 @@
         this.loading = true
         this.$refs.ruleForm.validate(async (valid) => {
           if (valid) {
-            const isAuth = await this.login({ user_name: this.user_name, password: this.password })
+            const isAuth = await this.login({ user_name: this.ruleForm.user_name, password: this.ruleForm.password })
             if (isAuth) {
               const next = this.$route.query.next
               this.$router.push(next ? next : '/')
             } else {
+              this.login_failed = true
               this.error = 'Unable to login'
             }
           }
@@ -85,6 +88,10 @@
   .logo-text {
     display: inline-block;
     font-family: "Oswald", sans-serif;
+  }
+  .fail-text {
+    display: inline-block;
+    color: red;
   }
   @media (min-width: 600px) {
     .login-card {

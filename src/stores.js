@@ -286,12 +286,18 @@ export default {
         if (state.auth.session) {
           await dispatch('logout', { session: state.auth.session })
         }
-        let session = null;
-        setTimeout(() => {
-          session = 'c0rjqc+as-wAJwkfj2jrdKSDqce2-qo'
-          commit('session', { session })
-          resolve(true)
-        }, 2000)
+        let session = null
+        if (payload.user_name === "admin" && payload.password === "nimda") {
+          setTimeout(() => {
+            session = 'c0rjqc+as-wAJwkfj2jrdKSDqce2-qo'
+            commit('session', { session })
+            resolve(true)
+          }, 2000)
+        } else {
+          setTimeout(() => {
+            resolve(false)
+          }, 2000)
+        }
       })
     },
     logout ({ state, commit, dispatch }, payload) {
