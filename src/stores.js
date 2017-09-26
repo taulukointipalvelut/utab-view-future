@@ -1,5 +1,7 @@
 import ballot from 'pages/tournament/round/ballot/adjudicator/stores'
 
+let API_BASE_URL = 'http://localhost:7024'
+
 export default {
   state: {
     auth: {
@@ -96,7 +98,28 @@ export default {
   },
   actions: {
     init_tournaments ({ commit }) {
-      return new Promise((resolve, reject) => {
+        return fetch(API_BASE_URL+'/tournaments')
+            .then(response => response.json())
+            .then(function (response) {
+                const tournaments_fetched = response.data
+                let tournaments = []
+                for (let t_fetched of tournaments_fetched) {
+                    tournaments.push({
+                        id: t_fetched.id,
+                        tournament_name: t_fetched.name,
+                        href: { path: '/'+t_fetched.name },
+                        current_round_num: t_fetched.current_round_num,
+                        total_round_num: t_fetched.total_round_num,
+                        rounds: [],
+                        teams: [],
+                        adjudicators: [],
+                        draws: [],
+                        style: t_fetched.style
+                    })
+                }
+                commit('tournaments', { tournaments })
+            })
+/*      return new Promise((resolve, reject) => {
         setTimeout(() => {
           const tournaments = [{
             id: 284,
@@ -174,10 +197,33 @@ export default {
           commit('tournaments', { tournaments })
           resolve()
         }, 1000)
-      })
+    })*/
     },
     init_rounds ({ state, commit, dispatch }, payload) {
-      return new Promise(async (resolve, reject) => {
+        let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
+
+        return p
+            .then(function() {
+                for (let t of state.tournaments) {
+                    fetch(API_BASE_URL+'/tournaments/'+t.id+'/rounds')
+                        .then(response => response.json())
+                        .then(function (response) {
+                            const rounds = []
+                            for (let round_fetched of response.data) {
+                                let round = {
+                                    href: { path: '/'+t.tournament_name+'/rounds/'+round_fetched.r },
+                                    r: round_fetched.r,
+                                    round_name: "Round "+round_fetched.r,
+                                    draw_opened: true,
+                                    allocation_opened: true
+                                }
+                                rounds.push(round)
+                            }
+                            commit('rounds', { tournament: {tournament_name: t.tournament_name}, rounds })
+                        })
+                }
+            })
+      /*return new Promise(async (resolve, reject) => {
         if (state.tournaments.length === 0) {
           await dispatch('init_tournaments')
         }
@@ -199,9 +245,31 @@ export default {
           commit('rounds', { tournament: {tournament_name: 'PDA Tournament 2018'}, rounds })
           resolve()
         }, 2000)
-      })
+      })*/
     },
     init_adjudicators ({ state, commit, dispatch }, payload) {
+        let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
+        return p
+            .then(function() {
+                for (let t of state.tournaments) {
+                    fetch(API_BASE_URL+'/tournaments/'+t.id+'/adjudicators')
+                        .then(response => response.json())
+                        .then(function (response) {
+                            let adjudicators = []
+                            for (let a_fetched of response.data) {
+                                let adjudicator = {
+                                    id: a_fetched.id,
+                                    done: false,
+                                    name: a_fetched.name,
+                                    href: { to: a_fetched.name }
+                                }
+                                adjudicators.push(adjudicator)
+                            }
+                            commit('adjudicators', { tournament: {tournament_name: t.tournament_name}, adjudicators })
+                        })
+                }
+            })
+        /*
       return new Promise(async (resolve, reject) => {
         if (state.tournaments.length === 0) {
           await dispatch('init_tournaments')
@@ -246,9 +314,30 @@ export default {
           commit('adjudicators', { tournament: {tournament_name: 'PDA Tournament 2018'}, adjudicators })
           resolve()
         }, 2000)
-      })
+    })*/
     },
     init_teams ({ state, commit, dispatch }, payload) {
+        let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
+        return p
+            .then(function() {
+                for (let t of state.tournaments) {
+                    fetch(API_BASE_URL+'/tournaments/'+t.id+'/teams')
+                        .then(response => response.json())
+                        .then(function (response) {
+                            let teams = []
+                            for (let t_fetched of response.data) {
+                                let team = {
+                                    id: t_fetched.id,
+                                    name: t_fetched.name,
+                                    details: t_fetched.details
+                                }
+                                teams.push(team)
+                            }
+                            commit('teams', { tournament: {tournament_name: t.tournament_name}, teams })
+                        })
+                }
+            })
+        /*
       return new Promise(async (resolve, reject) => {
         if (state.tournaments.length === 0) {
           await dispatch('init_tournaments')
@@ -287,7 +376,7 @@ export default {
           commit('teams', { tournament: {tournament_name: 'PDA Tournament 2018'}, teams })
           resolve()
         }, 2000)
-      })
+    })*/
     },
     login ({ state, commit, dispatch }, payload) {
       return new Promise(async (resolve, reject) => {
