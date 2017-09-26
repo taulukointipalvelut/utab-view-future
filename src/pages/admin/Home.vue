@@ -7,7 +7,7 @@
         legend Tournaments
         el-table(:data="tournaments", @current-change="on_select_tournament", :row-class-name="row_class_name", v-if="!loading && has_tournaments")
           el-table-column(prop="id", label="ID", width="60", align="right")
-          el-table-column(prop="name", label="Name", show-overflow-tooltip)
+          el-table-column(prop="tournament_name", label="Name", show-overflow-tooltip)
           el-table-column(prop="style.name", label="Style")
           el-table-column(label="Rounds", width="100", align="right")
             template(scope="scope")

@@ -21,7 +21,7 @@ TODO: In edit dialog, need validation
     section
       legend Teams
       loading-container(:loading="loading && !init_flag.teams")
-        el-table(:data="target_tournament.teams", @row-click="on_select_team")
+        el-table(:data="target_tournament.teams.slice().sort((t1, t2) => t1.id > t2.id)", @row-click="on_select_team")
           el-table-column(prop="id", label="ID", width="60", align="center")
           el-table-column(prop="name", label="Name", show-overflow-tooltip)
           el-table-column
@@ -56,8 +56,6 @@ TODO: In edit dialog, need validation
     el-dialog(title="Add New Team", :visible.sync="dialog.team.visible")
       .dialog-body
         el-form(ref="dialog_team", :model="dialog.team.form.model", :rules="dialog.team.form.rules")
-          el-form-item(label="ID", prop="id")
-            el-input(type="number", v-model="dialog.team.form.model.id")
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.team.form.model.name")
       .dialog-footer(slot="footer")
@@ -67,8 +65,6 @@ TODO: In edit dialog, need validation
     el-dialog(title="Edit Team", :visible.sync="dialog.team_edit.visible")
       .dialog-body
         el-form(ref="dialog_team_edit", :model="dialog.team_edit.form.model")
-          el-form-item(label="ID", prop="id")
-            el-input(type="number", v-model="dialog.team_edit.form.model.id", readonly)
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.team_edit.form.model.name")
       .dialog-footer(slot="footer")
@@ -97,6 +93,7 @@ export default {
     const this_rounds = new Lazy(() => this.target_tournament.rounds, false)
     const this_teams = new Lazy(() => this.target_tournament.teams, false)
     return {
+      team_selected: undefined,
       init_flag: {
         rounds: false,
         teams: false,
@@ -143,15 +140,9 @@ export default {
           visible: false,
           form: {
             model: {
-              id: '',
               name: ''
             },
             rules: {
-              id: [
-                { required: true, message: 'Please input ID' },
-                { validator: validators(is_integer, is_nonzero, is_positive), min: 0, message: 'ID must be a positive integer' },
-                { validator: validators(not(is_exists(this_teams, 'id', Number))), message: 'This ID already exists' }
-              ],
               name: [
                 { required: true, message: 'Please input Name' },
                 { validator: validators(not(is_exists(this_teams, 'name'))), message: 'This Name already exists' }
@@ -164,7 +155,6 @@ export default {
           visible: false,
           form: {
             model: {
-              id: '',
               name: ''
             }
           }
@@ -233,8 +223,8 @@ export default {
       this.$refs.dialog_round_edit.resetFields()
     },
     on_select_team (selected, ev, col) {
-      console.log(selected)
-      this.$router.push(selected.href)
+      this.team_selected = selected
+      //this.$router.push(selected.href)
     },
     on_create_team () {
       this.dialog.team.loading = true
@@ -243,7 +233,7 @@ export default {
           const tournament = this.target_tournament
           const team = Object.assign({}, this.dialog.team.form.model)
           team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
-          this.add_team({ tournament, team })
+          this.add_teams({ tournament, teams: [team] })
           this.dialog.team.loading = false
           this.dialog.team.visible = false
           this.$refs.dialog_team.resetFields()
@@ -256,8 +246,8 @@ export default {
     async on_delete_team (selected) {
       const ans = await this.$confirm('Are you sure?')
       const tournament = this.target_tournament
-      if (ans) {
-        this.delete_team({ tournament, team: selected })
+      if (ans === 'confirm') {
+        this.delete_team({ tournament, team: this.team_selected })
       }
     },
     on_edit_team (selected) {
@@ -279,11 +269,11 @@ export default {
       'add_round',
       'delete_round',
       'add_adjudicator',
-      'delete_adjudicator',
-      'add_team',
-      'delete_team'
+      'delete_adjudicator'
     ]),
     ...mapActions([
+      'add_teams',
+      'delete_team',
       'init_rounds',
       'init_adjudicators',
       'init_teams'

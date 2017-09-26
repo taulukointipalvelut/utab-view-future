@@ -83,13 +83,10 @@ export default {
     teams (state, payload) {
       let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
       tournament.teams = payload.teams
-    },/*
+    },
     add_teams (state, payload) {
-      state.tournaments[payload.tournament.tournament_name].teams += payload.teams
-    },*/
-    add_team (state, payload) {
       let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
-      tournament.teams.push(payload.team)
+      tournament.teams = tournament.teams.concat(payload.teams)
     },
     delete_team (state, payload) {
       let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
@@ -97,7 +94,47 @@ export default {
     }
   },
   actions: {
-    init_tournaments ({ commit }) {
+      add_teams ({state, commit, dispatch}, payload) {
+        let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+        let teams = []
+        let id_diff = 1
+        for (let t of payload.teams) {
+            let team = {
+                id: tournament.teams.length+id_diff,
+                name: t.name,
+                details: [{
+                    "r": 1,
+                    "debaters": [
+                        7,
+                        8,
+                        9
+                    ],
+                    "institutions": [
+                        3
+                    ],
+                    "available": true
+                }]
+            }
+            id_diff += 1
+            teams.push(team)
+        }
+
+        fetch(API_BASE_URL+'/tournaments/'+tournament.id+'/teams', {
+            method: 'POST',
+            body: JSON.stringify(teams),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+        }).then(() => commit('add_teams', { tournament, teams }))
+      },
+      delete_team ({state, commit, dispatch}, payload) {
+        let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+        fetch(API_BASE_URL+'/tournaments/'+tournament.id+'/teams/'+payload.team.id, {
+            method: 'DELETE'
+        }).then(() => commit('delete_team', { tournament, team: payload.team }))
+      },
+      init_tournaments ({ commit }) {
         return fetch(API_BASE_URL+'/tournaments')
             .then(response => response.json())
             .then(function (response) {
