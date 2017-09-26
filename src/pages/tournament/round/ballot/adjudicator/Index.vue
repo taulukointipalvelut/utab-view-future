@@ -56,7 +56,6 @@ export default {
   async mounted () {
     await this.init_teams({
       tournament: this.tournament,
-      round: this.round,
       adjudicator: this.tournament.adjudicator
     })
     await this.init_ballot({

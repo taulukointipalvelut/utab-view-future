@@ -9,8 +9,8 @@ TODO: In edit dialog, need validation
       legend Rounds
       loading-container(:loading="loading && !init_flag.rounds")
         el-table(:data="target_tournament.rounds", @row-click="on_select_round")
-          el-table-column(prop="round_num", label="No.", width="60", align="right")
-          el-table-column(prop="name", label="Name", show-overflow-tooltip)
+          el-table-column(prop="r", label="No.", width="60", align="center")
+          el-table-column(prop="round_name", label="Name", show-overflow-tooltip)
           el-table-column
             template(scope="scope")
               el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")] Edit
@@ -22,7 +22,7 @@ TODO: In edit dialog, need validation
       legend Teams
       loading-container(:loading="loading && !init_flag.teams")
         el-table(:data="target_tournament.teams", @row-click="on_select_team")
-          el-table-column(prop="id", label="ID", width="60", align="right")
+          el-table-column(prop="id", label="ID", width="60", align="center")
           el-table-column(prop="name", label="Name", show-overflow-tooltip)
           el-table-column
             template(scope="scope")
@@ -34,8 +34,8 @@ TODO: In edit dialog, need validation
     el-dialog(title="Add New Round", :visible.sync="dialog.round.visible")
       .dialog-body
         el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
-          el-form-item(label="Round No.", prop="round_num")
-            el-input(type="number", v-model="dialog.round.form.model.round_num")
+          el-form-item(label="Round No.", prop="r")
+            el-input(type="number", v-model="dialog.round.form.model.r")
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.round.form.model.name")
       .dialog-footer(slot="footer")
@@ -45,8 +45,8 @@ TODO: In edit dialog, need validation
     el-dialog(title="Edit Round", :visible.sync="dialog.round_edit.visible")
       .dialog-body
         el-form(ref="dialog_round_edit", :model="dialog.round_edit.form.model")
-          el-form-item(label="Round No.", prop="round_num")
-            el-input(type="number", v-model="dialog.round_edit.form.model.round_num", readonly)
+          el-form-item(label="Round No.", prop="r")
+            el-input(type="number", v-model="dialog.round_edit.form.model.r", readonly)
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.round_edit.form.model.name")
       .dialog-footer(slot="footer")
@@ -112,18 +112,18 @@ export default {
           form: {
             model: {
               name: '',
-              round_num: ''
+              r: ''
             },
             rules: {
               name: [
                 { required: true, message: 'Please input Name' },
                 { validator: validators(not(is_exists(this_rounds, 'name'))), message: 'This Round Name already exists' }
               ],
-              round_num: [
+              r: [
                 { required: true, message: 'Please input Round Number' },
                 { min: 0, message: 'Round Number must be a positive integer' },
                 { validator: validators(is_integer, is_nonzero, is_positive), message: 'Round Number must be a positive integer' },
-                { validator: validators(not(is_exists(this_rounds, 'round_num', Number))), message: 'This Round Number already exists' }
+                { validator: validators(not(is_exists(this_rounds, 'r', Number))), message: 'This Round Number already exists' }
               ]
             }
           }
@@ -134,7 +134,7 @@ export default {
           form: {
             model: {
               name: '',
-              round_num: ''
+              r: ''
             }
           }
         },
@@ -199,7 +199,7 @@ export default {
         if (valid) {
           const tournament = this.target_tournament
           const round = Object.assign({}, this.dialog.round.form.model)
-          round.href = { path: `/${ tournament.tournament_name }/${ round.round_num }` }
+          round.href = { path: `/${ tournament.tournament_name }/rounds/${ round.r }` }
           this.add_round({ tournament, round })
           this.dialog.round.loading = false
           this.dialog.round.visible = false
@@ -225,7 +225,7 @@ export default {
       this.dialog.round_edit.loading = true
       const tournament = this.target_tournament
       const round = Object.assign({}, this.dialog.round_edit.form.model)
-      round.href = { path: `/${ tournament.tournament_name }/${ round.round_num }` }
+      round.href = { path: `/${ tournament.tournament_name }/rounds/${ round.r }` }
       this.delete_round({ tournament, round })
       this.add_round({ tournament, round })
       this.dialog.round_edit.loading = false

@@ -36,8 +36,8 @@
           el-form-item(label="Style", prop="style_name")
             el-select(placeholder="Select style", v-model="dialog.create.form.model.style_name")
               el-option(label="PDA", value="PDA")
-          el-form-item(label="Number of Rounds", prop="round_num")
-            el-input(type="number", :value="dialog.create.form.model.round_num", @input="value => dialog.create.form.model.round_num = parseInt(value)")
+          el-form-item(label="Number of Rounds", prop="r")
+            el-input(type="number", :value="dialog.create.form.model.r", @input="value => dialog.create.form.model.r = parseInt(value)")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
@@ -51,8 +51,8 @@
           el-form-item(label="Style", prop="style_name")
             el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_name")
               el-option(label="PDA", value="PDA")
-          el-form-item(label="Number of Rounds", prop="round_num")
-            el-input(type="number", v-model="dialog.edit.form.model.round_num")
+          el-form-item(label="Number of Rounds", prop="r")
+            el-input(type="number", v-model="dialog.edit.form.model.r")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.edit.visible = false") Cancel
         el-button(type="primary", :loading="dialog.edit.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
@@ -79,7 +79,7 @@ export default {
               id: '',
               tournament_name: '',
               style_name: '',
-              round_num: ''
+              r: ''
             },
             rules: {
               id: [
@@ -92,7 +92,7 @@ export default {
               style_name: [
                 { required: true, message: 'Please select Tournamrnt\'s Style' }
               ],
-              round_num: [
+              r: [
                 { required: true, message: 'Please input Number of Rounds' },
                 { type: 'integer', min: 0, message: 'Number of Rounds must be a positive integer' }
               ]
@@ -107,7 +107,7 @@ export default {
               id: '',
               tournament_name: '',
               style_name: '',
-              round_num: ''
+              r: ''
             },
             rules: {
               id: [
@@ -120,7 +120,7 @@ export default {
               style_name: [
                 { required: true, message: 'Please select Tournamrnt\'s Style' }
               ],
-              round_num: [
+              r: [
                 { required: true, message: 'Please input Number of Rounds' },
                 { type: 'integer', min: 0, message: 'Number of Rounds must be a positive integer' }
               ]

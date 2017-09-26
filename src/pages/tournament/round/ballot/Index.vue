@@ -28,8 +28,7 @@ export default {
   },
   mounted () {
     this.init_adjudicators({
-      tournament: this.tournament,
-      round: this.round
+      tournament: this.tournament
     }).then(() => {
         this.loading = false
       })

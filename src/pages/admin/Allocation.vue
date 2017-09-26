@@ -2,9 +2,9 @@
   .router-view-content
     section.page-header
       h1 Allocation
-      h3 Round 1
+      h3 Round {{ draw.r }}
     section
-      el-table(:data="tableData")
+      el-table(:data="draw.allocation")
         el-table-column(label="Venue")
           template(scope="scope")
             draggable.adj-list(v-model="scope.row.venues", :options="{ group: { name: 'venue' } }", @start="drag=true", @end="drag=false")
@@ -47,29 +47,32 @@ export default {
   data () {
     return {
       loading: true,
-      tableData: [{
-        venues: ['101'],
-        gov: [{
-          name: 'Team A'
-        }],
-        opp: [{
-          name: 'Team B'
-        }],
-        chairs: [],
-        panels: [],
-        trainees: []
-      }, {
-        venues: ['102'],
-        gov: [{
-          name: 'Team C'
-        }],
-        opp: [{
-          name: 'Team D'
-        }],
-        chairs: [],
-        panels: [],
-        trainees: []
-      }]
+      draw: {
+        r: 3,
+        allocation: [{
+            venues: ['101'],
+            gov: [{
+              name: 'Team A'
+            }],
+            opp: [{
+              name: 'Team B'
+            }],
+            chairs: [],
+            panels: [],
+            trainees: []
+          }, {
+            venues: ['102'],
+            gov: [{
+              name: 'Team C'
+            }],
+            opp: [{
+              name: 'Team D'
+            }],
+            chairs: [],
+            panels: [],
+            trainees: []
+          }]
+        }
     }
   },
   computed: {

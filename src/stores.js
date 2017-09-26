@@ -18,7 +18,7 @@ export default {
     },
     target_round: (state, getters) => {
       if (getters.target_tournament) {
-        return getters.target_tournament.rounds ? getters.target_tournament.rounds.find(round => round.round_num === parseInt(state.route.params.round_num)) : null
+        return getters.target_tournament.rounds ? getters.target_tournament.rounds.find(round => round.r === parseInt(state.route.params.r)) : null
       } else {
         return null
       }
@@ -59,7 +59,7 @@ export default {
     },
     delete_round (state, payload) {
       let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
-      tournament.rounds = state.tournaments[payload.tournament.tournament_name].rounds.filter(x => x.round_num !== payload.round.round_num)
+      tournament.rounds = state.tournaments[payload.tournament.tournament_name].rounds.filter(x => x.r !== payload.round.r)
     },
     /* adjudicators */
     adjudicators (state, payload) {
@@ -107,41 +107,49 @@ export default {
             rounds: [],
             teams: [],
             adjudicators: [],
-            draw: [{
-              venue: '101',
-              gov: {
-                name: 'Team A'
-              },
-              opp: {
-                name: 'Team B'
-              },
-              chairs: [{
-                name: 'Adj A'
-              }],
-              panels: [{
-                name: 'Adj B'
-              }, {
-                name: 'Adj C'
-              }],
-              trainees: []
-            }, {
-              venue: '101',
-              gov: {
-                name: 'Team A'
-              },
-              opp: {
-                name: 'Team B'
-              },
-              chairs: [{
-                name: 'Adj A'
-              }],
-              panels: [{
-                  name: 'Adj B'
-                }, {
-                  name: 'Adj C'
-                }],
-              trainees: []
-            }],
+            draws: [
+                {
+                    r: 1,
+                    allocation: [{
+                        venue: '101',
+                        gov: {
+                          name: 'Team A'
+                        },
+                        opp: {
+                          name: 'Team B'
+                        },
+                        chairs: [{
+                          name: 'Adj A'
+                        }],
+                        panels: [{
+                          name: 'Adj B'
+                        }, {
+                          name: 'Adj C'
+                        }],
+                        trainees: []
+                    }]
+                },{
+                    r: 2,
+                    allocation: [{
+                        venue: '101',
+                        gov: {
+                          name: 'Team A'
+                        },
+                        opp: {
+                          name: 'Team B'
+                        },
+                        chairs: [{
+                          name: 'Adj A'
+                        }],
+                        panels: [{
+                            name: 'Adj B'
+                          }, {
+                            name: 'Adj C'
+                          }],
+                        trainees: []
+                    }]
+                }
+            ],
             style: {
               score_weights: [
                 1,
@@ -175,15 +183,15 @@ export default {
         }
         setTimeout(() => {
           const rounds = [{
-            href: { path: '/PDA Tournament 2018/1' },
-            round_num: 1,
+            href: { path: '/PDA Tournament 2018/rounds/1' },
+            r: 1,
             round_name: "Round 1",
             draw_opened: true,
             allocation_opened: true,
           },
           {
-            href: { path: '/PDA Tournament 2018/2' },
-            round_num: 2,
+            href: { path: '/PDA Tournament 2018/rounds/2' },
+            r: 2,
             round_name: "Round 2",
             draw_opened: false,
             allocation_opened: false
@@ -260,7 +268,7 @@ export default {
                 name: 'Speaker 3'
               }]
             }, {
-              id: 3,
+              id: 2,
               name: 'Team B',
               speakers: [{
                 id: 4,

@@ -8,7 +8,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'round_num', 'loading'],
+  props: ['tournament', 'loading'],
   components: {
     'loading-container': loading_container
   },

@@ -12,7 +12,7 @@
           link-list-item Adjudicators
       link-list(:loading="loading", no_item_text="No Round Available")
         legend(slot="legend") Rounds
-        router-link(v-for="round in tournament.rounds", :key="round.round_num", :to="round.href", v-if="!loading")
+        router-link(v-for="round in tournament.rounds", :key="round.r", :to="round.href", v-if="!loading")
           link-list-item {{ round.round_name }}
 </template>
 

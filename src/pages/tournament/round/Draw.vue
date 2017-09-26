@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
     section.page-header
-      h1 {{ round.round_name }}
+      h1 {{ current_round.round_name }}
       h3 Ctrl + Scroll to change scale
     section(v-if="draw_opened")
       el-table(stripe, :data="sorted_rows")
@@ -18,7 +18,7 @@
           template(scope="scope")
             .adjudicator(v-for="adjudicator in scope.row.trainees") {{ scope.row.trainees.length }}
     section(v-else)
-      p Draw for {{ round.round_name }} is not released.
+      p Draw for {{ current_round }} is not released.
 </template>
 
 <script>
@@ -27,7 +27,7 @@ import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
 
 export default {
-  props: ['tournament', 'round', 'loading'],
+  props: ['tournament', 'loading'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item
@@ -36,18 +36,23 @@ export default {
     return {}
   },
   computed: {
+    current_round () {
+      return this.tournament.rounds.find(round => round.r === this.tournament.current_round_num)
+    },
     sorted_rows () {
-      return this.draw.slice().sort((a, b) => a.venue.localeCompare(b.venue))
+      return this.tournament.draws.find(d => d.r === this.tournament.current_round_num).allocation
+        .slice().sort((a, b) => a.venue.localeCompare(b.venue))
     },
     draw_opened () {
-      return this.round.draw_opened
+      let current_round = this.tournament.rounds.find(round => round.r === this.tournament.current_round_num)
+      return current_round.draw_opened
     },
     allocation_opened () {
-      return this.round.allocation_opened
+      let current_round = this.tournament.rounds.find(round => round.r === this.tournament.current_round_num)
+      return current_round.allocation_opened
     },
     ...mapState([
-      'auth',
-      'draw'
+      'auth'
     ]),
     ...mapGetters([
       'isAuth'
