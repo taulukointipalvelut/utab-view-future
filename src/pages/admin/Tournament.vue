@@ -8,7 +8,7 @@ TODO: In edit dialog, need validation
     section
       legend Rounds
       loading-container(:loading="loading && !init_flag.rounds")
-        el-table(:data="rounds", @row-click="on_select_round")
+        el-table(:data="target_tournament.rounds", @row-click="on_select_round")
           el-table-column(prop="round_num", label="No.", width="60", align="right")
           el-table-column(prop="name", label="Name", show-overflow-tooltip)
           el-table-column
@@ -21,7 +21,7 @@ TODO: In edit dialog, need validation
     section
       legend Teams
       loading-container(:loading="loading && !init_flag.teams")
-        el-table(:data="teams", @row-click="on_select_team")
+        el-table(:data="target_tournament.teams", @row-click="on_select_team")
           el-table-column(prop="id", label="ID", width="60", align="right")
           el-table-column(prop="name", label="Name", show-overflow-tooltip)
           el-table-column
@@ -94,8 +94,8 @@ export default {
   },
   props: ['tournaments', 'loading', 'tournament_name'],
   data () {
-    const this_rounds = new Lazy(() => this.rounds, false)
-    const this_teams = new Lazy(() => this.teams, false)
+    const this_rounds = new Lazy(() => this.target_tournament.rounds, false)
+    const this_teams = new Lazy(() => this.target_tournament.teams, false)
     return {
       init_flag: {
         rounds: false,
@@ -174,15 +174,13 @@ export default {
   },
   computed: {
     has_rounds () {
-      return this.rounds && this.rounds.length > 0
+      return this.target_tournament.rounds && this.target_tournament.rounds.length > 0
     },
     has_teams () {
-      return this.teams && this.teams.length > 0
+      return this.target_tournament.eams && this.target_tournament.eams.length > 0
     },
     ...mapState([
       'auth',
-      'rounds',
-      'teams',
       'adjudicators'
     ]),
     ...mapGetters([
