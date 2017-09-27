@@ -76,6 +76,14 @@ TODO: In edit dialog, need validation
         el-form(ref="dialog_team", :model="dialog.team.form.model", :rules="dialog.team.form.rules")
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.team.form.model.name")
+          el-form-item(label="Available", prop="available")
+            el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.available")
+          el-form-item(label="Speakers", prop="speakers")
+            el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.speakers[index]")
+              el-option(v-for="speaker in target_tournament.speakers", :key="speaker.id", :value="speaker.id", :label="speaker.name")
+          el-form-item(label="Institutions", prop="institutions")
+            el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.institutions[index]")
+              el-option(v-for="institution in target_tournament.institutions", :key="institution.id", :value="institution.id", :label="institution.name")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.team.visible = false") Cancel
         el-button(type="primary", :loading="dialog.team.loading", @click="on_create_team()") #[el-icon(name="plus", v-if="!dialog.team.loading")] Create
@@ -171,7 +179,10 @@ export default {
           visible: false,
           form: {
             model: {
-              name: ''
+              name: '',
+              available: true,
+              speakers: [null, null, null, null],
+              institutions: [null, null, null, null]
             },
             rules: {
               name: [
@@ -286,8 +297,19 @@ export default {
       this.$refs.dialog_team.validate((valid) => {
         if (valid) {
           const tournament = this.target_tournament
-          const team = Object.assign({}, this.dialog.team.form.model)
-          team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
+          let team = {
+            name: this.dialog.team.form.model.name,
+            id: this.dialog.team.form.model.id,
+            details: [...Array(this.target_tournament.total_round_num).keys()].map(num => {
+              return {
+                r: num+1,
+                debaters: this.dialog.team.form.model.speakers.filter(id => id !== null),
+                institutions: this.dialog.team.form.model.institutions.filter(id => id !== null),
+                available: this.dialog.team.form.model.available
+              }
+            })
+          }
+          //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
           this.add_teams({ tournament, teams: [team] })
           this.dialog.team.loading = false
           this.dialog.team.visible = false

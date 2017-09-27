@@ -121,18 +121,7 @@ export default {
             let team = {
                 id: tournament.teams.length+id_diff,
                 name: t.name,
-                details: [{
-                    r: 1,
-                    debaters: [
-                        7,
-                        8,
-                        9
-                    ],
-                    institutions: [
-                        3
-                    ],
-                    available: true
-                }]
+                details: t.details
             }
             id_diff += 1
             teams.push(team)
@@ -159,7 +148,7 @@ export default {
         let id_diff = 1
         for (let t of payload.adjudicators) {
             let adjudicator = {
-                id: tournament.adjudicators.length+id_diff,
+                id: -tournament.adjudicators.length-id_diff,
                 name: t.name,
                 details: [{
                     r: 1,
@@ -222,6 +211,20 @@ export default {
             rounds: [],
             teams: [],
             adjudicators: [],
+            speakers: [{
+                id: 1,
+                name: "Speaker 1"
+            }, {
+                id: 2,
+                name: "Speaker 2"
+            }],
+            institutions: [{
+                id: 1,
+                name: "Institution 1"
+            }, {
+                id: 2,
+                name: "Institution 2"
+            }],
             draws: [
                 {
                     r: 1,
@@ -390,31 +393,31 @@ export default {
         }
         setTimeout(() => {
           const adjudicators = [{
-            id: 1,
+            id: -1,
             name: 'Adjudicator 1',
             href: { to: `Adjudicator%201` }
           }, {
-            id: 2,
+            id: -2,
             name: 'Adjudicator 2',
             href: { to: `Adjudicator%202` }
           }, {
-            id: 5,
+            id: -5,
             name: 'Adjudicator 5',
             href: { to: `Adjudicator%205` }
           }, {
-            id: 3,
+            id: -3,
             name: 'Adjudicator 3',
             href: { to: `Adjudicator%203` }
           }, {
-            id: 6,
+            id: -6,
             name: 'Adjudicator 6',
             href: { to: `Adjudicator%206` }
           }, {
-            id: 7,
+            id: -7,
             name: 'Adjudicator 7',
             href: { to: `Adjudicator%207` }
           }, {
-            id: 4,
+            id: -4,
             name: 'Adjudicator 4',
             href: { to: `Adjudicator%204` }
           }]

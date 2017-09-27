@@ -2,7 +2,6 @@
   .router-view-content(v-if="!loading")
     section.page-header
       h1 {{ current_round.round_name }}
-      h3 Ctrl + Scroll to change scale
     section(v-if="draw_opened")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue", prop="venue")
