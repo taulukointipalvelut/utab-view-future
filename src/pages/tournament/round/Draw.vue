@@ -6,8 +6,12 @@
     section(v-if="draw_opened")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue", prop="venue")
-        el-table-column(label="Gov", prop="gov.name")
-        el-table-column(label="Opp", prop="opp.name")
+        el-table-column(label="Gov")
+          template(scope="scope")
+            span {{ scope.row.teams[0].name }}
+        el-table-column(label="Opp")
+          template(scope="scope")
+            span {{ scope.row.teams[1].name }}
         el-table-column.adjudicator-container(label="Chair", v-if="allocation_opened")
           template(scope="scope")
             .adjudicator(v-for="adjudicator in scope.row.chairs") {{ adjudicator.name }}

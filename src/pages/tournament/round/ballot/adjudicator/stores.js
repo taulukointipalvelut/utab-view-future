@@ -116,7 +116,10 @@ export default {
   },
   actions: {
     init_ballot ({ commit, rootState }, payload) {
-      commit('teams', payload)
+        commit('teams', payload)
+    },
+    send_ballot ({ commit, rootState }, payload) {
+        //pass
     }
   }
 }
