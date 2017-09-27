@@ -27,6 +27,28 @@ export default {
     },
     target_adjudicator: (state, getters) => {
       return getters.target_tournament ? getters.target_tournament.adjudicators.find(adjudicator => adjudicator.name === state.route.params.adjudicator_name) : null
+    },
+    target_draw: (state, getters) => {
+        return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r))
+    },
+    target_score_sheets: (state, getters) => {
+        let allocation = getters.target_draw.allocation
+        let score_sheets = []
+        for (let square of allocation) {
+            for (let adjudicator of [].concat(square.chairs).concat(square.panels)) {
+                let score_sheet = {
+                    done: false,
+                    gov: square.teams[0],
+                    opp: square.teams[1],
+                    adjudicator,
+                    venue: square.venue,
+                    chair: adjudicator.id in square.chairs.map(c => c.id) ? true : false,
+                    href: { to: adjudicator.name }
+                }
+                score_sheets.push(score_sheet)
+            }
+        }
+        return score_sheets
     }
   },
   mutations: {
@@ -67,13 +89,10 @@ export default {
     adjudicators (state, payload) {
       let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
       tournament.adjudicators = payload.adjudicators
-    },/*
+    },
     add_adjudicators (state, payload) {
-      state.tournaments[payload.tournament.tournament_name].adjudicators += payload.adjudicators
-    },*/
-    add_adjudicator (state, payload) {
       let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
-      tournament.adjudicators.push(payload.adjudicator)
+      tournament.adjudicators = tournament.adjudicators.concat(payload.adjudicators)
     },
     delete_adjudicator (state, payload) {
       let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
@@ -103,16 +122,16 @@ export default {
                 id: tournament.teams.length+id_diff,
                 name: t.name,
                 details: [{
-                    "r": 1,
-                    "debaters": [
+                    r: 1,
+                    debaters: [
                         7,
                         8,
                         9
                     ],
-                    "institutions": [
+                    institutions: [
                         3
                     ],
-                    "available": true
+                    available: true
                 }]
             }
             id_diff += 1
@@ -134,8 +153,44 @@ export default {
             method: 'DELETE'
         }).then(() => commit('delete_team', { tournament, team: payload.team }))
       },
+      add_adjudicators ({state, commit, dispatch}, payload) {
+        let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+        let adjudicators = []
+        let id_diff = 1
+        for (let t of payload.adjudicators) {
+            let adjudicator = {
+                id: tournament.adjudicators.length+id_diff,
+                name: t.name,
+                details: [{
+                    r: 1,
+                    conflicts: [
+                        1
+                    ],
+                    institutions: [],
+                    available: true
+                }]
+            }
+            id_diff += 1
+            adjudicators.push(adjudicator)
+        }
+
+        fetch(API_BASE_URL+'/tournaments/'+tournament.id+'/adjudicators', {
+            method: 'POST',
+            body: JSON.stringify(adjudicators),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+        }).then(() => commit('add_adjudicators', { tournament, adjudicators }))
+      },
+      delete_adjudicator ({state, commit, dispatch}, payload) {
+        let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+        fetch(API_BASE_URL+'/tournaments/'+tournament.id+'/adjudicators/'+payload.adjudicator.id, {
+            method: 'DELETE'
+        }).then(() => commit('delete_adjudicator', { tournament, adjudicator: payload.adjudicator }))
+      },
       init_tournaments ({ commit }) {
-        return fetch(API_BASE_URL+'/tournaments')
+        /*return fetch(API_BASE_URL+'/tournaments')
             .then(response => response.json())
             .then(function (response) {
                 const tournaments_fetched = response.data
@@ -155,8 +210,8 @@ export default {
                     })
                 }
                 commit('tournaments', { tournaments })
-            })
-/*      return new Promise((resolve, reject) => {
+            })*/
+      return new Promise((resolve, reject) => {
         setTimeout(() => {
           const tournaments = [{
             id: 284,
@@ -172,19 +227,34 @@ export default {
                     r: 1,
                     allocation: [{
                         venue: '101',
-                        gov: {
-                          name: 'Team A'
-                        },
-                        opp: {
-                          name: 'Team B'
+                        teams: {
+                            0: {
+                                id: 0,
+                                name: 'Team A',
+                                speakers: [{
+                                    name: "hi",
+                                    id: 3
+                                }]
+                            },
+                            1: {
+                                id: 1,
+                                name: 'Team B',
+                                speakers: [{
+                                    name: "hi",
+                                    id: 3
+                                }]
+                            },
                         },
                         chairs: [{
-                          name: 'Adj A'
+                            id: 0,
+                            name: 'Adjudicator 1'
                         }],
                         panels: [{
-                          name: 'Adj B'
+                            id: 1,
+                            name: 'Adjudicator 2'
                         }, {
-                          name: 'Adj C'
+                            id: 2,
+                            name: 'Adjudicator 3'
                         }],
                         trainees: []
                     }]
@@ -192,20 +262,27 @@ export default {
                     r: 2,
                     allocation: [{
                         venue: '101',
-                        gov: {
-                          name: 'Team A'
-                        },
-                        opp: {
-                          name: 'Team B'
+                        teams: {
+                            0: {
+                                id: 0,
+                                name: 'Team A'
+                            },
+                            1: {
+                                id: 1,
+                                name: 'Team B'
+                            },
                         },
                         chairs: [{
-                          name: 'Adj A'
+                            id: 0,
+                            name: 'Adjudicator 1'
                         }],
                         panels: [{
-                            name: 'Adj B'
-                          }, {
-                            name: 'Adj C'
-                          }],
+                            id: 1,
+                            name: 'Adjudicator 2'
+                        }, {
+                            id: 2,
+                            name: 'Adjudicator 3'
+                        }],
                         trainees: []
                     }]
                 }
@@ -234,10 +311,10 @@ export default {
           commit('tournaments', { tournaments })
           resolve()
         }, 1000)
-    })*/
+    })
     },
     init_rounds ({ state, commit, dispatch }, payload) {
-        let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
+        /*let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
 
         return p
             .then(function() {
@@ -259,8 +336,8 @@ export default {
                             commit('rounds', { tournament: {tournament_name: t.tournament_name}, rounds })
                         })
                 }
-            })
-      /*return new Promise(async (resolve, reject) => {
+            })*/
+      return new Promise(async (resolve, reject) => {
         if (state.tournaments.length === 0) {
           await dispatch('init_tournaments')
         }
@@ -281,11 +358,11 @@ export default {
           }]
           commit('rounds', { tournament: {tournament_name: 'PDA Tournament 2018'}, rounds })
           resolve()
-        }, 2000)
-      })*/
+        }, 1000)
+      })
     },
     init_adjudicators ({ state, commit, dispatch }, payload) {
-        let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
+        /*let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
         return p
             .then(function() {
                 for (let t of state.tournaments) {
@@ -306,7 +383,7 @@ export default {
                         })
                 }
             })
-        /*
+        */
       return new Promise(async (resolve, reject) => {
         if (state.tournaments.length === 0) {
           await dispatch('init_tournaments')
@@ -350,11 +427,11 @@ export default {
           }]
           commit('adjudicators', { tournament: {tournament_name: 'PDA Tournament 2018'}, adjudicators })
           resolve()
-        }, 2000)
-    })*/
+      }, 1000)
+    })
     },
     init_teams ({ state, commit, dispatch }, payload) {
-        let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
+        /*let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
         return p
             .then(function() {
                 for (let t of state.tournaments) {
@@ -374,7 +451,7 @@ export default {
                         })
                 }
             })
-        /*
+        */
       return new Promise(async (resolve, reject) => {
         if (state.tournaments.length === 0) {
           await dispatch('init_tournaments')
@@ -412,8 +489,8 @@ export default {
           }]
           commit('teams', { tournament: {tournament_name: 'PDA Tournament 2018'}, teams })
           resolve()
-        }, 2000)
-    })*/
+      }, 1000)
+    })
     },
     login ({ state, commit, dispatch }, payload) {
       return new Promise(async (resolve, reject) => {
@@ -426,11 +503,11 @@ export default {
             session = 'c0rjqc+as-wAJwkfj2jrdKSDqce2-qo'
             commit('session', { session })
             resolve(true)
-          }, 2000)
+          }, 1000)
         } else {
           setTimeout(() => {
             resolve(false)
-          }, 2000)
+          }, 1000)
         }
       })
     },
@@ -440,7 +517,7 @@ export default {
         setTimeout(() => {
           commit('session', { session: null })
           resolve(true)
-        }, 2000)
+        }, 1000)
       })
     }
   },

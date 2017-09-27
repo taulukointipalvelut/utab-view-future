@@ -31,6 +31,19 @@ TODO: In edit dialog, need validation
         .operations
           el-button(type="primary", @click="dialog.team.visible = true") #[el-icon(name="plus")] &nbsp;Add New Team
 
+    section
+      legend Adjudicators
+      loading-container(:loading="loading && !init_flag.adjudicators")
+        el-table(:data="target_tournament.adjudicators.slice().sort((a1, a2) => a1.id > a2.id)", @row-click="on_select_adjudicator")
+          el-table-column(prop="id", label="ID", width="60", align="center")
+          el-table-column(prop="name", label="Name", show-overflow-tooltip)
+          el-table-column
+            template(scope="scope")
+              el-button(size="small", @click="on_edit_adjudicator(scope.row)") #[el-icon(name="edit")] Edit
+              el-button(size="small", type="danger", @click="on_delete_adjudicator(scope.row)") #[el-icon(name="close")] Delete
+        .operations
+          el-button(type="primary", @click="dialog.adjudicator.visible = true") #[el-icon(name="plus")] &nbsp;Add New Adjudicator
+
     el-dialog(title="Add New Round", :visible.sync="dialog.round.visible")
       .dialog-body
         el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
@@ -62,6 +75,15 @@ TODO: In edit dialog, need validation
         el-button(@click="dialog.team.visible = false") Cancel
         el-button(type="primary", :loading="dialog.team.loading", @click="on_create_team()") #[el-icon(name="plus", v-if="!dialog.team.loading")] Create
 
+    el-dialog(title="Add New Adjudicator", :visible.sync="dialog.adjudicator.visible")
+      .dialog-body
+        el-form(ref="dialog_adjudicator", :model="dialog.adjudicator.form.model", :rules="dialog.adjudicator.form.rules")
+          el-form-item(label="Name", prop="name")
+            el-input(v-model="dialog.adjudicator.form.model.name")
+      .dialog-footer(slot="footer")
+        el-button(@click="dialog.adjudicator.visible = false") Cancel
+        el-button(type="primary", :loading="dialog.adjudicator.loading", @click="on_create_adjudicator()") #[el-icon(name="plus", v-if="!dialog.adjudicator.loading")] Create
+
     el-dialog(title="Edit Team", :visible.sync="dialog.team_edit.visible")
       .dialog-body
         el-form(ref="dialog_team_edit", :model="dialog.team_edit.form.model")
@@ -92,8 +114,10 @@ export default {
   data () {
     const this_rounds = new Lazy(() => this.target_tournament.rounds, false)
     const this_teams = new Lazy(() => this.target_tournament.teams, false)
+    const this_adjudicators = new Lazy(() => this.target_tournament.adjudicators, false)
     return {
       team_selected: undefined,
+      adjudicator_selected: undefined,
       init_flag: {
         rounds: false,
         teams: false,
@@ -151,6 +175,30 @@ export default {
           }
         },
         team_edit: {
+          loading: false,
+          visible: false,
+          form: {
+            model: {
+              name: ''
+            }
+          }
+        },
+        adjudicator: {
+          loading: false,
+          visible: false,
+          form: {
+            model: {
+              name: ''
+            },
+            rules: {
+              name: [
+                { required: true, message: 'Please input Name' },
+                { validator: validators(not(is_exists(this_adjudicators, 'name'))), message: 'This Name already exists' }
+              ]
+            }
+          }
+        },
+        adjudicator_edit: {
           loading: false,
           visible: false,
           form: {
@@ -250,6 +298,33 @@ export default {
         this.delete_team({ tournament, team: this.team_selected })
       }
     },
+    on_select_adjudicator (selected, ev, col) {
+      this.adjudicator_selected = selected
+    },
+    on_create_adjudicator () {
+      this.dialog.adjudicator.loading = true
+      this.$refs.dialog_adjudicator.validate((valid) => {
+        if (valid) {
+          const tournament = this.target_tournament
+          const adjudicator = Object.assign({}, this.dialog.adjudicator.form.model)
+          adjudicator.href = { path: `/${ tournament.tournament_name }/${ adjudicator.name }` }
+          this.add_adjudicators({ tournament, adjudicators: [adjudicator] })
+          this.dialog.adjudicator.loading = false
+          this.dialog.adjudicator.visible = false
+          this.$refs.dialog_adjudicator.resetFields()
+        } else {
+          this.dialog.adjudicator.loading = false
+          return false
+        }
+      })
+    },
+    async on_delete_adjudicator (selected) {
+      const ans = await this.$confirm('Are you sure?')
+      const tournament = this.target_tournament
+      if (ans === 'confirm') {
+        this.delete_adjudicator({ tournament, adjudicator: this.adjudicator_selected })
+      }
+    },
     on_edit_team (selected) {
       this.dialog.team_edit.form.model = Object.assign({}, selected)
       this.dialog.team_edit.visible = true
@@ -267,13 +342,13 @@ export default {
     },
     ...mapMutations([
       'add_round',
-      'delete_round',
-      'add_adjudicator',
-      'delete_adjudicator'
+      'delete_round'
     ]),
     ...mapActions([
       'add_teams',
       'delete_team',
+      'add_adjudicators',
+      'delete_adjudicator',
       'init_rounds',
       'init_adjudicators',
       'init_teams'

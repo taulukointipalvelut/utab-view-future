@@ -130,7 +130,7 @@ export default {
       setTimeout(() => {
         this.sending = false
         this.$router.push('done')
-      }, 2000)
+      }, 1000)
     },
     total (side) {
       return Object.values(side.result).map(x => x.matter + x.manner).reduce((a, b) => a + b, 0)

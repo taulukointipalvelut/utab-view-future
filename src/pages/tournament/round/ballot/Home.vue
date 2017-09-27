@@ -7,16 +7,16 @@
     section(v-if="!loading && has_adjudicators")
       el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
     section(v-if="!loading && has_adjudicators")
-      el-table(:data="sorted_adjudicators", @current-change="on_select", :row-class-name="row_class_name")
+      el-table(:data="score_sheets", @current-change="on_select", :row-class-name="row_class_name")
         el-table-column(prop="done", label="", width="40", align="center")
           template(scope="scope")
             span.icon-ok(v-if="scope.row.done")
               el-icon(name="check")
             span(v-else)
               el-icon(name="edit")
-        el-table-column(prop="name", label="Name")
+        el-table-column(prop="adjudicator", label="Name")
           template(scope="scope")
-            span {{ scope.row.name }} #[i.fa.fa-user-secret(v-if="scope.row.role === 'chair'")]
+            span {{ scope.row.adjudicator.name }} #[i.fa.fa-user-secret(v-if="scope.row.chair")] 
         el-table-column(prop="venue", label="Venue", v-if="!smartphone")
     section(v-if="!loading && !has_adjudicators")
       span No Adjudicators Available
@@ -25,6 +25,7 @@
 <script>
 /* @flow */
 import { smartphone } from 'assets/js/media-query.js'
+import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
@@ -33,6 +34,9 @@ export default {
     'loading-container': loading_container
   },
   computed: {
+    ...mapGetters([
+      'target_score_sheets'
+    ]),
     smartphone: smartphone,
     has_adjudicators () {
       return this.sorted_adjudicators && this.sorted_adjudicators.length > 0
@@ -55,9 +59,12 @@ export default {
         return 0
       })
     },
+    score_sheets () {
+      return this.target_score_sheets
+    },
     percentage (): number {
-      const adjudicators_done = this.tournament.adjudicators.filter((x) => x.done)
-      return Math.round((adjudicators_done.length / this.tournament.adjudicators.length) * 1000) / 10
+      const score_sheets_done = this.target_score_sheets.filter(ss => ss.done)
+      return Math.round((score_sheets_done.length / this.target_score_sheets.length) * 1000) / 10
     },
     success (): string {
       return this.percentage >= 100 ? 'success' : ''

@@ -10,7 +10,7 @@
         el-step(title="Winner")
         el-step(title="Check")
         el-step(title="Done")
-    router-view(v-if="round && adjudicator", :tournament="tournament", :round="round", :adjudicator="adjudicator", :teams="teams", :loading="loading")
+    router-view(v-if="round && adjudicator", :tournament="tournament", :round="round", :score_sheet="score_sheet", :loading="loading")
 </template>
 
 <script>
@@ -33,17 +33,20 @@ export default {
       return this.target_adjudicator
     },
     ...mapState([
-      'auth',
-      'teams'
+      'auth'
     ]),
     ...mapGetters([
       'isAuth',
       'target_tournament',
-      'target_adjudicator'
+      'target_adjudicator',
+      'target_score_sheets'
     ]),
     ...mapGetters('ballot', [
       'current_step'
-    ])
+    ]),
+    score_sheet() {
+      return this.target_score_sheets.find(ss => ss.adjudicator.name === this.target_adjudicator.name)
+    }
   },
   methods: {
     ...mapActions([
@@ -54,13 +57,8 @@ export default {
     ])
   },
   async mounted () {
-    await this.init_teams({
-      tournament: this.tournament,
-      adjudicator: this.tournament.adjudicator
-    })
-    await this.init_ballot({
-      teams: this.tournament.teams
-    })
+    await this.init_teams()
+    await this.init_ballot({ score_sheet: this.score_sheet })
     this.loading = false
   }
 }

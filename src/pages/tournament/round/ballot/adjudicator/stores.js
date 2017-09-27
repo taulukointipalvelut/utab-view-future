@@ -98,8 +98,8 @@ export default {
   },
   mutations: {
     teams (state, payload) {
-      state.gov.team = payload.teams[0]
-      state.opp.team = payload.teams[1]
+      state.gov.team = payload.score_sheet.gov
+      state.opp.team = payload.score_sheet.opp
     },
     gov_pos_name (state, payload) {
       state.gov.result[payload.pos_name].speaker_id = payload.value
@@ -116,7 +116,7 @@ export default {
   },
   actions: {
     init_ballot ({ commit, rootState }, payload) {
-      commit('teams', { teams: payload.teams })
+      commit('teams', payload)
     }
   }
 }
