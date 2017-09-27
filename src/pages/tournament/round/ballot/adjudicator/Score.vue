@@ -7,7 +7,7 @@
           span.card-subtitle {{ side_name | capitalize }}
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
-            el-select(:value="result.speaker_id", @input="on_input_result('speaker_id', $event)", placeholder="Select Speaker")
+            el-select(:value="result.id", @input="on_input_result('id', $event)", placeholder="Select Speaker")
               el-option(v-for="speaker in team.team.speakers", :key="speaker", :label="option_label(speaker.name)", :value="speaker.id")
           el-form-item(label="Matter", required)
             number-box(:value="result.matter", @input="on_input_result('matter', $event)", :min="1", :max="role_name == 'reply' ? 5 : 10", :step="role_name == 'reply' ? 0.5 : 1")
@@ -42,7 +42,7 @@ export default {
   computed: {
     smartphone: smartphone,
     sendable () {
-      return this.result.speaker_id
+      return this.result.id
     },
     total_score () {
       return this.result.matter + this.result.manner

@@ -113,6 +113,17 @@ export default {
     }
   },
   actions: {
+      add_tournament ({state, commit, dispatch}, payload) {
+
+        fetch(API_BASE_URL+'/tournaments', {
+            method: 'POST',
+            body: JSON.stringify(payload.tournament),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+        }).then(() => commit('add_tournament', payload))
+      },
       add_teams ({state, commit, dispatch}, payload) {
         let tournament = state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
         let teams = []
@@ -235,16 +246,22 @@ export default {
                                 id: 0,
                                 name: 'Team A',
                                 speakers: [{
-                                    name: "hi",
-                                    id: 3
+                                    name: "s1",
+                                    id: 1
+                                },{
+                                    name: "s2",
+                                    id: 2
                                 }]
                             },
                             1: {
                                 id: 1,
                                 name: 'Team B',
                                 speakers: [{
-                                    name: "hi",
+                                    name: "s3",
                                     id: 3
+                                },{
+                                    name: "s4",
+                                    id: 4
                                 }]
                             },
                         },

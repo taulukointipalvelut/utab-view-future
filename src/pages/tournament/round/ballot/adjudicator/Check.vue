@@ -18,7 +18,7 @@
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ get_speaker_name(gov.team.speakers, gov.result[role].speaker_id) | defaults('Not specified yet') }}
+                  .inner-table-td {{ get_speaker_name(gov.team.speakers, gov.result[role].id) | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/gov-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
@@ -51,7 +51,7 @@
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ get_speaker_name(opp.team.speakers, opp.result[role].speaker_id) | defaults('Not specified yet') }}
+                  .inner-table-td {{ get_speaker_name(opp.team.speakers, opp.result[role].id) | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/opp-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
@@ -126,6 +126,7 @@ export default {
       this.$router.push('score/gov-reply')
     },
     on_next () {
+      this.send_ballot()
       this.sending = true
       setTimeout(() => {
         this.sending = false
@@ -141,7 +142,10 @@ export default {
     get_speaker_name (speakers, id) {
       const speaker = this.get_speaker(speakers, id)
       return speaker ? speaker.name : ''
-    }
+    },
+    ...mapActions('ballot', [
+      'send_ballot'
+    ])
   },
   filters: {
     defaults (value, d_value) {

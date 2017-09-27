@@ -27,28 +27,28 @@ export default {
       team: null,
       result: {
         leader: {
-          speaker_id: null,
+          id: null,
           matter: 5,
           manner: 5,
           best_debater: false,
           poi_prize: false
         },
         deputy: {
-          speaker_id: null,
+          id: null,
           matter: 5,
           manner: 5,
           best_debater: false,
           poi_prize: false
         },
         member: {
-          speaker_id: null,
+          id: null,
           matter: 5,
           manner: 5,
           best_debater: false,
           poi_prize: false
         },
         reply: {
-          speaker_id: null,
+          id: null,
           matter: 2.5,
           manner: 2.5,
           best_debater: false,
@@ -61,28 +61,28 @@ export default {
       team: null,
       result: {
         leader: {
-          speaker_id: null,
+          id: null,
           matter: 5,
           manner: 5,
           best_debater: false,
           poi_prize: false
         },
         deputy: {
-          speaker_id: null,
+          id: null,
           matter: 5,
           manner: 5,
           best_debater: false,
           poi_prize: false
         },
         member: {
-          speaker_id: null,
+          id: null,
           matter: 5,
           manner: 5,
           best_debater: false,
           poi_prize: false
         },
         reply: {
-          speaker_id: null,
+          id: null,
           matter: 2.5,
           manner: 2.5,
           best_debater: false,
@@ -102,10 +102,10 @@ export default {
       state.opp.team = payload.score_sheet.opp
     },
     gov_pos_name (state, payload) {
-      state.gov.result[payload.pos_name].speaker_id = payload.value
+      state.gov.result[payload.pos_name].id = payload.value
     },
     opp_pos_name (state, payload) {
-      state.opp.result[payload.pos_name].speaker_id = payload.value
+      state.opp.result[payload.pos_name].id = payload.value
     },
     input_result (state, payload) {
       state[payload.side].result[payload.role][payload.key] = payload.value
@@ -118,8 +118,10 @@ export default {
     init_ballot ({ commit, rootState }, payload) {
         commit('teams', payload)
     },
-    send_ballot ({ commit, rootState }, payload) {
-        //pass
+    send_ballot ({ state, commit, rootState }, payload) {
+        console.log(state)
+        let raw_debater_results = []
+        roles = ['leader', 'deputy', 'member', 'reply']
     }
   }
 }

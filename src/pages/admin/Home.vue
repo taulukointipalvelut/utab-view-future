@@ -6,7 +6,7 @@
       section
         legend Tournaments
         el-table(:data="tournaments", @current-change="on_select_tournament", :row-class-name="row_class_name", v-if="!loading && has_tournaments")
-          el-table-column(prop="id", label="ID", width="60", align="right")
+          el-table-column(prop="id", label="ID", width="60", align="center")
           el-table-column(prop="tournament_name", label="Name", show-overflow-tooltip)
           el-table-column(prop="style.name", label="Style")
           el-table-column(label="Rounds", width="100", align="right")
@@ -15,7 +15,7 @@
           el-table-column
             template(scope="scope")
               el-button(size="small", @click="on_edit(scope.row)") #[el-icon(name="edit")] Edit
-              el-button(size="small", type="danger", @click="on_delete(scope.row)") #[el-icon(name="close")] Delete
+              el-button(disabled, size="small", type="danger", @click="on_delete(scope.row)") #[el-icon(name="close")] Delete
         span(v-if="!loading && !has_tournaments") No Tournaments Available
       .operations(v-if="!loading")
         el-button(type="primary", @click="on_new_tournament") #[el-icon(name="plus")] &nbsp;Create New Tournament
@@ -24,7 +24,7 @@
         legend Styles
         span(v-if="!loading") No Styles Available
       .operations(v-if="!loading")
-        el-button(type="primary") #[el-icon(name="plus")] &nbsp;Define New Style
+        el-button(disabled, type="primary") #[el-icon(name="plus")] &nbsp;Define New Style
 
     el-dialog(title="Create New Tournament", :visible.sync="dialog.create.visible")
       .dialog-body
@@ -34,7 +34,7 @@
           el-form-item(label="Name", prop="tournament_name")
             el-input(v-model="dialog.create.form.model.tournament_name")
           el-form-item(label="Style", prop="style_name")
-            el-select(placeholder="Select style", v-model="dialog.create.form.model.style_name")
+            el-select(placeholder="Select style", v-model="dialog.create.form.model.style_name", disabled)
               el-option(label="PDA", value="PDA")
           el-form-item(label="Number of Rounds", prop="r")
             el-input(type="number", :value="dialog.create.form.model.r", @input="value => dialog.create.form.model.r = parseInt(value)")
@@ -49,7 +49,7 @@
           el-form-item(label="Name", prop="tournament_name")
             el-input(v-model="dialog.edit.form.model.tournament_name")
           el-form-item(label="Style", prop="style_name")
-            el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_name")
+            el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_name", disabled)
               el-option(label="PDA", value="PDA")
           el-form-item(label="Number of Rounds", prop="r")
             el-input(type="number", v-model="dialog.edit.form.model.r")
@@ -90,7 +90,7 @@ export default {
                 { required: true, message: 'Please input Tournamrnt Name' }
               ],
               style_name: [
-                { required: true, message: 'Please select Tournamrnt\'s Style' }
+                { required: false, message: 'Please select Tournamrnt\'s Style' }
               ],
               r: [
                 { required: true, message: 'Please input Number of Rounds' },
@@ -107,7 +107,7 @@ export default {
               id: '',
               tournament_name: '',
               style_name: '',
-              r: ''
+              total_round_num: ''
             },
             rules: {
               id: [
@@ -120,7 +120,7 @@ export default {
               style_name: [
                 { required: true, message: 'Please select Tournamrnt\'s Style' }
               ],
-              r: [
+              total_round_num: [
                 { required: true, message: 'Please input Number of Rounds' },
                 { type: 'integer', min: 0, message: 'Number of Rounds must be a positive integer' }
               ]
@@ -166,11 +166,15 @@ export default {
       this.dialog.create.loading = true
       this.$refs.dialog_create_form.validate((valid) => {
         if (valid) {
-          console.log(valid)
           const tournament = Object.assign({}, this.dialog.create.form.model)
-          tournament.style = { name: this.dialog.create.form.model.style_name }
+          tournament.style = {
+            id: "PDA3",
+            name: "PDA3",
+            team_num: 2,
+            score_weights: [1, 0.5, 0.5, 1]
+          }//{ name: this.dialog.create.form.model.style_name }
           tournament.href = { path: `/${ tournament.tournament_name }` }
-          console.log(tournament)
+          tournament.name = tournament.tournament_name
           this.add_tournament({ tournament: tournament })
           this.dialog.create.loading = false
           this.dialog.create.visible = false
@@ -197,6 +201,8 @@ export default {
       this.dialog.edit.visible = true
     },
     ...mapMutations([
+    ]),
+    ...mapActions([
       'add_tournament',
       'delete_tournament'
     ])

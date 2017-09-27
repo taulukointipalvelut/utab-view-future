@@ -39,7 +39,7 @@ TODO: In edit dialog, need validation
     section
       legend Adjudicators
       loading-container(:loading="loading && !init_flag.adjudicators")
-        el-table(:data="target_tournament.adjudicators.slice().sort((a1, a2) => a1.id > a2.id)", @row-click="on_select_adjudicator")
+        el-table(:data="target_tournament.adjudicators.slice().sort((a1, a2) => Math.abs(a1.id) > Math.abs(a2.id))", @row-click="on_select_adjudicator")
           el-table-column(prop="id", label="ID", width="60", align="center")
           el-table-column(prop="name", label="Name", show-overflow-tooltip)
           el-table-column
@@ -79,10 +79,10 @@ TODO: In edit dialog, need validation
           el-form-item(label="Available", prop="available")
             el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.available")
           el-form-item(label="Speakers", prop="speakers")
-            el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.speakers[index]")
+            el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.speakers[index]", :key="index")
               el-option(v-for="speaker in target_tournament.speakers", :key="speaker.id", :value="speaker.id", :label="speaker.name")
           el-form-item(label="Institutions", prop="institutions")
-            el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.institutions[index]")
+            el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.institutions[index]", :key="index")
               el-option(v-for="institution in target_tournament.institutions", :key="institution.id", :value="institution.id", :label="institution.name")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.team.visible = false") Cancel
