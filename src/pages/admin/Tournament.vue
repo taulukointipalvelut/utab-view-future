@@ -31,6 +31,11 @@ TODO: In edit dialog, need validation
         .operations
           el-button(type="primary", @click="dialog.team.visible = true") #[el-icon(name="plus")] &nbsp;Add New Team
 
+    //section
+      legend Adjudicators2
+      loading-container(:loading="loading && !init_flag.adjudicators")
+        entity-list(:entities="target_tournament.adjudicators", label="Adjudicators", @add="() => console.log('hi')")
+
     section
       legend Adjudicators
       loading-container(:loading="loading && !init_flag.adjudicators")
@@ -98,6 +103,7 @@ TODO: In edit dialog, need validation
 /* @flow */
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
+import entity_list from 'components/entity-list'
 import Lazy from 'assets/js/lazy'
 import { validators, not, is_integer, is_nonzero, is_positive, is_exists } from 'assets/js/form-validator'
 
@@ -108,7 +114,8 @@ let p = (...xs) => {
 
 export default {
   components: {
-    'loading-container': loading_container
+    'loading-container': loading_container,
+    'entity-list': entity_list
   },
   props: ['tournaments', 'loading', 'tournament_name'],
   data () {

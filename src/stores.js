@@ -390,39 +390,32 @@ export default {
         }
         setTimeout(() => {
           const adjudicators = [{
-            done: false,
+            id: 1,
             name: 'Adjudicator 1',
-            venue: 'E-204',
             href: { to: `Adjudicator%201` }
           }, {
-            done: true,
+            id: 2,
             name: 'Adjudicator 2',
-            venue: 'Table 8',
             href: { to: `Adjudicator%202` }
           }, {
-            done: false,
+            id: 5,
             name: 'Adjudicator 5',
-            venue: 'Table 13',
             href: { to: `Adjudicator%205` }
           }, {
-            done: false,
+            id: 3,
             name: 'Adjudicator 3',
-            venue: 'Table 14',
             href: { to: `Adjudicator%203` }
           }, {
-            done: false,
+            id: 6,
             name: 'Adjudicator 6',
-            venue: 'H-208',
             href: { to: `Adjudicator%206` }
           }, {
-            done: true,
+            id: 7,
             name: 'Adjudicator 7',
-            venue: 'H-102',
             href: { to: `Adjudicator%207` }
           }, {
-            done: true,
+            id: 4,
             name: 'Adjudicator 4',
-            venue: 'Riso H-286',
             href: { to: `Adjudicator%204` }
           }]
           commit('adjudicators', { tournament: {tournament_name: 'PDA Tournament 2018'}, adjudicators })
