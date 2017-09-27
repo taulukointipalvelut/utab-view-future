@@ -1,6 +1,6 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
-    .card-container(v-if="!loading && has_teams")
+    .card-container(v-if="!loading")
       el-card.gov
         div(slot="header").card-header-container
           span.card-title {{ gov.team.name }}
@@ -37,7 +37,7 @@
               el-option(v-for="speaker in opp.team.speakers", :key="speaker", :label="option_label(speaker.name, opp.team.name)", :value="speaker.id")
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :disabled="loading || !sendable") Next #[el-icon(name="arrow-right")]
+      el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -51,11 +51,8 @@ export default {
     'loading-container': loading_container
   },
   computed: {
-    sendable () {
+    proceedable () {
       return Object.values(this.gov.result).every(role => role.id) && Object.values(this.opp.result).every(role => role.id)
-    },
-    has_teams () {
-      return this.tournament.teams && this.tournament.teams.length > 0
     },
     ...mapState([
       'auth'
@@ -66,6 +63,9 @@ export default {
     ...mapState('ballot', [
       'gov',
       'opp'
+    ]),
+    ...mapGetters('ballot', [
+      'converted'
     ])
   },
   methods: {

@@ -33,10 +33,12 @@ export default {
     },
     target_score_sheets: (state, getters) => {
         let allocation = getters.target_draw.allocation
+        let r = getters.target_draw.r
         let score_sheets = []
         for (let square of allocation) {
             for (let adjudicator of [].concat(square.chairs).concat(square.panels)) {
                 let score_sheet = {
+                    r,
                     done: false,
                     gov: square.teams[0],
                     opp: square.teams[1],

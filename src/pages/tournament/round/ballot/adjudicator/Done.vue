@@ -27,7 +27,8 @@ export default {
       'isAuth'
     ]),
     ...mapGetters('ballot', [
-      'next'
+      'next',
+      'converted'
     ])
   },
   methods: {

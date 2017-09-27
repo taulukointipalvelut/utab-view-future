@@ -126,6 +126,7 @@ export default {
       this.$router.push('score/gov-reply')
     },
     on_next () {
+      this.$store.commit('ballot/complete', {})
       this.send_ballot()
       this.sending = true
       setTimeout(() => {

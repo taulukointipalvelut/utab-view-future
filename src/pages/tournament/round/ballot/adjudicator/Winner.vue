@@ -16,7 +16,7 @@
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :disabled="loading || !sendable") Next #[el-icon(name="arrow-right")]
+      el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -30,7 +30,7 @@ export default {
     'loading-container': loading_container
   },
   computed: {
-    sendable () {
+    proceedable () {
       return this.winner && this.winner !== ''
     },
     has_teams () {

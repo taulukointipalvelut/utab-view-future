@@ -2,6 +2,7 @@
 export default {
   namespaced: true,
   state: {
+    complete: false,
     steps: ['speaker', 'score', 'winner', 'check', 'done'],
     roles: ['leader', 'deputy', 'member', 'reply'],
     sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-deputy', 'opp-deputy', 'gov-member', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
@@ -22,9 +23,9 @@ export default {
       }
     },
     winner: null,
+    score_sheet: null,
     gov: {
       side: 'gov',
-      team: null,
       result: {
         leader: {
           id: null,
@@ -58,7 +59,6 @@ export default {
     },
     opp: {
       side: 'opp',
-      team: null,
       result: {
         leader: {
           id: null,
@@ -94,12 +94,42 @@ export default {
   getters: {
     current_step (state, getters, rootState, rootGetters) {
       return state.steps.findIndex(step => step === rootState.route.name)
+    },
+    converted (state) {
+        if (!state.complete) {
+            return null
+        }
+        let roles = ['leader', 'deputy', 'member', 'reply']
+        let converted_result = {
+            gov: {
+                id: state.gov.team.id,
+                name: state.gov.team.name,
+                win: state.winner === 'gov',
+                speakers: roles.map(role => state.gov.result[role].id),
+                matters: roles.map(role => state.gov.result[role].matter),
+                manners: roles.map(role => state.gov.result[role].manner),
+                scores: roles.map(role => state.gov.result[role].matter+state.gov.result[role].manner),
+                best: roles.map(role => state.gov.result[role].best_debater),
+                poi: roles.map(role => state.gov.result[role].poi_prize)
+            },
+            opp: {
+                id: state.opp.team.id,
+                name: state.opp.team.name,
+                win: state.winner !== 'gov',
+                speakers: roles.map(role => state.opp.result[role].id),
+                matters: roles.map(role => state.opp.result[role].matter),
+                manners: roles.map(role => state.opp.result[role].manner),
+                scores: roles.map(role => state.opp.result[role].matter+state.opp.result[role].manner),
+                best: roles.map(role => state.opp.result[role].best_debater),
+                poi: roles.map(role => state.opp.result[role].poi_prize)
+            }
+        }
+        return converted_result
     }
   },
   mutations: {
     teams (state, payload) {
-      state.gov.team = payload.score_sheet.gov
-      state.opp.team = payload.score_sheet.opp
+      state.score_sheet = payload.score_sheet
     },
     gov_pos_name (state, payload) {
       state.gov.result[payload.pos_name].id = payload.value
@@ -112,16 +142,27 @@ export default {
     },
     winner (state, payload) {
       state.winner = payload.winner
+    },
+    complete (state) {
+      state.complete = true
     }
   },
   actions: {
     init_ballot ({ commit, rootState }, payload) {
         commit('teams', payload)
     },
-    send_ballot ({ state, commit, rootState }, payload) {
-        console.log(state)
+    send_ballot ({ getters, state, commit, rootState }, payload) {
+        let converted = getters.converted
         let raw_debater_results = []
-        roles = ['leader', 'deputy', 'member', 'reply']
+        for (let id of converted.gov.speakers) {
+            let raw_debater_result = {
+                id,
+                r: state.score_sheet.r,
+                from_id: state.score_sheet.adjudicator.id,
+                weight: 1,
+                scores
+            }
+        }
     }
   }
 }

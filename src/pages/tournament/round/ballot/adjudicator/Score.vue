@@ -21,7 +21,7 @@
             el-switch(:value="result.poi_prize", @input="on_input_result('poi_prize', $event)", on-text="Yes", off-text="No")
     section.buttons(v-if="team && team.team")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :disabled="loading || !sendable") Next #[el-icon(name="arrow-right")]
+      el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -41,7 +41,7 @@ export default {
   },
   computed: {
     smartphone: smartphone,
-    sendable () {
+    proceedable () {
       return this.result.id
     },
     total_score () {
