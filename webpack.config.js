@@ -17,6 +17,8 @@ module.exports = (options = {}) => ({
   },
   module: {
     rules: [{
+        parser: { amd: false }
+      },{
         test: /\.vue$/,
         use: ['vue-loader']
       },
