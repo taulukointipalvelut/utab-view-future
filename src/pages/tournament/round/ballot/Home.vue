@@ -3,6 +3,7 @@
     section.page-header
       h1 Score Sheet
       h3 {{ round.round_name }}
+      //h3 {{ round_by_r(r).name }}
     loading-container(:loading="loading")
     section(v-if="!loading && has_adjudicators")
       el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
@@ -36,7 +37,8 @@ export default {
   computed: {
     ...mapGetters([
       'target_score_sheets',
-      'adjudicator_by_id'
+      'adjudicator_by_id',
+      'round_by_r'
     ]),
     smartphone: smartphone,
     has_adjudicators () {
