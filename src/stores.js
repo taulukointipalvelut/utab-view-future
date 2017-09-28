@@ -39,14 +39,14 @@ function fetch_delete (url) {
     })
 }
 
-function entity_by_id_factory (label) {
-    function entity_by_id (state, getters) {
-        return id => {
-            let entities = getters.target_tournament[label]
-            return entities.find(e => e.id == id)
+function select_by_key_factory (label, key="id") {
+    function select_by_key (state, getters) {
+        return key_str => {
+            let targets = getters.target_tournament[label]
+            return targets.find(t => t[key] == parseInt(key_str))
         }
     }
-    return entity_by_id
+    return select_by_key
 }
 
 function action_add_base_entities_factory (label) {
@@ -95,7 +95,7 @@ export default {
     tournaments: []
   },
   getters: {
-    isAuth: state => { return (state.auth && state.auth.session) ? true: false; },
+    isAuth: state => true,//{ return (state.auth && state.auth.session) ? true: false; },
     target_tournament: state => {
       return state.tournaments.find(t => t.tournament_name === state.route.params.tournament_name)
     },
@@ -133,16 +133,13 @@ export default {
         }
         return score_sheets
     },
-    round_by_r (state, getters) {
-        return r_str => {
-            return getters.target_tournament.rounds.find(round => round.r === parseInt(r_str))
-        }
-    },
-    team_by_id: entity_by_id_factory('teams'),
-    adjudicator_by_id: entity_by_id_factory('adjudicators'),
-    speaker_by_id: entity_by_id_factory('speakers'),
-    venue_by_id: entity_by_id_factory('venues'),
-    institution_by_id: entity_by_id_factory('institutions'),
+    round_by_r: select_by_key_factory('rounds', 'r'),
+    draw_by_r: select_by_key_factory('draws', 'r'),
+    team_by_id: select_by_key_factory('teams'),
+    adjudicator_by_id: select_by_key_factory('adjudicators'),
+    speaker_by_id: select_by_key_factory('speakers'),
+    venue_by_id: select_by_key_factory('venues'),
+    institution_by_id: select_by_key_factory('institutions'),
     unallocated_speakers (state, getters) {
         let tournament = getters.target_tournament
         let allocated_speakers = []
@@ -521,31 +518,38 @@ export default {
           const adjudicators = [{
             id: -1,
             name: 'Adjudicator 1',
-            href: { to: `Adjudicator%201` }
+            //href: { to: `Adjudicator%201` },
+            institutions: [1]
           }, {
             id: -2,
             name: 'Adjudicator 2',
-            href: { to: `Adjudicator%202` }
+            //href: { to: `Adjudicator%202` },
+            institutions: [1]
           }, {
             id: -5,
             name: 'Adjudicator 5',
-            href: { to: `Adjudicator%205` }
+            //href: { to: `Adjudicator%205` },
+            institutions: [1]
           }, {
             id: -3,
             name: 'Adjudicator 3',
-            href: { to: `Adjudicator%203` }
+            //href: { to: `Adjudicator%203` },
+            institutions: [1]
           }, {
             id: -6,
             name: 'Adjudicator 6',
-            href: { to: `Adjudicator%206` }
+            //href: { to: `Adjudicator%206` },
+            institutions: [1]
           }, {
             id: -7,
             name: 'Adjudicator 7',
-            href: { to: `Adjudicator%207` }
+            //href: { to: `Adjudicator%207` },
+            institutions: [1]
           }, {
             id: -4,
             name: 'Adjudicator 4',
-            href: { to: `Adjudicator%204` }
+            //href: { to: `Adjudicator%204` },
+            institutions: [1]
           }]
           commit('adjudicators', { tournament: {tournament_name: 'PDA Tournament 2018'}, adjudicators })
           resolve()
@@ -582,19 +586,23 @@ export default {
           const teams = [{
               id: 1,
               name: 'Super Duper Jumpin\' Long Team Name',
-              speakers: [1, 2, 3]
+              speakers: [1, 2, 3],
+              institutions: [1]
             }, {
               id: 2,
               name: 'Team B',
-              speakers: [4, 5, 6, 7]
+              speakers: [4, 5, 6, 7],
+              institutions: [1]
             }, {
               id: 3,
               name: 'Team C',
-              speakers: [8, 9]
+              speakers: [8, 9],
+              institutions: [2]
             }, {
               id: 4,
               name: 'Team D',
-              speakers: [10, 11]
+              speakers: [10, 11],
+              institutions: []
             }]
           commit('teams', { tournament: {tournament_name: 'PDA Tournament 2018'}, teams })
           resolve()

@@ -5,7 +5,6 @@
         div(slot="header").card-header-container
           span.card-title {{ team_by_id(score_sheet.gov).name }}
           span.card-subtitle Gov
-          span {{ speaker_by_id(1).name }}
         el-form
           el-form-item(label="PM", required, error="Select PM's Name")
             el-select(:value="gov.result.leader.id", @input="on_gov_pos_name('leader', $event)", placeholder="Select PM")

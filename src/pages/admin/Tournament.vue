@@ -16,6 +16,7 @@ TODO: In edit dialog, need validation
               el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")] Edit
               el-button(size="small", type="danger", @click="on_delete_round(scope.row)") #[el-icon(name="close")] Delete
               el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
+              el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
         .operations
           el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
@@ -243,6 +244,11 @@ export default {
     ])
   },
   methods: {
+    on_allocation_round (selected) {
+      this.$router.push({
+        path: 'rounds/'+selected.r+'/allocation'
+      })
+    },
     on_result_round (selected) {
       this.$router.push({
         path: 'result'
@@ -339,7 +345,7 @@ export default {
         if (valid) {
           const tournament = this.target_tournament
           const adjudicator = Object.assign({}, this.dialog.adjudicator.form.model)
-          adjudicator.href = { path: `/${ tournament.tournament_name }/${ adjudicator.name }` }
+          //adjudicator.href = { path: `/${ tournament.tournament_name }/${ adjudicator.name }` }
           this.add_adjudicators({ tournament, adjudicators: [adjudicator] })
           this.dialog.adjudicator.loading = false
           this.dialog.adjudicator.visible = false
@@ -365,7 +371,7 @@ export default {
       this.dialog.team_edit.loading = true
       const tournament = this.target_tournament
       const team = Object.assign({}, this.dialog.team_edit.form.model)
-      team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
+      //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
       this.delete_team({ tournament, team })
       this.add_team({ tournament, team })
       this.dialog.team_edit.loading = false

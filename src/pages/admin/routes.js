@@ -15,7 +15,7 @@ export default [{
     path: ':tournament_name',
     redirect: ':tournament_name/home'
   }, {
-    path: ':tournament_name/allocation',
+    path: ':tournament_name/rounds/:r/allocation',
     props: true,
     component: Allocation
   }, {

@@ -2,9 +2,9 @@
   .router-view-content
     section.page-header
       h1 Allocation
-      h3 Round {{ draw.r }}
+      h3 {{ round_by_r(r).round_name }}
     section
-      el-table(:data="draw.allocation")
+      el-table(:data="allocation_adjusted")
         el-table-column(label="Venue")
           template(scope="scope")
             draggable.adj-list(v-model="scope.row.venues", :options="venue_options", @start="drag=true", @end="drag=false")
@@ -29,6 +29,15 @@
           template(scope="scope")
             draggable.adj-list.trainee(v-model="scope.row.trainees", :options="adjudicator_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.trainees") {{ adjudicator_by_id(id).name }}
+        el-table-column(label="Warnings")
+          template(scope="scope")
+            div(v-for="warning in warn(scope.row)", :key="warning.code")
+              el-popover(placement="right", width="200", trigger="hover")
+                el-button(slot="reference") {{ warning.name }}
+                p code: {{ warning.code }}
+                p message: {{ warning.message }}
+                p details: {{ warning.details }}
+
     legend Adjudicators
     section.adj-list-container
       draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options", @start="drag=true", @end="drag=false")
@@ -47,12 +56,14 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import utab_header from 'components/utab-header.vue'
 import draggable from 'vuedraggable'
+import math from 'assets/js/math.js'
 
 export default {
   components: {
     'utab-header': utab_header,
     'draggable': draggable
   },
+  props: ['r'],
   data () {
     return {
       team_options: {
@@ -68,34 +79,29 @@ export default {
         animation: 100
       },
       loading: true,
-      draw: {
-        r: 1,
-        allocation: [{
-          venues: [1],
-          teams: {
-            0: [1],
-            1: [2]
-          },
-          chairs: [-1],
-          panels: [-2, -3],
-          trainees: []
-        }, {
-          venues: [2],
-          teams: {
-            0: [3],
-            1: [4]
-          },
-          chairs: [-4],
-          panels: [],
-          trainees: []
-        }]
-      },
       teams: [],
       adjudicators: [],
       venues: []
     }
   },
   computed: {
+    allocation_adjusted () {
+      let draw = this.draw_by_r(this.r)
+      let adjusted = []
+      for (let square of draw.allocation) {
+        adjusted.push({
+          venues: [square.venue],
+          teams: {
+            0: [square.teams[0]],
+            1: [square.teams[1]]
+          },
+          chairs: square.chairs,
+          panels: square.panels,
+          trainees: square.trainees
+        })
+      }
+      return adjusted
+    },
     loading_tournaments () {
       return !this.tournaments
     },
@@ -111,25 +117,27 @@ export default {
       'target_tournament',
       'team_by_id',
       'adjudicator_by_id',
-      'venue_by_id'
+      'venue_by_id',
+      'round_by_r',
+      'draw_by_r'
     ]),
     adjudicators_in_draw () {
       let adjudicators_in_draw = []
-      for (let square of this.draw.allocation) {
+      for (let square of this.allocation_adjusted) {
         adjudicators_in_draw = adjudicators_in_draw.concat(square.chairs).concat(square.panels).concat(square.trainees)
       }
       return adjudicators_in_draw
     },
     teams_in_draw () {
       let teams_in_draw = []
-      for (let square of this.draw.allocation) {
+      for (let square of this.allocation_adjusted) {
         teams_in_draw = teams_in_draw.concat(square.teams[0]).concat(square.teams[1])
       }
       return teams_in_draw
     },
     venues_in_draw () {
       let venues_in_draw = []
-      for (let square of this.draw.allocation) {
+      for (let square of this.allocation_adjusted) {
         venues_in_draw = venues_in_draw.concat(square.venues)
       }
       return venues_in_draw
@@ -159,7 +167,50 @@ export default {
     ...mapActions([
       'init_adjudicators',
       'init_teams'
-    ])
+    ]),
+    warn (square) {
+      let warnings = []
+      let warn_funcs = [this.warn_institutions, this.warn_conflicts]
+      for (let warn_func of warn_funcs) {
+        let warning = warn_func(square)
+        if (warning !== null) {
+          warnings.push(warning)
+        }
+      }
+      return warnings
+    },
+    warn_institutions (square) {
+      let t0_insti = this.team_by_id(square.teams[0]).institutions
+      let t1_insti = this.team_by_id(square.teams[1]).institutions
+      if (!math.disjoint(t0_insti, t1_insti)) {
+        return {
+          code: 600,
+          name: 'institution',
+          message: 'Team institution conflict',
+          details: {}
+        }
+      } else {
+        return null
+      }
+    },
+    warn_conflicts (square) {
+      let t0_insti = this.team_by_id(square.teams[0]).institutions
+      let t1_insti = this.team_by_id(square.teams[1]).institutions
+      let adj_insti = Array.prototype.concat.apply(
+                        [],
+                        square.chairs.concat(square.panels).concat(square.trainees).map(this.adjudicator_by_id)
+                          .map(adj => adj.institutions))
+      if (!math.disjoint(t0_insti, adj_insti) || !math.disjoint(t1_insti, adj_insti)) {
+        return {
+          code: 600,
+          name: 'conflict',
+          message: 'Adjudicator conflict',
+          details: {}
+        }
+      } else {
+        return null
+      }
+    }
   },
   mounted () {
     if (!this.isAuth) {
