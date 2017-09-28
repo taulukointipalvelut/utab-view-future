@@ -14,6 +14,8 @@
           router-link(v-if="tournament.href", :to="tournament.href") {{ tournament.tournament_name }}
         li(v-if="login")
           router-link(:to="logout_href") Logout
+        li(v-if="login")
+          router-link(:to="admin_href") Admin
         li(v-else)
           router-link(:to="login_href") Login
 </template>
@@ -49,6 +51,9 @@
       },
       logout_href () {
         return { path: '/logout', query: { next: this.nextLogoutPath } }
+      },
+      admin_href () {
+        return { path: '/admin', query: { next: this.nextLogoutPath } }
       },
       nextLoginPath () {
         return this.next ?
