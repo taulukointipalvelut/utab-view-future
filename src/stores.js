@@ -101,7 +101,38 @@ export default {
       state.tournaments += payload.tournaments
     },*/
     add_tournament (state, payload) {
-      state.tournaments.push(payload.tournament)
+        let tournament = {
+          id: payload.tournament.id,
+          tournament_name: payload.tournament.tournament_name,
+          href: { path: '/'+payload.tournament.tournament_name },
+          current_round_num: 1,
+          total_round_num: payload.tournament.total_round_num,
+          rounds: [],
+          teams: [],
+          adjudicators: [],
+          speakers: [],
+          draws: [],
+          style: {
+            score_weights: [
+              1,
+              0.5,
+              0.5,
+              1
+            ],
+            positions_short: [
+              "Gov",
+              "Opp"
+            ],
+            positions: [
+              "Government",
+              "Opposition"
+            ],
+            team_num: 2,
+            name: "PDA3",
+            id: "PDA3"
+          }
+        }
+        state.tournaments.push(tournament)
     },
     delete_tournament (state, payload) {
       state.tournaments = state.tournaments.filter(t => t.tournament_name !== payload.tournament_name)
