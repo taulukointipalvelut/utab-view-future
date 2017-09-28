@@ -45,7 +45,7 @@ export default {
       'current_step'
     ]),
     score_sheet() {
-      return this.target_score_sheets.find(ss => ss.adjudicator.name === this.target_adjudicator.name)
+      return this.target_score_sheets.find(ss => ss.id === this.target_adjudicator.id)
     }
   },
   methods: {

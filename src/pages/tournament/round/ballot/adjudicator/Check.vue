@@ -3,7 +3,7 @@
     .card-container(v-if="!loading")
       el-card.gov
         div(slot="header").card-header-container
-          span.card-title {{ score_sheet.gov.name }}
+          span.card-title {{ team_by_id(score_sheet.gov).name }}
           span.card-subtitle Gov
         .outer-table
           .outer-table-tr(v-for="role in roles")
@@ -18,7 +18,7 @@
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ get_speaker_name(score_sheet.gov.speakers, gov.result[role].id) | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(gov.result[role].id).name | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/gov-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
@@ -36,7 +36,7 @@
 
       el-card.opp
         div(slot="header").card-header-container
-          span.card-title {{ score_sheet.opp.name }}
+          span.card-title {{ team_by_id(score_sheet.opp).name }}
           span.card-subtitle Opp
         .outer-table
           .outer-table-tr(v-for="role in roles")
@@ -51,7 +51,7 @@
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ get_speaker_name(score_sheet.opp.speakers, opp.result[role].id) | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(opp.result[role].id).name | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/opp-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
@@ -72,7 +72,7 @@
         .outer-table.no-border
           .outer-table-tr
             .outer-table-td.label Winner
-            .outer-table-td.winner {{ winner | defaults('Not specified yet') }}
+            .outer-table-td.winner {{ team_by_id(winner).name | defaults('Not specified yet') }}
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
           .outer-table-tr.check__label
@@ -108,7 +108,9 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'isAuth'
+      'isAuth',
+      'team_by_id',
+      'speaker_by_id'
     ]),
     ...mapState('ballot', [
       'gov',
@@ -134,13 +136,6 @@ export default {
     },
     total (side) {
       return Object.values(side.result).map(x => x.matter + x.manner).reduce((a, b) => a + b, 0)
-    },
-    get_speaker (speakers, id) {
-      return speakers.find(speaker => speaker.id === id)
-    },
-    get_speaker_name (speakers, id) {
-      const speaker = this.get_speaker(speakers, id)
-      return speaker ? speaker.name : ''
     },
     ...mapActions('ballot', [
       'send_ballot'

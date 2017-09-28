@@ -7,19 +7,19 @@
         el-table-column(label="Venue", prop="venue")
         el-table-column(label="Gov")
           template(scope="scope")
-            span {{ scope.row.teams[0].name }}
+            span {{ team_by_id(scope.row.teams[0]).name }}
         el-table-column(label="Opp")
           template(scope="scope")
-            span {{ scope.row.teams[1].name }}
+            span {{ team_by_id(scope.row.teams[1]).name }}
         el-table-column.adjudicator-container(label="Chair", v-if="allocation_opened")
           template(scope="scope")
-            .adjudicator(v-for="adjudicator in scope.row.chairs") {{ adjudicator.name }}
+            .adjudicator(v-for="id in scope.row.chairs") {{ adjudicator_by_id(id).name }}
         el-table-column.adjudicator-container(label="Panel", v-if="allocation_opened")
           template(scope="scope")
-            .adjudicator(v-for="adjudicator in scope.row.panels") {{ adjudicator.name }}
+            .adjudicator(v-for="id in scope.row.panels") {{ adjudicator_by_id(id).name }}
         el-table-column.adjudicator-container(label="Trainee", v-if="allocation_opened")
           template(scope="scope")
-            .adjudicator(v-for="adjudicator in scope.row.trainees") {{ scope.row.trainees.length }}
+            .adjudicator(v-for="id in scope.row.trainees") {{ scope.row.trainees.length }}
     section(v-else)
       p Draw for {{ current_round }} is not released.
 </template>
@@ -58,7 +58,9 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'isAuth'
+      'isAuth',
+      'team_by_id',
+      'adjudicator_by_id'
     ])
   }
 }

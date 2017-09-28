@@ -102,9 +102,8 @@ export default {
         let roles = ['leader', 'deputy', 'member', 'reply']
         let converted_result = {
             gov: {
-                id: state.score_sheet.gov.id,
-                name: state.score_sheet.gov.name,
-                win: state.winner === state.score_sheet.gov.name,
+                id: state.score_sheet.gov,
+                win: state.winner === state.score_sheet.gov,
                 speakers: roles.map(role => state.gov.result[role].id),
                 matters: roles.map(role => state.gov.result[role].matter),
                 manners: roles.map(role => state.gov.result[role].manner),
@@ -113,9 +112,8 @@ export default {
                 poi: roles.map(role => state.gov.result[role].poi_prize)
             },
             opp: {
-                id: state.score_sheet.opp.id,
-                name: state.score_sheet.opp.name,
-                win: state.winner === state.score_sheet.opp.name,
+                id: state.score_sheet.opp,
+                win: state.winner === state.score_sheet.opp,
                 speakers: roles.map(role => state.opp.result[role].id),
                 matters: roles.map(role => state.opp.result[role].matter),
                 manners: roles.map(role => state.opp.result[role].manner),
@@ -134,7 +132,7 @@ export default {
                 let raw_speaker_result = {
                     id,
                     r: state.score_sheet.r,
-                    from_id: state.score_sheet.adjudicator.id,
+                    from_id: state.score_sheet.id,
                     weight: 1,
                     scores: [0, 1, 2, 3].map(
                         index => [0, 1, 2, 3].filter(index => converted_result[side].speakers[index] === id).includes(index) ?
@@ -147,11 +145,11 @@ export default {
             let raw_team_result = {
                 id,
                 r: state.score_sheet.r,
-                from_id: state.score_sheet.adjudicator.id,
+                from_id: state.score_sheet.id,
                 weight: 1,
                 win: converted_result[side].win,
                 side: side,
-                opponents: [state.score_sheet[sides[1-i]].id]
+                opponents: [state.score_sheet[sides[1-i]]]
             }
             raw_team_results.push(raw_team_result)
         }

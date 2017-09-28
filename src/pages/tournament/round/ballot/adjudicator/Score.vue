@@ -8,7 +8,7 @@
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
             el-select(:value="result.id", @input="on_input_result('id', $event)", placeholder="Select Speaker")
-              el-option(v-for="speaker in score_sheet[side_name].speakers", :key="speaker", :label="speaker.name", :value="speaker.id")
+              el-option(v-for="id in team_by_id(score_sheet[side_name]).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="Matter", required)
             number-box(:value="result.matter", @input="on_input_result('matter', $event)", :min="1", :max="role_name == 'reply' ? 5 : 10", :step="role_name == 'reply' ? 0.5 : 1")
           el-form-item(label="Manner", required)
@@ -71,6 +71,10 @@ export default {
     next () {
       return this.sequence[this.current_sequence_index + 1]
     },
+    ...mapGetters([
+      'team_by_id',
+      'speaker_by_id'
+    ]),
     ...mapState('ballot', [
       'gov',
       'opp',

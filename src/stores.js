@@ -37,6 +37,13 @@ function fetch_delete (url) {
     })
 }
 
+function entity_by_id (state, getters, label) {
+    return id => {
+        let entities = getters.target_tournament[label]
+        return entities.find(e => e.id == id)
+    }
+}
+
 export default {
   state: {
     auth: {
@@ -71,22 +78,27 @@ export default {
         let r = getters.target_draw.r
         let score_sheets = []
         for (let square of allocation) {
-            for (let adjudicator of [].concat(square.chairs).concat(square.panels)) {
+            for (let id of [].concat(square.chairs).concat(square.panels)) {
                 let score_sheet = {
                     r,
                     done: false,
                     gov: square.teams[0],
                     opp: square.teams[1],
-                    adjudicator,
+                    id,
                     venue: square.venue,
-                    chair: square.chairs.map(c => c.id).includes(adjudicator.id) ? true : false,
-                    href: { to: adjudicator.name }
+                    chair: square.chairs.map(c => c.id).includes(id) ? true : false,
+                    href: { to: getters.adjudicator_by_id(id).name }
                 }
                 score_sheets.push(score_sheet)
             }
         }
         return score_sheets
-    }
+    },
+    team_by_id: (state, getters) => entity_by_id(state, getters, 'teams'),
+    adjudicator_by_id: (state, getters) => entity_by_id(state, getters, 'adjudicators'),
+    speaker_by_id: (state, getters) => entity_by_id(state, getters, 'speakers'),
+    venue_by_id: (state, getters) => entity_by_id(state, getters, 'venues'),
+    institution_by_id: (state, getters) => entity_by_id(state, getters, 'institutions')
   },
   mutations: {
     /* auth.session */
@@ -252,89 +264,68 @@ export default {
             adjudicators: [],
             speakers: [{
                 id: 1,
-                name: "Speaker 1"
+                name: "s1"
             }, {
                 id: 2,
-                name: "Speaker 2"
+                name: "s2"
+            }, {
+                id: 3,
+                name: "s3"
+            }, {
+                id: 4,
+                name: "s4"
+            }, {
+                id: 5,
+                name: "s5"
+            }, {
+                id: 6,
+                name: "s6"
+            }, {
+                id: 7,
+                name: "s7"
+            }, {
+                id: 8,
+                name: "s8"
             }],
             institutions: [{
                 id: 1,
-                name: "Institution 1"
+                name: "i1"
             }, {
                 id: 2,
-                name: "Institution 2"
+                name: "i2"
             }],
-            draws: [
-                {
-                    r: 1,
-                    allocation: [{
-                        venue: '101',
-                        teams: {
-                            0: {
-                                id: 1,
-                                name: 'Team A',
-                                speakers: [{
-                                    name: "s1",
-                                    id: 1
-                                },{
-                                    name: "s2",
-                                    id: 2
-                                }]
-                            },
-                            1: {
-                                id: 2,
-                                name: 'Team B',
-                                speakers: [{
-                                    name: "s3",
-                                    id: 3
-                                },{
-                                    name: "s4",
-                                    id: 4
-                                }]
-                            },
-                        },
-                        chairs: [{
-                            id: -1,
-                            name: 'Adjudicator 1'
-                        }],
-                        panels: [{
-                            id: -2,
-                            name: 'Adjudicator 2'
-                        }, {
-                            id: -3,
-                            name: 'Adjudicator 3'
-                        }],
-                        trainees: []
-                    }]
-                },{
-                    r: 2,
-                    allocation: [{
-                        venue: '101',
-                        teams: {
-                            0: {
-                                id: 1,
-                                name: 'Team A'
-                            },
-                            1: {
-                                id: 2,
-                                name: 'Team B'
-                            },
-                        },
-                        chairs: [{
-                            id: -1,
-                            name: 'Adjudicator 1'
-                        }],
-                        panels: [{
-                            id: -2,
-                            name: 'Adjudicator 2'
-                        }, {
-                            id: -3,
-                            name: 'Adjudicator 3'
-                        }],
-                        trainees: []
-                    }]
-                }
-            ],
+            venues: [{
+                id: 1,
+                name: "v1"
+            }, {
+                id: 2,
+                name: "v2"
+            }],
+            draws: [{
+                r: 1,
+                allocation: [{
+                    venue: '101',
+                    teams: {
+                        0: 1,
+                        1: 2
+                    },
+                    chairs: [-1],
+                    panels: [-2, -3],
+                    trainees: []
+                }]
+            },{
+                r: 1,
+                allocation: [{
+                    venue: '101',
+                    teams: {
+                        0: 1,
+                        1: 2
+                    },
+                    chairs: [-1],
+                    panels: [-2, -3],
+                    trainees: []
+                }]
+            }],
             style: {
               score_weights: [
                 1,
@@ -501,32 +492,11 @@ export default {
           const teams = [{
               id: 1,
               name: 'Super Duper Jumpin\' Long Team Name',
-              speakers: [{
-                id: 1,
-                name: 'Speaker 1'
-              }, {
-                id: 2,
-                name: 'Speaker 2'
-              }, {
-                id: 3,
-                name: 'Speaker 3'
-              }]
+              speakers: [1, 2, 3]
             }, {
               id: 2,
               name: 'Team B',
-              speakers: [{
-                id: 4,
-                name: 'Speaker 4'
-              }, {
-                id: 5,
-                name: 'Speaker 5'
-              }, {
-                id: 6,
-                name: 'Speaker 6'
-              }, {
-                id: 7,
-                name: 'Speaker 7'
-              }]
+              speakers: [4, 5, 6, 7]
           }]
           commit('teams', { tournament: {tournament_name: 'PDA Tournament 2018'}, teams })
           resolve()

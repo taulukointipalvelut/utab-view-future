@@ -14,9 +14,9 @@
               el-icon(name="check")
             span(v-else)
               el-icon(name="edit")
-        el-table-column(prop="adjudicator", label="Name")
+        el-table-column(prop="id", label="Name")
           template(scope="scope")
-            span {{ scope.row.adjudicator.name }} #[i.fa.fa-user-secret(v-if="scope.row.chair")]
+            span {{ adjudicator_by_id(scope.row.id).name }} #[i.fa.fa-user-secret(v-if="scope.row.chair")]
         el-table-column(prop="venue", label="Venue", v-if="!smartphone")
     section(v-if="!loading && !has_adjudicators")
       span No Adjudicators Available
@@ -35,7 +35,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'target_score_sheets'
+      'target_score_sheets',
+      'adjudicator_by_id'
     ]),
     smartphone: smartphone,
     has_adjudicators () {

@@ -8,30 +8,30 @@
         el-table-column(label="Venue")
           template(scope="scope")
             draggable.adj-list(v-model="scope.row.venues", :options="{ group: { name: 'venue' } }", @start="drag=true", @end="drag=false")
-              .draggable-item(v-for="venue in scope.row.venues") {{ venue }}
+              .draggable-item(v-for="id in scope.row.venues") {{ id }}
         el-table-column(label="Gov")
           template(scope="scope")
             draggable.adj-list(v-model="scope.row.teams[0]", :options="{ group: { name: 'team' } }", @start="drag=true", @end="drag=false")
-              .draggable-item(v-for="team in scope.row.teams[0]") {{ team.name }}
+              .draggable-item(v-for="id in scope.row.teams[0]") {{ team_by_id(id).name }}
         el-table-column(label="Opp")
           template(scope="scope")
             draggable.adj-list(v-model="scope.row.teams[1]", :options="{ group: { name: 'team' } }", @start="drag=true", @end="drag=false")
-              .draggable-item(v-for="team in scope.row.teams[1]") {{ team.name }}
+              .draggable-item(v-for="id in scope.row.teams[1]") {{ team_by_id(id).name }}
         el-table-column(label="Chair")
           template(scope="scope")
             draggable.adj-list.chair(v-model="scope.row.chairs", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
-              .draggable-item(v-for="adjudicator in scope.row.chairs") {{ adjudicator.name }}
+              .draggable-item(v-for="id in scope.row.chairs") {{ adjudicator_by_id(id).name }}
         el-table-column(label="Panel")
           template(scope="scope")
             draggable.adj-list.panel(v-model="scope.row.panels", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
-              .draggable-item(v-for="adjudicator in scope.row.panels") {{ adjudicator.name }}
+              .draggable-item(v-for="id in scope.row.panels") {{ adjudicator_by_id(id).name }}
         el-table-column(label="Trainee")
           template(scope="scope")
             draggable.adj-list.trainee(v-model="scope.row.trainees", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
-              .draggable-item(v-for="adjudicator in scope.row.trainees") {{ adjudicator.name }}
+              .draggable-item(v-for="id in scope.row.trainees") {{ adjudicator_by_id(id).name }}
     section.adj-list-container
       draggable.adj-list.src(v-model="unpresent_adjudicators", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
-        .draggable-item(v-for="adjudicator in unpresent_adjudicators") {{ adjudicator.name }}
+        .draggable-item(v-for="adjudicator in unpresent_adjudicators") {{ adjudicator_by_id(id).name }}
 </template>
 
 <script>
@@ -52,14 +52,8 @@ export default {
         allocation: [{
           venues: ['v1'],
           teams: {
-            0: {
-              id: 1,
-              name: "t1"
-            },
-            1: {
-              id: 2,
-              name: "t2"
-            }
+            0: 1,
+            1: 2
           },
           chairs: [],
           panels: [],
@@ -67,14 +61,8 @@ export default {
         }, {
           venues: ['v1'],
           teams: {
-            0: {
-              id: 1,
-              name: "t1"
-            },
-            1: {
-              id: 2,
-              name: "t2"
-            }
+            0: 1,
+            1: 2
           },
           chairs: [],
           panels: [],
@@ -119,7 +107,10 @@ export default {
     ]),
     ...mapGetters([
       'isAuth',
-      'target_tournament'
+      'target_tournament',
+      'team_by_id',
+      'adjudicator_by_id',
+      'venue_by_id'
     ])
   },
   methods: {

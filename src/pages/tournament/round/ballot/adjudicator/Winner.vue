@@ -11,8 +11,8 @@
               .sideinfo-header__item Opp
               .sideinfo-header__item {{ total(opp) }} pts
           el-radio-group.winner-selector(:value="winner", @input="on_selected($event)", size="large")
-            el-radio-button.winner-selector__item(:label="score_sheet.gov.name")
-            el-radio-button.winner-selector__item(:label="score_sheet.opp.name")
+            el-radio-button.winner-selector__item(:label="score_sheet.gov") {{ team_by_id(score_sheet.gov).name }}
+            el-radio-button.winner-selector__item(:label="score_sheet.opp") {{ team_by_id(score_sheet.opp).name }}
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -37,7 +37,8 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'isAuth'
+      'isAuth',
+      'team_by_id'
     ]),
     ...mapState('ballot', [
       'gov',
