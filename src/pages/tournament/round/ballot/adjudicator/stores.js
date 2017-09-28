@@ -126,12 +126,12 @@ export default {
         }
 
         let raw_team_results = []
-        let raw_debater_results = []
+        let raw_speaker_results = []
         let sides = ['gov', 'opp']
         for (let i of [0, 1]) {
             let side = sides[i]
             for (let id of Array.from(new Set(converted_result[side].speakers))) {
-                let raw_debater_result = {
+                let raw_speaker_result = {
                     id,
                     r: state.score_sheet.r,
                     from_id: state.score_sheet.adjudicator.id,
@@ -140,7 +140,7 @@ export default {
                         index => [0, 1, 2, 3].filter(index => converted_result[side].speakers[index] === id).includes(index) ?
                             converted_result[side].scores[index] : 0)
                 }
-                raw_debater_results.push(raw_debater_result)
+                raw_speaker_results.push(raw_speaker_result)
             }
 
             let id = converted_result[side].id
@@ -156,7 +156,7 @@ export default {
             raw_team_results.push(raw_team_result)
         }
 
-        return {raw_team_results, raw_debater_results}
+        return {raw_team_results, raw_speaker_results}
     }
   },
   mutations: {
@@ -184,9 +184,9 @@ export default {
         commit('teams', payload)
     },
     send_ballot ({ getters, state, commit, rootState }, payload) {
-        let {raw_team_results, raw_debater_results} = getters.converted
+        let {raw_team_results, raw_speaker_results} = getters.converted
         console.log(raw_team_results)
-        console.log(raw_debater_results)
+        console.log(raw_speaker_results)
         console.log("SEND_BALLOT")
     }
   }

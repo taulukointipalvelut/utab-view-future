@@ -309,7 +309,7 @@ export default {
             details: [...Array(this.target_tournament.total_round_num).keys()].map(num => {
               return {
                 r: num+1,
-                debaters: this.dialog.team.form.model.speakers.filter(id => id !== null),
+                speakers: this.dialog.team.form.model.speakers.filter(id => id !== null),
                 institutions: this.dialog.team.form.model.institutions.filter(id => id !== null),
                 available: this.dialog.team.form.model.available
               }
