@@ -11,12 +11,12 @@
               .draggable-item(v-for="venue in scope.row.venues") {{ venue }}
         el-table-column(label="Gov")
           template(scope="scope")
-            draggable.adj-list(v-model="scope.row.gov", :options="{ group: { name: 'team' } }", @start="drag=true", @end="drag=false")
-              .draggable-item(v-for="team in scope.row.gov") {{ team.name }}
+            draggable.adj-list(v-model="scope.row.teams[0]", :options="{ group: { name: 'team' } }", @start="drag=true", @end="drag=false")
+              .draggable-item(v-for="team in scope.row.teams[0]") {{ team.name }}
         el-table-column(label="Opp")
           template(scope="scope")
-            draggable.adj-list(v-model="scope.row.opp", :options="{ group: { name: 'team' } }", @start="drag=true", @end="drag=false")
-              .draggable-item(v-for="team in scope.row.opp") {{ team.name }}
+            draggable.adj-list(v-model="scope.row.teams[1]", :options="{ group: { name: 'team' } }", @start="drag=true", @end="drag=false")
+              .draggable-item(v-for="team in scope.row.teams[1]") {{ team.name }}
         el-table-column(label="Chair")
           template(scope="scope")
             draggable.adj-list.chair(v-model="scope.row.chairs", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
@@ -30,8 +30,8 @@
             draggable.adj-list.trainee(v-model="scope.row.trainees", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="adjudicator in scope.row.trainees") {{ adjudicator.name }}
     section.adj-list-container
-      draggable.adj-list.src(v-model="adj_list_src", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
-        .draggable-item(v-for="adjudicator in adj_list_src") {{ adjudicator.name }}
+      draggable.adj-list.src(v-model="unpresent_adjudicators", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
+        .draggable-item(v-for="adjudicator in unpresent_adjudicators") {{ adjudicator.name }}
 </template>
 
 <script>
@@ -48,41 +48,64 @@ export default {
     return {
       loading: true,
       draw: {
-        r: 3,
+        r: 1,
         allocation: [{
-            venues: ['101'],
-            gov: [{
-              name: 'Team A'
-            }],
-            opp: [{
-              name: 'Team B'
-            }],
-            chairs: [],
-            panels: [],
-            trainees: []
-          }, {
-            venues: ['102'],
-            gov: [{
-              name: 'Team C'
-            }],
-            opp: [{
-              name: 'Team D'
-            }],
-            chairs: [],
-            panels: [],
-            trainees: []
-          }]
-        }
+          venues: ['v1'],
+          teams: {
+            0: {
+              id: 1,
+              name: "t1"
+            },
+            1: {
+              id: 2,
+              name: "t2"
+            }
+          },
+          chairs: [],
+          panels: [],
+          trainees: []
+        }, {
+          venues: ['v1'],
+          teams: {
+            0: {
+              id: 1,
+              name: "t1"
+            },
+            1: {
+              id: 2,
+              name: "t2"
+            }
+          },
+          chairs: [],
+          panels: [],
+          trainees: []
+        }]
+      },
+      adjudicators: [],
+      teams: [],
+      venues: [{
+        id: 1,
+        name: 'v1'
+      }, {
+        id: 2,
+        name: 'v2'
+      }]
     }
   },
   computed: {
-    adj_list_src: {
-      get () {
-        return this.adjudicators
-      },
-      set (adjudicators) {
-        this.update_adjudicators({ adjudicators })
+    adjudicators () {
+      let adjudicators = []
+      for (let raw_adj of this.target_tournament.adjudicators) {
+        let adj = {
+          id: raw_adj.id,
+          name: raw_adj.name,
+          institutions: raw_adj.institutions,
+          present: false,
+          available: raw_adj.available
+        }
+        adjudicators.push(adj)
       }
+      return adjudicators
     },
     loading_tournaments () {
       return !this.tournaments
@@ -92,26 +115,24 @@ export default {
     },
     ...mapState([
       'auth',
-      'tournaments',
-      'adjudicators'
+      'tournaments'
     ]),
     ...mapGetters([
-      'isAuth'
+      'isAuth',
+      'target_tournament'
     ])
   },
   methods: {
-    ...mapMutations({
-      update_adjudicators: 'adjudicators'
-    }),
     ...mapActions([
-      'init_adjudicators'
+      'init_adjudicators',
+      'init_teams'
     ])
   },
   mounted () {
     if (!this.isAuth) {
       this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
     }
-    this.init_adjudicators()
+    Promise.all([this.init_adjudicators(), this.init_teams()])
       .then(() => {
         this.loading = false
       })
