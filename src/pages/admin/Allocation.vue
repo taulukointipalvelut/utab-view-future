@@ -38,15 +38,15 @@
                 p message: {{ warning.message }}
                 p details: {{ warning.details }}
 
-    legend Adjudicators
+    legend Waiting Adjudicators
     section.adj-list-container
       draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options", @start="drag=true", @end="drag=false")
         .draggable-item(v-for="id in adjudicators") {{ adjudicator_by_id(id).name }}
-    legend Teams
+    legend Waiting Teams
     section.adj-list-container
       draggable.adj-list.src(v-model="teams", :options="team_options", @start="drag=true", @end="drag=false")
         .draggable-item(v-for="id in teams") {{ team_by_id(id).name }}
-    legend Venues
+    legend Waiting Venues
     section.adj-list-container
       draggable.adj-list.src(v-model="venues", :options="venue_options", @start="drag=true", @end="drag=false")
         .draggable-item(v-for="id in venues") {{ venue_by_id(id).name }}
@@ -180,8 +180,8 @@ export default {
       return warnings
     },
     warn_institutions (square) {
-      let t0_insti = this.team_by_id(square.teams[0]).institutions
-      let t1_insti = this.team_by_id(square.teams[1]).institutions
+      let t0_insti = square.teams[0].length === 0 ? [] : this.team_by_id(square.teams[0][0]).institutions
+      let t1_insti = square.teams[1].length === 0 ? [] : this.team_by_id(square.teams[1][0]).institutions
       if (!math.disjoint(t0_insti, t1_insti)) {
         return {
           code: 600,
@@ -194,8 +194,8 @@ export default {
       }
     },
     warn_conflicts (square) {
-      let t0_insti = this.team_by_id(square.teams[0]).institutions
-      let t1_insti = this.team_by_id(square.teams[1]).institutions
+      let t0_insti = square.teams[0].length === 0 ? [] : this.team_by_id(square.teams[0][0]).institutions
+      let t1_insti = square.teams[1].length === 0 ? [] : this.team_by_id(square.teams[1][0]).institutions
       let adj_insti = Array.prototype.concat.apply(
                         [],
                         square.chairs.concat(square.panels).concat(square.trainees).map(this.adjudicator_by_id)
@@ -274,5 +274,4 @@ export default {
 
       .draggable-item
         margin-right .5rem
-        min-width 20%
 </style>

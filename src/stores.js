@@ -396,22 +396,34 @@ export default {
                 }, {
                     venue: 2,
                     teams: {
-                        0: 2,
-                        1: 3
+                        0: 3,
+                        1: 4
+                    },
+                    chairs: [-4],
+                    panels: [-5, -6],
+                    trainees: []
+                }]
+            },{
+                r: 2,
+                allocation: [{
+                    venue: 1,
+                    teams: {
+                        0: 1,
+                        1: 2
                     },
                     chairs: [-1],
                     panels: [-2, -3],
                     trainees: []
+                }, {
+                    venue: 2,
+                    teams: {
+                        0: 3,
+                        1: 4
+                    },
+                    chairs: [-4],
+                    panels: [-5, -6],
+                    trainees: []
                 }]
-            }, {
-                venue: 2,
-                teams: {
-                    0: 2,
-                    1: 3
-                },
-                chairs: [-1],
-                panels: [-2, -3],
-                trainees: []
             }],
             style: {
               score_weights: [
@@ -544,7 +556,7 @@ export default {
             id: -7,
             name: 'Adjudicator 7',
             //href: { to: `Adjudicator%207` },
-            institutions: [1]
+            institutions: [2]
           }, {
             id: -4,
             name: 'Adjudicator 4',
