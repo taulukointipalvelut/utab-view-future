@@ -15,6 +15,7 @@ TODO: In edit dialog, need validation
             template(scope="scope")
               el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")] Edit
               el-button(size="small", type="danger", @click="on_delete_round(scope.row)") #[el-icon(name="close")] Delete
+              el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
         .operations
           el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
@@ -246,6 +247,11 @@ export default {
     ])
   },
   methods: {
+    on_result_round (selected) {
+      this.$router.push({
+        path: 'result'
+      })
+    },
     on_select_round (selected, ev, col) {
       this.$router.push(selected.href)
     },

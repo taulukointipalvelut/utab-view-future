@@ -1,6 +1,7 @@
 import Home from './Home'
 import Tournament from './Tournament'
 import Allocation from './Allocation'
+import Result from './Result'
 //import Round from './Round'
 
 export default [{
@@ -17,11 +18,16 @@ export default [{
     path: ':tournament_name/allocation',
     props: true,
     component: Allocation
+  }, {
+    path: ':tournament_name/result',
+    props: true,
+    component: Result
+  }, {
 /*  }, {
-    path: ':tournament_name/:r',
+    path: ':tournament_name/rounds/:r',
     props: true,
     component: Round
-*/  }, {
+  }, {*/
     path: '',
     redirect: 'home'
 }]

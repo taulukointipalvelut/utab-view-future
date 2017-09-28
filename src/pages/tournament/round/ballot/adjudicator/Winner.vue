@@ -6,10 +6,10 @@
           .winner-selector
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Gov
-              .sideinfo-header__item {{ total(gov) }}
+              .sideinfo-header__item {{ total(gov) }} pts
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Opp
-              .sideinfo-header__item {{ total(opp) }}
+              .sideinfo-header__item {{ total(opp) }} pts
           el-radio-group.winner-selector(:value="winner", @input="on_selected($event)", size="large")
             el-radio-button.winner-selector__item(:label="score_sheet.gov.name")
             el-radio-button.winner-selector__item(:label="score_sheet.opp.name")
@@ -75,6 +75,7 @@ export default {
   .sideinfo-header
     display flex
     width 100%
+    font-size 14px
 
   .winner-selector
     justify-content center

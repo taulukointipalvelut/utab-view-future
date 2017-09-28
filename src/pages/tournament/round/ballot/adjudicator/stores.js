@@ -104,7 +104,7 @@ export default {
             gov: {
                 id: state.score_sheet.gov.id,
                 name: state.score_sheet.gov.name,
-                win: state.winner === 'gov',
+                win: state.winner === state.score_sheet.gov.name,
                 speakers: roles.map(role => state.gov.result[role].id),
                 matters: roles.map(role => state.gov.result[role].matter),
                 manners: roles.map(role => state.gov.result[role].manner),
@@ -115,7 +115,7 @@ export default {
             opp: {
                 id: state.score_sheet.opp.id,
                 name: state.score_sheet.opp.name,
-                win: state.winner !== 'gov',
+                win: state.winner === state.score_sheet.opp.name,
                 speakers: roles.map(role => state.opp.result[role].id),
                 matters: roles.map(role => state.opp.result[role].matter),
                 manners: roles.map(role => state.opp.result[role].manner),
@@ -124,7 +124,6 @@ export default {
                 poi: roles.map(role => state.opp.result[role].poi_prize)
             }
         }
-
 
         let raw_team_results = []
         let raw_debater_results = []
@@ -142,7 +141,6 @@ export default {
                             converted_result[side].scores[index] : 0)
                 }
                 raw_debater_results.push(raw_debater_result)
-                console.log(raw_debater_result)
             }
 
             let id = converted_result[side].id
