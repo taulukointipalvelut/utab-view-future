@@ -98,7 +98,15 @@ export default {
     adjudicator_by_id: (state, getters) => entity_by_id(state, getters, 'adjudicators'),
     speaker_by_id: (state, getters) => entity_by_id(state, getters, 'speakers'),
     venue_by_id: (state, getters) => entity_by_id(state, getters, 'venues'),
-    institution_by_id: (state, getters) => entity_by_id(state, getters, 'institutions')
+    institution_by_id: (state, getters) => entity_by_id(state, getters, 'institutions'),
+    unallocated_speakers (state, getters) {
+        let tournament = getters.target_tournament
+        let allocated_speakers = []
+        for (let team of tournament.teams) {
+            allocated_speakers = allocated_speakers.concat(team.speakers)
+        }
+        return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))
+    }
   },
   mutations: {
     /* auth.session */

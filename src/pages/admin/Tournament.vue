@@ -81,7 +81,7 @@ TODO: In edit dialog, need validation
             el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.available")
           el-form-item(label="Speakers", prop="speakers")
             el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.speakers[index]", :key="index")
-              el-option(v-for="speaker in target_tournament.speakers", :key="speaker.id", :value="speaker.id", :label="speaker.name")
+              el-option(v-for="speaker in unallocated_speakers", :key="speaker.id", :value="speaker.id", :label="speaker.name")
           el-form-item(label="Institutions", prop="institutions")
             el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.institutions[index]", :key="index")
               el-option(v-for="institution in target_tournament.institutions", :key="institution.id", :value="institution.id", :label="institution.name")
@@ -242,8 +242,8 @@ export default {
     ]),
     ...mapGetters([
       'isAuth',
-      'target_tournament'/*,
-      'target_round'*/
+      'target_tournament',
+      'unallocated_speakers'
     ])
   },
   methods: {
