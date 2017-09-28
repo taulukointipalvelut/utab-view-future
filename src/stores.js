@@ -8,16 +8,18 @@ function find_tournament (state, payload) {
 
 function add_factory (label) {
     function add_entities (state, payload) {
-      let tournament = find_tournament(state, payload)
+        let tournament = find_tournament(state, payload)
         tournament[label] = tournament[label].concat(payload[label])
     }
+    return add_entities
 }
 
-function delete_factory (label, key='id') {
+function delete_factory (label, label_singular, key='id') {
     function delete_entity (state, payload) {
-      let tournament = find_tournament(state, payload)
-        tournament[label] = tournament[label].filter(x => x[key] !== payload[label][key])
+        let tournament = find_tournament(state, payload)
+        tournament[label] = tournament[label].filter(x => x[key] !== payload[label_singular][key])
     }
+    return delete_entity
 }
 
 function fetch_post (url, data) {
@@ -196,35 +198,40 @@ export default {
     },
     /* tournaments */
     rounds (state, payload) {
-      let tournament = find_tournament(state, payload)
-      tournament.rounds = payload.rounds
+        console.log("this method should be deleted in production")
+        let tournament = find_tournament(state, payload)
+        tournament.rounds = payload.rounds
     },
-    add_rounds: add_factory('rounds'),
-    delete_round: delete_factory('rounds', 'r'),
-    /* adjudicators */
     adjudicators (state, payload) {
         console.log("this method should be deleted in production")
         let tournament = find_tournament(state, payload)
         tournament.adjudicators = payload.adjudicators
     },
-    add_adjudicators: add_factory('adjudicators'),
-    delete_adjudicator: delete_factory('adjudicators'),
-    /* teams */
     teams (state, payload) {
         console.log("this method should be deleted in production")
         let tournament = find_tournament(state, payload)
         tournament.teams = payload.teams
     },
+    add_rounds: add_factory('rounds'),
+    delete_round: delete_factory('rounds', 'round', 'r'),
     add_teams: add_factory('teams'),
-    delete_team: delete_factory('teams'),
+    delete_team: delete_factory('teams', 'team'),
+    add_adjudicators: add_factory('adjudicators'),
+    delete_adjudicator: delete_factory('adjudicators', 'adjudicator'),
     add_speakers: add_factory('speakers'),
-    delete_speaker: delete_factory('speakers'),
+    delete_speaker: delete_factory('speakers', 'speaker'),
     add_venues: add_factory('venues'),
-    delete_venue: delete_factory('venues'),
+    delete_venue: delete_factory('venues', 'venue'),
     add_institutions: add_factory('institutions'),
-    delete_institutions: delete_factory('institutions')
+    delete_institutions: delete_factory('institutions', 'institution')
   },
   actions: {
+      add_rounds ({state, commit, dispatch}, payload) {
+          commit('add_rounds', payload)
+      },
+      delete_round ({state, commit, dispatch}, payload) {
+          commit('delete_round', payload)
+      },
       add_tournament ({state, commit, dispatch}, payload) {
          fetch_post(API_BASE_URL+'/tournaments', payload.tournament)
             .then(() => commit('add_tournament', payload))

@@ -53,10 +53,13 @@ TODO: In edit dialog, need validation
     el-dialog(title="Add New Round", :visible.sync="dialog.round.visible")
       .dialog-body
         el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
-          el-form-item(label="Round No.", prop="r")
-            el-input(type="number", v-model="dialog.round.form.model.r")
+          h3(align="center") Round {{ target_tournament.rounds.length + 1 }}
           el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.round.form.model.name")
+            el-input(v-model="dialog.round.form.model.round_name")
+          el-form-item(label="Draw Opened", prop="draw_opened")
+            el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.draw_opened")
+          el-form-item(label="Allocation Opened", prop="allocation_opened")
+            el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.allocation_opened")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.round.visible = false") Cancel
         el-button(type="primary", :loading="dialog.round.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
@@ -67,7 +70,7 @@ TODO: In edit dialog, need validation
           el-form-item(label="Round No.", prop="r")
             el-input(type="number", v-model="dialog.round_edit.form.model.r", readonly)
           el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.round_edit.form.model.name")
+            el-input(v-model="dialog.round_edit.form.model.round_name")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.round_edit.visible = false") Cancel
         el-button(type="primary", :loading="dialog.round_edit.loading", @click="on_update_round()") OK
@@ -114,7 +117,7 @@ import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 import entity_list from 'components/entity-list'
 import Lazy from 'assets/js/lazy'
-import { validators, not, is_integer, is_nonzero, is_positive, is_exists } from 'assets/js/form-validator'
+import { validators, not, is_integer, is_nonzero, is_positive, exists } from 'assets/js/form-validator'
 
 let p = (...xs) => {
   console.log(...xs)
@@ -148,19 +151,14 @@ export default {
           visible: false,
           form: {
             model: {
-              name: '',
-              r: ''
+              round_name: '',
+              draw_opened: true,
+              allocation_opened: true
             },
             rules: {
-              name: [
+              round_name: [
                 { required: true, message: 'Please input Name' },
-                { validator: validators(not(is_exists(this_rounds, 'name'))), message: 'This Round Name already exists' }
-              ],
-              r: [
-                { required: true, message: 'Please input Round Number' },
-                { min: 0, message: 'Round Number must be a positive integer' },
-                { validator: validators(is_integer, is_nonzero, is_positive), message: 'Round Number must be a positive integer' },
-                { validator: validators(not(is_exists(this_rounds, 'r', Number))), message: 'This Round Number already exists' }
+                { validator: validators(not(exists(this_rounds, 'name'))), message: 'This Round Name already exists' }
               ]
             }
           }
@@ -170,8 +168,9 @@ export default {
           visible: false,
           form: {
             model: {
-              name: '',
-              r: ''
+              round_name: '',
+              draw_opened: true,
+              allocation_opened: true
             }
           }
         },
@@ -188,7 +187,7 @@ export default {
             rules: {
               name: [
                 { required: true, message: 'Please input Name' },
-                { validator: validators(not(is_exists(this_teams, 'name'))), message: 'This Name already exists' }
+                { validator: validators(not(exists(this_teams, 'name'))), message: 'This Name already exists' }
               ]
             }
           }
@@ -212,7 +211,7 @@ export default {
             rules: {
               name: [
                 { required: true, message: 'Please input Name' },
-                { validator: validators(not(is_exists(this_adjudicators, 'name'))), message: 'This Name already exists' }
+                { validator: validators(not(exists(this_adjudicators, 'name'))), message: 'This Name already exists' }
               ]
             }
           }
@@ -232,9 +231,6 @@ export default {
   computed: {
     has_rounds () {
       return this.target_tournament.rounds && this.target_tournament.rounds.length > 0
-    },
-    has_teams () {
-      return this.target_tournament.eams && this.target_tournament.eams.length > 0
     },
     ...mapState([
       'auth',
@@ -261,6 +257,7 @@ export default {
         if (valid) {
           const tournament = this.target_tournament
           const round = Object.assign({}, this.dialog.round.form.model)
+          round.r = tournament.rounds.length + 1
           round.href = { path: `/${ tournament.tournament_name }/rounds/${ round.r }` }
           this.add_rounds({ tournament, rounds: [round] })
           this.dialog.round.loading = false
@@ -375,11 +372,9 @@ export default {
       this.dialog.team_edit.visible = false
       this.$refs.dialog_team_edit.resetFields()
     },
-    ...mapMutations([
-      'add_rounds',
-      'delete_round'
-    ]),
     ...mapActions([
+      'add_rounds',
+      'delete_round',
       'add_teams',
       'delete_team',
       'add_adjudicators',

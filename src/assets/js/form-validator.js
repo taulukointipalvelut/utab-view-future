@@ -24,7 +24,7 @@ export default class FormValidator {
   static is_negative (x) {
     return Number(x) <= 0
   }
-  static is_exists (lazy_list, key, cast=false) {
+  static exists (lazy_list, key, cast=false) {
     return x => lazy_list.value.map(v => cast ? cast(v[key]) : v[key]).includes(cast ? cast(x) : x)
   }
 }
@@ -34,4 +34,4 @@ export const not = FormValidator.not
 export const is_integer = FormValidator.is_integer
 export const is_nonzero = FormValidator.is_nonzero
 export const is_positive = FormValidator.is_positive
-export const is_exists = FormValidator.is_exists
+export const exists = FormValidator.exists
