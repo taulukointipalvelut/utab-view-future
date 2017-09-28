@@ -37,11 +37,48 @@ function fetch_delete (url) {
     })
 }
 
-function entity_by_id (state, getters, label) {
-    return id => {
-        let entities = getters.target_tournament[label]
-        return entities.find(e => e.id == id)
+function entity_by_id_factory (label) {
+    function entity_by_id (state, getters) {
+        return id => {
+            let entities = getters.target_tournament[label]
+            return entities.find(e => e.id == id)
+        }
     }
+    return entity_by_id
+}
+
+function action_add_base_entities_factory (label) {
+    function add_base_entities ({state, commit, dispatch}, payload) {
+      let tournament = find_tournament(state, payload)
+      let entities = []
+      let id_diff = 1
+      for (let e of payload[label]) {
+          let entity = {
+              id: tournament[label].length+id_diff,
+              name: e.name,
+              details: e.details
+          }
+          id_diff += 1
+          entities.push(entity)
+      }
+      new_payload = { tournament }
+      new_payload[label] = entities
+
+      fetch_post(API_BASE_URL+'/tournaments/'+tournament.id+'/'+label, entities)
+          .then(() => commit('add_'+label, new_payload))
+    }
+    return add_base_entities
+}
+
+function action_delete_base_entities_factory (label, label_singular) {
+    function delete_base_entities ({state, commit, dispatch}, payload) {
+        let tournament = find_tournament(state, payload)
+        new_payload = { tournament }
+        new_payload[label_singular] = payload[label_singular]
+        fetch_delete(API_BASE_URL+'/tournaments/'+tournament.id+'/'+label+'/'+payload[label_singular].id)
+            .then(() => commit('delete_'+label_singular, new_payload))
+    }
+    return delete_base_entities
 }
 
 export default {
@@ -94,11 +131,11 @@ export default {
         }
         return score_sheets
     },
-    team_by_id: (state, getters) => entity_by_id(state, getters, 'teams'),
-    adjudicator_by_id: (state, getters) => entity_by_id(state, getters, 'adjudicators'),
-    speaker_by_id: (state, getters) => entity_by_id(state, getters, 'speakers'),
-    venue_by_id: (state, getters) => entity_by_id(state, getters, 'venues'),
-    institution_by_id: (state, getters) => entity_by_id(state, getters, 'institutions'),
+    team_by_id: entity_by_id_factory('teams'),
+    adjudicator_by_id: entity_by_id_factory('adjudicators'),
+    speaker_by_id: entity_by_id_factory('speakers'),
+    venue_by_id: entity_by_id_factory('venues'),
+    institution_by_id: entity_by_id_factory('institutions'),
     unallocated_speakers (state, getters) {
         let tournament = getters.target_tournament
         let allocated_speakers = []
@@ -179,7 +216,13 @@ export default {
         tournament.teams = payload.teams
     },
     add_teams: add_factory('teams'),
-    delete_team: delete_factory('teams')
+    delete_team: delete_factory('teams'),
+    add_speakers: add_factory('speakers'),
+    delete_speaker: delete_factory('speakers'),
+    add_venues: add_factory('venues'),
+    delete_venue: delete_factory('venues'),
+    add_institutions: add_factory('institutions'),
+    delete_institutions: delete_factory('institutions')
   },
   actions: {
       add_tournament ({state, commit, dispatch}, payload) {
@@ -237,6 +280,12 @@ export default {
         fetch_delete(API_BASE_URL+'/tournaments/'+tournament.id+'/adjudicators/'+payload.adjudicator.id)
             .then(() => commit('delete_adjudicator', { tournament, adjudicator: payload.adjudicator }))
       },
+      add_speakes: action_add_base_entities_factory('speakers'),
+      add_venues: action_add_base_entities_factory('venues'),
+      add_institutions: action_add_base_entities_factory('institutions'),
+      delete_speakes: action_delete_base_entities_factory('speakers', 'speaker'),
+      delete_venues: action_delete_base_entities_factory('venues', 'venue'),
+      delete_institutions: action_delete_base_entities_factory('institutions', 'institution'),
       init_tournaments ({ commit }) {
         /*return fetch(API_BASE_URL+'/tournaments')
             .then(response => response.json())
