@@ -1,6 +1,6 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
-    section(v-if="team && team.team")
+    section(v-if="team")
       el-card(:class="side_name")
         div(slot="header").card-header-container
           span.card-title {{ role_name_long(role_name) | camelize }}
@@ -8,7 +8,7 @@
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
             el-select(:value="result.id", @input="on_input_result('id', $event)", placeholder="Select Speaker")
-              el-option(v-for="speaker in team.team.speakers", :key="speaker", :label="option_label(speaker.name)", :value="speaker.id")
+              el-option(v-for="speaker in score_sheet[side_name].speakers", :key="speaker", :label="speaker.name", :value="speaker.id")
           el-form-item(label="Matter", required)
             number-box(:value="result.matter", @input="on_input_result('matter', $event)", :min="1", :max="role_name == 'reply' ? 5 : 10", :step="role_name == 'reply' ? 0.5 : 1")
           el-form-item(label="Manner", required)
@@ -19,7 +19,7 @@
             el-switch(:value="result.best_debater", @input="on_input_result('best_debater', $event)", on-text="Yes", off-text="No")
           el-form-item(label="POI Prize")
             el-switch(:value="result.poi_prize", @input="on_input_result('poi_prize', $event)", on-text="Yes", off-text="No")
-    section.buttons(v-if="team && team.team")
+    section.buttons(v-if="team")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
 </template>
@@ -74,6 +74,7 @@ export default {
     ...mapState('ballot', [
       'gov',
       'opp',
+      'score_sheet',
       'sequence',
       'style'
     ])
@@ -86,9 +87,6 @@ export default {
     on_next () {
       const next = this.query.next ? this.query.next : this.next
       this.$router.push(next)
-    },
-    option_label (speaker_name) {
-      return this.smartphone ? speaker_name : `${ speaker_name } (${ this.team.team.name })`
     },
     on_input_result (key, value) {
       const side = this.side_name

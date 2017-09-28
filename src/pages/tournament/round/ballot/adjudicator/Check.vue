@@ -1,9 +1,9 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
-    .card-container(v-if="!loading && has_teams")
+    .card-container(v-if="!loading")
       el-card.gov
         div(slot="header").card-header-container
-          span.card-title {{ gov.team.name }}
+          span.card-title {{ score_sheet.gov.name }}
           span.card-subtitle Gov
         .outer-table
           .outer-table-tr(v-for="role in roles")
@@ -18,7 +18,7 @@
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ get_speaker_name(gov.team.speakers, gov.result[role].id) | defaults('Not specified yet') }}
+                  .inner-table-td {{ get_speaker_name(score_sheet.gov.speakers, gov.result[role].id) | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/gov-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
@@ -36,7 +36,7 @@
 
       el-card.opp
         div(slot="header").card-header-container
-          span.card-title {{ opp.team.name }}
+          span.card-title {{ score_sheet.opp.name }}
           span.card-subtitle Opp
         .outer-table
           .outer-table-tr(v-for="role in roles")
@@ -51,7 +51,7 @@
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ get_speaker_name(opp.team.speakers, opp.result[role].id) | defaults('Not specified yet') }}
+                  .inner-table-td {{ get_speaker_name(score_sheet.opp.speakers, opp.result[role].id) | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/opp-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
@@ -67,7 +67,7 @@
             .outer-table-td.role Total
             .outer-table-td.flex.right {{ total(opp) }}
 
-    .card-container(v-if="!loading && has_teams")
+    .card-container(v-if="!loading")
       el-card.flat
         .outer-table.no-border
           .outer-table-tr
@@ -104,9 +104,6 @@ export default {
     }
   },
   computed: {
-    has_teams () {
-      return this.tournament.teams && this.tournament.teams.length > 0
-    },
     ...mapState([
       'auth'
     ]),
@@ -118,7 +115,8 @@ export default {
       'opp',
       'winner',
       'style',
-      'roles'
+      'roles',
+      'score_sheet'
     ])
   },
   methods: {
@@ -231,6 +229,8 @@ export default {
     margin-bottom 2rem
 
   .winner
+    border-bottom solid 3px #ff0f0f
+    font-size 150%
     width 50%
     font-weight bold
 

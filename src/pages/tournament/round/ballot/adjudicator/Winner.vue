@@ -1,6 +1,6 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
-    .card-container(v-if="!loading && has_teams")
+    .card-container(v-if="!loading")
       el-card
         el-form
           .winner-selector
@@ -11,8 +11,8 @@
               .sideinfo-header__item Opp
               .sideinfo-header__item {{ total(opp) }}
           el-radio-group.winner-selector(:value="winner", @input="on_selected($event)", size="large")
-            el-radio-button.winner-selector__item(:label="gov.team.name")
-            el-radio-button.winner-selector__item(:label="opp.team.name")
+            el-radio-button.winner-selector__item(:label="score_sheet.gov.name")
+            el-radio-button.winner-selector__item(:label="score_sheet.opp.name")
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -33,9 +33,6 @@ export default {
     proceedable () {
       return this.winner && this.winner !== ''
     },
-    has_teams () {
-      return this.tournament.teams && this.tournament.teams.length > 0
-    },
     ...mapState([
       'auth'
     ]),
@@ -45,7 +42,8 @@ export default {
     ...mapState('ballot', [
       'gov',
       'opp',
-      'winner'
+      'winner',
+      'score_sheet'
     ])
   },
   methods: {
@@ -54,9 +52,6 @@ export default {
     },
     on_next () {
       this.$router.push('check')
-    },
-    option_label (speaker_name, team_name) {
-      return smartphone() ? speaker_name : `${ speaker_name } (${ team_name })`
     },
     on_selected (winner) {
       this.$store.commit('ballot/winner', { winner })

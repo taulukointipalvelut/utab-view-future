@@ -44,7 +44,7 @@ export default {
                     opp: square.teams[1],
                     adjudicator,
                     venue: square.venue,
-                    chair: adjudicator.id in square.chairs.map(c => c.id) ? true : false,
+                    chair: square.chairs.map(c => c.id).includes(adjudicator.id) ? true : false,
                     href: { to: adjudicator.name }
                 }
                 score_sheets.push(score_sheet)
@@ -245,7 +245,7 @@ export default {
                         venue: '101',
                         teams: {
                             0: {
-                                id: 0,
+                                id: 1,
                                 name: 'Team A',
                                 speakers: [{
                                     name: "s1",
@@ -256,7 +256,7 @@ export default {
                                 }]
                             },
                             1: {
-                                id: 1,
+                                id: 2,
                                 name: 'Team B',
                                 speakers: [{
                                     name: "s3",
@@ -268,14 +268,14 @@ export default {
                             },
                         },
                         chairs: [{
-                            id: 0,
+                            id: -1,
                             name: 'Adjudicator 1'
                         }],
                         panels: [{
-                            id: 1,
+                            id: -2,
                             name: 'Adjudicator 2'
                         }, {
-                            id: 2,
+                            id: -3,
                             name: 'Adjudicator 3'
                         }],
                         trainees: []
@@ -286,23 +286,23 @@ export default {
                         venue: '101',
                         teams: {
                             0: {
-                                id: 0,
+                                id: 1,
                                 name: 'Team A'
                             },
                             1: {
-                                id: 1,
+                                id: 2,
                                 name: 'Team B'
                             },
                         },
                         chairs: [{
-                            id: 0,
+                            id: -1,
                             name: 'Adjudicator 1'
                         }],
                         panels: [{
-                            id: 1,
+                            id: -2,
                             name: 'Adjudicator 2'
                         }, {
-                            id: 2,
+                            id: -3,
                             name: 'Adjudicator 3'
                         }],
                         trainees: []

@@ -102,8 +102,8 @@ export default {
         let roles = ['leader', 'deputy', 'member', 'reply']
         let converted_result = {
             gov: {
-                id: state.gov.team.id,
-                name: state.gov.team.name,
+                id: state.score_sheet.gov.id,
+                name: state.score_sheet.gov.name,
                 win: state.winner === 'gov',
                 speakers: roles.map(role => state.gov.result[role].id),
                 matters: roles.map(role => state.gov.result[role].matter),
@@ -113,8 +113,8 @@ export default {
                 poi: roles.map(role => state.gov.result[role].poi_prize)
             },
             opp: {
-                id: state.opp.team.id,
-                name: state.opp.team.name,
+                id: state.score_sheet.opp.id,
+                name: state.score_sheet.opp.name,
                 win: state.winner !== 'gov',
                 speakers: roles.map(role => state.opp.result[role].id),
                 matters: roles.map(role => state.opp.result[role].matter),
@@ -124,7 +124,41 @@ export default {
                 poi: roles.map(role => state.opp.result[role].poi_prize)
             }
         }
-        return converted_result
+
+
+        let raw_team_results = []
+        let raw_debater_results = []
+        let sides = ['gov', 'opp']
+        for (let i of [0, 1]) {
+            let side = sides[i]
+            for (let id of Array.from(new Set(converted_result[side].speakers))) {
+                let raw_debater_result = {
+                    id,
+                    r: state.score_sheet.r,
+                    from_id: state.score_sheet.adjudicator.id,
+                    weight: 1,
+                    scores: [0, 1, 2, 3].map(
+                        index => [0, 1, 2, 3].filter(index => converted_result[side].speakers[index] === id).includes(index) ?
+                            converted_result[side].scores[index] : 0)
+                }
+                raw_debater_results.push(raw_debater_result)
+                console.log(raw_debater_result)
+            }
+
+            let id = converted_result[side].id
+            let raw_team_result = {
+                id,
+                r: state.score_sheet.r,
+                from_id: state.score_sheet.adjudicator.id,
+                weight: 1,
+                win: converted_result[side].win,
+                side: side,
+                opponents: [state.score_sheet[sides[1-i]].id]
+            }
+            raw_team_results.push(raw_team_result)
+        }
+
+        return {raw_team_results, raw_debater_results}
     }
   },
   mutations: {
@@ -152,17 +186,10 @@ export default {
         commit('teams', payload)
     },
     send_ballot ({ getters, state, commit, rootState }, payload) {
-        let converted = getters.converted
-        let raw_debater_results = []
-        for (let id of converted.gov.speakers) {
-            let raw_debater_result = {
-                id,
-                r: state.score_sheet.r,
-                from_id: state.score_sheet.adjudicator.id,
-                weight: 1,
-                scores
-            }
-        }
+        let {raw_team_results, raw_debater_results} = getters.converted
+        console.log(raw_team_results)
+        console.log(raw_debater_results)
+        console.log("SEND_BALLOT")
     }
   }
 }

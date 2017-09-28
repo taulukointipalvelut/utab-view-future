@@ -16,7 +16,7 @@
               el-icon(name="edit")
         el-table-column(prop="adjudicator", label="Name")
           template(scope="scope")
-            span {{ scope.row.adjudicator.name }} #[i.fa.fa-user-secret(v-if="scope.row.chair")] 
+            span {{ scope.row.adjudicator.name }} #[i.fa.fa-user-secret(v-if="scope.row.chair")]
         el-table-column(prop="venue", label="Venue", v-if="!smartphone")
     section(v-if="!loading && !has_adjudicators")
       span No Adjudicators Available
