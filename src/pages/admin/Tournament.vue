@@ -262,7 +262,7 @@ export default {
           const tournament = this.target_tournament
           const round = Object.assign({}, this.dialog.round.form.model)
           round.href = { path: `/${ tournament.tournament_name }/rounds/${ round.r }` }
-          this.add_round({ tournament, round })
+          this.add_rounds({ tournament, rounds: [round] })
           this.dialog.round.loading = false
           this.dialog.round.visible = false
           this.$refs.dialog_round.resetFields()
@@ -289,7 +289,7 @@ export default {
       const round = Object.assign({}, this.dialog.round_edit.form.model)
       round.href = { path: `/${ tournament.tournament_name }/rounds/${ round.r }` }
       this.delete_round({ tournament, round })
-      this.add_round({ tournament, round })
+      this.add_rounds({ tournament, rounds: [round] })
       this.dialog.round_edit.loading = false
       this.dialog.round_edit.visible = false
       this.$refs.dialog_round_edit.resetFields()
@@ -376,7 +376,7 @@ export default {
       this.$refs.dialog_team_edit.resetFields()
     },
     ...mapMutations([
-      'add_round',
+      'add_rounds',
       'delete_round'
     ]),
     ...mapActions([
