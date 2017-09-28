@@ -355,6 +355,18 @@ export default {
             }, {
                 id: 8,
                 name: "s8"
+            }, {
+                id: 9,
+                name: "s9"
+            }, {
+                id: 10,
+                name: "s10"
+            }, {
+                id: 11,
+                name: "s11"
+            }, {
+                id: 12,
+                name: "s12"
             }],
             institutions: [{
                 id: 1,
@@ -369,11 +381,14 @@ export default {
             }, {
                 id: 2,
                 name: "v2"
+            }, {
+                id: 3,
+                name: "v3"
             }],
             draws: [{
                 r: 1,
                 allocation: [{
-                    venue: '101',
+                    venue: 1,
                     teams: {
                         0: 1,
                         1: 2
@@ -381,19 +396,25 @@ export default {
                     chairs: [-1],
                     panels: [-2, -3],
                     trainees: []
-                }]
-            },{
-                r: 1,
-                allocation: [{
-                    venue: '101',
+                }, {
+                    venue: 2,
                     teams: {
-                        0: 1,
-                        1: 2
+                        0: 2,
+                        1: 3
                     },
                     chairs: [-1],
                     panels: [-2, -3],
                     trainees: []
                 }]
+            }, {
+                venue: 2,
+                teams: {
+                    0: 2,
+                    1: 3
+                },
+                chairs: [-1],
+                panels: [-2, -3],
+                trainees: []
             }],
             style: {
               score_weights: [
@@ -566,7 +587,15 @@ export default {
               id: 2,
               name: 'Team B',
               speakers: [4, 5, 6, 7]
-          }]
+            }, {
+              id: 3,
+              name: 'Team C',
+              speakers: [8, 9]
+            }, {
+              id: 4,
+              name: 'Team D',
+              speakers: [10, 11]
+            }]
           commit('teams', { tournament: {tournament_name: 'PDA Tournament 2018'}, teams })
           resolve()
       }, 1000)

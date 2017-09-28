@@ -7,31 +7,40 @@
       el-table(:data="draw.allocation")
         el-table-column(label="Venue")
           template(scope="scope")
-            draggable.adj-list(v-model="scope.row.venues", :options="{ group: { name: 'venue' } }", @start="drag=true", @end="drag=false")
-              .draggable-item(v-for="id in scope.row.venues") {{ id }}
+            draggable.adj-list(v-model="scope.row.venues", :options="venue_options", @start="drag=true", @end="drag=false")
+              .draggable-item(v-for="id in scope.row.venues") {{ venue_by_id(id).name }}
         el-table-column(label="Gov")
           template(scope="scope")
-            draggable.adj-list(v-model="scope.row.teams[0]", :options="{ group: { name: 'team' } }", @start="drag=true", @end="drag=false")
+            draggable.adj-list(v-model="scope.row.teams[0]", :options="team_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.teams[0]") {{ team_by_id(id).name }}
         el-table-column(label="Opp")
           template(scope="scope")
-            draggable.adj-list(v-model="scope.row.teams[1]", :options="{ group: { name: 'team' } }", @start="drag=true", @end="drag=false")
+            draggable.adj-list(v-model="scope.row.teams[1]", :options="team_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.teams[1]") {{ team_by_id(id).name }}
         el-table-column(label="Chair")
           template(scope="scope")
-            draggable.adj-list.chair(v-model="scope.row.chairs", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
+            draggable.adj-list.chair(v-model="scope.row.chairs", :options="adjudicator_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.chairs") {{ adjudicator_by_id(id).name }}
         el-table-column(label="Panel")
           template(scope="scope")
-            draggable.adj-list.panel(v-model="scope.row.panels", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
+            draggable.adj-list.panel(v-model="scope.row.panels", :options="adjudicator_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.panels") {{ adjudicator_by_id(id).name }}
         el-table-column(label="Trainee")
           template(scope="scope")
-            draggable.adj-list.trainee(v-model="scope.row.trainees", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
+            draggable.adj-list.trainee(v-model="scope.row.trainees", :options="adjudicator_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.trainees") {{ adjudicator_by_id(id).name }}
+    legend Adjudicators
     section.adj-list-container
-      draggable.adj-list.src(v-model="unpresent_adjudicators", :options="{ group: { name: 'adj-list' } }", @start="drag=true", @end="drag=false")
-        .draggable-item(v-for="adjudicator in unpresent_adjudicators") {{ adjudicator_by_id(id).name }}
+      draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options", @start="drag=true", @end="drag=false")
+        .draggable-item(v-for="id in adjudicators") {{ adjudicator_by_id(id).name }}
+    legend Teams
+    section.adj-list-container
+      draggable.adj-list.src(v-model="teams", :options="team_options", @start="drag=true", @end="drag=false")
+        .draggable-item(v-for="id in teams") {{ team_by_id(id).name }}
+    legend Venues
+    section.adj-list-container
+      draggable.adj-list.src(v-model="venues", :options="venue_options", @start="drag=true", @end="drag=false")
+        .draggable-item(v-for="id in venues") {{ venue_by_id(id).name }}
 </template>
 
 <script>
@@ -46,55 +55,47 @@ export default {
   },
   data () {
     return {
+      team_options: {
+        group: { name: 'team-list' },
+        animation: 100
+      },
+      adjudicator_options: {
+        group: { name: 'adjudicator-list' },
+        animation: 100
+      },
+      venue_options: {
+        group: { name: 'venue-list' },
+        animation: 100
+      },
       loading: true,
       draw: {
         r: 1,
         allocation: [{
-          venues: ['v1'],
+          venues: [1],
           teams: {
-            0: 1,
-            1: 2
+            0: [1],
+            1: [2]
           },
-          chairs: [],
-          panels: [],
+          chairs: [-1],
+          panels: [-2, -3],
           trainees: []
         }, {
-          venues: ['v1'],
+          venues: [2],
           teams: {
-            0: 1,
-            1: 2
+            0: [3],
+            1: [4]
           },
-          chairs: [],
+          chairs: [-4],
           panels: [],
           trainees: []
         }]
       },
-      adjudicators: [],
       teams: [],
-      venues: [{
-        id: 1,
-        name: 'v1'
-      }, {
-        id: 2,
-        name: 'v2'
-      }]
+      adjudicators: [],
+      venues: []
     }
   },
   computed: {
-    adjudicators () {
-      let adjudicators = []
-      for (let raw_adj of this.target_tournament.adjudicators) {
-        let adj = {
-          id: raw_adj.id,
-          name: raw_adj.name,
-          institutions: raw_adj.institutions,
-          present: false,
-          available: raw_adj.available
-        }
-        adjudicators.push(adj)
-      }
-      return adjudicators
-    },
     loading_tournaments () {
       return !this.tournaments
     },
@@ -111,7 +112,48 @@ export default {
       'team_by_id',
       'adjudicator_by_id',
       'venue_by_id'
-    ])
+    ]),
+    adjudicators_in_draw () {
+      let adjudicators_in_draw = []
+      for (let square of this.draw.allocation) {
+        adjudicators_in_draw = adjudicators_in_draw.concat(square.chairs).concat(square.panels).concat(square.trainees)
+      }
+      return adjudicators_in_draw
+    },
+    teams_in_draw () {
+      let teams_in_draw = []
+      for (let square of this.draw.allocation) {
+        teams_in_draw = teams_in_draw.concat(square.teams[0]).concat(square.teams[1])
+      }
+      return teams_in_draw
+    },
+    venues_in_draw () {
+      let venues_in_draw = []
+      for (let square of this.draw.allocation) {
+        venues_in_draw = venues_in_draw.concat(square.venues)
+      }
+      return venues_in_draw
+    },
+    converted_draw () {
+      let converted_draw = {
+        r: this.draw.r,
+        allocation: []
+      }
+      for (let raw_square of this.draw.allocation) {
+        let square = {
+          venue: raw_square.venues[0],
+          teams: {
+            0: raw_square.teams[0][0],
+            1: raw_square.teams[1][0]
+          },
+          chairs: raw_square.chairs,
+          panels: raw_square.panels,
+          trainees: raw_square.trainees
+        }
+        converted_draw.allocation.push(square)
+      }
+      return converted_draw
+    }
   },
   methods: {
     ...mapActions([
@@ -125,6 +167,9 @@ export default {
     }
     Promise.all([this.init_adjudicators(), this.init_teams()])
       .then(() => {
+        this.teams = this.target_tournament.teams.map(t => t.id).filter(id => !this.teams_in_draw.includes(id))
+        this.adjudicators = this.target_tournament.adjudicators.map(a => a.id).filter(id => !this.adjudicators_in_draw.includes(id))
+        this.venues = this.target_tournament.venues.map(v => v.id).filter(id => !this.venues_in_draw.includes(id))
         this.loading = false
       })
   }
