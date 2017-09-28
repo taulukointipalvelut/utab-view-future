@@ -133,6 +133,11 @@ export default {
         }
         return score_sheets
     },
+    round_by_r (state, getters) {
+        return id => {
+            return getters.target_tournament.rounds.find(round => round.r === r)
+        }
+    },
     team_by_id: entity_by_id_factory('teams'),
     adjudicator_by_id: entity_by_id_factory('adjudicators'),
     speaker_by_id: entity_by_id_factory('speakers'),

@@ -186,7 +186,7 @@ export default {
     },
     async on_delete (selected) {
       const ans = await this.$confirm('Are you sure?')
-      if (ans) {
+      if (ans === 'confirm') {
         this.delete_tournament({ tournament: selected })
       }
     },

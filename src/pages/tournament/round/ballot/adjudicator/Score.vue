@@ -33,7 +33,7 @@ import input_label from 'components/input-label'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'round', 'adjudicator', 'teams', 'loading', 'sequence_name'],
+  props: ['tournament', 'loading', 'sequence_name'],
   components: {
     'loading-container': loading_container,
     'number-box': number_box,

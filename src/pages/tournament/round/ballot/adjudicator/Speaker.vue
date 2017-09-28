@@ -47,7 +47,7 @@ import { smartphone } from 'assets/js/media-query'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'round', 'adjudicator', 'loading'],
+  props: ['tournament', 'loading'],
   components: {
     'loading-container': loading_container
   },
