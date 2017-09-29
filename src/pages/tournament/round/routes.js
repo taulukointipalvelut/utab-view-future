@@ -9,9 +9,11 @@ export default [{
     children: ballot_routes
   }, {
     path: 'home',
+    props: true,
     component: Home
   }, {
     path: 'draw',
+    props: true,
     component: Draw
   }, {
     path: '',

@@ -2,8 +2,7 @@
   .router-view-content
     section.page-header
       h1 Score Sheet
-      h3 {{ round.round_name }}
-      //h3 {{ round_by_r(r).name }}
+      h3 {{ round_by_r(r).round_name }}
     loading-container(:loading="loading")
     section(v-if="!loading && has_adjudicators")
       el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
@@ -30,7 +29,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'round', 'loading'],
+  props: ['tournament', 'round', 'r', 'loading'],
   components: {
     'loading-container': loading_container
   },

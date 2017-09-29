@@ -5,118 +5,119 @@ TODO: Edit dialog needs validation
   .router-view-content
     h1 {{ tournament_name }}
 
-    section
-      legend Rounds
-      loading-container(:loading="loading && !init_flag.rounds")
-        el-table(:data="target_tournament.rounds", @row-click="on_select_round")
-          el-table-column(prop="r", label="No.", width="60", align="center")
-          el-table-column(prop="round_name", label="Name", show-overflow-tooltip)
-          el-table-column
-            template(scope="scope")
-              el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")] Edit
-              el-button(size="small", type="danger", @click="on_delete_round(scope.row)") #[el-icon(name="close")] Delete
-              el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
-              el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
-        .operations
-          el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+    loading-container(:loading="loading")
+      section
+        legend Rounds
+        loading-container(:loading="!init_flag.rounds")
+          el-table(:data="target_tournament.rounds", @row-click="on_select_round")
+            el-table-column(prop="r", label="No.", width="60", align="center")
+            el-table-column(prop="round_name", label="Name", show-overflow-tooltip)
+            el-table-column
+              template(scope="scope")
+                el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")] Edit
+                el-button(size="small", type="danger", @click="on_delete_round(scope.row)") #[el-icon(name="close")] Delete
+                el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
+                el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+          .operations
+            el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
-    section
-      legend Teams
-      loading-container(:loading="loading && !init_flag.teams")
-        el-table(:data="target_tournament.teams.slice().sort((t1, t2) => t1.id > t2.id)", @row-click="on_select_team")
-          el-table-column(prop="id", label="ID", width="60", align="center")
-          el-table-column(prop="name", label="Name", show-overflow-tooltip)
-          el-table-column
-            template(scope="scope")
-              el-button(size="small", @click="on_edit_team(scope.row)") #[el-icon(name="edit")] Edit
-              el-button(size="small", type="danger", @click="on_delete_team(scope.row)") #[el-icon(name="close")] Delete
-        .operations
-          el-button(type="primary", @click="dialog.team.visible = true") #[el-icon(name="plus")] &nbsp;Add New Team
+      section
+        legend Teams
+        loading-container(:loading="!init_flag.teams")
+          el-table(:data="target_tournament.teams.slice().sort((t1, t2) => t1.id > t2.id)", @row-click="on_select_team")
+            el-table-column(prop="id", label="ID", width="60", align="center")
+            el-table-column(prop="name", label="Name", show-overflow-tooltip)
+            el-table-column
+              template(scope="scope")
+                el-button(size="small", @click="on_edit_team(scope.row)") #[el-icon(name="edit")] Edit
+                el-button(size="small", type="danger", @click="on_delete_team(scope.row)") #[el-icon(name="close")] Delete
+          .operations
+            el-button(type="primary", @click="dialog.team.visible = true") #[el-icon(name="plus")] &nbsp;Add New Team
 
-    //section
-      legend Adjudicators2
-      loading-container(:loading="loading && !init_flag.adjudicators")
-        entity-list(:entities="target_tournament.adjudicators", label="Adjudicators", @add="() => console.log('hi')")
+      //section
+        legend Adjudicators2
+        loading-container(:loading="loading && !init_flag.adjudicators")
+          entity-list(:entities="target_tournament.adjudicators", label="Adjudicators", @add="() => console.log('hi')")
 
-    section
-      legend Adjudicators
-      loading-container(:loading="loading && !init_flag.adjudicators")
-        el-table(:data="target_tournament.adjudicators.slice().sort((a1, a2) => Math.abs(a1.id) > Math.abs(a2.id))", @row-click="on_select_adjudicator")
-          el-table-column(prop="id", label="ID", width="60", align="center")
-          el-table-column(prop="name", label="Name", show-overflow-tooltip)
-          el-table-column
-            template(scope="scope")
-              el-button(size="small", @click="on_edit_adjudicator(scope.row)") #[el-icon(name="edit")] Edit
-              el-button(size="small", type="danger", @click="on_delete_adjudicator(scope.row)") #[el-icon(name="close")] Delete
-        .operations
-          el-button(type="primary", @click="dialog.adjudicator.visible = true") #[el-icon(name="plus")] &nbsp;Add New Adjudicator
+      section
+        legend Adjudicators
+        loading-container(:loading="!init_flag.adjudicators")
+          el-table(:data="target_tournament.adjudicators.slice().sort((a1, a2) => Math.abs(a1.id) > Math.abs(a2.id))", @row-click="on_select_adjudicator")
+            el-table-column(prop="id", label="ID", width="60", align="center")
+            el-table-column(prop="name", label="Name", show-overflow-tooltip)
+            el-table-column
+              template(scope="scope")
+                el-button(size="small", @click="on_edit_adjudicator(scope.row)") #[el-icon(name="edit")] Edit
+                el-button(size="small", type="danger", @click="on_delete_adjudicator(scope.row)") #[el-icon(name="close")] Delete
+          .operations
+            el-button(type="primary", @click="dialog.adjudicator.visible = true") #[el-icon(name="plus")] &nbsp;Add New Adjudicator
 
-    section(v-for="label in ['speakers', 'institutions', 'venues']", :key='label')
-      legend {{ label.charAt(0).toUpperCase() + label.slice(1) }}
-      loading-container(:loading="loading && !init_flag[label]")
-        el-table(:data="target_tournament[label].slice().sort((e1, e2) => Math.abs(e1.id) > Math.abs(e2.id))")
-          el-table-column(prop="id", label="ID", width="60", align="center")
-          el-table-column(prop="name", label="Name", show-overflow-tooltip)
+      section(v-for="label in ['speakers', 'institutions', 'venues']", :key='label')
+        legend {{ label.charAt(0).toUpperCase() + label.slice(1) }}
+        loading-container(:loading="!init_flag[label]")
+          el-table(:data="target_tournament[label].slice().sort((e1, e2) => Math.abs(e1.id) > Math.abs(e2.id))")
+            el-table-column(prop="id", label="ID", width="60", align="center")
+            el-table-column(prop="name", label="Name", show-overflow-tooltip)
 
-    el-dialog(title="Add New Round", :visible.sync="dialog.round.visible")
-      .dialog-body
-        el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
-          h3(align="center") Round {{ target_tournament.rounds.length + 1 }}
-          el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.round.form.model.round_name")
-          el-form-item(label="Draw Opened", prop="draw_opened")
-            el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.draw_opened")
-          el-form-item(label="Allocation Opened", prop="allocation_opened")
-            el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.allocation_opened")
-      .dialog-footer(slot="footer")
-        el-button(@click="dialog.round.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.round.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
+      el-dialog(title="Add New Round", :visible.sync="dialog.round.visible")
+        .dialog-body
+          el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
+            h3(align="center") Round {{ target_tournament.rounds.length + 1 }}
+            el-form-item(label="Name", prop="name")
+              el-input(v-model="dialog.round.form.model.round_name")
+            el-form-item(label="Draw Opened", prop="draw_opened")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.draw_opened")
+            el-form-item(label="Allocation Opened", prop="allocation_opened")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.allocation_opened")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.round.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.round.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
 
-    el-dialog(title="Edit Round", :visible.sync="dialog.round_edit.visible")
-      .dialog-body
-        el-form(ref="dialog_round_edit", :model="dialog.round_edit.form.model")
-          el-form-item(label="Round No.", prop="r")
-            el-input(type="number", v-model="dialog.round_edit.form.model.r", readonly)
-          el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.round_edit.form.model.round_name")
-      .dialog-footer(slot="footer")
-        el-button(@click="dialog.round_edit.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.round_edit.loading", @click="on_update_round()") OK
+      el-dialog(title="Edit Round", :visible.sync="dialog.round_edit.visible")
+        .dialog-body
+          el-form(ref="dialog_round_edit", :model="dialog.round_edit.form.model")
+            el-form-item(label="Round No.", prop="r")
+              el-input(type="number", v-model="dialog.round_edit.form.model.r", readonly)
+            el-form-item(label="Name", prop="name")
+              el-input(v-model="dialog.round_edit.form.model.round_name")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.round_edit.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.round_edit.loading", @click="on_update_round()") OK
 
-    el-dialog(title="Add New Team", :visible.sync="dialog.team.visible")
-      .dialog-body
-        el-form(ref="dialog_team", :model="dialog.team.form.model", :rules="dialog.team.form.rules")
-          el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.team.form.model.name")
-          el-form-item(label="Available", prop="available")
-            el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.available")
-          el-form-item(label="Speakers", prop="speakers")
-            el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.speakers[index]", :key="index")
-              el-option(v-for="speaker in unallocated_speakers", :key="speaker.id", :value="speaker.id", :label="speaker.name")
-          el-form-item(label="Institutions", prop="institutions")
-            el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.institutions[index]", :key="index")
-              el-option(v-for="institution in target_tournament.institutions", :key="institution.id", :value="institution.id", :label="institution.name")
-      .dialog-footer(slot="footer")
-        el-button(@click="dialog.team.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.team.loading", @click="on_create_team()") #[el-icon(name="plus", v-if="!dialog.team.loading")] Create
+      el-dialog(title="Add New Team", :visible.sync="dialog.team.visible")
+        .dialog-body
+          el-form(ref="dialog_team", :model="dialog.team.form.model", :rules="dialog.team.form.rules")
+            el-form-item(label="Name", prop="name")
+              el-input(v-model="dialog.team.form.model.name")
+            el-form-item(label="Available", prop="available")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.available")
+            el-form-item(label="Speakers", prop="speakers")
+              el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.speakers[index]", :key="index")
+                el-option(v-for="speaker in unallocated_speakers", :key="speaker.id", :value="speaker.id", :label="speaker.name")
+            el-form-item(label="Institutions", prop="institutions")
+              el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.institutions[index]", :key="index")
+                el-option(v-for="institution in target_tournament.institutions", :key="institution.id", :value="institution.id", :label="institution.name")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.team.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.team.loading", @click="on_create_team()") #[el-icon(name="plus", v-if="!dialog.team.loading")] Create
 
-    el-dialog(title="Add New Adjudicator", :visible.sync="dialog.adjudicator.visible")
-      .dialog-body
-        el-form(ref="dialog_adjudicator", :model="dialog.adjudicator.form.model", :rules="dialog.adjudicator.form.rules")
-          el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.adjudicator.form.model.name")
-      .dialog-footer(slot="footer")
-        el-button(@click="dialog.adjudicator.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.adjudicator.loading", @click="on_create_adjudicator()") #[el-icon(name="plus", v-if="!dialog.adjudicator.loading")] Create
+      el-dialog(title="Add New Adjudicator", :visible.sync="dialog.adjudicator.visible")
+        .dialog-body
+          el-form(ref="dialog_adjudicator", :model="dialog.adjudicator.form.model", :rules="dialog.adjudicator.form.rules")
+            el-form-item(label="Name", prop="name")
+              el-input(v-model="dialog.adjudicator.form.model.name")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.adjudicator.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.adjudicator.loading", @click="on_create_adjudicator()") #[el-icon(name="plus", v-if="!dialog.adjudicator.loading")] Create
 
-    el-dialog(title="Edit Team", :visible.sync="dialog.team_edit.visible")
-      .dialog-body
-        el-form(ref="dialog_team_edit", :model="dialog.team_edit.form.model")
-          el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.team_edit.form.model.name")
-      .dialog-footer(slot="footer")
-        el-button(@click="dialog.team_edit.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.team_edit.loading", @click="on_update_team()") OK
+      el-dialog(title="Edit Team", :visible.sync="dialog.team_edit.visible")
+        .dialog-body
+          el-form(ref="dialog_team_edit", :model="dialog.team_edit.form.model")
+            el-form-item(label="Name", prop="name")
+              el-input(v-model="dialog.team_edit.form.model.name")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.team_edit.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.team_edit.loading", @click="on_update_team()") OK
 </template>
 
 <script>

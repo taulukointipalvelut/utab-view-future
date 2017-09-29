@@ -1,13 +1,13 @@
 <template lang="pug">
   .router-view-content
-    router-view(:tournament="tournament", :round="round", :loading="loading")
+    router-view(:tournament="tournament", :loading="loading")
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
-  props: ['tournament', 'round'],
+  props: ['tournament'],
   data () {
     return {
       loading: true

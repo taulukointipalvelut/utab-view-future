@@ -99,13 +99,6 @@ export default {
     target_tournament: state => {
       return state.tournaments.find(t => t.tournament_name === state.route.params.tournament_name)
     },
-    target_round: (state, getters) => {
-      if (getters.target_tournament) {
-        return getters.target_tournament.rounds ? getters.target_tournament.rounds.find(round => round.r === parseInt(state.route.params.r)) : null
-      } else {
-        return null
-      }
-    },
     target_adjudicator: (state, getters) => {
       return getters.target_tournament ? getters.target_tournament.adjudicators.find(adjudicator => adjudicator.name === state.route.params.adjudicator_name) : null
     },

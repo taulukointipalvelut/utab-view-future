@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
     section.page-header
-      h1 {{ current_round.round_name }}
+      h1 {{ round_by_r(r).round_name }}
     section(v-if="draw_opened")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue", prop="venue")
@@ -21,7 +21,7 @@
           template(scope="scope")
             .adjudicator(v-for="id in scope.row.trainees") {{ scope.row.trainees.length }}
     section(v-else)
-      p Draw for {{ current_round }} is not released.
+      p Draw for {{ round_by_r(r).round_name }} is not released.
 </template>
 
 <script>
@@ -30,7 +30,7 @@ import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
 
 export default {
-  props: ['tournament', 'loading'],
+  props: ['tournament', 'loading', 'r'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item
@@ -39,20 +39,15 @@ export default {
     return {}
   },
   computed: {
-    current_round () {
-      return this.tournament.rounds.find(round => round.r === this.tournament.current_round_num)
-    },
     sorted_rows () {
-      return this.tournament.draws.find(d => d.r === this.tournament.current_round_num).allocation
-        .slice().sort((a, b) => a.venue.localeCompare(b.venue))
+      return this.draw_by_r(this.r).allocation
+        .slice().sort((a, b) => a > b)
     },
     draw_opened () {
-      let current_round = this.tournament.rounds.find(round => round.r === this.tournament.current_round_num)
-      return current_round.draw_opened
+      return this.draw_by_r(this.r).draw_opened
     },
     allocation_opened () {
-      let current_round = this.tournament.rounds.find(round => round.r === this.tournament.current_round_num)
-      return current_round.allocation_opened
+      return this.draw_by_r(this.r).allocation_opened
     },
     ...mapState([
       'auth'
@@ -60,7 +55,9 @@ export default {
     ...mapGetters([
       'isAuth',
       'team_by_id',
-      'adjudicator_by_id'
+      'adjudicator_by_id',
+      'round_by_r',
+      'draw_by_r'
     ])
   }
 }

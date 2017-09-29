@@ -4,6 +4,7 @@ import adjudicator_routes from './adjudicator/routes'
 
 export default [{
     path: 'home',
+    props: true,
     component: Home
   }, {
     path: ':adjudicator_name',
