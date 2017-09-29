@@ -125,7 +125,7 @@ export default {
                     opp: square.teams[1],
                     id,
                     venue: square.venue,
-                    chair: square.chairs.map(c => c.id).includes(id) ? true : false,
+                    chair: square.chairs.includes(id) ? true : false,
                     href: { to: getters.adjudicator_by_id(id).name }
                 }
                 score_sheets.push(score_sheet)
