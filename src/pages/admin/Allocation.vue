@@ -4,7 +4,7 @@
       h1 Allocation
       h3 {{ round_by_r(r).round_name }}
     section
-      el-table(:data="allocation_adjusted")
+      el-table(:data="allocation_adjusted", :row-class-name="row_class", border)
         el-table-column(label="Venue")
           template(scope="scope")
             draggable.adj-list(v-model="scope.row.venues", :options="venue_options", @start="drag=true", @end="drag=false")
@@ -33,7 +33,7 @@
           template(scope="scope")
             div(v-for="warning in warn(scope.row)", :key="warning.code")
               el-popover(placement="right", width="200", trigger="hover")
-                el-button(slot="reference") {{ warning.name }}
+                el-button.warning(slot="reference")  {{ warning.name }}
                 p code: {{ warning.code }}
                 p message: {{ warning.message }}
                 p details: {{ warning.details }}
@@ -141,6 +141,13 @@ export default {
       'init_adjudicators',
       'init_teams'
     ]),
+    row_class(row, index) {
+      if (this.square_submittable(row)) {
+        return ''
+      } else {
+        return 'unsubmittable'
+      }
+    },
     square_submittable (square) {
       if (square.teams[0].length !== 1 || square.teams[1].length !== 1) {
         return false
@@ -190,7 +197,9 @@ export default {
           code: 600,
           name: 'institution',
           message: 'Team institution conflict',
-          details: {}
+          details: {
+            dup_institutions: math.common(t0_insti, t1_insti)
+          }
         }
       } else {
         return null
@@ -208,7 +217,10 @@ export default {
           code: 600,
           name: 'conflict',
           message: 'Adjudicator conflict',
-          details: {}
+          details: {
+            dup_institutions0: math.common(t0_insti, adj_insti),
+            dup_institutions1: math.common(t1_insti, adj_insti)
+          }
         }
       } else {
         return null
@@ -269,6 +281,12 @@ export default {
     main
       max-width 600px
       margin 0 auto
+
+  .el-table .unsubmittable
+    background #ff5e62
+
+  .warning
+    background #f8e352
 
   .el-table .cell
     padding 0
