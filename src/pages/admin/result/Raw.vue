@@ -3,6 +3,7 @@
     section.page-header
       h1 {{ target_tournament.tournament_name }}
     loading-container(:loading="loading")
+    p(v-if="adjudicators_unsubmitted") These adjudicators have not sent the ballots: #[font(size="4", color="red") {{ adjudicators_unsubmitted.map(id => adjudicator_by_id(id)).map(a => a.name).join(", ") }}]
     legend Collected raw Team results
     section(v-if="!loading")
       el-table(:data="raw_team_results_by_r(r_str)")
@@ -60,12 +61,20 @@ export default {
       'target_tournament',
       'team_by_id',
       'speaker_by_id',
-      'adjudicator_by_id'
+      'adjudicator_by_id',
+      'target_score_sheets'
     ]),
     ...mapGetters('result', [
       'raw_speaker_results_by_r',
       'raw_team_results_by_r'
-    ])
+    ]),
+    adjudicators_submitted () {
+      return Array.from(new Set(this.raw_team_results_by_r(this.r_str).map(tr => tr.from_id)))
+    },
+    adjudicators_unsubmitted () {
+      let adjudicators_watching = Array.from(new Set(this.target_score_sheets.map(ss => ss.id)))
+      return adjudicators_watching.filter(id => !this.adjudicators_submitted.includes(id))
+    }
   },
   methods: {
     ...mapActions([
