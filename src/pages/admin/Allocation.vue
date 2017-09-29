@@ -37,6 +37,8 @@
                 p code: {{ warning.code }}
                 p message: {{ warning.message }}
                 p details: {{ warning.details }}
+      .operations
+        el-button(type="primary", @click="() => {}", :disabled="!submittable") #[el-icon(name="upload")] &nbsp;Submit
 
     legend Waiting Adjudicators
     section.adj-list-container
@@ -79,28 +81,20 @@ export default {
         animation: 100
       },
       loading: true,
+      allocation_adjusted: [],
       teams: [],
       adjudicators: [],
       venues: []
     }
   },
   computed: {
-    allocation_adjusted () {
-      let draw = this.draw_by_r(this.r)
-      let adjusted = []
-      for (let square of draw.allocation) {
-        adjusted.push({
-          venues: [square.venue],
-          teams: {
-            0: [square.teams[0]],
-            1: [square.teams[1]]
-          },
-          chairs: square.chairs,
-          panels: square.panels,
-          trainees: square.trainees
-        })
+    submittable () {
+      for (let square of this.allocation_adjusted) {
+        if (!this.square_submittable(square)) {
+          return false
+        }
       }
-      return adjusted
+      return true
     },
     loading_tournaments () {
       return !this.tournaments
@@ -121,27 +115,6 @@ export default {
       'round_by_r',
       'draw_by_r'
     ]),
-    adjudicators_in_draw () {
-      let adjudicators_in_draw = []
-      for (let square of this.allocation_adjusted) {
-        adjudicators_in_draw = adjudicators_in_draw.concat(square.chairs).concat(square.panels).concat(square.trainees)
-      }
-      return adjudicators_in_draw
-    },
-    teams_in_draw () {
-      let teams_in_draw = []
-      for (let square of this.allocation_adjusted) {
-        teams_in_draw = teams_in_draw.concat(square.teams[0]).concat(square.teams[1])
-      }
-      return teams_in_draw
-    },
-    venues_in_draw () {
-      let venues_in_draw = []
-      for (let square of this.allocation_adjusted) {
-        venues_in_draw = venues_in_draw.concat(square.venues)
-      }
-      return venues_in_draw
-    },
     converted_draw () {
       let converted_draw = {
         r: this.draw.r,
@@ -168,6 +141,36 @@ export default {
       'init_adjudicators',
       'init_teams'
     ]),
+    square_submittable (square) {
+      if (square.teams[0].length !== 1 || square.teams[1].length !== 1) {
+        return false
+      } else if (square.venues.length !== 1 || square.chairs.length === 0) {
+        return false
+      } else {
+        return true
+      }
+    },
+    adjudicators_in_draw () {
+      let adjudicators_in_draw = []
+      for (let square of this.allocation_adjusted) {
+        adjudicators_in_draw = adjudicators_in_draw.concat(square.chairs).concat(square.panels).concat(square.trainees)
+      }
+      return adjudicators_in_draw
+    },
+    teams_in_draw () {
+      let teams_in_draw = []
+      for (let square of this.allocation_adjusted) {
+        teams_in_draw = teams_in_draw.concat(square.teams[0]).concat(square.teams[1])
+      }
+      return teams_in_draw
+    },
+    venues_in_draw () {
+      let venues_in_draw = []
+      for (let square of this.allocation_adjusted) {
+        venues_in_draw = venues_in_draw.concat(square.venues)
+      }
+      return venues_in_draw
+    },
     warn (square) {
       let warnings = []
       let warn_funcs = [this.warn_institutions, this.warn_conflicts]
@@ -218,10 +221,24 @@ export default {
     }
     Promise.all([this.init_adjudicators(), this.init_teams()])
       .then(() => {
-        this.teams = this.target_tournament.teams.map(t => t.id).filter(id => !this.teams_in_draw.includes(id))
-        this.adjudicators = this.target_tournament.adjudicators.map(a => a.id).filter(id => !this.adjudicators_in_draw.includes(id))
-        this.venues = this.target_tournament.venues.map(v => v.id).filter(id => !this.venues_in_draw.includes(id))
         this.loading = false
+
+        let draw = this.draw_by_r(this.r)
+        for (let square of draw.allocation) {
+          this.allocation_adjusted.push({
+            venues: [square.venue],
+            teams: {
+              0: [square.teams[0]],
+              1: [square.teams[1]]
+            },
+            chairs: square.chairs,
+            panels: square.panels,
+            trainees: square.trainees
+          })
+        }
+        this.teams = this.target_tournament.teams.map(t => t.id).filter(id => !this.teams_in_draw().includes(id))
+        this.adjudicators = this.target_tournament.adjudicators.map(a => a.id).filter(id => !this.adjudicators_in_draw().includes(id))
+        this.venues = this.target_tournament.venues.map(v => v.id).filter(id => !this.venues_in_draw().includes(id))
       })
   }
 }
@@ -229,6 +246,11 @@ export default {
 
 <style lang="stylus">
   @import '../../draggable'
+
+  .operations
+    display flex
+    justify-content flex-end
+    margin-top 1rem
 
   body
     background-color #f5f5f5

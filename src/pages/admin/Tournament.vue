@@ -140,6 +140,7 @@ export default {
   },
   props: ['tournaments', 'loading', 'tournament_name'],
   data () {
+    console.log(this.target_tournament)
     const this_rounds = new Lazy(() => this.target_tournament.rounds, false)
     const this_teams = new Lazy(() => this.target_tournament.teams, false)
     const this_adjudicators = new Lazy(() => this.target_tournament.adjudicators, false)
