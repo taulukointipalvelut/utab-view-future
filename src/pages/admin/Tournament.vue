@@ -19,6 +19,10 @@ TODO: Edit dialog needs validation
                 el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
                 el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
           .operations
+            el-dropdown(@command="handle_compiled_command")
+              el-button.compiled Compiled Results #[el-icon(name="caret-bottom")]
+              el-dropdown-menu(slot="dropdown")
+                el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.round_name }}
             el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
       section
@@ -256,6 +260,11 @@ export default {
     ])
   },
   methods: {
+    handle_compiled_command (r_str) {
+      this.$router.push({
+        path: 'rounds/'+r_str+'/result/compiled'
+      })
+    },
     on_allocation_round (selected) {
       this.$router.push({
         path: 'rounds/'+selected.r+'/allocation'
@@ -437,6 +446,9 @@ export default {
     color inherit
   main
     padding 5%
+
+  .compiled
+    margin-right 0.5rem
 
   @media (min-width: 600px)
     main

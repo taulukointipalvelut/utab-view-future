@@ -1,4 +1,5 @@
 import ballot from 'pages/tournament/round/ballot/adjudicator/stores'
+import result from 'pages/admin/result/stores'
 
 let API_BASE_URL = 'http://localhost:7024'
 
@@ -644,6 +645,7 @@ export default {
     }
   },
   modules: {
-    ballot
+    ballot,
+    result
   }
 }
