@@ -13,22 +13,44 @@
           template(scope="scope")
             draggable.adj-list(v-model="scope.row.teams[0]", :options="team_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.teams[0]") {{ team_by_id(id).name }}
+                el-popover(placement="right", trigger="hover")
+                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                  p id: {{ id }}
+                  p institutions: {{ institution_names_by_team_id(id) }}
+                  p speakers: {{ speaker_names_by_team_id(id) }}
         el-table-column(label="Opp")
           template(scope="scope")
             draggable.adj-list(v-model="scope.row.teams[1]", :options="team_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.teams[1]") {{ team_by_id(id).name }}
+                el-popover(placement="right", trigger="hover")
+                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                  p id: {{ id }}
+                  p institutions: {{ institution_names_by_team_id(id) }}
+                  p speakers: {{ speaker_names_by_team_id(id) }}
         el-table-column(label="Chair")
           template(scope="scope")
             draggable.adj-list.chair(v-model="scope.row.chairs", :options="adjudicator_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.chairs") {{ adjudicator_by_id(id).name }}
+                el-popover(placement="right", trigger="hover")
+                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                  p id: {{ id }}
+                  p institutions: {{ institution_names_by_adjudicator_id(id) }}
         el-table-column(label="Panel")
           template(scope="scope")
             draggable.adj-list.panel(v-model="scope.row.panels", :options="adjudicator_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.panels") {{ adjudicator_by_id(id).name }}
+                el-popover(placement="right", trigger="hover")
+                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                  p id: {{ id }}
+                  p institutions: {{ institution_names_by_adjudicator_id(id) }}
         el-table-column(label="Trainee")
           template(scope="scope")
             draggable.adj-list.trainee(v-model="scope.row.trainees", :options="adjudicator_options", @start="drag=true", @end="drag=false")
               .draggable-item(v-for="id in scope.row.trainees") {{ adjudicator_by_id(id).name }}
+                el-popover(placement="right", trigger="hover")
+                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                  p id: {{ id }}
+                  p institutions: {{ institution_names_by_adjudicator_id(id) }}
         el-table-column(label="Warnings")
           template(scope="scope")
             div(v-for="warning in warn(scope.row)", :key="warning.code")
@@ -44,10 +66,19 @@
     section.adj-list-container
       draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options", @start="drag=true", @end="drag=false")
         .draggable-item(v-for="id in adjudicators") {{ adjudicator_by_id(id).name }}
+          el-popover(placement="right", trigger="hover")
+            el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+            p id: {{ id }}
+            p institutions: {{ institution_names_by_adjudicator_id(id) }}
     legend Waiting Teams
     section.adj-list-container
       draggable.adj-list.src(v-model="teams", :options="team_options", @start="drag=true", @end="drag=false")
         .draggable-item(v-for="id in teams") {{ team_by_id(id).name }}
+          el-popover(placement="right", trigger="hover")
+            el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+            p id: {{ id }}
+            p institutions: {{ institution_names_by_team_id(id) }}
+            p speakers: {{ speaker_names_by_team_id(id) }}
     legend Waiting Venues
     section.adj-list-container
       draggable.adj-list.src(v-model="venues", :options="venue_options", @start="drag=true", @end="drag=false")
@@ -112,6 +143,8 @@ export default {
       'team_by_id',
       'adjudicator_by_id',
       'venue_by_id',
+      'institution_by_id',
+      'speaker_by_id',
       'round_by_r',
       'draw_by_r'
     ]),
@@ -141,9 +174,18 @@ export default {
       'init_adjudicators',
       'init_teams'
     ]),
+    speaker_names_by_team_id (id) {
+      return this.team_by_id(id).speakers.map(this.speaker_by_id).map(s => s.name)
+    },
+    institution_names_by_team_id (id) {
+      return this.team_by_id(id).institutions.map(this.institution_by_id).map(i => i.name)
+    },
+    institution_names_by_adjudicator_id (id) {
+      return this.adjudicator_by_id(id).institutions.map(this.institution_by_id).map(i => i.name)
+    },
     row_class(row, index) {
       if (this.square_submittable(row)) {
-        return ''
+        return 'submittable'
       } else {
         return 'unsubmittable'
       }
@@ -284,9 +326,17 @@ export default {
 
   .el-table .unsubmittable
     background #ff5e62
+    transition all 1.5s
+
+  .el-table .submittable
+    background #ffffff
+    transition all 1.5s
 
   .warning
     background #f8e352
+
+  .details
+    border none
 
   .el-table .cell
     padding 0
