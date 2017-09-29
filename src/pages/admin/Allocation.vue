@@ -2,7 +2,7 @@
   .router-view-content
     section.page-header
       h1 Allocation
-      h3 {{ round_by_r(r).round_name }}
+      h3 {{ round_by_r(r_str).round_name }}
     section
       el-table(:data="allocation_adjusted", :row-class-name="row_class", border)
         el-table-column(label="Venue")
@@ -96,7 +96,7 @@ export default {
     'utab-header': utab_header,
     'draggable': draggable
   },
-  props: ['r'],
+  props: ['r_str'],
   data () {
     return {
       team_options: {
@@ -277,7 +277,7 @@ export default {
       .then(() => {
         this.loading = false
 
-        let draw = this.draw_by_r(this.r)
+        let draw = this.draw_by_r(this.r_str)
         for (let square of draw.allocation) {
           this.allocation_adjusted.push({
             venues: [square.venue],

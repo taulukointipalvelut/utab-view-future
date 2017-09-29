@@ -16,11 +16,11 @@ export default [{
     path: ':tournament_name',
     redirect: ':tournament_name/home'
   }, {
-    path: ':tournament_name/rounds/:r/allocation',
+    path: ':tournament_name/rounds/:r_str/allocation',
     props: true,
     component: Allocation
   }, {
-    path: ':tournament_name/rounds/:r/result',
+    path: ':tournament_name/rounds/:r_str/result',
     props: true,
     component: Result,
     children: result_routes
