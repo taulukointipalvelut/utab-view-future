@@ -1,5 +1,5 @@
 <!--
-TODO: In edit dialog, need validation
+TODO: Edit dialog needs validation
 -->
 <template lang="pug">
   .router-view-content
@@ -50,6 +50,13 @@ TODO: In edit dialog, need validation
               el-button(size="small", type="danger", @click="on_delete_adjudicator(scope.row)") #[el-icon(name="close")] Delete
         .operations
           el-button(type="primary", @click="dialog.adjudicator.visible = true") #[el-icon(name="plus")] &nbsp;Add New Adjudicator
+
+    section(v-for="label in ['speakers', 'institutions', 'venues']", :key='label')
+      legend {{ label.charAt(0).toUpperCase() + label.slice(1) }}
+      loading-container(:loading="loading && !init_flag[label]")
+        el-table(:data="target_tournament[label].slice().sort((e1, e2) => Math.abs(e1.id) > Math.abs(e2.id))")
+          el-table-column(prop="id", label="ID", width="60", align="center")
+          el-table-column(prop="name", label="Name", show-overflow-tooltip)
 
     el-dialog(title="Add New Round", :visible.sync="dialog.round.visible")
       .dialog-body
@@ -141,7 +148,10 @@ export default {
       init_flag: {
         rounds: false,
         teams: false,
-        adjudicators: false
+        adjudicators: false,
+        institutions: false,
+        venues: false,
+        speakers: false
       },
       formData: {
         tournament_name: this.tournament_name
@@ -401,6 +411,11 @@ export default {
     this.init_teams({ tournament }).then(() => {
       this.init_flag.teams = true
     })
+    setTimeout(() => {
+      this.init_flag.institutions = true
+      this.init_flag.venues = true
+      this.init_flag.speakers = true
+    }, 1000)
   }
 }
 </script>
