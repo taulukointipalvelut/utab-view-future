@@ -1,13 +1,12 @@
 <template lang="pug">
   .router-view-content
-    router-view(:tournament="tournament", :loading="loading")
+    router-view(:loading="loading")
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
-  props: ['tournament'],
   data () {
     return {
       loading: true
@@ -18,7 +17,8 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'isAuth'
+      'isAuth',
+      'target_tournament'
     ])
   },
   methods: {
@@ -28,7 +28,7 @@ export default {
   },
   mounted () {
     this.init_adjudicators({
-      tournament: this.tournament
+      tournament: this.target_tournament
     }).then(() => {
         this.loading = false
       })

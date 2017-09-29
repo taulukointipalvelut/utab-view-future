@@ -10,7 +10,7 @@
         el-step(title="Winner")
         el-step(title="Check")
         el-step(title="Done")
-    router-view(v-if="round && adjudicator", :tournament="tournament", :loading="loading")
+    router-view(v-if="round && adjudicator", :loading="loading")
 </template>
 
 <script>
@@ -19,7 +19,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'r_str', 'id_str'],
+  props: ['r_str', 'id_str'],
   components: {
     'loading-container': loading_container
   },
@@ -40,7 +40,6 @@ export default {
     ]),
     ...mapGetters([
       'isAuth',
-      'target_tournament',
       'target_score_sheets',
       'round_by_r',
       'adjudicator_by_id',

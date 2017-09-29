@@ -1,8 +1,8 @@
 <template lang="pug">
   #app-content(v-loading.fillscreen.lock="loading_tournament", element-loading-text="Loading...")
     utab-header(:login="isAuth")
-    main(v-if="tournament")
-      router-view(:tournament="target_tournament", :loading="loading")
+    main(v-if="target_tournament")
+      router-view(:loading="loading")
 </template>
 
 <script>
@@ -13,7 +13,6 @@ export default {
   components: {
     'utab-header': utab_header
   },
-  props: ['tournament_name'],
   data () {
     return {
       loading: true
@@ -21,13 +20,13 @@ export default {
   },
   computed: {
     loading_tournament () {
-      return !this.tournament
+      return !this.target_tournament
     },
     has_rounds () {
       return this.rounds && this.rounds.length > 0
     },
     icon_href () {
-      return this.tournament ? this.tournament.href : { to: '/home' }
+      return this.target_tournament ? this.target_tournament.href : { to: '/home' }
     },
     ...mapState([
       'auth',
@@ -40,14 +39,14 @@ export default {
   },
   methods: {
     url (...targets) {
-      return `${ this.tournament.tournament_name }/${ targets.join('/') }`
+      return `${ this.target_tournament.tournament_name }/${ targets.join('/') }`
     },
     ...mapActions([
       'init_rounds'
     ])
   },
   mounted () {
-    this.init_rounds({ tournament: this.tournament })
+    this.init_rounds({ tournament: this.target_tournament })
       .then(() => {
         this.loading = false
       })

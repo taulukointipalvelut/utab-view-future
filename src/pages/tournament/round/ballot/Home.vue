@@ -29,7 +29,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'r_str', 'loading'],
+  props: ['r_str', 'loading'],
   components: {
     'loading-container': loading_container
   },
@@ -37,14 +37,15 @@ export default {
     ...mapGetters([
       'target_score_sheets',
       'adjudicator_by_id',
-      'round_by_r'
+      'round_by_r',
+      'target_tournament'
     ]),
     smartphone: smartphone,
     has_adjudicators () {
       return this.sorted_adjudicators && this.sorted_adjudicators.length > 0
     },
     sorted_adjudicators () {
-      return this.tournament.adjudicators.slice().sort((a, b) => {
+      return this.target_tournament.adjudicators.slice().sort((a, b) => {
         if (a.done && !b.done) {
           return 1;
         } else if (!a.done && b.done) {

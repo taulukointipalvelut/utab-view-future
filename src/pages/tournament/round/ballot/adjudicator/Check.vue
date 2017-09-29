@@ -92,7 +92,7 @@ import loading_container from 'components/loading-container'
 import input_label from 'components/input-label'
 
 export default {
-  props: ['tournament', 'loading'],
+  props: ['loading'],
   components: {
     'loading-container': loading_container,
     'input-label': input_label

@@ -23,7 +23,7 @@ import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
 
 export default {
-  props: ['tournament', 'r_str', 'loading'],
+  props: ['r_str', 'loading'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item

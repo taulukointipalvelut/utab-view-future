@@ -1,10 +1,10 @@
 <template lang="pug">
-  .router-view-content(v-if="tournament")
+  .router-view-content(v-if="target_tournament")
     section.page-header
       h1 Adjudicators
     section
       loading-container(:loading="loading", no_item_text="No Round Available")
-        link-list(v-for="round in tournament.rounds", :key="round", v-if="!loading")
+        link-list(v-for="round in target_tournament.rounds", :key="round", v-if="!loading")
           legend(slot="legend") {{ round.round_name }}
           router-link(:to="url(round, 'draw')")
             link-list-item Draw &amp; Allocation
@@ -19,7 +19,7 @@ import link_list_item from 'components/link-list-item'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'loading'],
+  props: ['loading'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item,
@@ -30,13 +30,14 @@ export default {
   },
   computed: {
     has_rounds () {
-      return this.tournament.rounds && this.tournament.rounds.length > 0
+      return this.target_tournament.rounds && this.target_tournament.rounds.length > 0
     },
     ...mapState([
       'auth'
     ]),
     ...mapGetters([
-      'isAuth'
+      'isAuth',
+      'target_tournament'
     ])
   },
   methods: {
