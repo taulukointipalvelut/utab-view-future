@@ -1,8 +1,8 @@
 <template lang="pug">
   #app-content(v-loading.fillscreen.lock="loading_tournament", element-loading-text="Loading...")
-    utab-header(:login="isAuth", :tournament="tournament")
+    utab-header(:login="isAuth")
     main(v-if="tournament")
-      router-view(:tournament="tournament", :loading="loading")
+      router-view(:tournament="target_tournament", :loading="loading")
 </template>
 
 <script>
@@ -28,9 +28,6 @@ export default {
     },
     icon_href () {
       return this.tournament ? this.tournament.href : { to: '/home' }
-    },
-    tournament () {
-      return this.target_tournament
     },
     ...mapState([
       'auth',

@@ -10,8 +10,8 @@
             i.caret-collapse-toggle
       nav: ul
         li.spacer
-        li(v-if="tournament")
-          router-link(v-if="tournament.href", :to="tournament.href") {{ tournament.tournament_name }}
+        li(v-if="target_tournament")
+          router-link(v-if="target_tournament.href", :to="target_tournament.href") {{ target_tournament.tournament_name }}
         li(v-if="login")
           router-link(:to="logout_href") Logout #[el-icon(name="circle-cross")]
         li(v-if="login")
@@ -67,7 +67,10 @@
       },
       ...mapGetters({
         login: 'isAuth'
-      })
+      }),
+      ...mapGetters([
+        'target_tournament'
+      ])
     },
     methods: {
       on_select (index, indexPath) {
