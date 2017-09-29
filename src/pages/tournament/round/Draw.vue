@@ -2,7 +2,7 @@
   .router-view-content(v-if="!loading")
     section.page-header
       h1 {{ round_by_r(r_str).round_name }}
-    section(v-if="draw_opened")
+    section(v-if="team_allocation_opened")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue", prop="venue")
         el-table-column(label="Gov")
@@ -11,13 +11,13 @@
         el-table-column(label="Opp")
           template(scope="scope")
             span {{ team_by_id(scope.row.teams[1]).name }}
-        el-table-column.adjudicator-container(label="Chair", v-if="allocation_opened")
+        el-table-column.adjudicator-container(label="Chair", v-if="adjudicator_allocation_opened")
           template(scope="scope")
             .adjudicator(v-for="id in scope.row.chairs") {{ adjudicator_by_id(id).name }}
-        el-table-column.adjudicator-container(label="Panel", v-if="allocation_opened")
+        el-table-column.adjudicator-container(label="Panel", v-if="adjudicator_allocation_opened")
           template(scope="scope")
             .adjudicator(v-for="id in scope.row.panels") {{ adjudicator_by_id(id).name }}
-        el-table-column.adjudicator-container(label="Trainee", v-if="allocation_opened")
+        el-table-column.adjudicator-container(label="Trainee", v-if="adjudicator_allocation_opened")
           template(scope="scope")
             .adjudicator(v-for="id in scope.row.trainees") {{ scope.row.trainees.length }}
     section(v-else)
@@ -35,19 +35,16 @@ export default {
     'link-list': link_list,
     'link-list-item': link_list_item
   },
-  data () {
-    return {}
-  },
   computed: {
     sorted_rows () {
       return this.draw_by_r(this.r_str).allocation
-        .slice().sort((a, b) => a > b)
+        .slice().sort((a, b) => a.id > b.id)
     },
-    draw_opened () {
-      return this.draw_by_r(this.r_str).draw_opened
+    team_allocation_opened () {
+      return this.round_by_r(this.r_str).team_allocation_opened
     },
-    allocation_opened () {
-      return this.draw_by_r(this.r_str).allocation_opened
+    adjudicator_allocation_opened () {
+      return this.round_by_r(this.r_str).adjudicator_allocation_opened
     },
     ...mapState([
       'auth'
@@ -59,6 +56,18 @@ export default {
       'round_by_r',
       'draw_by_r'
     ])
+  },
+  methods: {
+    ...mapActions([
+      'init_teams',
+      'init_adjudicators'
+    ])
+  },
+  mounted() {
+    Promise.all([this.init_teams(), this.init_adjudicators()])
+      .then(() => {
+        this.loading = false
+      })
   }
 }
 </script>

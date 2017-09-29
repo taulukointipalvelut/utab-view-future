@@ -459,8 +459,8 @@ export default {
                                     href: { path: '/'+t.tournament_name+'/rounds/'+round_fetched.r },
                                     r: round_fetched.r,
                                     round_name: "Round "+round_fetched.r,
-                                    draw_opened: true,
-                                    allocation_opened: true
+                                    team_allocation_opened: true,
+                                    adjudicator_allocation_opened: true
                                 }
                                 rounds.push(round)
                             }
@@ -477,15 +477,15 @@ export default {
             href: { path: '/PDA Tournament 2018/rounds/1' },
             r: 1,
             round_name: "Round 1",
-            draw_opened: true,
-            allocation_opened: true,
+            team_allocation_opened: true,
+            adjudicator_allocation_opened: true,
           },
           {
             href: { path: '/PDA Tournament 2018/rounds/2' },
             r: 2,
             round_name: "Round 2",
-            draw_opened: false,
-            allocation_opened: false
+            team_allocation_opened: true,
+            adjudicator_allocation_opened: true,
           }]
           commit('rounds', { tournament: {tournament_name: 'PDA Tournament 2018'}, rounds })
           resolve()

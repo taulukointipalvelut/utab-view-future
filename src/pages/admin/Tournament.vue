@@ -14,8 +14,8 @@ TODO: Edit dialog needs validation
             el-table-column(prop="round_name", label="Name", show-overflow-tooltip)
             el-table-column
               template(scope="scope")
-                el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")] Edit
-                el-button(size="small", type="danger", @click="on_delete_round(scope.row)") #[el-icon(name="close")] Delete
+                el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
+                el-button(size="small", type="danger", @click="on_delete_round(scope.row)", disabled) #[el-icon(name="close")] Delete
                 el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
                 el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
           .operations
@@ -69,10 +69,10 @@ TODO: Edit dialog needs validation
             h3(align="center") Round {{ target_tournament.rounds.length + 1 }}
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.form.model.round_name")
-            el-form-item(label="Draw Opened", prop="draw_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.draw_opened")
-            el-form-item(label="Allocation Opened", prop="allocation_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.allocation_opened")
+            el-form-item(label="Draw Opened", prop="team_allocation_opened")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.team_allocation_opened")
+            el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.adjudicator_allocation_opened")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.round.visible = false") Cancel
           el-button(type="primary", :loading="dialog.round.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
@@ -169,8 +169,8 @@ export default {
           form: {
             model: {
               round_name: '',
-              draw_opened: true,
-              allocation_opened: true
+              team_allocation_opened: true,
+              adjudicator_allocation_opened: true
             },
             rules: {
               round_name: [
@@ -186,8 +186,8 @@ export default {
           form: {
             model: {
               round_name: '',
-              draw_opened: true,
-              allocation_opened: true
+              team_allocation_opened: true,
+              adjudicator_allocation_opened: true
             }
           }
         },
