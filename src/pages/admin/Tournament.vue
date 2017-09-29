@@ -251,7 +251,7 @@ export default {
     },
     on_result_round (selected) {
       this.$router.push({
-        path: 'result'
+        path: 'rounds/'+selected.r+'/result'
       })
     },
     on_select_round (selected, ev, col) {
