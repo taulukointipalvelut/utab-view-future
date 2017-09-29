@@ -55,7 +55,7 @@
           template(scope="scope")
             div(v-for="warning in warn(scope.row)", :key="warning.code")
               el-popover(placement="right", width="200", trigger="hover")
-                el-button.warning(slot="reference")  {{ warning.name }}
+                el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
                 p code: {{ warning.code }}
                 p message: {{ warning.message }}
                 p details: {{ warning.details }}
@@ -175,13 +175,13 @@ export default {
       'init_teams'
     ]),
     speaker_names_by_team_id (id) {
-      return this.team_by_id(id).speakers.map(this.speaker_by_id).map(s => s.name)
+      return this.team_by_id(id).speakers.map(this.speaker_by_id).map(s => s.name).join(', ')
     },
     institution_names_by_team_id (id) {
-      return this.team_by_id(id).institutions.map(this.institution_by_id).map(i => i.name)
+      return this.team_by_id(id).institutions.map(this.institution_by_id).map(i => i.name).join(', ')
     },
     institution_names_by_adjudicator_id (id) {
-      return this.adjudicator_by_id(id).institutions.map(this.institution_by_id).map(i => i.name)
+      return this.adjudicator_by_id(id).institutions.map(this.institution_by_id).map(i => i.name).join(', ')
     },
     row_class(row, index) {
       if (this.square_submittable(row)) {
@@ -331,9 +331,6 @@ export default {
   .el-table .submittable
     background #ffffff
     transition all 1.5s
-
-  .warning
-    background #f8e352
 
   .details
     border none

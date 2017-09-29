@@ -28,7 +28,7 @@ export default {
     'link-list-item': link_list_item,
     'loading-container': loading_container
   },
-  props: ['loading', 'r'],
+  props: ['loading', 'r_str'],
   data () {
     return {
       config: {

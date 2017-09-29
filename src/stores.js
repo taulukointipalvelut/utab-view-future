@@ -355,9 +355,6 @@ export default {
             }, {
                 id: 11,
                 name: "s11"
-            }, {
-                id: 12,
-                name: "s12"
             }],
             institutions: [{
                 id: 1,

@@ -44,19 +44,7 @@
         el-table-column(prop="sd", label="StDev", align="center", sortable)
           template(scope="scope")
             span {{ scope.row.sd }}
-</template><!--    legend Speaker results
-    section(v-if="!loading")
-      el-table(:data="compiled_speaker_results_by_r(r_str)")
-        el-table-column(prop="id", label="Name", align="center", sortable)
-          template(scope="scope")
-            span {{ speaker_by_id(scope.row.id).name }}
-        el-table-column(v-for="index in [0, 1, 2, 3]", prop="scores", :key="index", :label="['1st', '2nd', '3rd', '4th'][index]", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.scores[index] === 0 ? '' : scope.row.scores[index] }}
-        el-table-column(prop="from_id", label="From Adjudicator", align="center", sortable)
-          template(scope="scope")
-            span {{ adjudicator_by_id(scope.row.from_id).name }}
-</template>-->
+</template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
