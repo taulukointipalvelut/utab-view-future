@@ -17,7 +17,7 @@ export default [
         path: 'debater',
         redirect: 'home'
     }, {
-        path: 'rounds/:r',
+        path: 'rounds/:r_str',
         props: true,
         component: Round,
         children: round_routes

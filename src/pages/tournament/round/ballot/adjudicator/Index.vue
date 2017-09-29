@@ -19,7 +19,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'r', 'adjudicator_name'],
+  props: ['tournament', 'r_str', 'adjudicator_name'],
   components: {
     'loading-container': loading_container
   },
@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     round() {
-      return this.round_by_r(this.r)
+      return this.round_by_r(this.r_str)
     },
     adjudicator () {
       return this.target_adjudicator

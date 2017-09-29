@@ -103,7 +103,7 @@ export default {
       return getters.target_tournament ? getters.target_tournament.adjudicators.find(adjudicator => adjudicator.name === state.route.params.adjudicator_name) : null
     },
     target_draw: (state, getters) => {
-        return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r))
+        return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str))
     },
     target_score_sheets: (state, getters) => {
         let allocation = getters.target_draw.allocation

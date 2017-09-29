@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
     section.page-header
-      h1 {{ round_by_r(r).round_name }}
+      h1 {{ round_by_r(r_str).round_name }}
     section
       link-list
         legend(slot="legend") Audience
@@ -23,7 +23,7 @@ import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
 
 export default {
-  props: ['tournament', 'r', 'loading'],
+  props: ['tournament', 'r_str', 'loading'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item

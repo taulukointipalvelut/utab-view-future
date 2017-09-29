@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
     section.page-header
-      h1 {{ round_by_r(r).round_name }}
+      h1 {{ round_by_r(r_str).round_name }}
     section(v-if="draw_opened")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue", prop="venue")
@@ -21,7 +21,7 @@
           template(scope="scope")
             .adjudicator(v-for="id in scope.row.trainees") {{ scope.row.trainees.length }}
     section(v-else)
-      p Draw for {{ round_by_r(r).round_name }} is not released.
+      p Draw for {{ round_by_r(r_str).round_name }} is not released.
 </template>
 
 <script>
@@ -30,7 +30,7 @@ import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
 
 export default {
-  props: ['tournament', 'loading', 'r'],
+  props: ['tournament', 'loading', 'r_str'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item
@@ -40,14 +40,14 @@ export default {
   },
   computed: {
     sorted_rows () {
-      return this.draw_by_r(this.r).allocation
+      return this.draw_by_r(this.r_str).allocation
         .slice().sort((a, b) => a > b)
     },
     draw_opened () {
-      return this.draw_by_r(this.r).draw_opened
+      return this.draw_by_r(this.r_str).draw_opened
     },
     allocation_opened () {
-      return this.draw_by_r(this.r).allocation_opened
+      return this.draw_by_r(this.r_str).allocation_opened
     },
     ...mapState([
       'auth'
