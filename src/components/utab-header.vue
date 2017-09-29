@@ -13,9 +13,9 @@
         li(v-if="tournament")
           router-link(v-if="tournament.href", :to="tournament.href") {{ tournament.tournament_name }}
         li(v-if="login")
-          router-link(:to="logout_href") Logout
+          router-link(:to="logout_href") Logout #[el-icon(name="circle-cross")]
         li(v-if="login")
-          router-link(:to="admin_href") Admin
+          router-link(:to="admin_href") Admin #[el-icon(name="setting")]
         li(v-else)
           router-link(:to="login_href") Login
 </template>
