@@ -7,7 +7,7 @@ export default [{
     props: true,
     component: Home
   }, {
-    path: ':adjudicator_name',
+    path: ':id_str',
     props: true,
     component: Adjudicator,
     children: adjudicator_routes

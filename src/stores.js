@@ -100,9 +100,6 @@ export default {
     target_tournament: state => {
       return state.tournaments.find(t => t.tournament_name === state.route.params.tournament_name)
     },
-    target_adjudicator: (state, getters) => {
-      return getters.target_tournament ? getters.target_tournament.adjudicators.find(adjudicator => adjudicator.name === state.route.params.adjudicator_name) : null
-    },
     target_draw: (state, getters) => {
         return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str))
     },
@@ -120,12 +117,17 @@ export default {
                     id,
                     venue: square.venue,
                     chair: square.chairs.includes(id) ? true : false,
-                    href: { to: getters.adjudicator_by_id(id).name }
+                    href: { to: String(id) }
                 }
                 score_sheets.push(score_sheet)
             }
         }
         return score_sheets
+    },
+    score_sheet_by_id: (state, getters) => {
+        return id => {
+            return getters.target_score_sheets.find(ss => ss.id === parseInt(id))
+        }
     },
     round_by_r: select_by_key_factory('rounds', 'r'),
     draw_by_r: select_by_key_factory('draws', 'r'),

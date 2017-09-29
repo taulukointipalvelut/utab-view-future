@@ -19,7 +19,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'r_str', 'adjudicator_name'],
+  props: ['tournament', 'r_str', 'id_str'],
   components: {
     'loading-container': loading_container
   },
@@ -33,7 +33,7 @@ export default {
       return this.round_by_r(this.r_str)
     },
     adjudicator () {
-      return this.target_adjudicator
+      return this.adjudicator_by_id(this.id_str)
     },
     ...mapState([
       'auth'
@@ -41,15 +41,16 @@ export default {
     ...mapGetters([
       'isAuth',
       'target_tournament',
-      'target_adjudicator',
       'target_score_sheets',
-      'round_by_r'
+      'round_by_r',
+      'adjudicator_by_id',
+      'score_sheet_by_id'
     ]),
     ...mapGetters('ballot', [
       'current_step'
     ]),
-    score_sheet() {
-      return this.target_score_sheets.find(ss => ss.id === this.target_adjudicator.id)
+    score_sheet () {
+      return this.score_sheet_by_id(this.id_str)
     }
   },
   methods: {
