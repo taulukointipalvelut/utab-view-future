@@ -4,7 +4,9 @@
       h1 {{ round_by_r(r_str).round_name }}
     section(v-if="team_allocation_opened")
       el-table(stripe, :data="sorted_rows")
-        el-table-column(label="Venue", prop="venue")
+        el-table-column(label="Venue")
+          template(scope="scope")
+            span {{ venue_by_id(scope.row.venue).name }}
         el-table-column(label="Gov")
           template(scope="scope")
             span {{ team_by_id(scope.row.teams[0]).name }}
@@ -54,7 +56,8 @@ export default {
       'team_by_id',
       'adjudicator_by_id',
       'round_by_r',
-      'draw_by_r'
+      'draw_by_r',
+      'venue_by_id'
     ])
   },
   methods: {
