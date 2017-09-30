@@ -1,9 +1,29 @@
-<template lang="pug">
-  .router-view-content(v-if="target_tournament")
-    loading-container(:loading="loading")
-      section
-        .reveal.slides
-          section(v-for="slide in slides", :key="slide.number")
+<template>
+  <div>
+    <p>
+      below are slides
+    </p>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <section>
+            <p>
+              Hello
+            </p>
+          </section>
+          <section>
+            <h2> Hi </h2>
+          </section>
+        </section>
+        <section>
+          <p>
+            Hello
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+</template><!--          section(v-for="slide in slides", :key="slide.number")
             section(v-if="config.show_place")
               h2 {{ slide.place }} Place
             section
@@ -13,7 +33,7 @@
               h1 {{ slide.name }}
           div(style="display: block; position: absolute; upper: 16px; left: 10px; margin-left: -139px; z-index: 20;")
             p {{ config.tournament_name }}
-</template>
+</template>-->
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
@@ -141,7 +161,28 @@ export default {
 }
 </script>
 
-<style src='assets/css/reveal.css'</style>
+<style src="assets/css/reveal.css"></style>
+<style>
+
+.reveal * {
+  color: #555;
+}
+
+.reveal h1 {
+  font-size: 8rem;
+}
+
+.reveal h2 {
+  font-size: 4rem;
+}
+
+.reveal p {
+  font-size: 3rem;
+  margin: 2rem 0;
+}
+
+</style>
+<!--
 <style lang="stylus">
   body
     background-color #f5f5f5
@@ -161,4 +202,4 @@ export default {
       max-width 600px
       margin 0 auto
 
-</style>
+</style>-->

@@ -27,6 +27,8 @@
         el-table-column(prop="sd", label="StDev", align="center", sortable)
           template(scope="scope")
             span {{ scope.row.sd }}
+      .operations
+        el-button(type="primary", @click="on_select_team_slide") #[el-icon(name="picture")] &nbsp;Slide Show
     legend Speaker results
       el-table(:data="compiled_speaker_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking)")
         el-table-column(prop="ranking", label="Ranking", align="center", sortable)
@@ -44,6 +46,8 @@
         el-table-column(prop="sd", label="StDev", align="center", sortable)
           template(scope="scope")
             span {{ scope.row.sd }}
+      .operations
+        el-button(type="primary", @click="on_select_speaker_slide") #[el-icon(name="picture")] &nbsp;Slide Show
 </template>
 
 <script>
@@ -79,6 +83,16 @@ export default {
     ])
   },
   methods: {
+    on_select_team_slide () {
+      this.$router.push({
+        path: 'slide/team'
+      })
+    },
+    on_select_speaker_slide () {
+      this.$router.push({
+        path: 'slide/speaker'
+      })
+    },
     ...mapActions([
       'init_teams',
       'init_adjudicators'
@@ -114,6 +128,11 @@ export default {
     color inherit
   main
     padding 5%
+
+  .operations
+    display flex
+    justify-content flex-end
+    margin-top 1rem
 
   @media (min-width: 600px)
     main

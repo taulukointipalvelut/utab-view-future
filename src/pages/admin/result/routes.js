@@ -1,7 +1,7 @@
 import Raw from './Raw'
 import Compiled from './Compiled'
-import Reveal from './reveal/Index'
-import reveal_routes from './reveal/routes'
+import Slide from './slide/Index'
+//import slide_routes from './slide/routes'
 
 export default [
     {
@@ -9,16 +9,16 @@ export default [
         props: true,
         component: Compiled
     }, {
+        path: '',
+        redirect: 'raw'
+    }, {
         path: 'raw',
         props: true,
         component: Raw
-    }, {
-        path: 'reveal',
+    }/*, {
+        path: 'slide',
         props: true,
-        component: Reveal,
-        children: reveal_routes
-    }, {
-        path: '',
-        redirect: 'raw'
-    }
+        component: Slide,
+        children: slide_routes
+    }*/
 ]
