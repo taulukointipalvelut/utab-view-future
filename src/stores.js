@@ -44,7 +44,7 @@ function select_by_key_factory (label, key="id") {
     function select_by_key (state, getters) {
         return key_str => {
             let targets = getters.target_tournament[label]
-            return targets.find(t => t[key] == parseInt(key_str))
+            return targets.find(t => t[key] === parseInt(key_str))
         }
     }
     return select_by_key
