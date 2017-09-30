@@ -13,8 +13,9 @@
                   .inner-table-td {{ style.roles.gov[role].abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(v-if="gov.result[role].best_debater")
-                    i.fa.fa-hand-paper-o.small(v-if="gov.result[role].poi_prize")
+                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="gov.result[role].best_debater") BEST
+                    br
+                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="gov.result[role].poi_prize") POI
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
