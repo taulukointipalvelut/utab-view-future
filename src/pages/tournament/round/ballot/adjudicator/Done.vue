@@ -2,7 +2,7 @@
   loading-container#ballot-speaker(:loading="loading")
     .card-container(v-if="!loading")
       el-card
-        h2 Success!
+        h2 Thank you! Your ballot was successfully sent.
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[i.fa.fa-home] Home

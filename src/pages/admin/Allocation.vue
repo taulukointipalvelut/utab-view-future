@@ -11,7 +11,8 @@
               .draggable-item(v-for="id in scope.row.venues") {{ venue_by_id(id).name }}
         el-table-column(label="Gov")
           template(scope="scope")
-            draggable.adj-list(v-model="scope.row.teams[0]", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams[0])", @end="on_end")
+            //draggable.adj-list(v-model="scope.row.teams[0]", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams[0])", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
+            draggable.adj-list(v-model="scope.row.teams[0]", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams[0])", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
               .draggable-item(v-for="id in scope.row.teams[0]", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
                 el-popover(placement="right", trigger="hover")
                   el-button.details(slot="reference", size="mini") #[el-icon(name="more")]

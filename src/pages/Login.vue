@@ -9,7 +9,7 @@
         <el-input placeholder="Please enter User Name" v-model="ruleForm.user_name" type="text" autofocus></el-input>
       </el-form-item>
       <el-form-item label="Password" prop="password">
-        <el-input placeholder="Please enter Password" v-model="ruleForm.password" type="password" @keyup.enter="onLogin"></el-input>
+        <el-input placeholder="Please enter Password" v-model="ruleForm.password" type="password" @keyup.enter.native="onLogin"></el-input>
         <span class="fail-text" v-if="login_failed">Incorrect Name or Password</span>
       </el-form-item>
       <el-form-item>

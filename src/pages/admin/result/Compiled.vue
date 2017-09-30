@@ -3,51 +3,53 @@
     section.page-header
       h1 {{ target_tournament.tournament_name }}
     loading-container(:loading="loading")
-    legend Team results
-    section(v-if="!loading")
-      el-table(:data="compiled_team_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
-        el-table-column(prop="ranking", label="Ranking", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.ranking }}
-        el-table-column(prop="id", label="Name", align="center", sortable)
-          template(scope="scope")
-            span {{ team_by_id(scope.row.id).name }}
-        el-table-column(prop="win", label="Win", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.win }}
-        el-table-column(prop="sum", label="Sum", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.sum }}
-        el-table-column(prop="margin", label="Margin", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.margin }}
-        el-table-column(prop="vote", label="Vote", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.vote }}
-        el-table-column(prop="sd", label="StDev", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.sd }}
-      .operations
-        el-button(type="primary", @click="on_select_team_slide") #[el-icon(name="picture")] &nbsp;Slide Show
-    legend Speaker results
-      el-table(:data="compiled_speaker_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
-        el-table-column(prop="ranking", label="Ranking", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.ranking }}
-        el-table-column(prop="id", label="Name", align="center", sortable)
-          template(scope="scope")
-            span {{ speaker_by_id(scope.row.id).name }}
-        el-table-column(prop="average", label="Average", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.average }}
-        el-table-column(prop="sum", label="Sum", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.sum }}
-        el-table-column(prop="sd", label="StDev", align="center", sortable)
-          template(scope="scope")
-            span {{ scope.row.sd }}
-      .operations
-        el-button(type="primary", @click="on_select_speaker_slide") #[el-icon(name="picture")] &nbsp;Slide Show
+    el-tabs(type="card")
+      el-tab-pane(label="Team results")
+        section(v-if="!loading")
+          el-table(:data="compiled_team_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
+            el-table-column(prop="ranking", label="Ranking", align="center", sortable)
+              template(scope="scope")
+                span {{ scope.row.ranking }}
+            el-table-column(prop="id", label="Name", align="center", sortable)
+              template(scope="scope")
+                span {{ team_by_id(scope.row.id).name }}
+            el-table-column(prop="win", label="Win", align="center", sortable)
+              template(scope="scope")
+                span {{ scope.row.win }}
+            el-table-column(prop="sum", label="Sum", align="center", sortable)
+              template(scope="scope")
+                span {{ scope.row.sum }}
+            el-table-column(prop="margin", label="Margin", align="center", sortable)
+              template(scope="scope")
+                span {{ scope.row.margin }}
+            el-table-column(prop="vote", label="Vote", align="center", sortable)
+              template(scope="scope")
+                span {{ scope.row.vote }}
+            el-table-column(prop="sd", label="StDev", align="center", sortable)
+              template(scope="scope")
+                span {{ scope.row.sd }}
+          .operations
+            el-button(type="primary", @click="on_select_team_slide") #[el-icon(name="picture")] &nbsp;Slide Show
+
+      el-tab-pane(label="Speaker results")
+        el-table(:data="compiled_speaker_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
+          el-table-column(prop="ranking", label="Ranking", align="center", sortable)
+            template(scope="scope")
+              span {{ scope.row.ranking }}
+          el-table-column(prop="id", label="Name", align="center", sortable)
+            template(scope="scope")
+              span {{ speaker_by_id(scope.row.id).name }}
+          el-table-column(prop="average", label="Average", align="center", sortable)
+            template(scope="scope")
+              span {{ scope.row.average }}
+          el-table-column(prop="sum", label="Sum", align="center", sortable)
+            template(scope="scope")
+              span {{ scope.row.sum }}
+          el-table-column(prop="sd", label="StDev", align="center", sortable)
+            template(scope="scope")
+              span {{ scope.row.sd }}
+        .operations
+          el-button(type="primary", @click="on_select_speaker_slide") #[el-icon(name="picture")] &nbsp;Slide Show
 </template>
 
 <script>

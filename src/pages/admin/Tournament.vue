@@ -7,7 +7,7 @@ TODO: Edit dialog needs validation
 
     loading-container(:loading="loading")
       el-tabs(type="card")
-        el-tab-pane(label="Rounds") Rounds
+        el-tab-pane(label="Rounds")
           loading-container(:loading="!init_flag.rounds")
             el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
               el-table-column(prop="r", label="No.", width="60", align="center")
@@ -25,7 +25,7 @@ TODO: Edit dialog needs validation
                   el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.round_name }}
               el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
-        el-tab-pane(label="Teams") Teams
+        el-tab-pane(label="Teams")
           loading-container(:loading="!init_flag.teams")
             el-table(:data="target_tournament.teams.slice().sort((t1, t2) => t1.id > t2.id ? 1 : -1)", @row-click="on_select_team")
               el-table-column(prop="id", label="ID", width="60", align="center")
@@ -42,7 +42,7 @@ TODO: Edit dialog needs validation
           loading-container(:loading="loading && !init_flag.adjudicators")
             entity-list(:entities="target_tournament.adjudicators", label="Adjudicators", @add="() => console.log('hi')")
 
-        el-tab-pane(label="Adjudicators") Adjudicators
+        el-tab-pane(label="Adjudicators")
           loading-container(:loading="!init_flag.adjudicators")
             el-table(:data="target_tournament.adjudicators.slice().sort((a1, a2) => Math.abs(a1.id) > Math.abs(a2.id) ? 1 : -1)", @row-click="on_select_adjudicator")
               el-table-column(prop="id", label="ID", width="60", align="center")
@@ -54,7 +54,7 @@ TODO: Edit dialog needs validation
             .operations
               el-button(type="primary", @click="dialog.adjudicator.visible = true") #[el-icon(name="plus")] &nbsp;Add New Adjudicator
 
-        el-tab-pane(v-for="label in ['speakers', 'institutions', 'venues']", :key='label', :label="label.charAt(0).toUpperCase() + label.slice(1)") {{ label.charAt(0).toUpperCase() + label.slice(1) }}
+        el-tab-pane(v-for="label in ['speakers', 'institutions', 'venues']", :key='label', :label="label.charAt(0).toUpperCase() + label.slice(1)")
           loading-container(:loading="!init_flag[label]")
             el-table(:data="target_tournament[label].slice().sort((e1, e2) => e1.id > e2.id ? 1 : -1)")
               el-table-column(prop="id", label="ID", width="60", align="center")
