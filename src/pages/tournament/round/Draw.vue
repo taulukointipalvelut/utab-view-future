@@ -40,7 +40,7 @@ export default {
   computed: {
     sorted_rows () {
       return this.draw_by_r(this.r_str).allocation
-        .slice().sort((a, b) => a.id > b.id)
+        .slice().sort((a, b) => a.id > b.id ? 1 : -1)
     },
     team_allocation_opened () {
       return this.round_by_r(this.r_str).team_allocation_opened

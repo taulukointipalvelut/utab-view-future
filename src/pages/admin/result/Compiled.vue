@@ -5,7 +5,7 @@
     loading-container(:loading="loading")
     legend Team results
     section(v-if="!loading")
-      el-table(:data="compiled_team_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking)")
+      el-table(:data="compiled_team_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
         el-table-column(prop="ranking", label="Ranking", align="center", sortable)
           template(scope="scope")
             span {{ scope.row.ranking }}
@@ -30,7 +30,7 @@
       .operations
         el-button(type="primary", @click="on_select_team_slide") #[el-icon(name="picture")] &nbsp;Slide Show
     legend Speaker results
-      el-table(:data="compiled_speaker_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking)")
+      el-table(:data="compiled_speaker_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
         el-table-column(prop="ranking", label="Ranking", align="center", sortable)
           template(scope="scope")
             span {{ scope.row.ranking }}

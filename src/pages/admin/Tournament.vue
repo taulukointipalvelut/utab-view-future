@@ -6,62 +6,59 @@ TODO: Edit dialog needs validation
     h1 {{ tournament_name }}
 
     loading-container(:loading="loading")
-      section
-        legend Rounds
-        loading-container(:loading="!init_flag.rounds")
-          el-table(:data="target_tournament.rounds", @row-click="on_select_round")
-            el-table-column(prop="r", label="No.", width="60", align="center")
-            el-table-column(prop="round_name", label="Name", show-overflow-tooltip)
-            el-table-column
-              template(scope="scope")
-                el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
-                el-button(size="small", type="danger", @click="on_delete_round(scope.row)", disabled) #[el-icon(name="close")] Delete
-                el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
-                el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
-          .operations
-            el-dropdown(@command="handle_compiled_command")
-              el-button.compiled Compiled Results #[el-icon(name="caret-bottom")]
-              el-dropdown-menu(slot="dropdown")
-                el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.round_name }}
-            el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+      el-tabs(type="card")
+        el-tab-pane(label="Rounds") Rounds
+          loading-container(:loading="!init_flag.rounds")
+            el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
+              el-table-column(prop="r", label="No.", width="60", align="center")
+              el-table-column(prop="round_name", label="Name", show-overflow-tooltip)
+              el-table-column
+                template(scope="scope")
+                  el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
+                  el-button(size="small", type="danger", @click="on_delete_round(scope.row)", disabled) #[el-icon(name="close")] Delete
+                  el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
+                  el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+            .operations
+              el-dropdown(@command="handle_compiled_command")
+                el-button.compiled Compiled Results #[el-icon(name="caret-bottom")]
+                el-dropdown-menu(slot="dropdown")
+                  el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.round_name }}
+              el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
-      section
-        legend Teams
-        loading-container(:loading="!init_flag.teams")
-          el-table(:data="target_tournament.teams.slice().sort((t1, t2) => t1.id > t2.id)", @row-click="on_select_team")
-            el-table-column(prop="id", label="ID", width="60", align="center")
-            el-table-column(prop="name", label="Name", show-overflow-tooltip)
-            el-table-column
-              template(scope="scope")
-                el-button(size="small", @click="on_edit_team(scope.row)") #[el-icon(name="edit")] Edit
-                el-button(size="small", type="danger", @click="on_delete_team(scope.row)") #[el-icon(name="close")] Delete
-          .operations
-            el-button(type="primary", @click="dialog.team.visible = true") #[el-icon(name="plus")] &nbsp;Add New Team
+        el-tab-pane(label="Teams") Teams
+          loading-container(:loading="!init_flag.teams")
+            el-table(:data="target_tournament.teams.slice().sort((t1, t2) => t1.id > t2.id ? 1 : -1)", @row-click="on_select_team")
+              el-table-column(prop="id", label="ID", width="60", align="center")
+              el-table-column(prop="name", label="Name", show-overflow-tooltip)
+              el-table-column
+                template(scope="scope")
+                  el-button(size="small", @click="on_edit_team(scope.row)") #[el-icon(name="edit")] Edit
+                  el-button(size="small", type="danger", @click="on_delete_team(scope.row)") #[el-icon(name="close")] Delete
+            .operations
+              el-button(type="primary", @click="dialog.team.visible = true") #[el-icon(name="plus")] &nbsp;Add New Team
 
-      //section
-        legend Adjudicators2
-        loading-container(:loading="loading && !init_flag.adjudicators")
-          entity-list(:entities="target_tournament.adjudicators", label="Adjudicators", @add="() => console.log('hi')")
+        //section
+          legend Adjudicators2
+          loading-container(:loading="loading && !init_flag.adjudicators")
+            entity-list(:entities="target_tournament.adjudicators", label="Adjudicators", @add="() => console.log('hi')")
 
-      section
-        legend Adjudicators
-        loading-container(:loading="!init_flag.adjudicators")
-          el-table(:data="target_tournament.adjudicators.slice().sort((a1, a2) => Math.abs(a1.id) > Math.abs(a2.id))", @row-click="on_select_adjudicator")
-            el-table-column(prop="id", label="ID", width="60", align="center")
-            el-table-column(prop="name", label="Name", show-overflow-tooltip)
-            el-table-column
-              template(scope="scope")
-                el-button(size="small", @click="on_edit_adjudicator(scope.row)") #[el-icon(name="edit")] Edit
-                el-button(size="small", type="danger", @click="on_delete_adjudicator(scope.row)") #[el-icon(name="close")] Delete
-          .operations
-            el-button(type="primary", @click="dialog.adjudicator.visible = true") #[el-icon(name="plus")] &nbsp;Add New Adjudicator
+        el-tab-pane(label="Adjudicators") Adjudicators
+          loading-container(:loading="!init_flag.adjudicators")
+            el-table(:data="target_tournament.adjudicators.slice().sort((a1, a2) => Math.abs(a1.id) > Math.abs(a2.id) ? 1 : -1)", @row-click="on_select_adjudicator")
+              el-table-column(prop="id", label="ID", width="60", align="center")
+              el-table-column(prop="name", label="Name", show-overflow-tooltip)
+              el-table-column
+                template(scope="scope")
+                  el-button(size="small", @click="on_edit_adjudicator(scope.row)") #[el-icon(name="edit")] Edit
+                  el-button(size="small", type="danger", @click="on_delete_adjudicator(scope.row)") #[el-icon(name="close")] Delete
+            .operations
+              el-button(type="primary", @click="dialog.adjudicator.visible = true") #[el-icon(name="plus")] &nbsp;Add New Adjudicator
 
-      section(v-for="label in ['speakers', 'institutions', 'venues']", :key='label')
-        legend {{ label.charAt(0).toUpperCase() + label.slice(1) }}
-        loading-container(:loading="!init_flag[label]")
-          el-table(:data="target_tournament[label].slice().sort((e1, e2) => Math.abs(e1.id) > Math.abs(e2.id))")
-            el-table-column(prop="id", label="ID", width="60", align="center")
-            el-table-column(prop="name", label="Name", show-overflow-tooltip)
+        el-tab-pane(v-for="label in ['speakers', 'institutions', 'venues']", :key='label', :label="label.charAt(0).toUpperCase() + label.slice(1)") {{ label.charAt(0).toUpperCase() + label.slice(1) }}
+          loading-container(:loading="!init_flag[label]")
+            el-table(:data="target_tournament[label].slice().sort((e1, e2) => e1.id > e2.id ? 1 : -1)")
+              el-table-column(prop="id", label="ID", width="60", align="center")
+              el-table-column(prop="name", label="Name", show-overflow-tooltip)
 
       el-dialog(title="Add New Round", :visible.sync="dialog.round.visible")
         .dialog-body
