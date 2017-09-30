@@ -524,37 +524,44 @@ export default {
             id: -1,
             name: 'Adjudicator 1',
             //href: { to: `Adjudicator%201` },
-            institutions: [1]
+            institutions: [1],
+            available: true
           }, {
             id: -2,
             name: 'Adjudicator 2',
             //href: { to: `Adjudicator%202` },
-            institutions: [1]
+            institutions: [1],
+            available: true
           }, {
             id: -5,
             name: 'Adjudicator 5',
             //href: { to: `Adjudicator%205` },
-            institutions: [1]
+            institutions: [1],
+            available: true
           }, {
             id: -3,
             name: 'Adjudicator 3',
             //href: { to: `Adjudicator%203` },
-            institutions: [1]
+            institutions: [1],
+            available: true
           }, {
             id: -6,
             name: 'Adjudicator 6',
             //href: { to: `Adjudicator%206` },
-            institutions: [1]
+            institutions: [1],
+            available: true
           }, {
             id: -7,
             name: 'Adjudicator 7',
             //href: { to: `Adjudicator%207` },
-            institutions: [2]
+            institutions: [2],
+            available: true
           }, {
             id: -4,
             name: 'Adjudicator 4',
             //href: { to: `Adjudicator%204` },
-            institutions: [1]
+            institutions: [1],
+            available: true
           }]
           commit('adjudicators', { tournament: {tournament_name: 'PDA Tournament 2018'}, adjudicators })
           resolve()
@@ -592,22 +599,26 @@ export default {
               id: 1,
               name: 'Super Duper Jumpin\' Long Team Name',
               speakers: [1, 2, 3],
-              institutions: [1]
+              institutions: [1],
+              available: true
             }, {
               id: 2,
               name: 'Team B',
               speakers: [4, 5, 6, 7],
-              institutions: [1]
+              institutions: [1],
+              available: true
             }, {
               id: 3,
               name: 'Team C',
               speakers: [8, 9],
-              institutions: [2]
+              institutions: [2],
+              available: true
             }, {
               id: 4,
               name: 'Team D',
               speakers: [10, 11],
-              institutions: []
+              institutions: [],
+              available: true
             }]
           commit('teams', { tournament: {tournament_name: 'PDA Tournament 2018'}, teams })
           resolve()

@@ -4,7 +4,6 @@ TODO: Edit dialog needs validation
 <template lang="pug">
   .router-view-content
     h1 {{ tournament_name }}
-
     loading-container(:loading="loading")
       el-tabs(type="card")
         el-tab-pane(label="Rounds")
@@ -23,58 +22,37 @@ TODO: Edit dialog needs validation
                 el-button.compiled Compiled Results #[el-icon(name="caret-bottom")]
                 el-dropdown-menu(slot="dropdown")
                   el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.round_name }}
-              el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+              el-button(type="primary", @click="dialog.rounds.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
-        el-tab-pane(label="Teams")
-          loading-container(:loading="!init_flag.teams")
-            el-table(:data="target_tournament.teams.slice().sort((t1, t2) => t1.id > t2.id ? 1 : -1)", @row-click="on_select_team")
-              el-table-column(prop="id", label="ID", width="60", align="center")
-              el-table-column(prop="name", label="Name", show-overflow-tooltip)
+        el-tab-pane(v-for="index in range(5)", :label="capitalize(entity.labels[index])", :key="index")
+          loading-container(:loading="!init_flag[entity.labels[index]]")
+            el-table(:data="target_tournament[entity.labels[index]].slice().sort((t1, t2) => t1.id > t2.id ? 1 : -1)", @row-click="on_select_team")
+              el-table-column(prop="id", label="ID", show-overflow-tooltip, align="center", sortable)
+              el-table-column(v-for="prop in entity.display_props[entity.labels[index]]", :label="capitalize(prop)", align="center", :key="prop", sortable)
+                template(scope="scope")
+                  span {{ show(scope.row[prop]) }}
               el-table-column
                 template(scope="scope")
-                  el-button(size="small", @click="on_edit_team(scope.row)") #[el-icon(name="edit")] Edit
-                  el-button(size="small", type="danger", @click="on_delete_team(scope.row)") #[el-icon(name="close")] Delete
+                  el-button(size="small", @click="on_edit('team', scope.row)") #[el-icon(name="edit")] Edit
+                  el-button(size="small", type="danger", @click="on_delete('team', scope.row)") #[el-icon(name="close")] Delete
             .operations
-              el-button(type="primary", @click="dialog.team.visible = true") #[el-icon(name="plus")] &nbsp;Add New Team
+              el-button(type="primary", @click="dialog[entity.labels[index]].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(entity.labels_singular[index]) }}
 
-        //section
-          legend Adjudicators2
-          loading-container(:loading="loading && !init_flag.adjudicators")
-            entity-list(:entities="target_tournament.adjudicators", label="Adjudicators", @add="() => console.log('hi')")
-
-        el-tab-pane(label="Adjudicators")
-          loading-container(:loading="!init_flag.adjudicators")
-            el-table(:data="target_tournament.adjudicators.slice().sort((a1, a2) => Math.abs(a1.id) > Math.abs(a2.id) ? 1 : -1)", @row-click="on_select_adjudicator")
-              el-table-column(prop="id", label="ID", width="60", align="center")
-              el-table-column(prop="name", label="Name", show-overflow-tooltip)
-              el-table-column
-                template(scope="scope")
-                  el-button(size="small", @click="on_edit_adjudicator(scope.row)") #[el-icon(name="edit")] Edit
-                  el-button(size="small", type="danger", @click="on_delete_adjudicator(scope.row)") #[el-icon(name="close")] Delete
-            .operations
-              el-button(type="primary", @click="dialog.adjudicator.visible = true") #[el-icon(name="plus")] &nbsp;Add New Adjudicator
-
-        el-tab-pane(v-for="label in ['speakers', 'institutions', 'venues']", :key='label', :label="label.charAt(0).toUpperCase() + label.slice(1)")
-          loading-container(:loading="!init_flag[label]")
-            el-table(:data="target_tournament[label].slice().sort((e1, e2) => e1.id > e2.id ? 1 : -1)")
-              el-table-column(prop="id", label="ID", width="60", align="center")
-              el-table-column(prop="name", label="Name", show-overflow-tooltip)
-
-      el-dialog(title="Add New Round", :visible.sync="dialog.round.visible")
+      el-dialog(title="Add New Round", :visible.sync="dialog.rounds.visible")
         .dialog-body
-          el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
+          el-form(ref="dialog_round", :model="dialog.rounds.form.model", :rules="dialog.rounds.form.rules")
             h3(align="center") Round {{ target_tournament.rounds.length + 1 }}
             el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.round.form.model.round_name")
+              el-input(v-model="dialog.rounds.form.model.round_name")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.team_allocation_opened")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.teams.form.model.team_allocation_opened")
             el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.adjudicator_allocation_opened")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.teams.form.model.adjudicator_allocation_opened")
         .dialog-footer(slot="footer")
-          el-button(@click="dialog.round.visible = false") Cancel
-          el-button(type="primary", :loading="dialog.round.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
+          el-button(@click="dialog.rounds.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.rounds.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.rounds.loading")] Create
 
-      el-dialog(title="Edit Round", :visible.sync="dialog.round_edit.visible")
+      //el-dialog(title="Edit Round", :visible.sync="dialog.round_edit.visible")
         .dialog-body
           el-form(ref="dialog_round_edit", :model="dialog.round_edit.form.model")
             el-form-item(label="Round No.", prop="r")
@@ -85,33 +63,20 @@ TODO: Edit dialog needs validation
           el-button(@click="dialog.round_edit.visible = false") Cancel
           el-button(type="primary", :loading="dialog.round_edit.loading", @click="on_update_round()") OK
 
-      el-dialog(title="Add New Team", :visible.sync="dialog.team.visible")
+      el-dialog(v-for="index in range(5)", :title="'Add New '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].visible", :key="index")
         .dialog-body
-          el-form(ref="dialog_team", :model="dialog.team.form.model", :rules="dialog.team.form.rules")
-            el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.team.form.model.name")
-            el-form-item(label="Available", prop="available")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.team.form.model.available")
-            el-form-item(label="Speakers", prop="speakers")
-              el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.speakers[index]", :key="index")
-                el-option(v-for="speaker in unallocated_speakers", :key="speaker.id", :value="speaker.id", :label="speaker.name")
-            el-form-item(label="Institutions", prop="institutions")
-              el-select(v-for="index in [0, 1, 2, 3]", v-model="dialog.team.form.model.institutions[index]", :key="index")
-                el-option(v-for="institution in target_tournament.institutions", :key="institution.id", :value="institution.id", :label="institution.name")
+          el-form(:model="dialog[entity.labels[index]].form.model", :rules="dialog[entity.labels[index]].form.rules")
+            el-form-item(v-for="prop_data in entity.dialog_props_editable.string[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
+              el-input(v-model="dialog[entity.labels[index]].form.model[prop_data.prop]")
+            el-form-item(v-for="prop_data in entity.dialog_props_editable.boolean[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog[entity.labels[index]].form.model[prop_data.prop]")
+            el-form-item(v-for="prop_data in entity.dialog_props_editable.selection[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
+              el-select(v-for="sub_index in range(prop_data.hasOwnProperty('maximum') ? prop_data.maximum : 1)", v-model="dialog[entity.labels[index]].form.model[prop_data.prop][sub_index]", :key="sub_index")
+                el-option(v-for="sub_entity in data_to_select(prop_data.prop)", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
         .dialog-footer(slot="footer")
-          el-button(@click="dialog.team.visible = false") Cancel
-          el-button(type="primary", :loading="dialog.team.loading", @click="on_create_team()") #[el-icon(name="plus", v-if="!dialog.team.loading")] Create
-
-      el-dialog(title="Add New Adjudicator", :visible.sync="dialog.adjudicator.visible")
-        .dialog-body
-          el-form(ref="dialog_adjudicator", :model="dialog.adjudicator.form.model", :rules="dialog.adjudicator.form.rules")
-            el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.adjudicator.form.model.name")
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog.adjudicator.visible = false") Cancel
-          el-button(type="primary", :loading="dialog.adjudicator.loading", @click="on_create_adjudicator()") #[el-icon(name="plus", v-if="!dialog.adjudicator.loading")] Create
-
-      el-dialog(title="Edit Team", :visible.sync="dialog.team_edit.visible")
+          el-button(@click="dialog[entity.labels[index]].visible = false") Cancel
+          el-button(type="primary", :loading="dialog[entity.labels[index]].loading", @click="on_create(entity.labels[index])") #[el-icon(name="plus", v-if="!dialog[entity.labels[index]].loading")] Create
+      //el-dialog(title="Edit Team", :visible.sync="dialog.team_edit.visible")
         .dialog-body
           el-form(ref="dialog_team_edit", :model="dialog.team_edit.form.model")
             el-form-item(label="Name", prop="name")
@@ -141,11 +106,66 @@ export default {
   },
   props: ['tournaments', 'loading', 'tournament_name'],
   data () {
-    console.log(this.target_tournament)
-    const this_rounds = new Lazy(() => this.target_tournament.rounds, false)
-    const this_teams = new Lazy(() => this.target_tournament.teams, false)
-    const this_adjudicators = new Lazy(() => this.target_tournament.adjudicators, false)
-    return {
+    let output = {
+      entity: {
+        labels: ['teams', 'adjudicators', 'speakers', 'institutions', 'venues'],
+        labels_singular: ['team', 'adjudicator', 'speaker', 'institution', 'venue'],
+        display_props: {
+          teams: ['name', 'available'],
+          adjudicators: ['name', 'available'],
+          speakers: ['name'],
+          institutions: ['name'],
+          venues: ['name']
+        },
+        dialog_props_editable: {
+          string: {
+            teams: [{
+              prop: 'name'
+            }],
+            adjudicators: [{
+              prop: 'name'
+            }],
+            speakers: [{
+              prop: 'name'
+            }],
+            institutions: [{
+              prop: 'name'
+            }],
+            venues: [{
+              prop: 'name'
+            }]
+          },
+          boolean: {
+            teams: [{
+              prop: 'available'
+            }],
+            adjudicators: [{
+              prop: 'available'
+            }],
+            speakers: [],
+            institutions: [],
+            venues: []
+          },
+          selection: {
+            teams: [{
+              prop: 'speakers',
+              maximum: 4
+            }, {
+              prop: 'institutions',
+              maximum: 4
+            }],
+            adjudicators: [{
+              prop: 'institutions',
+              maximum: 4
+            }],
+            speakers: [],
+            institutions: [],
+            venues: []
+          }
+        },
+        dialog_props_unchangeable: {},
+        dialog_props_changeable: {}
+      },
       team_selected: undefined,
       adjudicator_selected: undefined,
       init_flag: {
@@ -155,94 +175,59 @@ export default {
         institutions: false,
         venues: false,
         speakers: false
-      },
-      formData: {
-        tournament_name: this.tournament_name
-      },
-      dialog: {
-        round: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              round_name: '',
-              team_allocation_opened: true,
-              adjudicator_allocation_opened: true
-            },
-            rules: {
-              round_name: [
-                { required: true, message: 'Please input Name' },
-                { validator: validators(not(exists(this_rounds, 'name'))), message: 'This Round Name already exists' }
-              ]
-            }
-          }
-        },
-        round_edit: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              round_name: '',
-              team_allocation_opened: true,
-              adjudicator_allocation_opened: true
-            }
-          }
-        },
-        team: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              name: '',
-              available: true,
-              speakers: [null, null, null, null],
-              institutions: [null, null, null, null]
-            },
-            rules: {
-              name: [
-                { required: true, message: 'Please input Name' },
-                { validator: validators(not(exists(this_teams, 'name'))), message: 'This Name already exists' }
-              ]
-            }
-          }
-        },
-        team_edit: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              name: ''
-            }
-          }
-        },
-        adjudicator: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              name: ''
-            },
-            rules: {
-              name: [
-                { required: true, message: 'Please input Name' },
-                { validator: validators(not(exists(this_adjudicators, 'name'))), message: 'This Name already exists' }
-              ]
-            }
-          }
-        },
-        adjudicator_edit: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              name: ''
-            }
+      }
+    }
+
+    output.dialog = {
+      rounds: {
+        loading: false,
+        visible: false,
+        form: {
+          model: {
+            round_name: '',
+            team_allocation_opened: true,
+            adjudicator_allocation_opened: true
           }
         }
       }
     }
+    for (let label of output.entity.labels) {
+      let form = {
+        model: {},
+        rules: {}
+      }
+
+      for (let prop_data of output.entity.dialog_props_editable.string[label]) {
+        form.model[prop_data.prop] = ''
+      }
+      for (let prop_data of output.entity.dialog_props_editable.boolean[label]) {
+        form.model[prop_data.prop] = true
+      }
+      for (let prop_data of output.entity.dialog_props_editable.selection[label]) {
+        form.model[prop_data.prop] = Array(prop_data.hasOwnProperty('maximum') ? prop_data.maximum : 1).fill(null)
+      }
+
+      output.dialog[label] = {
+        loading: false,
+        visible: false,
+        form
+      }
+    }
+
+    return output
   },
   computed: {
+    data_to_select () {
+      return label => {
+        if (label === 'speakers') {
+          return this.unallocated_speakers
+        } else if (label === 'institutions') {
+          return this.target_tournament.institutions
+        } else {
+        return []
+        }
+      }
+    },
     has_rounds () {
       return this.target_tournament.rounds && this.target_tournament.rounds.length > 0
     },
@@ -257,6 +242,21 @@ export default {
     ])
   },
   methods: {
+    range (len) {
+      return [...Array(len).keys()]
+    },
+    capitalize (p) {
+      return p.charAt(0).toUpperCase() + p.slice(1)
+    },
+    show (p) {
+      if (p === true) {
+        return 'Yes'
+      } else if (p === false) {
+        return 'No'
+      } else {
+        return p
+      }
+    },
     handle_compiled_command (r_str) {
       this.$router.push({
         path: 'rounds/'+r_str+'/result/compiled'
@@ -276,19 +276,19 @@ export default {
       this.$router.push(selected.href)
     },
     on_create_round () {
-      this.dialog.round.loading = true
+      this.dialog.rounds.loading = true
       this.$refs.dialog_round.validate((valid) => {
         if (valid) {
           const tournament = this.target_tournament
-          const round = Object.assign({}, this.dialog.round.form.model)
+          const round = Object.assign({}, this.dialog.rounds.form.model)
           round.r = tournament.rounds.length + 1
           round.href = { path: `/${ tournament.tournament_name }/rounds/${ round.r }` }
           this.add_rounds({ tournament, rounds: [round] })
-          this.dialog.round.loading = false
-          this.dialog.round.visible = false
+          this.dialog.rounds.loading = false
+          this.dialog.rounds.visible = false
           this.$refs.dialog_round.resetFields()
         } else {
-          this.dialog.round.loading = false
+          this.dialog.rounds.loading = false
           return false
         }
       })
@@ -319,30 +319,58 @@ export default {
       this.team_selected = selected
       //this.$router.push(selected.href)
     },
-    on_create_team () {
-      this.dialog.team.loading = true
+    on_create () {
+      this.dialog.teams.loading = true
       this.$refs.dialog_team.validate((valid) => {
         if (valid) {
           const tournament = this.target_tournament
           let team = {
-            name: this.dialog.team.form.model.name,
-            id: this.dialog.team.form.model.id,
+            name: this.dialog.teams.form.model.name,
+            id: this.dialog.teams.form.model.id,
             details: [...Array(this.target_tournament.total_round_num).keys()].map(num => {
               return {
                 r: num+1,
-                speakers: this.dialog.team.form.model.speakers.filter(id => id !== null),
-                institutions: this.dialog.team.form.model.institutions.filter(id => id !== null),
-                available: this.dialog.team.form.model.available
+                speakers: this.dialog.teams.form.model.speakers.filter(id => id !== null),
+                institutions: this.dialog.teams.form.model.institutions.filter(id => id !== null),
+                available: this.dialog.teams.form.model.available
               }
             })
           }
           //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
           this.add_teams({ tournament, teams: [team] })
-          this.dialog.team.loading = false
-          this.dialog.team.visible = false
+          this.dialog.teams.loading = false
+          this.dialog.teams.visible = false
           this.$refs.dialog_team.resetFields()
         } else {
-          this.dialog.team.loading = false
+          this.dialog.teams.loading = false
+          return false
+        }
+      })
+    },
+    on_create_team () {
+      this.dialog.teams.loading = true
+      this.$refs.dialog_team.validate((valid) => {
+        if (valid) {
+          const tournament = this.target_tournament
+          let team = {
+            name: this.dialog.teams.form.model.name,
+            id: this.dialog.teams.form.model.id,
+            details: [...Array(this.target_tournament.total_round_num).keys()].map(num => {
+              return {
+                r: num+1,
+                speakers: this.dialog.teams.form.model.speakers.filter(id => id !== null),
+                institutions: this.dialog.teams.form.model.institutions.filter(id => id !== null),
+                available: this.dialog.teams.form.model.available
+              }
+            })
+          }
+          //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
+          this.add_teams({ tournament, teams: [team] })
+          this.dialog.teams.loading = false
+          this.dialog.teams.visible = false
+          this.$refs.dialog_team.resetFields()
+        } else {
+          this.dialog.teams.loading = false
           return false
         }
       })
@@ -352,33 +380,6 @@ export default {
       const tournament = this.target_tournament
       if (ans === 'confirm') {
         this.delete_team({ tournament, team: this.team_selected })
-      }
-    },
-    on_select_adjudicator (selected, ev, col) {
-      this.adjudicator_selected = selected
-    },
-    on_create_adjudicator () {
-      this.dialog.adjudicator.loading = true
-      this.$refs.dialog_adjudicator.validate((valid) => {
-        if (valid) {
-          const tournament = this.target_tournament
-          const adjudicator = Object.assign({}, this.dialog.adjudicator.form.model)
-          //adjudicator.href = { path: `/${ tournament.tournament_name }/${ adjudicator.name }` }
-          this.add_adjudicators({ tournament, adjudicators: [adjudicator] })
-          this.dialog.adjudicator.loading = false
-          this.dialog.adjudicator.visible = false
-          this.$refs.dialog_adjudicator.resetFields()
-        } else {
-          this.dialog.adjudicator.loading = false
-          return false
-        }
-      })
-    },
-    async on_delete_adjudicator (selected) {
-      const ans = await this.$confirm('Are you sure?')
-      const tournament = this.target_tournament
-      if (ans === 'confirm') {
-        this.delete_adjudicator({ tournament, adjudicator: this.adjudicator_selected })
       }
     },
     on_edit_team (selected) {
@@ -395,6 +396,33 @@ export default {
       this.dialog.team_edit.loading = false
       this.dialog.team_edit.visible = false
       this.$refs.dialog_team_edit.resetFields()
+    },
+    on_select_adjudicator (selected, ev, col) {
+      this.adjudicator_selected = selected
+    },
+    on_create_adjudicator () {
+      this.dialog.adjudicators.loading = true
+      this.$refs.dialog_adjudicator.validate((valid) => {
+        if (valid) {
+          const tournament = this.target_tournament
+          const adjudicator = Object.assign({}, this.dialog.adjudicators.form.model)
+          //adjudicator.href = { path: `/${ tournament.tournament_name }/${ adjudicator.name }` }
+          this.add_adjudicators({ tournament, adjudicators: [adjudicator] })
+          this.dialog.adjudicators.loading = false
+          this.dialog.adjudicators.visible = false
+          this.$refs.dialog_adjudicator.resetFields()
+        } else {
+          this.dialog.adjudicators.loading = false
+          return false
+        }
+      })
+    },
+    async on_delete_adjudicator (selected) {
+      const ans = await this.$confirm('Are you sure?')
+      const tournament = this.target_tournament
+      if (ans === 'confirm') {
+        this.delete_adjudicator({ tournament, adjudicator: this.adjudicator_selected })
+      }
     },
     ...mapActions([
       'add_rounds',
