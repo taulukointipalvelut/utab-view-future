@@ -5,28 +5,28 @@ TODO: Edit dialog needs validation
   .router-view-content
     h1 {{ tournament_name }}
     loading-container(:loading="loading")
-      el-tabs(type="card")
-        el-tab-pane(label="Rounds")
-          loading-container(:loading="!init_flag.rounds")
-            el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
-              el-table-column(prop="r", label="No.", width="60", align="center")
-              el-table-column(prop="round_name", label="Name", show-overflow-tooltip)
-              el-table-column
-                template(scope="scope")
-                  el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
-                  el-button(size="small", type="danger", @click="on_delete_round(scope.row)", disabled) #[el-icon(name="close")] Delete
-                  el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
-                  el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
-            .operations
-              el-dropdown(@command="handle_compiled_command")
-                el-button.compiled Compiled Results #[el-icon(name="caret-bottom")]
-                el-dropdown-menu(slot="dropdown")
-                  el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.round_name }}
-              el-button(type="primary", @click="dialog.rounds.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+      legend Rounds
+      loading-container(:loading="!init_flag.rounds")
+        el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
+          el-table-column(prop="r", label="No.", width="60", align="center")
+          el-table-column(prop="round_name", label="Name", show-overflow-tooltip)
+          el-table-column
+            template(scope="scope")
+              el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
+              el-button(size="small", type="danger", @click="on_delete_round(scope.row)", disabled) #[el-icon(name="close")] Delete
+              el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
+              el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+        .operations
+          el-dropdown(@command="handle_compiled_command")
+            el-button.compiled Compiled Results #[el-icon(name="caret-bottom")]
+            el-dropdown-menu(slot="dropdown")
+              el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.round_name }}
+          el-button(type="primary", @click="dialog.rounds.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
+      el-tabs(type="card")
         el-tab-pane(v-for="index in range(5)", :label="capitalize(entity.labels[index])", :key="index")
           loading-container(:loading="!init_flag[entity.labels[index]]")
-            el-table(:data="target_tournament[entity.labels[index]].slice().sort((t1, t2) => t1.id > t2.id ? 1 : -1)", @row-click="on_select_team")
+            el-table(:data="target_tournament[entity.labels[index]].slice().sort((t1, t2) => Math.abs(t1.id) > Math.abs(t2.id) ? 1 : -1)", @row-click="on_select_team")
               el-table-column(prop="id", label="ID", show-overflow-tooltip, align="center", sortable)
               el-table-column(v-for="prop in entity.display_props[entity.labels[index]]", :label="capitalize(prop)", align="center", :key="prop", sortable)
                 template(scope="scope")
@@ -71,8 +71,9 @@ TODO: Edit dialog needs validation
             el-form-item(v-for="prop_data in entity.dialog_props_editable.boolean[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[entity.labels[index]].form.model[prop_data.prop]")
             el-form-item(v-for="prop_data in entity.dialog_props_editable.selection[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
-              el-select(v-for="sub_index in range(prop_data.hasOwnProperty('maximum') ? prop_data.maximum : 1)", v-model="dialog[entity.labels[index]].form.model[prop_data.prop][sub_index]", :key="sub_index")
+              el-select(v-for="sub_index in range(prop_data.default_length)", v-model="dialog[entity.labels[index]].form.model[prop_data.prop][sub_index]", :key="sub_index")
                 el-option(v-for="sub_entity in data_to_select(prop_data.prop)", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
+              el-button(size="mini", @click="prop_data.default_length++", v-if="prop_data.extendable") #[el-icon(name="plus")]
         .dialog-footer(slot="footer")
           el-button(@click="dialog[entity.labels[index]].visible = false") Cancel
           el-button(type="primary", :loading="dialog[entity.labels[index]].loading", @click="on_create(entity.labels[index])") #[el-icon(name="plus", v-if="!dialog[entity.labels[index]].loading")] Create
@@ -86,11 +87,12 @@ TODO: Edit dialog needs validation
             el-form-item(v-for="prop_data in entity.dialog_props_changeable.boolean[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[entity.labels[index]].edit_form.model[prop_data.prop]")
             el-form-item(v-for="prop_data in entity.dialog_props_changeable.selection[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
-              el-select(v-for="sub_index in range(prop_data.hasOwnProperty('maximum') ? prop_data.maximum : 1)", v-model="dialog[entity.labels[index]].edit_form.model[prop_data.prop][sub_index]", :key="sub_index")
+              el-select(v-for="sub_index in range(prop_data.default_length)", v-model="dialog[entity.labels[index]].edit_form.model[prop_data.prop][sub_index]", :key="sub_index")
                 el-option(v-for="sub_entity in data_to_select(prop_data.prop)", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
+              el-button(size="mini", @click="prop_data.default_length++", v-if="prop_data.extendable") #[el-icon(name="plus")]
         .dialog-footer(slot="footer")
           el-button(@click="dialog[entity.labels[index]].edit_visible = false") Cancel
-          el-button(type="primary", :loading="dialog[entity.labels[index]].edit_loading", @click="on_update('entity.labels[index]')")  OK
+          el-button(type="primary", :loading="dialog[entity.labels[index]].edit_loading", @click="on_update(entity.labels[index])")  OK
       //el-dialog(title="Edit Team", :visible.sync="dialog.team_edit.visible")
         .dialog-body
           el-form(ref="dialog_team_edit", :model="dialog.team_edit.form.model")
@@ -107,12 +109,8 @@ import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 import entity_list from 'components/entity-list'
 import Lazy from 'assets/js/lazy'
+import math from 'assets/js/math'
 import { validators, not, is_integer, is_nonzero, is_positive, exists } from 'assets/js/form-validator'
-
-let p = (...xs) => {
-  console.log(...xs)
-  return xs.slice(-1)[0]
-}
 
 export default {
   components: {
@@ -164,14 +162,17 @@ export default {
           selection: {
             teams: [{
               prop: 'speakers',
-              maximum: 4
+              default_length: 2,
+              extendable: true
             }, {
               prop: 'institutions',
-              maximum: 4
+              default_length: 1,
+              extendable: true
             }],
             adjudicators: [{
               prop: 'institutions',
-              maximum: 4
+              default_length: 1,
+              extendable: true
             }],
             speakers: [],
             institutions: [],
@@ -229,14 +230,17 @@ export default {
           selection: {
             teams: [{
               prop: 'speakers',
-              maximum: 4
+              default_length: 2,
+              extendable: true
             }, {
               prop: 'institutions',
-              maximum: 4
+              default_length: 1,
+              extendable: true
             }],
             adjudicators: [{
               prop: 'institutions',
-              maximum: 4
+              default_length: 1,
+              extendable: true
             }],
             speakers: [],
             institutions: [],
@@ -296,7 +300,7 @@ export default {
         form.model[prop_data.prop] = true
       }
       for (let prop_data of output.entity.dialog_props_editable.selection[label]) {
-        form.model[prop_data.prop] = Array(prop_data.hasOwnProperty('maximum') ? prop_data.maximum : 1).fill(null)
+        form.model[prop_data.prop] = Array(100).fill(null)
       }
 
       for (let prop_data of output.entity.dialog_props_changeable.string[label]) {
@@ -306,7 +310,7 @@ export default {
         edit_form.model[prop_data.prop] = true
       }
       for (let prop_data of output.entity.dialog_props_changeable.selection[label]) {
-        edit_form.model[prop_data.prop] = Array(prop_data.hasOwnProperty('maximum') ? prop_data.maximum : 1).fill(null)
+        edit_form.model[prop_data.prop] = Array(100).fill(null)
       }
 
       output.dialog[label] = {
@@ -315,7 +319,9 @@ export default {
         visible: false,
         edit_visible: false,
         form,
-        edit_form
+        edit_form,
+        original_form: Object.assign({}, form),
+        original_edit_form: Object.assign({}, edit_form)
       }
     }
 
@@ -348,7 +354,7 @@ export default {
   },
   methods: {
     range (len) {
-      return [...Array(len).keys()]
+      return math.range(len)
     },
     capitalize (p) {
       return p.charAt(0).toUpperCase() + p.slice(1)
@@ -406,6 +412,7 @@ export default {
       }
     },
     on_edit_round (selected) {
+      console.log('preparing')
       this.dialog.rounds.edit_form.model = Object.assign({}, selected)
       this.dialog.rounds.edit_visible = true
     },
@@ -425,61 +432,31 @@ export default {
       this.team_selected = selected
       //this.$router.push(selected.href)
     },
-    on_create () {
-      this.dialog.teams.loading = true
-      this.$refs.dialog_team.validate((valid) => {
-        if (valid) {
-          const tournament = this.target_tournament
-          let team = {
-            name: this.dialog.teams.form.model.name,
-            id: this.dialog.teams.form.model.id,
-            details: [...Array(this.target_tournament.total_round_num).keys()].map(num => {
-              return {
-                r: num+1,
-                speakers: this.dialog.teams.form.model.speakers.filter(id => id !== null),
-                institutions: this.dialog.teams.form.model.institutions.filter(id => id !== null),
-                available: this.dialog.teams.form.model.available
-              }
-            })
+    on_create (label) {
+      this.dialog[label].loading = true
+
+      const tournament = this.target_tournament
+      let model = this.dialog[label].form.model
+      let entity = Object.assign({}, model)
+
+      if (label === 'teams') {
+        entity.details = this.range(tournament.total_round_num).map(num => {
+          return {
+            r: num+1,
+            speakers: model.speakers.filter(id => id !== null),
+            institutions: model.institutions.filter(id => id !== null),
+            available: model.available
           }
-          //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
-          this.add_teams({ tournament, teams: [team] })
-          this.dialog.teams.loading = false
-          this.dialog.teams.visible = false
-          this.$refs.dialog_team.resetFields()
-        } else {
-          this.dialog.teams.loading = false
-          return false
-        }
-      })
-    },
-    on_create_team () {
-      this.dialog.teams.loading = true
-      this.$refs.dialog_team.validate((valid) => {
-        if (valid) {
-          const tournament = this.target_tournament
-          let team = {
-            name: this.dialog.teams.form.model.name,
-            id: this.dialog.teams.form.model.id,
-            details: [...Array(this.target_tournament.total_round_num).keys()].map(num => {
-              return {
-                r: num+1,
-                speakers: this.dialog.teams.form.model.speakers.filter(id => id !== null),
-                institutions: this.dialog.teams.form.model.institutions.filter(id => id !== null),
-                available: this.dialog.teams.form.model.available
-              }
-            })
-          }
-          //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
-          this.add_teams({ tournament, teams: [team] })
-          this.dialog.teams.loading = false
-          this.dialog.teams.visible = false
-          this.$refs.dialog_team.resetFields()
-        } else {
-          this.dialog.teams.loading = false
-          return false
-        }
-      })
+        })
+        delete entity.speakers
+        delete entity.institutions
+        delete entity.available
+      }
+      //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
+      //this.add_teams({ tournament, teams: [team] })
+      this.dialog[label].loading = false
+      this.dialog[label].visible = false
+      this.dialog[label].form = this.dialog[label].original_form
     },
     async on_delete_team (selected) {
       const ans = await this.$confirm('Are you sure?')
@@ -489,20 +466,22 @@ export default {
       }
     },
     on_edit (label, selected) {
-      this.dialog[label].edit_form.model = Object.assign({}, selected)
+      console.log("preparing")
+      //this.dialog[label].edit_form.model = Object.assign({}, selected)
       this.dialog[label].edit_visible = true
     },
     on_update (label) {
       this.dialog[label].edit_loading = true
-      const tournament = this.target_tournament
-      const entity = Object.assign({}, this.dialog[label].edit_form.model)
+      let tournament = this.target_tournament
+      let model = this.dialog[label].edit_form.model
+      let entity = Object.assign({}, model)
+      console.log(entity)
       //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
       //this.delete_team({ tournament, team })
       //this.add_team({ tournament, team })
-      console.log("preparing")
       this.dialog[label].edit_loading = false
       this.dialog[label].edit_visible = false
-      //this.$refs.dialog_team_edit.resetFields()
+      this.dialog[label].edit_form = this.dialog[label].original_edit_form
     },
     async on_delete (label, selected) {
       const ans = await this.$confirm('Are you sure?')
