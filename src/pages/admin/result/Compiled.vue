@@ -96,8 +96,7 @@ export default {
       })
     },
     ...mapActions([
-      'init_teams',
-      'init_adjudicators'
+      'init_all'
     ])/*,
     sort_adjudicators (res1, res2) {
       console.log(res1)
@@ -109,7 +108,7 @@ export default {
     }*/
   },
   mounted () {
-    Promise.all([this.init_adjudicators(), this.init_teams()])
+    this.init_all()
       .then(() => {
         this.loading = false
       })

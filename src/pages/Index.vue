@@ -41,11 +41,11 @@ export default {
   },
   methods: {
     ...mapActions([
-      'init_tournaments'
+      'init_all'
     ])
   },
   mounted () {
-    this.init_tournaments()
+    this.init_all()
       .then(() => {
         this.loading = false
       })

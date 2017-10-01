@@ -469,7 +469,7 @@ export default {
       }
       payload[label] = [entity]
       //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
-      this.send_entities(payload)
+      this.send_create_entities(payload)
       this.dialog[label].loading = false
       this.dialog[label].visible = false
       this.dialog[label].form = this.dialog[label].original_form
@@ -513,30 +513,21 @@ export default {
     ...mapActions([
       'send_rounds',
       'send_delete_round',
-      'send_entities',
+      'send_create_entities',
       'send_delete_entity',
       'send_update_entity',
-      'init_rounds',
-      'init_adjudicators',
-      'init_teams'
+      'init_all'
     ])
   },
   mounted () {
-    const tournament = this.target_tournament
-    this.init_rounds({ tournament }).then(() => {
+    this.init_all().then(() => {
       this.init_flag.rounds = true
-    })
-    this.init_adjudicators({ tournament }).then(() => {
       this.init_flag.adjudicators = true
-    })
-    this.init_teams({ tournament }).then(() => {
       this.init_flag.teams = true
-    })
-    setTimeout(() => {
       this.init_flag.institutions = true
-      this.init_flag.venues = true
       this.init_flag.speakers = true
-    }, 1000)
+      this.init_flag.venues = true
+    })
   }
 }
 </script>

@@ -23,13 +23,11 @@ export default {
   },
   methods: {
     ...mapActions([
-      'init_adjudicators'
+      'init_all'
     ])
   },
   mounted () {
-    this.init_adjudicators({
-      tournament: this.target_tournament
-    }).then(() => {
+    this.init_all().then(() => {
         this.loading = false
       })
   }

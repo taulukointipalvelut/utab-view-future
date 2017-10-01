@@ -53,7 +53,7 @@ export default {
     return {
       config: {
           max_teams_rewarded: 3,
-          tournament_name: "PDA Tournament 2017",
+          tournament_name: "PDA Tournament 2018",
           show_place: true
       },
       teams: [{

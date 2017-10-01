@@ -35,14 +35,14 @@ export default {
   },
   methods: {
     ...mapActions([
-      'init_tournaments'
+      'init_all'
     ])
   },
   mounted () {
     if (!this.isAuth) {
       this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
     }
-    this.init_tournaments()
+    this.init_all()
       .then(() => {
         this.loading = false
       })

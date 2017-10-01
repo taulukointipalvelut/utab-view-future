@@ -62,12 +62,11 @@ export default {
   },
   methods: {
     ...mapActions([
-      'init_teams',
-      'init_adjudicators'
+      'init_all'
     ])
   },
   mounted() {
-    Promise.all([this.init_teams(), this.init_adjudicators()])
+    this.init_all()
       .then(() => {
         this.loading = false
       })

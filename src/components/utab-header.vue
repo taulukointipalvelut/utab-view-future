@@ -12,6 +12,8 @@
         li.spacer
         li(v-if="target_tournament")
           router-link(v-if="target_tournament.href", :to="target_tournament.href") {{ target_tournament.tournament_name }}
+        li
+          a(@click="init_all") Reload
         li(v-if="login")
           router-link(:to="logout_href") Logout #[el-icon(name="circle-cross")]
         li(v-if="login")
@@ -84,7 +86,10 @@
           this.base_url + '/'
         }
         return this.base_url + target
-      }
+      },
+      ...mapActions([
+        'init_all'
+      ])
     }
   }
 </script>

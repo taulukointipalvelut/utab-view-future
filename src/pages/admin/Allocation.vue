@@ -188,8 +188,7 @@ export default {
       this.active_institutions = []
     },
     ...mapActions([
-      'init_adjudicators',
-      'init_teams'
+      'init_all'
     ]),
     speaker_names_by_team_id (id) {
       return this.team_by_id(id).speakers.map(this.speaker_by_id).map(s => s.name).join(', ')
@@ -290,7 +289,7 @@ export default {
     if (!this.isAuth) {
       this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
     }
-    Promise.all([this.init_adjudicators(), this.init_teams()])
+    this.init_all()
       .then(() => {
         this.loading = false
 
