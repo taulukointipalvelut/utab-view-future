@@ -7,37 +7,25 @@ function find_tournament (state, payload) {
     return state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
 }
 
-function add_factory (label) {
-    function add_entities (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament[label] = tournament[label].concat(payload[label])
-    }
-    return add_entities
+function treat_reponse (promise) {
+    return promise.then(response => response.json()).then(response => {
+        if (response.errors.length > 0) {
+            throw response.errors
+        } else {
+            return response.data
+        }
+    })
 }
 
-function delete_factory (label, label_singular, key='id') {
-    function delete_entity (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament[label] = tournament[label].filter(x => x[key] !== payload[label_singular][key])
-    }
-    return delete_entity
-}
-
-function fetch_post (url, data) {
-    return fetch(url, {
-        method: 'POST',
+function fetch_data (method, url, data=null) {
+    return treat_reponse(fetch(url, {
+        method,
         body: JSON.stringify(data),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         }
-    })
-}
-
-function fetch_delete (url) {
-    return fetch(url, {
-        method: 'DELETE'
-    })
+    }))
 }
 
 function select_by_key_factory (label, key="id") {
@@ -48,40 +36,6 @@ function select_by_key_factory (label, key="id") {
         }
     }
     return select_by_key
-}
-
-function action_add_base_entities_factory (label) {
-    function add_base_entities ({state, commit, dispatch}, payload) {
-      let tournament = find_tournament(state, payload)
-      let entities = []
-      let id_diff = 1
-      for (let e of payload[label]) {
-          let entity = {
-              id: tournament[label].length+id_diff,
-              name: e.name,
-              details: e.details
-          }
-          id_diff += 1
-          entities.push(entity)
-      }
-      new_payload = { tournament }
-      new_payload[label] = entities
-
-      fetch_post(API_BASE_URL+'/tournaments/'+tournament.id+'/'+label, entities)
-          .then(() => commit('add_'+label, new_payload))
-    }
-    return add_base_entities
-}
-
-function action_delete_base_entities_factory (label, label_singular) {
-    function delete_base_entities ({state, commit, dispatch}, payload) {
-        let tournament = find_tournament(state, payload)
-        new_payload = { tournament }
-        new_payload[label_singular] = payload[label_singular]
-        fetch_delete(API_BASE_URL+'/tournaments/'+tournament.id+'/'+label+'/'+payload[label_singular].id)
-            .then(() => commit('delete_'+label_singular, new_payload))
-    }
-    return delete_base_entities
 }
 
 export default {
@@ -210,87 +164,46 @@ export default {
         let tournament = find_tournament(state, payload)
         tournament.teams = payload.teams
     },
-    add_rounds: add_factory('rounds'),
-    delete_round: delete_factory('rounds', 'round', 'r'),
-    add_teams: add_factory('teams'),
-    delete_team: delete_factory('teams', 'team'),
-    add_adjudicators: add_factory('adjudicators'),
-    delete_adjudicator: delete_factory('adjudicators', 'adjudicator'),
-    add_speakers: add_factory('speakers'),
-    delete_speaker: delete_factory('speakers', 'speaker'),
-    add_venues: add_factory('venues'),
-    delete_venue: delete_factory('venues', 'venue'),
-    add_institutions: add_factory('institutions'),
-    delete_institutions: delete_factory('institutions', 'institution')
+    //add_rounds: add_factory('rounds'),
+    //delete_round: delete_factory('rounds', 'round', 'r'),
+    add_entities (state, payload) {
+        payload.tournament[payload.label] = payload.tournament[payload.label].concat(payload[payload.label])
+    },
+    delete_entity (state, payload) {
+        payload.tournament[payload.label] = payload.tournament[payload.label].filter(e => e.id === payload[payload.label].id)
+    },
+    add_rounds (state, payload) {
+        payload.tournament.rounds = payload.tournament.rounds.concat(payload.rounds)
+    },
+    deleteround (state, payload) {
+        payload.tournament.rounds = payload.tournament.rounds.filter(e => e.r === payload.round.r)
+    }
   },
   actions: {
-      add_rounds ({state, commit, dispatch}, payload) {
+      send_rounds ({state, commit, dispatch}, payload) {
+          console.log('preparing')
           commit('add_rounds', payload)
       },
-      delete_round ({state, commit, dispatch}, payload) {
+      send_delete_round ({state, commit, dispatch}, payload) {
+          console.log('preparing')
           commit('delete_round', payload)
       },
-      add_tournament ({state, commit, dispatch}, payload) {
-         fetch_post(API_BASE_URL+'/tournaments', payload.tournament)
+      send_tournament ({state, commit, dispatch}, payload) {
+         return fetch_data('POST', API_BASE_URL+'/tournaments', payload.tournament)
             .then(() => commit('add_tournament', payload))
       },
-      add_teams ({state, commit, dispatch}, payload) {
-        let tournament = find_tournament(state, payload)
-        let teams = []
-        let id_diff = 1
-        for (let t of payload.teams) {
-            let team = {
-                id: tournament.teams.length+id_diff,
-                name: t.name,
-                details: t.details
-            }
-            id_diff += 1
-            teams.push(team)
-        }
-
-        fetch_post(API_BASE_URL+'/tournaments/'+tournament.id+'/teams', teams)
-            .then(() => commit('add_teams', { tournament, teams }))
+      send_entities ({state, commit, dispatch}, payload) {
+        return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label, payload[payload.label])
+            .then(() => commit('add_entities', payload))
       },
-      delete_team ({state, commit, dispatch}, payload) {
-        let tournament = find_tournament(state, payload)
-        fetch_delete(API_BASE_URL+'/tournaments/'+tournament.id+'/teams/'+payload.team.id)
-            .then(() => commit('delete_team', { tournament, team: payload.team }))
+      send_update_entity ({state, commit, dispatch}, payload) {
+        return fetch('PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label])
+            .then(() => commit('add_entities', payload))
       },
-      add_adjudicators ({state, commit, dispatch}, payload) {
-        let tournament = find_tournament(state, payload)
-        let adjudicators = []
-        let id_diff = 1
-        for (let t of payload.adjudicators) {
-            let adjudicator = {
-                id: -tournament.adjudicators.length-id_diff,
-                name: t.name,
-                details: [{
-                    r: 1,
-                    conflicts: [
-                        1
-                    ],
-                    institutions: [],
-                    available: true
-                }]
-            }
-            id_diff += 1
-            adjudicators.push(adjudicator)
-        }
-
-        fetch_post(API_BASE_URL+'/tournaments/'+tournament.id+'/adjudicators', adjudicators)
-            .then(() => commit('add_adjudicators', { tournament, adjudicators }))
+      send_delete_entity ({state, commit, dispatch}, payload) {
+        return fetch_delete('DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id)
+            .then(() => commit('delete_entity', payload))
       },
-      delete_adjudicator ({state, commit, dispatch}, payload) {
-        let tournament = find_tournament(state, payload)
-        fetch_delete(API_BASE_URL+'/tournaments/'+tournament.id+'/adjudicators/'+payload.adjudicator.id)
-            .then(() => commit('delete_adjudicator', { tournament, adjudicator: payload.adjudicator }))
-      },
-      add_speakes: action_add_base_entities_factory('speakers'),
-      add_venues: action_add_base_entities_factory('venues'),
-      add_institutions: action_add_base_entities_factory('institutions'),
-      delete_speakes: action_delete_base_entities_factory('speakers', 'speaker'),
-      delete_venues: action_delete_base_entities_factory('venues', 'venue'),
-      delete_institutions: action_delete_base_entities_factory('institutions', 'institution'),
       init_tournaments ({ commit }) {
         /*return fetch(API_BASE_URL+'/tournaments')
             .then(response => response.json())

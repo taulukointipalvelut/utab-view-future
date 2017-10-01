@@ -175,7 +175,7 @@ export default {
           }//{ name: this.dialog.create.form.model.style_name }
           tournament.href = { path: `/${ tournament.tournament_name }` }
           tournament.name = tournament.tournament_name
-          this.add_tournament({ tournament: tournament })
+          this.send_tournament({ tournament: tournament })
           this.dialog.create.loading = false
           this.dialog.create.visible = false
         } else {
@@ -203,7 +203,7 @@ export default {
     ...mapMutations([
     ]),
     ...mapActions([
-      'add_tournament',
+      'send_tournament',
       'delete_tournament'
     ])
   }
