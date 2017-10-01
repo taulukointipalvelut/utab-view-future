@@ -27,9 +27,7 @@ export default {
     ])
   },
   mounted () {
-    this.init_all().then(() => {
-        this.loading = false
-      })
+    this.init_all()
   }
 }
 </script>

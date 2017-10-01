@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
     section.page-header
-      h1 {{ round_by_r(r_str).round_name }}
+      h1 {{ round_by_r(r_str).name }}
     section(v-if="team_allocation_opened")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue")
@@ -23,7 +23,7 @@
           template(scope="scope")
             .adjudicator(v-for="id in scope.row.trainees") {{ scope.row.trainees.length }}
     section(v-else)
-      p Draw for {{ round_by_r(r_str).round_name }} is not released.
+      p Draw for {{ round_by_r(r_str).name }} is not released.
 </template>
 
 <script>

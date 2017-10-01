@@ -32,7 +32,7 @@
               h2(v-if="config.show_place") {{ slide.place }} Place
               h1 {{ slide.name }}
           div(style="display: block; position: absolute; upper: 16px; left: 10px; margin-left: -139px; z-index: 20;")
-            p {{ config.tournament_name }}
+            p {{ config.name }}
 </template>-->
 
 <script>
@@ -53,7 +53,7 @@ export default {
     return {
       config: {
           max_teams_rewarded: 3,
-          tournament_name: "PDA Tournament 2018",
+          name: "PDA Tournament 2018",
           show_place: true
       },
       teams: [{

@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="target_tournament")
     section.page-header
-      h1 {{ target_tournament.tournament_name }}
+      h1 {{ target_tournament.name }}
     loading-container(:loading="loading")
     el-tabs(type="card")
       el-tab-pane(label="Team results")

@@ -2,7 +2,7 @@
   .router-view-content
     section.page-header
       h1 Score Sheet
-      h3 {{ round_by_r(r_str).round_name }}
+      h3 {{ round_by_r(r_str).name }}
     loading-container(:loading="loading")
     section(v-if="!loading && has_adjudicators")
       el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")

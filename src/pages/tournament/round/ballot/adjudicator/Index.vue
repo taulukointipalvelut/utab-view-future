@@ -2,7 +2,7 @@
   loading-container.router-view-content(:loading="!round || !adjudicator", no_item_text="Fail to load round/adjudicator data")
     section.page-header(v-if="round && adjudicator")
       h1 {{ adjudicator.name }}
-      h3 {{ round.round_name }}
+      h3 {{ round.name }}
     section(v-if="round && adjudicator")
       el-steps(:active="current_step", finish-status="success", center)
         el-step(title="Speaker")

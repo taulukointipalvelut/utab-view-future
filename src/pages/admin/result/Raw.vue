@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="target_tournament")
     section.page-header
-      h1 {{ target_tournament.tournament_name }}
+      h1 {{ target_tournament.name }}
     loading-container(:loading="loading")
     p(v-if="adjudicators_unsubmitted") These adjudicators have not sent the ballots: #[font(size="4", color="red") {{ adjudicators_unsubmitted.map(id => adjudicator_by_id(id)).map(a => a.name).join(", ") }}]
     el-tabs(type="card")

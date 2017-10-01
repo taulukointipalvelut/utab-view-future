@@ -5,7 +5,7 @@ import math from 'assets/js/math.js'
 let API_BASE_URL = 'http://localhost:7024'
 
 function find_tournament (state, payload) {
-    return state.tournaments.find(t => t.tournament_name === payload.tournament.tournament_name)
+    return state.tournaments.find(t => t.name === payload.tournament.name)
 }
 
 function treat_reponse (promise) {
@@ -54,7 +54,7 @@ export default {
   getters: {
     isAuth: state => true,//{ return (state.auth && state.auth.session) ? true: false; },
     target_tournament: state => {
-      return state.tournaments.find(t => t.tournament_name === state.route.params.tournament_name)
+      return state.tournaments.find(t => t.name === state.route.params.tournament_name)
     },
     target_draw: (state, getters) => {
         return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str))
@@ -116,8 +116,8 @@ export default {
     add_tournament (state, payload) {
         let tournament = {
           id: payload.tournament.id,
-          tournament_name: payload.tournament.tournament_name,
-          href: { path: '/'+payload.tournament.tournament_name },
+          name: payload.tournament.name,
+          href: { path: '/'+payload.tournament.name },
           current_round_num: 1,
           total_round_num: payload.tournament.total_round_num,
           rounds: [],
@@ -148,11 +148,15 @@ export default {
         state.tournaments.push(tournament)
     },
     delete_tournament (state, payload) {
-      state.tournaments = state.tournaments.filter(t => t.tournament_name !== payload.tournament_name)
+      state.tournaments = state.tournaments.filter(t => t.name !== payload.name)
     },
     /* tournaments */
+    draws (state, payload) {
+        let tournament = find_tournament(state, payload)
+        console.log("hi")
+        tournament.draws = payload.draws
+    },
     rounds (state, payload) {
-        console.log("this method should be deleted in production")
         let tournament = find_tournament(state, payload)
         tournament.rounds = payload.rounds
     },
@@ -160,8 +164,6 @@ export default {
         let tournament = find_tournament(state, payload)
         tournament[payload.label] = payload[payload.label]
     },
-    //add_rounds: add_factory('rounds'),
-    //delete_round: delete_factory('rounds', 'round', 'r'),
     add_entities (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament[payload.label] = tournament[payload.label].concat(payload[payload.label])
@@ -175,19 +177,19 @@ export default {
         console.log("preparing")
         //tournament[payload.label].filter(e => e.id === payload[payload.label].id) = payload[payload.label]
     },
-    add_rounds (state, payload) {
+    add_round (state, payload) {
         let tournament = find_tournament(state, payload)
-        tournament.rounds = tournament.rounds.concat(payload.rounds)
+        tournament.rounds.push(payload.round)
     },
-    deleteround (state, payload) {
+    delete_round (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament.rounds = tournament.rounds.filter(e => e.r === payload.round.r)
     }
   },
   actions: {
-      send_rounds ({state, commit, dispatch}, payload) {
-          console.log('preparing')
-          commit('add_rounds', payload)
+      send_create_round ({state, commit, dispatch}, payload) {
+          return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds', payload.round)
+             .then(() => commit('add_round', payload))
       },
       send_delete_round ({state, commit, dispatch}, payload) {
           console.log('preparing')
@@ -216,7 +218,6 @@ export default {
                 let tournaments = []
                 for (let t of data) {
                     let tournament = Object.assign({}, t)
-                    tournament.tournament_name = tournament.name
                     tournament.href = { path: '/'+tournament.name }
                     tournament.rounds = []
                     tournament.teams = []
@@ -225,7 +226,6 @@ export default {
                     tournament.speakers= []
                     tournament.institutions = []
                     tournament.venues = []
-                    delete tournament.name
                     tournaments.push(tournament)
                 }
                 commit('tournaments', { tournaments })
@@ -235,7 +235,7 @@ export default {
             setTimeout(() => {
               const tournaments = [{
                 id: 284,
-                tournament_name: 'PDA Tournament 2018',
+                name: 'PDA Tournament 2018',
                 href: { path: '/PDA Tournament 2018' },
                 current_round_num: 1,
                 total_round_num: 4,
@@ -362,6 +362,20 @@ export default {
             }, 1000)
         })*/
     },
+    init_draws ({ state, commit, dispatch }, payload) {
+        for (let t of state.tournaments) {
+            fetch_data('GET', API_BASE_URL+'/tournaments/'+t.id+'/draws')
+                .then(data => {
+                    const draws = []
+                    for (let draw_fetched of data) {
+                        let draw = Object.assign({}, draw_fetched)
+                        draws.push(draw)
+                    }
+                    console.log(draws)
+                    commit('draws', { tournament: t, draws })
+                })
+        }
+    },
     init_rounds ({ state, commit, dispatch }, payload) {
         for (let t of state.tournaments) {
             fetch_data('GET', API_BASE_URL+'/tournaments/'+t.id+'/rounds')
@@ -369,11 +383,11 @@ export default {
                     const rounds = []
                     for (let round_fetched of data) {
                         let round = Object.assign({}, round_fetched)
-                        round.href = { path: '/'+t.tournament_name+'/rounds/'+round_fetched.r }
-                        round.round_name = "Round "+round_fetched.r
+                        round.href = { path: '/'+t.name+'/rounds/'+round_fetched.r }
+                        round.name = "Round "+round_fetched.r
                         rounds.push(round)
                     }
-                    commit('rounds', { tournament: {tournament_name: t.tournament_name}, rounds })
+                    commit('rounds', { tournament: t, rounds })
                 })
         }
           /*return new Promise(async (resolve, reject) => {
@@ -384,18 +398,18 @@ export default {
               const rounds = [{
                 href: { path: '/PDA Tournament 2018/rounds/1' },
                 r: 1,
-                round_name: "Round 1",
+                name: "Round 1",
                 team_allocation_opened: true,
                 adjudicator_allocation_opened: true,
               },
               {
                 href: { path: '/PDA Tournament 2018/rounds/2' },
                 r: 2,
-                round_name: "Round 2",
+                name: "Round 2",
                 team_allocation_opened: true,
                 adjudicator_allocation_opened: true,
               }]
-              commit('rounds', { tournament: {tournament_name: 'PDA Tournament 2018'}, rounds })
+              commit('rounds', { tournament: {name: 'PDA Tournament 2018'}, rounds })
               resolve()
             }, 1000)
         })*/
@@ -418,7 +432,7 @@ export default {
                                 }
                                 adjudicators.push(adjudicator)
                             }
-                            commit('adjudicators', { tournament: {tournament_name: t.tournament_name}, adjudicators })
+                            commit('adjudicators', { tournament: {name: t.name}, adjudicators })
                         })
                 }
             })
@@ -470,7 +484,7 @@ export default {
                 institutions: [1],
                 available: true
               }]
-              commit('adjudicators', { tournament: {tournament_name: 'PDA Tournament 2018'}, adjudicators })
+              commit('adjudicators', { tournament: {name: 'PDA Tournament 2018'}, adjudicators })
               resolve()
           }, 1000)
         })
@@ -520,7 +534,7 @@ export default {
                   institutions: [],
                   available: true
                 }]
-              commit('teams', { tournament: {tournament_name: 'PDA Tournament 2018'}, teams })
+              commit('teams', { tournament: {name: 'PDA Tournament 2018'}, teams })
               resolve()
           }, 1000)
       })*/
@@ -529,6 +543,7 @@ export default {
         return new Promise(async (resolve, reject) => {
             await dispatch('init_tournaments')
             await dispatch('init_rounds')
+            await dispatch('init_draws')
             await dispatch('init_entities')
             resolve(true)
         })

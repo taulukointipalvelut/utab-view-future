@@ -5,7 +5,7 @@
     section
       loading-container(:loading="loading", no_item_text="No Round Available")
         link-list(v-for="round in target_tournament.rounds", :key="round", v-if="!loading")
-          legend(slot="legend") {{ round.round_name }}
+          legend(slot="legend") {{ round.name }}
           router-link(:to="url(round, 'draw')")
             link-list-item Draw &amp; Allocation
           router-link(:to="url(round, 'ballot')")

@@ -11,9 +11,10 @@
       nav: ul
         li.spacer
         li(v-if="target_tournament")
-          router-link(v-if="target_tournament.href", :to="target_tournament.href") {{ target_tournament.tournament_name }}
+          router-link(v-if="target_tournament.href", :to="target_tournament.href") {{ target_tournament.name }}
         li
-          a(@click="init_all") Reload
+          a(@click="reload", v-if="!reloading") Reload
+          a(v-if="reloading") #[el-icon(name="loading")]
         li(v-if="login")
           router-link(:to="logout_href") Logout #[el-icon(name="circle-cross")]
         li(v-if="login")
@@ -41,7 +42,8 @@
     },
     data () {
       return {
-        nav_opened: false
+        nav_opened: false,
+        reloading: false
       }
     },
     computed: {
@@ -89,7 +91,13 @@
       },
       ...mapActions([
         'init_all'
-      ])
+      ]),
+      reload () {
+        this.reloading = true
+        this.init_all().then(() => {
+          this.reloading = false
+        })
+      }
     }
   }
 </script>

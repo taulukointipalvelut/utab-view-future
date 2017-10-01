@@ -6,7 +6,7 @@
       link-list(:loading="loading", no_item_text="No Tournament Available")
         legend(slot="legend") Tournaments
         router-link(v-for="tournament in tournaments", :to="tournament.href", :key="tournament.id", v-if="!loading")
-          link-list-item {{ tournament.tournament_name }}
+          link-list-item {{ tournament.name }}
 </template>
 
 <script>

@@ -39,7 +39,7 @@ export default {
   },
   methods: {
     url (...targets) {
-      return `${ this.target_tournament.tournament_name }/${ targets.join('/') }`
+      return `${ this.target_tournament.name }/${ targets.join('/') }`
     },
     ...mapActions([
       'init_rounds'

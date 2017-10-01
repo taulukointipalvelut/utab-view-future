@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="target_tournament")
     section.page-header
-      h1 {{ target_tournament.tournament_name }}
+      h1 {{ target_tournament.name }}
     section
       link-list
         router-link(to="audience")
@@ -13,7 +13,7 @@
       link-list(:loading="loading", no_item_text="No Round Available")
         legend(slot="legend") Rounds
         router-link(v-for="round in target_tournament.rounds", :key="round.r", :to="round.href", v-if="!loading")
-          link-list-item {{ round.round_name }}
+          link-list-item {{ round.name }}
 </template>
 
 <script>

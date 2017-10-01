@@ -7,7 +7,7 @@
         legend Tournaments
         el-table(:data="tournaments", @current-change="on_select_tournament", :row-class-name="row_class_name", v-if="!loading && has_tournaments")
           el-table-column(prop="id", label="ID", width="60", align="center")
-          el-table-column(prop="tournament_name", label="Name", show-overflow-tooltip)
+          el-table-column(prop="name", label="Name", show-overflow-tooltip)
           el-table-column(prop="style.name", label="Style")
           el-table-column(label="Rounds", width="100", align="right")
             template(scope="scope")
@@ -31,8 +31,8 @@
         el-form(ref="dialog_create_form", :model="dialog.create.form.model", :rules="dialog.create.form.rules")
           el-form-item(label="ID", prop="id")
             el-input(type="number", :value="dialog.create.form.model.id", @input="value => dialog.create.form.model.id = parseInt(value)")
-          el-form-item(label="Name", prop="tournament_name")
-            el-input(v-model="dialog.create.form.model.tournament_name")
+          el-form-item(label="Name", prop="name")
+            el-input(v-model="dialog.create.form.model.name")
           el-form-item(label="Style", prop="style_name")
             el-select(placeholder="Select style", v-model="dialog.create.form.model.style_name", disabled)
               el-option(label="PDA", value="PDA")
@@ -46,8 +46,8 @@
         el-form(ref="dialog_edit_form", :model="dialog.edit.form.model", :rules="dialog.edit.form.rules")
           el-form-item(label="ID", prop="id")
             el-input(type="number", v-model="dialog.edit.form.model.id")
-          el-form-item(label="Name", prop="tournament_name")
-            el-input(v-model="dialog.edit.form.model.tournament_name")
+          el-form-item(label="Name", prop="name")
+            el-input(v-model="dialog.edit.form.model.name")
           el-form-item(label="Style", prop="style_name")
             el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_name", disabled)
               el-option(label="PDA", value="PDA")
@@ -77,7 +77,7 @@ export default {
           form: {
             model: {
               id: '',
-              tournament_name: '',
+              name: '',
               style_name: '',
               total_round_num: ''
             },
@@ -86,7 +86,7 @@ export default {
                 { required: true, message: 'Please input Tournament ID' },
                 { type: 'integer', min: 0, message: 'Tournament ID must be a positive integer' }
               ],
-              tournament_name: [
+              name: [
                 { required: true, message: 'Please input Tournamrnt Name' }
               ],
               style_name: [
@@ -105,7 +105,7 @@ export default {
           form: {
             model: {
               id: '',
-              tournament_name: '',
+              name: '',
               style_name: '',
               total_round_num: ''
             },
@@ -114,7 +114,7 @@ export default {
                 { required: true, message: 'Please input Tournament ID' },
                 { type: 'integer', min: 0, message: 'Tournament ID must be a positive integer' }
               ],
-              tournament_name: [
+              name: [
                 { required: true, message: 'Please input Tournamrnt Name' }
               ],
               style_name: [
@@ -173,8 +173,8 @@ export default {
             team_num: 2,
             score_weights: [1, 0.5, 0.5, 1]
           }//{ name: this.dialog.create.form.model.style_name }
-          tournament.href = { path: `/${ tournament.tournament_name }` }
-          tournament.name = tournament.tournament_name
+          tournament.href = { path: `/${ tournament.name }` }
+          tournament.name = tournament.name
           this.send_tournament({ tournament: tournament })
           this.dialog.create.loading = false
           this.dialog.create.visible = false

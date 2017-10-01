@@ -3,13 +3,13 @@ TODO: Edit dialog needs validation
 -->
 <template lang="pug">
   .router-view-content
-    h1 {{ tournament_name }}
+    h1 {{ target_tournament.name }}
     loading-container(:loading="loading")
       legend Rounds
       loading-container(:loading="!init_flag.rounds")
         el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
           el-table-column(prop="r", label="No.", width="60", align="center")
-          el-table-column(prop="round_name", label="Name", show-overflow-tooltip)
+          el-table-column(prop="name", label="Name", show-overflow-tooltip)
           el-table-column
             template(scope="scope")
               el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
@@ -18,9 +18,9 @@ TODO: Edit dialog needs validation
               el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
         .operations
           el-dropdown(@command="handle_compiled_command")
-            el-button.compiled Compiled Results #[el-icon(name="caret-bottom")]
+            el-button.compiled(:disabled="target_tournament.rounds.length === 0") Compiled Results #[el-icon(name="caret-bottom")]
             el-dropdown-menu(slot="dropdown")
-              el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.round_name }}
+              el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.name }}
           el-button(type="primary", @click="dialog.rounds.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
       el-tabs(type="card")
@@ -43,7 +43,7 @@ TODO: Edit dialog needs validation
           el-form(ref="dialog_round", :model="dialog.rounds.form.model", :rules="dialog.rounds.form.rules")
             h3(align="center") Round {{ target_tournament.rounds.length + 1 }}
             el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.rounds.form.model.round_name")
+              el-input(v-model="dialog.rounds.form.model.name")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.teams.form.model.team_allocation_opened")
             el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
@@ -58,7 +58,7 @@ TODO: Edit dialog needs validation
             el-form-item(label="Round No.", prop="r")
               el-input(type="number", v-model="dialog.round_edit.form.model.r", readonly)
             el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.round_edit.form.model.round_name")
+              el-input(v-model="dialog.round_edit.form.model.name")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.round_edit.visible = false") Cancel
           el-button(type="primary", :loading="dialog.round_edit.loading", @click="on_update_round()") OK
@@ -111,7 +111,7 @@ export default {
     'loading-container': loading_container,
     'entity-list': entity_list
   },
-  props: ['tournaments', 'loading', 'tournament_name'],
+  props: ['tournaments', 'loading'],
   data () {
     let output = {
       entity: {
@@ -281,14 +281,16 @@ export default {
         edit_visible: false,
         form: {
           model: {
-            round_name: '',
+            name: '',
+            r: '',
             team_allocation_opened: true,
             adjudicator_allocation_opened: true
           }
         },
         edit_form: {
           model: {
-            round_name: '',
+            name: '',
+            r: '',
             team_allocation_opened: true,
             adjudicator_allocation_opened: true
           }
@@ -400,14 +402,15 @@ export default {
       this.dialog.rounds.loading = true
       this.$refs.dialog_round.validate((valid) => {
         if (valid) {
-          const tournament = this.target_tournament
-          const round = Object.assign({}, this.dialog.rounds.form.model)
-          round.r = tournament.rounds.length + 1
-          round.href = { path: `/${ tournament.tournament_name }/rounds/${ round.r }` }
-          this.send_rounds({ tournament, rounds: [round] })
+          let tournament = this.target_tournament
+          let payload = { tournament }
+          payload.round = Object.assign({}, this.dialog.rounds.form.model)
+          payload.round.r = tournament.rounds.length + 1
+          payload.round.href = { path: `/${ tournament.name }/rounds/${ payload.round.r }` }
+          this.send_create_round(payload)
           this.dialog.rounds.loading = false
           this.dialog.rounds.visible = false
-          this.$refs.dialog_round.resetFields()
+          //this.$refs.dialog_round.resetFields()
         } else {
           this.dialog.rounds.loading = false
           return false
@@ -430,9 +433,9 @@ export default {
       this.dialog[rounds].edit_loading = true
       const tournament = this.target_tournament
       const round = Object.assign({}, this.dialog.rounds.edit_form.model)
-      round.href = { path: `/${ tournament.tournament_name }/rounds/${ round.r }` }
+      round.href = { path: `/${ tournament.name }/rounds/${ round.r }` }
       this.send_delete_round({ tournament, round })
-      this.send_rounds({ tournament, rounds: [round] })
+      this.send_create_round({ tournament, rounds: [round] })
       this.dialog[rounds].edit_loading = false
       this.dialog[rounds].edit_visible = false
       console.log("preparing")
@@ -468,7 +471,7 @@ export default {
         label
       }
       payload[label] = [entity]
-      //team.href = { path: `/${ tournament.tournament_name }/${ team.name }` }
+      //team.href = { path: `/${ tournament.name }/${ team.name }` }
       this.send_create_entities(payload)
       this.dialog[label].loading = false
       this.dialog[label].visible = false
@@ -511,7 +514,7 @@ export default {
       }
     },
     ...mapActions([
-      'send_rounds',
+      'send_create_round',
       'send_delete_round',
       'send_create_entities',
       'send_delete_entity',

@@ -2,7 +2,7 @@
   .router-view-content
     section.page-header
       h1 Allocation
-      h3 {{ round_by_r(r_str).round_name }}
+      h3 {{ round_by_r(r_str).name }}
     section
       el-table(:data="allocation_adjusted", :row-class-name="row_class", border)
         el-table-column(label="Venue")
