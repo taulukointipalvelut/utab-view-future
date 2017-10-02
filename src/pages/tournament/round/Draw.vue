@@ -1,8 +1,8 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
-    section.page-header
+    section(v-if="!loading").page-header
       h1 {{ round_by_r(r_str).name }}
-    section(v-if="team_allocation_opened")
+    section(v-if="!loading && team_allocation_opened")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue")
           template(scope="scope")
@@ -32,24 +32,27 @@ import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
 
 export default {
-  props: ['loading', 'r_str'],
+  props: ['r_str'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item
   },
   computed: {
     sorted_rows () {
-      return this.draw_by_r(this.r_str).allocation
-        .slice().sort((a, b) => a.id > b.id ? 1 : -1)
+      let draw = this.draw_by_r(this.r_str)
+      return draw ? draw.allocation.slice().sort((a, b) => a.id > b.id ? 1 : -1) : []
     },
     team_allocation_opened () {
-      return this.round_by_r(this.r_str).team_allocation_opened
+      let round = this.round_by_r(this.r_str)
+      return round ? round.team_allocation_opened : false
     },
     adjudicator_allocation_opened () {
-      return this.round_by_r(this.r_str).adjudicator_allocation_opened
+      let round = this.round_by_r(this.r_str)
+      return round ? round.adjudicator_allocation_opened : false
     },
     ...mapState([
-      'auth'
+      'auth',
+      'loading'
     ]),
     ...mapGetters([
       'isAuth',
