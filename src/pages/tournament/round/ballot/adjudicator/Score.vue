@@ -33,7 +33,7 @@ import input_label from 'components/input-label'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['loading', 'sequence_name'],
+  props: ['sequence_name'],
   components: {
     'loading-container': loading_container,
     'number-box': number_box,
@@ -74,6 +74,9 @@ export default {
     ...mapGetters([
       'team_by_id',
       'speaker_by_id'
+    ]),
+    ...mapState([
+      'loading'
     ]),
     ...mapState('ballot', [
       'gov',

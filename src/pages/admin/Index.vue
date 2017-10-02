@@ -2,7 +2,7 @@
   #app-content(v-loading.fillscreen.lock="loading_tournaments", element-loading-text="Loading...")
     utab-header(:login="isAuth")
     main
-      router-view(:tournaments="tournaments", :loading="loading")
+      router-view
 </template>
 
 <script>
@@ -12,11 +12,6 @@ import utab_header from 'components/utab-header.vue'
 export default {
   components: {
     'utab-header': utab_header
-  },
-  data () {
-    return {
-      loading: true
-    }
   },
   computed: {
     loading_tournaments () {
@@ -33,19 +28,10 @@ export default {
       'isAuth'
     ])
   },
-  methods: {
-    ...mapActions([
-      'init_all'
-    ])
-  },
   mounted () {
     if (!this.isAuth) {
       this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
     }
-    this.init_all()
-      .then(() => {
-        this.loading = false
-      })
   }
 }
 </script>

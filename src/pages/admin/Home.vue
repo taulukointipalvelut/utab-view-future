@@ -67,7 +67,7 @@ export default {
   components: {
     'loading-container': loading_container
   },
-  props: ['tournaments', 'loading'],
+  props: ['tournaments'],
   data () {
     return {
       dialog: {
@@ -135,7 +135,8 @@ export default {
       return this.tournaments && this.tournaments.length > 0
     },
     ...mapState([
-      'auth'
+      'auth',
+      'loading'
     ]),
     ...mapGetters([
       'isAuth'

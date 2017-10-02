@@ -10,7 +10,7 @@
         el-step(title="Winner")
         el-step(title="Check")
         el-step(title="Done")
-    router-view(v-if="round && adjudicator", :loading="loading")
+    router-view(v-if="round && adjudicator")
 </template>
 
 <script>
@@ -23,11 +23,6 @@ export default {
   components: {
     'loading-container': loading_container
   },
-  data () {
-    return {
-      loading: true
-    }
-  },
   computed: {
     round() {
       return this.round_by_r(this.r_str)
@@ -36,7 +31,8 @@ export default {
       return this.adjudicator_by_id(this.id_str)
     },
     ...mapState([
-      'auth'
+      'auth',
+      'loading'
     ]),
     ...mapGetters([
       'isAuth',
@@ -59,11 +55,11 @@ export default {
     ...mapActions('ballot', [
       'init_ballot'
     ])
-  },
+  }/*,
   async mounted () {
     await this.init_teams()
     await this.init_ballot({ score_sheet: this.score_sheet })
     this.loading = false
-  }
+  }*/
 }
 </script>

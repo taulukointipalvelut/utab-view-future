@@ -1,6 +1,6 @@
 <template lang="pug">
   .router-view-content
-    router-view(:tournament="tournament", :round="round", :adjudicators="adjudicators", :teams="teams", :loading="loading")
+    router-view(:tournament="tournament", :round="round", :adjudicators="adjudicators", :teams="teams")
 </template>
 
 <script>
@@ -8,13 +8,9 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
   props: ['tournament', 'round'],
-  data () {
-    return {
-      loading: true
-    }
-  },
   computed: {
     ...mapState([
+      'loading',
       'auth',
       'adjudicators',
       'teams'
@@ -22,16 +18,6 @@ export default {
     ...mapGetters([
       'isAuth'
     ])
-  },
-  methods: {
-    ...mapActions([
-      'init_all'
-    ])
-  },
-  mounted () {
-    this.init_all().then(() => {
-        this.loading = false
-      })
   }
 }
 </script>

@@ -64,10 +64,11 @@ export default {
     'link-list-item': link_list_item,
     'loading-container': loading_container
   },
-  props: ['loading', 'r_str'],
+  props: ['r_str'],
   computed: {
     ...mapState([
-      'auth'
+      'auth',
+      'loading'
     ]),
     ...mapGetters([
       'isAuth',
@@ -94,24 +95,7 @@ export default {
       this.$router.push({
         path: 'slide/speaker'
       })
-    },
-    ...mapActions([
-      'init_all'
-    ])/*,
-    sort_adjudicators (res1, res2) {
-      console.log(res1)
-      return this.adjudicator_by_id(res1.id).name.localeCompare(this.adjudicator_by_id(res2.id).name)
-    },
-    sort_teams (res1, res2) {
-      console.log(res1)
-      return this.team_by_id(res1.id).name.localeCompare(this.team_by_id(res2.id).name)
-    }*/
-  },
-  mounted () {
-    this.init_all()
-      .then(() => {
-        this.loading = false
-      })
+    }
   }
 }
 </script>

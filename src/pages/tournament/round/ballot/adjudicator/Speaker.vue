@@ -46,7 +46,6 @@ import { smartphone } from 'assets/js/media-query'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['loading'],
   components: {
     'loading-container': loading_container
   },
@@ -60,7 +59,8 @@ export default {
     ...mapGetters([
       'isAuth',
       'team_by_id',
-      'speaker_by_id'
+      'speaker_by_id',
+      'loading'
     ]),
     ...mapState('ballot', [
       'gov',

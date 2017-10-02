@@ -40,11 +40,14 @@ import { smartphone } from 'assets/js/media-query.js'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['tournament', 'round', 'adjudicators', 'loading'],
+  props: ['tournament', 'round', 'adjudicators'],
   components: {
     'loading-container': loading_container
   },
   computed: {
+    ...mapState([
+      'loading'
+    ]),
     smartphone: smartphone,
     has_adjudicators () {
       return this.sorted_adjudicators && this.sorted_adjudicators.length > 0

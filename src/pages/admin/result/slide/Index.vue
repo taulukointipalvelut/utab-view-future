@@ -1,5 +1,5 @@
 <template lang="pug">
-  router-view(:loading="loading")
+  router-view
 </template>
 
 <script>
@@ -7,7 +7,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['loading'],
+  props: [],
   components: {
     'loading-container': loading_container
   },

@@ -59,17 +59,6 @@ export default {
       'draw_by_r',
       'venue_by_id'
     ])
-  },
-  methods: {
-    ...mapActions([
-      'init_all'
-    ])
-  },
-  mounted() {
-    this.init_all()
-      .then(() => {
-        this.loading = false
-      })
   }
 }
 </script>

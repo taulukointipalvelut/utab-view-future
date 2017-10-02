@@ -42,6 +42,7 @@ function select_by_key_factory (label, key="id") {
 
 export default {
   state: {
+    loading: true,
     auth: {
       session: null,
       href: {
@@ -153,7 +154,6 @@ export default {
     /* tournaments */
     draws (state, payload) {
         let tournament = find_tournament(state, payload)
-        console.log("hi")
         tournament.draws = payload.draws
     },
     rounds (state, payload) {
@@ -184,6 +184,12 @@ export default {
     delete_round (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament.rounds = tournament.rounds.filter(e => e.r === payload.round.r)
+    },
+    finish_loading (state) {
+        state.loading = false
+    },
+    restart_loading (state) {
+        state.loading = true
     }
   },
   actions: {

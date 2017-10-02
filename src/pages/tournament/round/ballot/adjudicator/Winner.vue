@@ -25,7 +25,6 @@ import { smartphone } from 'assets/js/media-query'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['loading'],
   components: {
     'loading-container': loading_container
   },
@@ -34,7 +33,8 @@ export default {
       return this.winner && this.winner !== ''
     },
     ...mapState([
-      'auth'
+      'auth',
+      'loading'
     ]),
     ...mapGetters([
       'isAuth',

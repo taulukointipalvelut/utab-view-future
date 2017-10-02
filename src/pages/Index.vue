@@ -22,33 +22,18 @@ export default {
     'link-list': link_list,
     'link-list-item': link_list_item
   },
-  data () {
-    return {
-      loading: true
-    }
-  },
   computed: {
     has_tournaments () {
       return this.tournaments && this.tournaments.length > 0
     },
     ...mapState([
       'auth',
-      'tournaments'
+      'tournaments',
+      'loading'
     ]),
     ...mapGetters([
       'isAuth'
     ])
-  },
-  methods: {
-    ...mapActions([
-      'init_all'
-    ])
-  },
-  mounted () {
-    this.init_all()
-      .then(() => {
-        this.loading = false
-      })
   }
 }
 </script>

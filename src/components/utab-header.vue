@@ -24,7 +24,7 @@
 </template>
 
 <script>
-  import { mapState, mapGetters, mapActions } from 'vuex'
+  import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
   import { smartphone } from 'assets/js/media-query'
   export default {
     props: {
@@ -69,6 +69,9 @@
                this.next :
                this.$route.fullPath.includes('/admin/') ? '/' : this.$route.fullPath
       },
+      ...mapState([
+        'loadng'
+      ]),
       ...mapGetters({
         login: 'isAuth'
       }),
@@ -92,10 +95,14 @@
       ...mapActions([
         'init_all'
       ]),
+      ...mapMutations([
+        'restart_loading',
+        'finish_loading'
+      ]),
       reload () {
-        this.reloading = true
+        this.restart_loading()
         this.init_all().then(() => {
-          this.reloading = false
+          this.finish_loading()
         })
       }
     }

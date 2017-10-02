@@ -1,17 +1,12 @@
 <template lang="pug">
   .router-view-content
-    router-view(:loading="loading")
+    router-view
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
-  data () {
-    return {
-      loading: true
-    }
-  },
   computed: {
     ...mapState([
       'auth'
@@ -20,14 +15,6 @@ export default {
       'isAuth',
       'target_tournament'
     ])
-  },
-  methods: {
-    ...mapActions([
-      'init_all'
-    ])
-  },
-  mounted () {
-    this.init_all()
   }
 }
 </script>

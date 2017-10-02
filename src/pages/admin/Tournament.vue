@@ -3,27 +3,27 @@ TODO: Edit dialog needs validation
 -->
 <template lang="pug">
   .router-view-content
-    h1 {{ target_tournament.name }}
+    h1(v-if="!loading") {{ target_tournament.name }}
     loading-container(:loading="loading")
-      legend Rounds
-      loading-container(:loading="!init_flag.rounds")
-        el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
-          el-table-column(prop="r", label="No.", width="60", align="center")
-          el-table-column(prop="name", label="Name", show-overflow-tooltip)
-          el-table-column
-            template(scope="scope")
-              el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
-              el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)", disabled) #[el-icon(name="close")] Delete
-              el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
-              el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
-        .operations
-          el-dropdown(@command="handle_compiled_command")
-            el-button.compiled(:disabled="target_tournament.rounds.length === 0") Compiled Results #[el-icon(name="caret-bottom")]
-            el-dropdown-menu(slot="dropdown")
-              el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.name }}
-          el-button(type="primary", @click="dialog.rounds.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+      legend(v-if="!loading") Rounds
+        loading-container(:loading="!init_flag.rounds")
+          el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
+            el-table-column(prop="r", label="No.", width="60", align="center")
+            el-table-column(prop="name", label="Name", show-overflow-tooltip)
+            el-table-column
+              template(scope="scope")
+                el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
+                el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)", disabled) #[el-icon(name="close")] Delete
+                el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
+                el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+          .operations
+            el-dropdown(@command="handle_compiled_command")
+              el-button.compiled(:disabled="target_tournament.rounds.length === 0") Compiled Results #[el-icon(name="caret-bottom")]
+              el-dropdown-menu(slot="dropdown")
+                el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.name }}
+            el-button(type="primary", @click="dialog.rounds.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
-      el-tabs(type="card")
+      el-tabs(type="card", v-if="!loading")
         el-tab-pane(v-for="index in range(5)", :label="capitalize(entity.labels[index])", :key="index")
           loading-container(:loading="!init_flag[entity.labels[index]]")
             el-table(:data="target_tournament[entity.labels[index]].slice().sort((t1, t2) => Math.abs(t1.id) > Math.abs(t2.id) ? 1 : -1)", @row-click="on_select")
@@ -38,7 +38,7 @@ TODO: Edit dialog needs validation
             .operations
               el-button(type="primary", @click="dialog[entity.labels[index]].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(entity.labels_singular[index]) }}
 
-      el-dialog(title="Add New Round", :visible.sync="dialog.rounds.visible")
+      el-dialog(title="Add New Round", :visible.sync="dialog.rounds.visible", v-if="!loading")
         .dialog-body
           el-form(ref="dialog_round", :model="dialog.rounds.form.model", :rules="dialog.rounds.form.rules")
             h3(align="center") Round {{ target_tournament.rounds.length + 1 }}
@@ -63,7 +63,7 @@ TODO: Edit dialog needs validation
           el-button(@click="dialog.round_edit.visible = false") Cancel
           el-button(type="primary", :loading="dialog.round_edit.loading", @click="on_update_round()") OK
 
-      el-dialog(v-for="index in range(5)", :title="'Add New '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].visible", :key="index")
+      el-dialog(v-for="index in range(5)", :title="'Add New '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].visible", :key="index", v-if="!loading")
         .dialog-body
           el-form(:model="dialog[entity.labels[index]].form.model", :rules="dialog[entity.labels[index]].form.rules")
             el-form-item(v-for="prop_data in entity.dialog_props_editable.input[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
@@ -79,7 +79,7 @@ TODO: Edit dialog needs validation
           el-button(@click="dialog[entity.labels[index]].visible = false") Cancel
           el-button(type="primary", :loading="dialog[entity.labels[index]].loading", @click="on_create(entity.labels[index])") #[el-icon(name="plus", v-if="!dialog[entity.labels[index]].loading")] Create
 
-      el-dialog(v-for="index in range(5)", :title="'Edit '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].edit_visible", :key="index")
+      el-dialog(v-for="index in range(5)", :title="'Edit '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].edit_visible", :key="index", v-if="!loading")
         .dialog-body
           el-form(:model="dialog[entity.labels[index]].edit_form.model", :rules="dialog[entity.labels[index]].form.rules")
             h3(align="center", v-for="prop_data in entity.dialog_props_unchangeable.input[entity.labels[index]]", :key="prop_data.prop") {{ prop_data.prop }}: {{ dialog[entity.labels[index]].editing ? dialog[entity.labels[index]].editing[prop_data.prop] : '' }}
@@ -111,7 +111,6 @@ export default {
     'loading-container': loading_container,
     'entity-list': entity_list
   },
-  props: ['tournaments', 'loading'],
   data () {
     let output = {
       entity: {
@@ -355,11 +354,9 @@ export default {
         }
       }
     },
-    has_rounds () {
-      return this.target_tournament.rounds && this.target_tournament.rounds.length > 0
-    },
     ...mapState([
       'auth',
+      'loading',
       'adjudicators'
     ]),
     ...mapGetters([

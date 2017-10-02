@@ -1,6 +1,6 @@
 <template lang="pug">
   loading-container.router-view-content(:loading="loading", no_item_text="Fail to load round data")
-    router-view(:loading="loading", v-if="round_by_r(r_str)")
+    router-view(v-if="round_by_r(r_str)")
 </template>
 
 <script>
@@ -8,13 +8,14 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['loading', 'r_str'],
+  props: ['r_str'],
   components: {
     'loading-container': loading_container
   },
   computed: {
     ...mapState([
-      'auth'
+      'auth',
+      'loading'
     ]),
     ...mapGetters([
       'isAuth',
