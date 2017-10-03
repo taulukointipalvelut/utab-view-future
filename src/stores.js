@@ -118,7 +118,12 @@ export default {
     raw_team_results_by_r: results_factory('raw_team_results'),
     raw_speaker_results_by_r: results_factory('raw_speaker_results'),
     compiled_team_results_by_r: results_factory('compiled_team_results'),
-    compiled_speaker_results_by_r: results_factory('compiled_speaker_results')
+    compiled_speaker_results_by_r: results_factory('compiled_speaker_results'),
+    details_1: function (state, getters) {
+        return entity => {
+            return Object.assign(entity, entity.details.find(d => d.r === 1))
+        }
+    }
   },
   mutations: {
     /* auth.session */
@@ -175,9 +180,9 @@ export default {
       state.tournaments = state.tournaments.filter(t => t.name !== payload.name)
     },
     /* tournaments */
-    update_draw (state, payload) {
+    change_draw (state, payload) {
         let tournament = find_tournament(state, payload)
-        tournament.draws.filter(draw => draw.r !== payload.draw.r)
+        tournament.draws = tournament.draws.filter(draw => draw.r !== payload.draw.r)
         tournament.draws.push(payload.draw)
     },
     draws (state, payload) {
@@ -191,6 +196,10 @@ export default {
     raw_results (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament['raw_'+payload.label_singular+'_results'] = payload.raw_results
+    },
+    add_raw_results (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament['raw_'+payload.label_singular+'_results'].concat(payload.raw_results)
     },
     entities (state, payload) {
         let tournament = find_tournament(state, payload)
@@ -240,6 +249,15 @@ export default {
       send_create_entities ({state, commit, dispatch}, payload) {
         return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label, payload[payload.label])
             .then(() => commit('add_entities', payload))
+      },
+      send_update_entity ({state, commit, dispatch}, payload) {
+          console.log("preparing")
+        return fetch_data('PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label])
+            .then(() => commit('update_entity', payload))
+      },
+      send_raw_results ({state, commit, dispatch}, payload) {
+        return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/raw/'+payload.label, payload.raw_results)
+            .then(() => commit('add_raw_results', payload))
       },
       send_update_entity ({state, commit, dispatch}, payload) {
           console.log("preparing")
@@ -639,12 +657,22 @@ export default {
         return fetch_data('PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.r_str+'/draws')
             .then(data => {
                 let draw = data
-                commit('update_draw', { tournament, draw })
+                commit('change_draw', { tournament, draw })
             })
     },
     submit_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
-        return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw)
+        return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw).then(data => {
+            let draw = data
+            commit('change_draw', { tournament, draw })
+        })
+    },
+    update_draw ({ state, commit, dispatch }, payload) {
+        let tournament = find_tournament(state, payload)
+        return fetch_data('PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw).then(data => {
+            let draw = data
+            commit('change_draw', { tournament, draw })
+        })
     },
     login ({ state, commit, dispatch }, payload) {
       return new Promise(async (resolve, reject) => {

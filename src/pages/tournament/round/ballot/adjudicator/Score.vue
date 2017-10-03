@@ -8,7 +8,7 @@
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
             el-select(:value="result.id", @input="on_input_result('id', $event)", placeholder="Select Speaker")
-              el-option(v-for="id in team_by_id(score_sheet[side_name]).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
+              el-option(v-for="id in details_1(team_by_id(score_sheet.teams[side_name])).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="Matter", required)
             number-box(:value="result.matter", @input="on_input_result('matter', $event)", :min="1", :max="role_name === 'reply' ? 5 : 10", :step="role_name === 'reply' ? 0.5 : 1")
           el-form-item(label="Manner", required)
@@ -73,7 +73,8 @@ export default {
     },
     ...mapGetters([
       'team_by_id',
-      'speaker_by_id'
+      'speaker_by_id',
+      'details_1'
     ]),
     ...mapState([
       'loading'
@@ -105,7 +106,7 @@ export default {
   },
   filters: {
     capitalize (word) {
-      return word[0].toUpperCase() + word.slice(1).toLowerCase()
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     },
     camelize (v) {
       const capitalize = word => word[0].toUpperCase() + word.slice(1).toLowerCase()

@@ -55,11 +55,6 @@ export default {
     ...mapActions('ballot', [
       'init_ballot'
     ])
-  }/*,
-  async mounted () {
-    await this.init_teams()
-    await this.init_ballot({ score_sheet: this.score_sheet })
-    this.loading = false
-  }*/
+  }
 }
 </script>

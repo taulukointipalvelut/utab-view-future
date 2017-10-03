@@ -5,7 +5,7 @@ export default {
     complete: false,
     steps: ['speaker', 'score', 'winner', 'check', 'done'],
     roles: ['leader', 'deputy', 'member', 'reply'],
-    sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-deputy', 'opp-deputy', 'gov-member', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
+    sequence: ['../speaker', 'og-leader', 'oo-leader', 'og-deputy', 'oo-deputy', 'og-member', 'oo-member', 'oo-reply', 'og-reply', '../winner'],
     style: {
       roles: {
         og: {
@@ -23,7 +23,6 @@ export default {
       }
     },
     winner: null,
-    score_sheet: null,
     og: {
       side: 'og',
       result: {
@@ -94,73 +93,9 @@ export default {
   getters: {
     current_step (state, getters, rootState, rootGetters) {
       return state.steps.findIndex(step => step === rootState.route.name)
-    },
-    converted (state) {
-        if (!state.complete) {
-            return null
-        }
-        let roles = ['leader', 'deputy', 'member', 'reply']
-        let converted_result = {
-            og: {
-                id: state.score_sheet.og,
-                win: state.winner === state.score_sheet.og,
-                speakers: roles.map(role => state.og.result[role].id),
-                matters: roles.map(role => state.og.result[role].matter),
-                manners: roles.map(role => state.og.result[role].manner),
-                scores: roles.map(role => state.og.result[role].matter+state.og.result[role].manner),
-                best: roles.map(role => state.og.result[role].best_debater),
-                poi: roles.map(role => state.og.result[role].poi_prize)
-            },
-            oo: {
-                id: state.score_sheet.oo,
-                win: state.winner === state.score_sheet.oo,
-                speakers: roles.map(role => state.oo.result[role].id),
-                matters: roles.map(role => state.oo.result[role].matter),
-                manners: roles.map(role => state.oo.result[role].manner),
-                scores: roles.map(role => state.oo.result[role].matter+state.oo.result[role].manner),
-                best: roles.map(role => state.oo.result[role].best_debater),
-                poi: roles.map(role => state.oo.result[role].poi_prize)
-            }
-        }
-
-        let raw_team_results = []
-        let raw_speaker_results = []
-        let sides = ['og', 'oo']
-        for (let i of [0, 1]) {
-            let side = sides[i]
-            for (let id of Array.from(new Set(converted_result[side].speakers))) {
-                let raw_speaker_result = {
-                    id,
-                    r: state.score_sheet.r,
-                    from_id: state.score_sheet.id,
-                    weight: 1,
-                    scores: [0, 1, 2, 3].map(
-                        index => [0, 1, 2, 3].filter(index => converted_result[side].speakers[index] === id).includes(index) ?
-                            converted_result[side].scores[index] : 0)
-                }
-                raw_speaker_results.push(raw_speaker_result)
-            }
-
-            let id = converted_result[side].id
-            let raw_team_result = {
-                id,
-                r: state.score_sheet.r,
-                from_id: state.score_sheet.id,
-                weight: 1,
-                win: converted_result[side].win,
-                side: side,
-                opponents: [state.score_sheet[sides[1-i]]]
-            }
-            raw_team_results.push(raw_team_result)
-        }
-
-        return {raw_team_results, raw_speaker_results}
     }
   },
   mutations: {
-    teams (state, payload) {
-      state.score_sheet = payload.score_sheet
-    },
     og_pos_name (state, payload) {
       state.og.result[payload.pos_name].id = payload.value
     },
@@ -178,14 +113,89 @@ export default {
     }
   },
   actions: {
-    init_ballot ({ commit, rootState }, payload) {
-        commit('teams', payload)
+    async send_ballot ({ getters, state, commit, dispatch, rootState }, payload) {
+        let { raw_team_results, raw_speaker_results } = await dispatch('convert_from_ballot', payload)
+        let payload1 = {
+            raw_results: raw_team_results,
+            tournament: payload.tournament,
+            label: 'teams',
+            label_singular: 'team'
+        }
+        let payload2 = {
+            raw_results: raw_speaker_results,
+            tournament: payload.tournament,
+            label: 'speakers',
+            label_singular: 'speaker'
+        }
+        return Promise.all([dispatch('send_raw_results', payload1, { root: true }), dispatch('send_raw_results', payload2, { root: true })])
     },
-    send_ballot ({ getters, state, commit, rootState }, payload) {
-        let {raw_team_results, raw_speaker_results} = getters.converted
-        console.log(raw_team_results)
-        console.log(raw_speaker_results)
-        console.log("SEND_BALLOT")
+    convert_from_ballot ({ commit, state}, payload) {
+        let score_sheet = payload.score_sheet
+        if (!state.complete) {
+            return null
+        }
+        let roles = ['leader', 'deputy', 'member', 'reply']
+        let converted_result = {
+            og: {
+                id: score_sheet.teams.og,
+                win: state.winner === score_sheet.teams.og,
+                speakers: roles.map(role => state.og.result[role].id),
+                matters: roles.map(role => state.og.result[role].matter),
+                manners: roles.map(role => state.og.result[role].manner),
+                scores: roles.map(role => state.og.result[role].matter+state.og.result[role].manner),
+                best: roles.map(role => state.og.result[role].best_debater),
+                poi: roles.map(role => state.og.result[role].poi_prize)
+            },
+            oo: {
+                id: score_sheet.teams.oo,
+                win: state.winner === score_sheet.teams.oo,
+                speakers: roles.map(role => state.oo.result[role].id),
+                matters: roles.map(role => state.oo.result[role].matter),
+                manners: roles.map(role => state.oo.result[role].manner),
+                scores: roles.map(role => state.oo.result[role].matter+state.oo.result[role].manner),
+                best: roles.map(role => state.oo.result[role].best_debater),
+                poi: roles.map(role => state.oo.result[role].poi_prize)
+            }
+        }
+
+        let raw_team_results = []
+        let raw_speaker_results = []
+        let sides = ['og', 'oo']
+        let sides_label = {
+            og: 'gov',
+            oo: 'opp',
+            cg: 'gov',
+            co: 'opp'
+        }
+        for (let i of [0, 1]) {
+            let side = sides[i]
+            for (let id of Array.from(new Set(converted_result[side].speakers))) {
+                let raw_speaker_result = {
+                    id,
+                    r: score_sheet.r,
+                    from_id: score_sheet.id,
+                    weight: 1,
+                    scores: [0, 1, 2, 3].map(
+                        index => [0, 1, 2, 3].filter(index => converted_result[side].speakers[index] === id).includes(index) ?
+                            converted_result[side].scores[index] : 0)
+                }
+                raw_speaker_results.push(raw_speaker_result)
+            }
+
+            let id = converted_result[side].id
+            let raw_team_result = {
+                id,
+                r: score_sheet.r,
+                from_id: score_sheet.id,
+                weight: 1,
+                win: converted_result[side].win,
+                side: sides_label[side],
+                opponents: [score_sheet.teams[sides[1-i]]]
+            }
+            raw_team_results.push(raw_team_result)
+        }
+
+        return { raw_team_results, raw_speaker_results }
     }
   }
 }

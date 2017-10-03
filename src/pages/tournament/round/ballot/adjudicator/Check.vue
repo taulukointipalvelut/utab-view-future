@@ -3,7 +3,7 @@
     .card-container(v-if="!loading")
       el-card.og
         div(slot="header").card-header-container
-          span.card-title {{ team_by_id(score_sheet.og).name }}
+          span.card-title {{ team_by_id(score_sheet.teams.og).name }}
           span.card-subtitle Gov
         .outer-table
           .outer-table-tr(v-for="role in roles")
@@ -21,7 +21,7 @@
                 .inner-table-tr.speaker
                   .inner-table-td {{ speaker_by_id(og.result[role].id).name | defaults('Not specified yet') }}
                   .inner-table-td.right
-                    router-link(:to="{ path: `score/gov-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
+                    router-link(:to="{ path: `score/og-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
                   .inner-table-td.right {{ og.result[role].matter }}
@@ -37,7 +37,7 @@
 
       el-card.oo
         div(slot="header").card-header-container
-          span.card-title {{ team_by_id(score_sheet.oo).name }}
+          span.card-title {{ team_by_id(score_sheet.teams.oo).name }}
           span.card-subtitle Opp
         .outer-table
           .outer-table-tr(v-for="role in roles")
@@ -54,7 +54,7 @@
                 .inner-table-tr.speaker
                   .inner-table-td {{ speaker_by_id(oo.result[role].id).name | defaults('Not specified yet') }}
                   .inner-table-td.right
-                    router-link(:to="{ path: `score/opp-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
+                    router-link(:to="{ path: `score/oo-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
                   .inner-table-td.right {{ oo.result[role].matter }}
@@ -97,6 +97,7 @@ export default {
     'loading-container': loading_container,
     'input-label': input_label
   },
+  props: ['score_sheet'],
   data () {
     return {
       sending: false,
@@ -111,29 +112,29 @@ export default {
     ...mapGetters([
       'isAuth',
       'team_by_id',
-      'speaker_by_id'
+      'speaker_by_id',
+      'target_tournament'
     ]),
     ...mapState('ballot', [
       'og',
       'oo',
       'winner',
       'style',
-      'roles',
-      'score_sheet'
+      'roles'
     ])
   },
   methods: {
     on_prev () {
-      this.$router.push('score/gov-reply')
+      this.$router.push('score/og-reply')
     },
     on_next () {
       this.$store.commit('ballot/complete', {})
-      this.send_ballot()
       this.sending = true
-      setTimeout(() => {
-        this.sending = false
-        this.$router.push('done')
-      }, 1000)
+      this.send_ballot({ score_sheet: this.score_sheet, tournament: this.target_tournament })
+        .then(() => {
+          this.sending = false
+          this.$router.push('done')
+        })
     },
     total (side) {
       return Object.values(side.result).map(x => x.matter + x.manner).reduce((a, b) => a + b, 0)

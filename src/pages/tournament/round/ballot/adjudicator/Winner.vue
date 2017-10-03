@@ -11,8 +11,8 @@
               .sideinfo-header__item Opp
               .sideinfo-header__item {{ total(oo) }} pts
           el-radio-group.winner-selector(:value="winner", @input="on_selected($event)", size="large")
-            el-radio-button.winner-selector__item(:label="score_sheet.og") {{ team_by_id(score_sheet.og).name }}
-            el-radio-button.winner-selector__item(:label="score_sheet.oo") {{ team_by_id(score_sheet.oo).name }}
+            el-radio-button.winner-selector__item(:label="score_sheet.teams.og") {{ team_by_id(score_sheet.teams.og).name }}
+            el-radio-button.winner-selector__item(:label="score_sheet.teams.oo") {{ team_by_id(score_sheet.teams.oo).name }}
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -28,6 +28,7 @@ export default {
   components: {
     'loading-container': loading_container
   },
+  props: ['score_sheet'],
   computed: {
     proceedable () {
       return this.winner && this.winner !== ''
@@ -43,13 +44,12 @@ export default {
     ...mapState('ballot', [
       'og',
       'oo',
-      'winner',
-      'score_sheet'
+      'winner'
     ])
   },
   methods: {
     on_prev () {
-      this.$router.push('score/gov-reply')
+      this.$router.push('score/og-reply')
     },
     on_next () {
       this.$router.push('check')
