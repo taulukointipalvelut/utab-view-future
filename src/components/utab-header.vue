@@ -96,11 +96,11 @@
         'init_all'
       ]),
       ...mapMutations([
-        'restart_loading',
+        'start_loading',
         'finish_loading'
       ]),
       reload () {
-        this.restart_loading()
+        this.start_loading()
         this.init_all().then(() => {
           this.finish_loading()
         })

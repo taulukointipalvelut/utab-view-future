@@ -9,10 +9,10 @@
             span {{ venue_by_id(scope.row.venue).name }}
         el-table-column(label="Gov")
           template(scope="scope")
-            span {{ team_by_id(scope.row.teams[0]).name }}
+            span {{ team_by_id(scope.row.teams.og).name }}
         el-table-column(label="Opp")
           template(scope="scope")
-            span {{ team_by_id(scope.row.teams[1]).name }}
+            span {{ team_by_id(scope.row.teams.oo).name }}
         el-table-column.adjudicator-container(label="Chair", v-if="adjudicator_allocation_opened")
           template(scope="scope")
             .adjudicator(v-for="id in scope.row.chairs") {{ adjudicator_by_id(id).name }}

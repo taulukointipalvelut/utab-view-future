@@ -75,14 +75,9 @@ export default {
       'target_tournament',
       'team_by_id',
       'speaker_by_id',
-      'adjudicator_by_id'
-    ]),
-    ...mapGetters('result', [
+      'adjudicator_by_id',
       'compiled_speaker_results_by_r',
       'compiled_team_results_by_r'
-    ]),
-    ...mapState('result', [
-      'compiled_team_results'
     ])
   },
   methods: {

@@ -1,45 +1,45 @@
 <template lang="pug">
   .router-view-content(v-if="target_tournament")
-    section.page-header
+    section(v-if="!loading").page-header
       h1 {{ target_tournament.name }}
     loading-container(:loading="loading")
-    p(v-if="adjudicators_unsubmitted") These adjudicators have not sent the ballots: #[font(size="4", color="red") {{ adjudicators_unsubmitted.map(id => adjudicator_by_id(id)).map(a => a.name).join(", ") }}]
-    el-tabs(type="card")
-      el-tab-pane(label="Collected raw Team results")
-        section(v-if="!loading")
-          el-table(:data="raw_team_results_by_r(r_str)")
-            el-table-column(prop="id", label="Name", align="center", sortable)
-              template(scope="scope")
-                span {{ team_by_id(scope.row.id).name }}
-            el-table-column(prop="win", label="Win", align="center", sortable)
-              template(scope="scope")
-                span {{ scope.row.win }}
-            el-table-column(prop="from_id", label="From Adjudicator", align="center", sortable)
-              template(scope="scope")
-                span {{ adjudicator_by_id(scope.row.from_id).name }}
-            el-table-column(align="right")
-              template(scope="scope")
-                el-button.edit(size="small", disabled) #[el-icon(name="edit")]
-                el-button.delete(size="small", type="danger", disabled) #[el-icon(name="close")]
-      el-tab-pane(label="Collected raw Speaker results")
-        section(v-if="!loading")
-          el-table(:data="raw_speaker_results_by_r(r_str)")
-            el-table-column(prop="id", label="Name", align="center", sortable)
-              template(scope="scope")
-                span {{ speaker_by_id(scope.row.id).name }}
-            el-table-column(label="scores", align="center")
-              el-table-column(v-for="index in [0, 1, 2, 3]", prop="scores", :key="index", :label="['1st', '2nd', '3rd', '4th'][index]", align="center", sortable)
+      p(v-if="!loading && adjudicators_unsubmitted.length > 0") These adjudicators have not sent the ballots: #[font(size="4", color="red") {{ adjudicators_unsubmitted.map(id => adjudicator_by_id(id)).map(a => a.name).join(", ") }}]
+      p(v-if="!loading && adjudicators_unsubmitted.length === adjudicators_watching.length && adjudicators_watching.length !== 0") Ballots are not collected yet.
+      el-tabs(type="card")
+        el-tab-pane(label="Collected raw Team results")
+          section(v-if="!loading")
+            el-table(:data="raw_team_results_by_r(r_str)")
+              el-table-column(prop="id", label="Name", align="center", sortable)
                 template(scope="scope")
-                  span {{ scope.row.scores[index] === 0 ? '' : scope.row.scores[index] }}
-            el-table-column(prop="from_id", label="From Adjudicator", align="center", sortable)
-              template(scope="scope")
-                span {{ adjudicator_by_id(scope.row.from_id).name }}
-            el-table-column(align="right")
-              template(scope="scope")
-                el-button.edit(size="small", disabled) #[el-icon(name="edit")]
-                el-button.delete(size="small", type="danger", disabled) #[el-icon(name="close")]
+                  span {{ team_by_id(scope.row.id).name }}
+              el-table-column(prop="win", label="Win", align="center", sortable)
+                template(scope="scope")
+                  span {{ scope.row.win }}
+              el-table-column(prop="from_id", label="From Adjudicator", align="center", sortable)
+                template(scope="scope")
+                  span {{ adjudicator_by_id(scope.row.from_id).name }}
+              el-table-column(align="right")
+                template(scope="scope")
+                  el-button.edit(size="small", disabled) #[el-icon(name="edit")]
+                  el-button.delete(size="small", type="danger", disabled) #[el-icon(name="close")]
+        el-tab-pane(label="Collected raw Speaker results")
+          section(v-if="!loading")
+            el-table(:data="raw_speaker_results_by_r(r_str)")
+              el-table-column(prop="id", label="Name", align="center", sortable)
+                template(scope="scope")
+                  span {{ speaker_by_id(scope.row.id).name }}
+              el-table-column(label="scores", align="center")
+                el-table-column(v-for="index in [0, 1, 2, 3]", prop="scores", :key="index", :label="['1st', '2nd', '3rd', '4th'][index]", align="center", sortable)
+                  template(scope="scope")
+                    span {{ scope.row.scores[index] === 0 ? '' : scope.row.scores[index] }}
+              el-table-column(prop="from_id", label="From Adjudicator", align="center", sortable)
+                template(scope="scope")
+                  span {{ adjudicator_by_id(scope.row.from_id).name }}
+              el-table-column(align="right")
+                template(scope="scope")
+                  el-button.edit(size="small", disabled) #[el-icon(name="edit")]
+                  el-button.delete(size="small", type="danger", disabled) #[el-icon(name="close")]
 </template>
-
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import link_list from 'components/link-list.vue'
@@ -64,18 +64,18 @@ export default {
       'team_by_id',
       'speaker_by_id',
       'adjudicator_by_id',
-      'target_score_sheets'
-    ]),
-    ...mapGetters('result', [
+      'target_score_sheets',
       'raw_speaker_results_by_r',
       'raw_team_results_by_r'
     ]),
+    adjudicators_watching () {
+      return Array.from(new Set(this.target_score_sheets.map(ss => ss.id)))
+    },
     adjudicators_submitted () {
       return Array.from(new Set(this.raw_team_results_by_r(this.r_str).map(tr => tr.from_id)))
     },
     adjudicators_unsubmitted () {
-      let adjudicators_watching = Array.from(new Set(this.target_score_sheets.map(ss => ss.id)))
-      return adjudicators_watching.filter(id => !this.adjudicators_submitted.includes(id))
+      return this.adjudicators_watching.filter(id => !this.adjudicators_submitted.includes(id))
     }
   }
 }

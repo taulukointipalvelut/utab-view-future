@@ -8,13 +8,13 @@ export default {
     sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-deputy', 'opp-deputy', 'gov-member', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
     style: {
       roles: {
-        gov: {
+        og: {
           leader: { long: 'Prime Minister', abbr: 'PM' },
           deputy: { long: 'Member of Government1', abbr: 'MG1' },
           member: { long: 'Member of Government2', abbr: 'MG2' },
           reply: { long: 'Government Reply', abbr: 'GR' }
         },
-        opp: {
+        oo: {
           leader: { long: 'Leader of Opposition', abbr: 'LO' },
           deputy: { long: 'Member of Opposition1', abbr: 'MO1' },
           member: { long: 'Member of Opposition2', abbr: 'MO2' },
@@ -24,8 +24,8 @@ export default {
     },
     winner: null,
     score_sheet: null,
-    gov: {
-      side: 'gov',
+    og: {
+      side: 'og',
       result: {
         leader: {
           id: null,
@@ -57,8 +57,8 @@ export default {
         }
       }
     },
-    opp: {
-      side: 'opp',
+    oo: {
+      side: 'oo',
       result: {
         leader: {
           id: null,
@@ -101,31 +101,31 @@ export default {
         }
         let roles = ['leader', 'deputy', 'member', 'reply']
         let converted_result = {
-            gov: {
-                id: state.score_sheet.gov,
-                win: state.winner === state.score_sheet.gov,
-                speakers: roles.map(role => state.gov.result[role].id),
-                matters: roles.map(role => state.gov.result[role].matter),
-                manners: roles.map(role => state.gov.result[role].manner),
-                scores: roles.map(role => state.gov.result[role].matter+state.gov.result[role].manner),
-                best: roles.map(role => state.gov.result[role].best_debater),
-                poi: roles.map(role => state.gov.result[role].poi_prize)
+            og: {
+                id: state.score_sheet.og,
+                win: state.winner === state.score_sheet.og,
+                speakers: roles.map(role => state.og.result[role].id),
+                matters: roles.map(role => state.og.result[role].matter),
+                manners: roles.map(role => state.og.result[role].manner),
+                scores: roles.map(role => state.og.result[role].matter+state.og.result[role].manner),
+                best: roles.map(role => state.og.result[role].best_debater),
+                poi: roles.map(role => state.og.result[role].poi_prize)
             },
-            opp: {
-                id: state.score_sheet.opp,
-                win: state.winner === state.score_sheet.opp,
-                speakers: roles.map(role => state.opp.result[role].id),
-                matters: roles.map(role => state.opp.result[role].matter),
-                manners: roles.map(role => state.opp.result[role].manner),
-                scores: roles.map(role => state.opp.result[role].matter+state.opp.result[role].manner),
-                best: roles.map(role => state.opp.result[role].best_debater),
-                poi: roles.map(role => state.opp.result[role].poi_prize)
+            oo: {
+                id: state.score_sheet.oo,
+                win: state.winner === state.score_sheet.oo,
+                speakers: roles.map(role => state.oo.result[role].id),
+                matters: roles.map(role => state.oo.result[role].matter),
+                manners: roles.map(role => state.oo.result[role].manner),
+                scores: roles.map(role => state.oo.result[role].matter+state.oo.result[role].manner),
+                best: roles.map(role => state.oo.result[role].best_debater),
+                poi: roles.map(role => state.oo.result[role].poi_prize)
             }
         }
 
         let raw_team_results = []
         let raw_speaker_results = []
-        let sides = ['gov', 'opp']
+        let sides = ['og', 'oo']
         for (let i of [0, 1]) {
             let side = sides[i]
             for (let id of Array.from(new Set(converted_result[side].speakers))) {
@@ -161,11 +161,11 @@ export default {
     teams (state, payload) {
       state.score_sheet = payload.score_sheet
     },
-    gov_pos_name (state, payload) {
-      state.gov.result[payload.pos_name].id = payload.value
+    og_pos_name (state, payload) {
+      state.og.result[payload.pos_name].id = payload.value
     },
-    opp_pos_name (state, payload) {
-      state.opp.result[payload.pos_name].id = payload.value
+    oo_pos_name (state, payload) {
+      state.oo.result[payload.pos_name].id = payload.value
     },
     input_result (state, payload) {
       state[payload.side].result[payload.role][payload.key] = payload.value

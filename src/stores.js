@@ -1,5 +1,4 @@
 import ballot from 'pages/tournament/round/ballot/adjudicator/stores'
-import result from 'pages/admin/result/stores'
 import math from 'assets/js/math.js'
 
 let API_BASE_URL = 'http://localhost:7024'
@@ -40,6 +39,18 @@ function select_by_key_factory (label, key="id") {
     return select_by_key
 }
 
+function results_factory(label) {
+    return function (state, getters) {
+        let tournament = getters.target_tournament
+        if (tournament === undefined) {
+            return []
+        }
+        return r_str => {
+            return tournament[label].filter(res => res.r === parseInt(r_str))
+        }
+    }
+}
+
 export default {
   state: {
     loading: true,
@@ -61,19 +72,22 @@ export default {
         return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str))
     },
     target_score_sheets: (state, getters) => {
-        let allocation = getters.target_draw.allocation
-        let r = getters.target_draw.r
+        let draw = getters.target_draw
+        if (draw === undefined) {
+            return []
+        }
+        let allocation = draw.allocation
+        let r = draw.r
         let score_sheets = []
         for (let square of allocation) {
             for (let id of [].concat(square.chairs).concat(square.panels)) {
                 let score_sheet = {
                     r,
                     done: false,
-                    gov: square.teams[0],
-                    opp: square.teams[1],
+                    teams: square.teams,
                     id,
                     venue: square.venue,
-                    chair: square.chairs.includes(id) ? true : false,
+                    is_chair: square.chairs.includes(id) ? true : false,
                     href: { to: String(id) }
                 }
                 score_sheets.push(score_sheet)
@@ -100,7 +114,11 @@ export default {
             allocated_speakers = allocated_speakers.concat(team.speakers)
         }
         return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))
-    }
+    },
+    raw_team_results_by_r: results_factory('raw_team_results'),
+    raw_speaker_results_by_r: results_factory('raw_speaker_results'),
+    compiled_team_results_by_r: results_factory('compiled_team_results'),
+    compiled_speaker_results_by_r: results_factory('compiled_speaker_results')
   },
   mutations: {
     /* auth.session */
@@ -126,6 +144,11 @@ export default {
           adjudicators: [],
           speakers: [],
           draws: [],
+          raw_team_results: [],
+          raw_speaker_results: [],
+          compiled_team_results: [],
+          compiled_speaker_results: [],
+          draw_temporary: null,
           style: {
             score_weights: [
               1,
@@ -152,6 +175,11 @@ export default {
       state.tournaments = state.tournaments.filter(t => t.name !== payload.name)
     },
     /* tournaments */
+    update_draw (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament.draws.filter(draw => draw.r !== payload.draw.r)
+        tournament.draws.push(payload.draw)
+    },
     draws (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament.draws = payload.draws
@@ -159,6 +187,10 @@ export default {
     rounds (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament.rounds = payload.rounds
+    },
+    raw_results (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament['raw_'+payload.label_singular+'_results'] = payload.raw_results
     },
     entities (state, payload) {
         let tournament = find_tournament(state, payload)
@@ -188,7 +220,7 @@ export default {
     finish_loading (state) {
         state.loading = false
     },
-    restart_loading (state) {
+    start_loading (state) {
         state.loading = true
     }
   },
@@ -232,6 +264,10 @@ export default {
                     tournament.speakers= []
                     tournament.institutions = []
                     tournament.venues = []
+                    tournament.raw_speaker_results = []
+                    tournament.raw_team_results = []
+                    tournament.compiled_speaker_results = []
+                    tournament.compiled_team_results = []
                     tournaments.push(tournament)
                 }
                 commit('tournaments', { tournaments })
@@ -369,7 +405,7 @@ export default {
         })*/
     },
     init_draws ({ state, commit, dispatch }, payload) {
-        for (let t of state.tournaments) {
+        return Promise.all(state.tournaments.map(t =>
             fetch_data('GET', API_BASE_URL+'/tournaments/'+t.id+'/draws')
                 .then(data => {
                     const draws = []
@@ -377,13 +413,12 @@ export default {
                         let draw = Object.assign({}, draw_fetched)
                         draws.push(draw)
                     }
-                    console.log(draws)
                     commit('draws', { tournament: t, draws })
                 })
-        }
+        ))
     },
     init_rounds ({ state, commit, dispatch }, payload) {
-        for (let t of state.tournaments) {
+        return Promise.all(state.tournaments.map(t =>
             fetch_data('GET', API_BASE_URL+'/tournaments/'+t.id+'/rounds')
                 .then(data => {
                     const rounds = []
@@ -395,7 +430,47 @@ export default {
                     }
                     commit('rounds', { tournament: t, rounds })
                 })
+            ))
+          /*return new Promise(async (resolve, reject) => {
+            if (state.tournaments.length === 0) {
+              await dispatch('init_tournaments')
+            }
+            setTimeout(() => {
+              const rounds = [{
+                href: { path: '/PDA Tournament 2018/rounds/1' },
+                r: 1,
+                name: "Round 1",
+                team_allocation_opened: true,
+                adjudicator_allocation_opened: true,
+              },
+              {
+                href: { path: '/PDA Tournament 2018/rounds/2' },
+                r: 2,
+                name: "Round 2",
+                team_allocation_opened: true,
+                adjudicator_allocation_opened: true,
+              }]
+              commit('rounds', { tournament: {name: 'PDA Tournament 2018'}, rounds })
+              resolve()
+            }, 1000)
+        })*/
+    },
+    init_raw_results ({ state, commit, dispatch }, payload) {
+        let labels = ['teams', 'speakers']
+        let labels_singular = ['team', 'speaker']
+        let ps = []
+        for (let t of state.tournaments) {
+            for (let index of math.range(labels.length)) {
+                let label = labels[index]
+                let label_singular = labels_singular[index]
+                ps.push(fetch_data('GET', API_BASE_URL+'/tournaments/'+t.id+'/results/raw/'+label)
+                    .then(data => {
+                        let raw_results = data
+                        commit('raw_results', { tournament: t, raw_results, label_singular })
+                    }))
+            }
         }
+        return Promise.all(ps)
           /*return new Promise(async (resolve, reject) => {
             if (state.tournaments.length === 0) {
               await dispatch('init_tournaments')
@@ -497,19 +572,21 @@ export default {
     },*/
     init_entities ({ state, commit, dispatch }, payload) {
         let labels = ['teams', 'adjudicators', 'speakers', 'venues', 'institutions']
+        let ps = []
         for (let tournament of state.tournaments) {
             for (let index of math.range(5)) {
                 let label = labels[index]
-                fetch_data('GET', API_BASE_URL+'/tournaments/'+tournament.id+'/'+labels[index])
+                ps.push(fetch_data('GET', API_BASE_URL+'/tournaments/'+tournament.id+'/'+labels[index])
                     .then(data => {
                         let entities = data
                         let new_payload = { tournament }
                         new_payload[label] = entities
                         new_payload.label = label
                         commit('entities', new_payload)
-                    })
+                    }))
             }
         }
+        return Promise.all(ps)
           /*return new Promise(async (resolve, reject) => {
             if (state.tournaments.length === 0) {
               await dispatch('init_tournaments')
@@ -547,12 +624,27 @@ export default {
     },
     init_all ({ state, commit, dispatch }, payload) {
         return new Promise(async (resolve, reject) => {
+            commit('start_loading')
             await dispatch('init_tournaments')
             await dispatch('init_rounds')
             await dispatch('init_draws')
+            await dispatch('init_raw_results')
             await dispatch('init_entities')
+            commit('finish_loading')
             resolve(true)
         })
+    },
+    request_draw ({ state, commit, dispatch }, payload) {
+        let tournament = find_tournament(state, payload)
+        return fetch_data('PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.r_str+'/draws')
+            .then(data => {
+                let draw = data
+                commit('update_draw', { tournament, draw })
+            })
+    },
+    submit_draw ({ state, commit, dispatch }, payload) {
+        let tournament = find_tournament(state, payload)
+        return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw)
     },
     login ({ state, commit, dispatch }, payload) {
       return new Promise(async (resolve, reject) => {
@@ -584,7 +676,6 @@ export default {
     }
   },
   modules: {
-    ballot,
-    result
+    ballot
   }
 }

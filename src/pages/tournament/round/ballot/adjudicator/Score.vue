@@ -33,7 +33,7 @@ import input_label from 'components/input-label'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['sequence_name'],
+  props: ['sequence_name', 'score_sheet'],
   components: {
     'loading-container': loading_container,
     'number-box': number_box,
@@ -57,7 +57,7 @@ export default {
       return this.sequence_name.split('-')[1]
     },
     team () {
-      return [this.gov, this.opp].find(team => team.side.toLocaleLowerCase() === this.side_name.toLocaleLowerCase())
+      return [this.og, this.oo].find(team => team.side.toLocaleLowerCase() === this.side_name.toLocaleLowerCase())
     },
     result () {
       return this.team.result[this.role_name.toLocaleLowerCase()]
@@ -79,9 +79,8 @@ export default {
       'loading'
     ]),
     ...mapState('ballot', [
-      'gov',
-      'opp',
-      'score_sheet',
+      'og',
+      'oo',
       'sequence',
       'style'
     ])

@@ -1,72 +1,72 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
     .card-container(v-if="!loading")
-      el-card.gov
+      el-card.og
         div(slot="header").card-header-container
-          span.card-title {{ team_by_id(score_sheet.gov).name }}
+          span.card-title {{ team_by_id(score_sheet.og).name }}
           span.card-subtitle Gov
         .outer-table
           .outer-table-tr(v-for="role in roles")
             .outer-table-td.role
               .inner-table
                 .inner-table-tr
-                  .inner-table-td {{ style.roles.gov[role].abbr }}
+                  .inner-table-td {{ style.roles.og[role].abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="gov.result[role].best_debater") BEST
+                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="og.result[role].best_debater") BEST
                     br
-                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="gov.result[role].poi_prize") POI
+                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="og.result[role].poi_prize") POI
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(gov.result[role].id).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(og.result[role].id).name | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/gov-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
-                  .inner-table-td.right {{ gov.result[role].matter }}
+                  .inner-table-td.right {{ og.result[role].matter }}
                 .inner-table-tr
                   .inner-table-td Manner
-                  .inner-table-td.right {{ gov.result[role].manner }}
+                  .inner-table-td.right {{ og.result[role].manner }}
                 .inner-table-tr.total
                   .inner-table-td Total
-                  .inner-table-td.right {{ Number(gov.result[role].matter) + Number(gov.result[role].manner) }}
+                  .inner-table-td.right {{ Number(og.result[role].matter) + Number(og.result[role].manner) }}
           .outer-table-tr
             .outer-table-td.role Total
-            .outer-table-td.flex.right {{ total(gov) }}
+            .outer-table-td.flex.right {{ total(og) }}
 
-      el-card.opp
+      el-card.oo
         div(slot="header").card-header-container
-          span.card-title {{ team_by_id(score_sheet.opp).name }}
+          span.card-title {{ team_by_id(score_sheet.oo).name }}
           span.card-subtitle Opp
         .outer-table
           .outer-table-tr(v-for="role in roles")
             .outer-table-td.role
               .inner-table
                 .inner-table-tr
-                  .inner-table-td {{ style.roles.opp[role].abbr }}
+                  .inner-table-td {{ style.roles.oo[role].abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(v-if="opp.result[role].best_speaker")
-                    i.fa.fa-hand-paper-o.small(v-if="opp.result[role].poi_prize")
+                    i.fa.fa-star.small(v-if="oo.result[role].best_speaker")
+                    i.fa.fa-hand-paper-o.small(v-if="oo.result[role].poi_prize")
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(opp.result[role].id).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(oo.result[role].id).name | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/opp-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
-                  .inner-table-td.right {{ opp.result[role].matter }}
+                  .inner-table-td.right {{ oo.result[role].matter }}
                 .inner-table-tr
                   .inner-table-td Manner
-                  .inner-table-td.right {{ opp.result[role].manner }}
+                  .inner-table-td.right {{ oo.result[role].manner }}
                 .inner-table-tr.total
                   .inner-table-td Total
-                  .inner-table-td.right {{ Number(opp.result[role].matter) + Number(opp.result[role].manner) }}
+                  .inner-table-td.right {{ Number(oo.result[role].matter) + Number(oo.result[role].manner) }}
           .outer-table-tr
             .outer-table-td.role Total
-            .outer-table-td.flex.right {{ total(opp) }}
+            .outer-table-td.flex.right {{ total(oo) }}
 
     .card-container(v-if="!loading")
       el-card.flat
@@ -114,8 +114,8 @@ export default {
       'speaker_by_id'
     ]),
     ...mapState('ballot', [
-      'gov',
-      'opp',
+      'og',
+      'oo',
       'winner',
       'style',
       'roles',

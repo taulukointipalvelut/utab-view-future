@@ -16,7 +16,7 @@
               el-icon(name="edit")
         el-table-column(prop="id", label="Name")
           template(scope="scope")
-            span {{ adjudicator_by_id(scope.row.id).name }} #[i.fa.fa-user-secret(v-if="scope.row.chair")]
+            span {{ adjudicator_by_id(scope.row.id).name }} #[i.fa.fa-user-secret(v-if="scope.row.is_chair")]
         el-table-column(prop="venue", label="Venue", v-if="!smartphone")
     section(v-if="!loading && !has_adjudicators")
       span No Adjudicators Available
@@ -69,8 +69,12 @@ export default {
       return this.target_score_sheets
     },
     percentage (): number {
-      const score_sheets_done = this.target_score_sheets.filter(ss => ss.done)
-      return Math.round((score_sheets_done.length / this.target_score_sheets.length) * 1000) / 10
+      if (this.target_score_sheets.length === 0) {
+        return 100
+      } else {
+        const score_sheets_done = this.target_score_sheets.filter(ss => ss.done)
+        return Math.round((score_sheets_done.length / this.target_score_sheets.length) * 1000) / 10
+      }
     },
     success (): string {
       return this.percentage >= 100 ? 'success' : ''

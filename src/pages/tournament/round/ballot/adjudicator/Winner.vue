@@ -6,13 +6,13 @@
           .winner-selector
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Gov
-              .sideinfo-header__item {{ total(gov) }} pts
+              .sideinfo-header__item {{ total(og) }} pts
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Opp
-              .sideinfo-header__item {{ total(opp) }} pts
+              .sideinfo-header__item {{ total(oo) }} pts
           el-radio-group.winner-selector(:value="winner", @input="on_selected($event)", size="large")
-            el-radio-button.winner-selector__item(:label="score_sheet.gov") {{ team_by_id(score_sheet.gov).name }}
-            el-radio-button.winner-selector__item(:label="score_sheet.opp") {{ team_by_id(score_sheet.opp).name }}
+            el-radio-button.winner-selector__item(:label="score_sheet.og") {{ team_by_id(score_sheet.og).name }}
+            el-radio-button.winner-selector__item(:label="score_sheet.oo") {{ team_by_id(score_sheet.oo).name }}
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -41,8 +41,8 @@ export default {
       'team_by_id'
     ]),
     ...mapState('ballot', [
-      'gov',
-      'opp',
+      'og',
+      'oo',
       'winner',
       'score_sheet'
     ])

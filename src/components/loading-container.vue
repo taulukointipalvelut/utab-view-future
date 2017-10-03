@@ -7,12 +7,7 @@
 <script>
   export default {
     name: "loading_container",
-    props: ['loading', 'no_item_text'],
-    data () {
-      return {
-        /* none */
-      }
-    }
+    props: ['loading', 'no_item_text']
   }
 </script>
 
@@ -20,10 +15,10 @@
   .loading-container
     padding 0
     margin 0
-    
+
     &.loading
       min-height: 150px
-      
+
       & .loading-container__no-item
         display none
 

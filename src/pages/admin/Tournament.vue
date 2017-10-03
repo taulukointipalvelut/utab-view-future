@@ -33,7 +33,7 @@ TODO: Edit dialog needs validation
                   span {{ show(scope.row, prop) }}
               el-table-column(align="right")
                 template(scope="scope")
-                  el-button(size="small", @click="on_edit(entity.labels[index], scope.row)") #[el-icon(name="edit")] Edit
+                  el-button(size="small", disabled, @click="on_edit(entity.labels[index], scope.row)") #[el-icon(name="edit")] Edit
                   el-button(size="small", type="danger", @click="on_delete(entity.labels[index], entity.labels_singular[index], scope.row)") #[el-icon(name="close")] Delete
             .operations
               el-button(type="primary", @click="dialog[entity.labels[index]].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(entity.labels_singular[index]) }}
@@ -73,7 +73,7 @@ TODO: Edit dialog needs validation
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[entity.labels[index]].form.model[prop_data.prop]")
             el-form-item(v-for="prop_data in entity.dialog_props_editable.selection[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
               el-select(v-for="sub_index in range(prop_data.default_length)", v-model="dialog[entity.labels[index]].form.model[prop_data.prop][sub_index]", :key="sub_index")
-                el-option(v-for="sub_entity in data_to_select(prop_data.prop)", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
+                el-option(v-for="sub_entity in data_to_select(prop_data.prop).slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
               el-button(size="mini", @click="prop_data.default_length++", v-if="prop_data.extendable") #[el-icon(name="plus")]
         .dialog-footer(slot="footer")
           el-button(@click="dialog[entity.labels[index]].visible = false") Cancel
@@ -520,14 +520,22 @@ export default {
     ])
   },
   mounted () {
-    this.init_all().then(() => {
+    if (!this.loading) {
+      this.init_all().then(() => {
+        this.init_flag.rounds = true
+        this.init_flag.adjudicators = true
+        this.init_flag.teams = true
+        this.init_flag.institutions = true
+        this.init_flag.speakers = true
+        this.init_flag.venues = true
+      })
+    } else {
       this.init_flag.rounds = true
       this.init_flag.adjudicators = true
       this.init_flag.teams = true
       this.init_flag.institutions = true
       this.init_flag.speakers = true
-      this.init_flag.venues = true
-    })
+      this.init_flag.venues = true}
   }
 }
 </script>
