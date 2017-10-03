@@ -33,7 +33,7 @@ TODO: Edit dialog needs validation
                   span {{ show(scope.row, prop) }}
               el-table-column(align="right")
                 template(scope="scope")
-                  el-button(size="small", disabled, @click="on_edit(entity.labels[index], scope.row)") #[el-icon(name="edit")] Edit
+                  el-button(size="small", @click="on_edit(entity.labels[index], scope.row)") #[el-icon(name="edit")] Edit
                   el-button(size="small", type="danger", @click="on_delete(entity.labels[index], entity.labels_singular[index], scope.row)") #[el-icon(name="close")] Delete
             .operations
               el-button(type="primary", @click="dialog[entity.labels[index]].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(entity.labels_singular[index]) }}

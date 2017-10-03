@@ -2,106 +2,117 @@
   .router-view-content
     section.page-header
       h1 Allocation
-      h3 {{ round_by_r(r_str).name }}
+      h3(v-if="!loading") {{ round_by_r(r_str).name }}
     section
-      el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border)
-        el-table-column(label="Venue")
-          template(scope="scope")
-            draggable.adj-list(v-model="scope.row.venues", :options="venue_options")
-              .draggable-item(v-for="id in scope.row.venues") {{ venue_by_id(id).name }}
-        el-table-column(label="Gov")
-          template(scope="scope")
-            draggable.adj-list(v-model="scope.row.teams.og", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.og)", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
-              .draggable-item(v-for="id in scope.row.teams.og", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
-                el-popover(placement="right", trigger="hover")
-                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-                  p id: {{ id }}
-                  p institutions: {{ institution_names_by_team_id(id) }}
-                  p speakers: {{ speaker_names_by_team_id(id) }}
-        el-table-column(label="Opp")
-          template(scope="scope")
-            draggable.adj-list(v-model="scope.row.teams.oo", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.oo)", @end="on_end")
-              .draggable-item(v-for="id in scope.row.teams.oo", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
-                el-popover(placement="right", trigger="hover")
-                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-                  p id: {{ id }}
-                  p institutions: {{ institution_names_by_team_id(id) }}
-                  p speakers: {{ speaker_names_by_team_id(id) }}
-        el-table-column(label="Chairs")
-          template(scope="scope")
-            draggable.adj-list.chair(v-model="scope.row.chairs", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row.chairs)", @end="on_end")
-              .draggable-item(v-for="id in scope.row.chairs", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
-                el-popover(placement="right", trigger="hover")
-                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-                  p id: {{ id }}
-                  p institutions: {{ institution_names_by_adjudicator_id(id) }}
-        el-table-column(label="Panels")
-          template(scope="scope")
-            draggable.adj-list.panel(v-model="scope.row.panels", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row.panels)", @end="on_end")
-              .draggable-item(v-for="id in scope.row.panels", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
-                el-popover(placement="right", trigger="hover")
-                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-                  p id: {{ id }}
-                  p institutions: {{ institution_names_by_adjudicator_id(id) }}
-        el-table-column(label="Trainees")
-          template(scope="scope")
-            draggable.adj-list.trainee(v-model="scope.row.trainees", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row.trainees)", @end="on_end")
-              .draggable-item(v-for="id in scope.row.trainees", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
-                el-popover(placement="right", trigger="hover")
-                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-                  p id: {{ id }}
-                  p institutions: {{ institution_names_by_adjudicator_id(id) }}
-        el-table-column(label="Warnings")
-          template(scope="scope")
-            div(v-for="warning in warn(scope.row)", :key="warning.code")
-              el-popover(placement="right", width="200", trigger="hover")
-                el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
-                p code: {{ warning.code }}
-                p message: {{ warning.message }}
-                p details: {{ warning.details }}
-      .operations
-        el-button(@click="on_request_draw") Request
-        el-button(type="primary", @click="on_send_allocation", :disabled="!sendable") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
+      loading-container(:loading="loading")
+        el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border)
+          el-table-column(label="Venue")
+            template(scope="scope")
+              draggable.adj-list(v-model="scope.row.venues", :options="venue_options")
+                .draggable-item(v-for="id in scope.row.venues") {{ venue_by_id(id).name }}
+                  el-popover(placement="right", trigger="hover")
+                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                    p id: {{ id }}
+          el-table-column(label="Gov")
+            template(scope="scope")
+              draggable.adj-list(v-model="scope.row.teams.og", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.og)", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
+                .draggable-item(v-for="id in scope.row.teams.og", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
+                  el-popover(placement="right", trigger="hover")
+                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                    p id: {{ id }}
+                    p institutions: {{ institution_names_by_team_id(id) }}
+                    p speakers: {{ speaker_names_by_team_id(id) }}
+          el-table-column(label="Opp")
+            template(scope="scope")
+              draggable.adj-list(v-model="scope.row.teams.oo", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.oo)", @end="on_end")
+                .draggable-item(v-for="id in scope.row.teams.oo", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
+                  el-popover(placement="right", trigger="hover")
+                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                    p id: {{ id }}
+                    p institutions: {{ institution_names_by_team_id(id) }}
+                    p speakers: {{ speaker_names_by_team_id(id) }}
+          el-table-column(label="Chairs")
+            template(scope="scope")
+              draggable.adj-list.chair(v-model="scope.row.chairs", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row.chairs)", @end="on_end")
+                .draggable-item(v-for="id in scope.row.chairs", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
+                  el-popover(placement="right", trigger="hover")
+                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                    p id: {{ id }}
+                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
+          el-table-column(label="Panels")
+            template(scope="scope")
+              draggable.adj-list.panel(v-model="scope.row.panels", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row.panels)", @end="on_end")
+                .draggable-item(v-for="id in scope.row.panels", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
+                  el-popover(placement="right", trigger="hover")
+                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                    p id: {{ id }}
+                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
+          el-table-column(label="Trainees")
+            template(scope="scope")
+              draggable.adj-list.trainee(v-model="scope.row.trainees", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row.trainees)", @end="on_end")
+                .draggable-item(v-for="id in scope.row.trainees", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
+                  el-popover(placement="right", trigger="hover")
+                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                    p id: {{ id }}
+                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
+          el-table-column(label="Warnings")
+            template(scope="scope")
+              div(v-for="warning in warn(scope.row)", :key="warning.code")
+                el-popover(placement="right", width="200", trigger="hover")
+                  el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
+                  p code: {{ warning.code }}
+                  p message: {{ warning.message }}
+                  p details: {{ warning.details }}
+        .operations
+          el-button(@click="on_request_draw") Request
+          el-button(type="primary", @click="on_send_allocation", :disabled="!sendable") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
 
     legend Waiting Adjudicators
-    section.adj-list-container
-      draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, adjudicators)", @end="on_end")
-        .draggable-item(v-for="id in adjudicators", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
-        .draggable-item(v-for="id in adjudicators") {{ adjudicator_by_id(id).name }}
-          el-popover(placement="right", trigger="hover")
-            el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-            p id: {{ id }}
-            p institutions: {{ institution_names_by_adjudicator_id(id) }}
+    loading-container(:loading="loading")
+      section.adj-list-container
+        draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, adjudicators)", @end="on_end")
+          .draggable-item(v-for="id in adjudicators", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
+            el-popover(placement="right", trigger="hover")
+              el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+              p id: {{ id }}
+              p institutions: {{ institution_names_by_adjudicator_id(id) }}
     legend Waiting Teams
-    section.adj-list-container
-      draggable.adj-list.src(v-model="teams", :options="team_options", @start="evt => on_team(evt.oldIndex, teams)", @end="on_end")
-        .draggable-item(v-for="id in teams", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
-        .draggable-item(v-for="id in teams") {{ team_by_id(id).name }}
-          el-popover(placement="right", trigger="hover")
-            el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-            p id: {{ id }}
-            p institutions: {{ institution_names_by_team_id(id) }}
-            p speakers: {{ speaker_names_by_team_id(id) }}
+    loading-container(:loading="loading")
+      section.adj-list-container
+        draggable.adj-list.src(v-model="teams", :options="team_options", @start="evt => on_team(evt.oldIndex, teams)", @end="on_end")
+          .draggable-item(v-for="id in teams", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
+            el-popover(placement="right", trigger="hover")
+              el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+              p id: {{ id }}
+              p institutions: {{ institution_names_by_team_id(id) }}
+              p speakers: {{ speaker_names_by_team_id(id) }}
     legend Waiting Venues
-    section.adj-list-container
-      draggable.adj-list.src(v-model="venues", :options="venue_options")
-        .draggable-item(v-for="id in venues") {{ venue_by_id(id).name }}
+    loading-container(:loading="loading")
+      section.adj-list-container
+        draggable.adj-list.src(v-model="venues", :options="venue_options")
+          .draggable-item(v-for="id in venues") {{ venue_by_id(id).name }}
+            el-popover(placement="right", trigger="hover")
+              el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+              p id: {{ id }}
 </template>
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import utab_header from 'components/utab-header.vue'
+import loading_container from 'components/loading-container.vue'
 import draggable from 'vuedraggable'
 import math from 'assets/js/math.js'
 
 export default {
   components: {
     'utab-header': utab_header,
-    'draggable': draggable
+    'draggable': draggable,
+    'loading-container': loading_container
   },
   props: ['r_str'],
   data () {
     return {
+      new: true,
       active_institutions: [],
       team_options: {
         group: { name: 'team-list' },
@@ -114,7 +125,11 @@ export default {
       venue_options: {
         group: { name: 'venue-list' },
         animation: 100
-      }
+      },
+      draw_adjusted: { r: parseInt(this.r_str), allocation: [] },
+      teams: [],
+      adjudicators: [],
+      venues: []
     }
   },
   computed: {
@@ -136,63 +151,11 @@ export default {
       return this.tournament ? this.tournament.href : { to: '/home' }
     },
     suggested_action () {
-      if (this.draw_by_r(this.r_str) === undefined) {
+      if (this.new) {
         return 'submit'
       } else {
         return 'update'
       }
-    },
-    draw_adjusted () {
-        let draw = this.draw_by_r(this.r_str)
-        let draw_adjusted = { r: parseInt(this.r_str), allocation: [] }
-        if (draw !== undefined ) {
-            for (let square of draw.allocation) {
-                draw_adjusted.allocation.push({
-                    venues: [square.venue],
-                    teams: {
-                        og: [square.teams.og],
-                        oo: [square.teams.oo]
-                    },
-                    chairs: square.chairs,
-                    panels: square.panels,
-                    trainees: square.trainees
-                })
-            }
-        }
-        return draw_adjusted
-    },
-    adjudicators_in_draw () {
-      let adjudicators_in_draw = []
-      for (let square of this.draw_adjusted.allocation) {
-        adjudicators_in_draw = adjudicators_in_draw.concat(square.chairs).concat(square.panels).concat(square.trainees)
-      }
-      return adjudicators_in_draw
-    },
-    teams_in_draw () {
-      let teams_in_draw = []
-      for (let square of this.draw_adjusted.allocation) {
-        teams_in_draw = teams_in_draw.concat(square.teams.og).concat(square.teams.oo)
-      }
-      return teams_in_draw
-    },
-    venues_in_draw () {
-      let venues_in_draw = []
-      for (let square of this.draw_adjusted.allocation) {
-        venues_in_draw = venues_in_draw.concat(square.venues)
-      }
-      return venues_in_draw
-    },
-    teams () {
-        let tournament = this.target_tournament
-        return tournament.teams.map(t => t.id).filter(id => !this.teams_in_draw.includes(id))
-    },
-    adjudicators () {
-        let tournament = this.target_tournament
-        return tournament.adjudicators.map(a => a.id).filter(id => !this.adjudicators_in_draw.includes(id))
-    },
-    venues () {
-        let tournament = this.target_tournament
-        return tournament.venues.map(v => v.id).filter(id => !this.venues_in_draw.includes(id))
     },
     ...mapState([
       'auth',
@@ -216,7 +179,8 @@ export default {
     ...mapActions([
       'request_draw',
       'submit_draw',
-      'update_draw'
+      'update_draw',
+      'init_all'
     ]),
     team_same_institution (id) {
       return !math.disjoint(this.details_1(this.team_by_id(id)).institutions, this.active_institutions)
@@ -331,7 +295,9 @@ export default {
     },
     on_request_draw () {
       let tournament = this.target_tournament
-      return this.request_draw({ tournament, r_str: this.r_str })
+      return this.request_draw({ tournament, r_str: this.r_str }).then(() => {
+        this.init_allocation()
+      })
     },
     on_send_allocation () {
       let tournament = this.target_tournament
@@ -341,13 +307,73 @@ export default {
         'update': this.update_draw,
         'submit': this.submit_draw
       }
-      return actions[action]({ tournament, draw })
+      return actions[action]({ tournament, draw }).then(() => { this.new = false })
+    },
+    adjudicators_in_draw () {
+      let adjudicators_in_draw = []
+      for (let square of this.draw_adjusted.allocation) {
+        adjudicators_in_draw = adjudicators_in_draw.concat(square.chairs).concat(square.panels).concat(square.trainees)
+      }
+      return adjudicators_in_draw
+    },
+    teams_in_draw () {
+      let teams_in_draw = []
+      for (let square of this.draw_adjusted.allocation) {
+        teams_in_draw = teams_in_draw.concat(square.teams.og).concat(square.teams.oo)
+      }
+      return teams_in_draw
+    },
+    venues_in_draw () {
+      let venues_in_draw = []
+      for (let square of this.draw_adjusted.allocation) {
+        venues_in_draw = venues_in_draw.concat(square.venues)
+      }
+      return venues_in_draw
+    },
+    init_allocation () {
+        let draw = this.draw_by_r(this.r_str)
+        let tournament = this.target_tournament
+        this.draw_adjusted.allocation = []
+        if (draw !== undefined ) {
+            for (let square of draw.allocation) {
+                this.draw_adjusted.allocation.push({
+                    venues: [square.venue],
+                    teams: {
+                        og: [square.teams.og],
+                        oo: [square.teams.oo]
+                    },
+                    chairs: square.chairs,
+                    panels: square.panels,
+                    trainees: square.trainees
+                })
+            }
+        } else {
+            for (let square of Array(Math.floor(tournament.teams.length/2))) {
+                this.draw_adjusted.allocation.push({
+                    venues: [],
+                    teams: {
+                        og: [],
+                        oo: []
+                    },
+                    chairs: [],
+                    panels: [],
+                    trainees: []
+                })
+            }
+        }
+        this.venues = tournament.venues.map(v => v.id).filter(id => !this.venues_in_draw().includes(id))
+        this.adjudicators = tournament.adjudicators.map(a => a.id).filter(id => !this.adjudicators_in_draw().includes(id))
+        this.teams = tournament.teams.map(t => t.id).filter(id => !this.teams_in_draw().includes(id))
     }
   },
   mounted () {
     if (!this.isAuth) {
       this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
     }
+    this.init_all().then(() => {
+      this.new = this.draw_by_r(this.r_str) === undefined ? true : false
+      this.init_allocation()
+    })
   }
 }
 </script>
