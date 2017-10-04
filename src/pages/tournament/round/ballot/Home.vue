@@ -81,8 +81,13 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      'init_draws'
+    ]),
     on_select (selected) {
-      this.$router.push(selected.href.to)
+      if (!selected.done) {
+        this.$router.push(selected.href.to)
+      }
     },
     row_class_name (row, index): string {
       let class_name = 'row'
@@ -91,6 +96,9 @@ export default {
       }
       return class_name
     }
+  },
+  mounted () {
+    this.init_draws()
   }
 }
 </script>

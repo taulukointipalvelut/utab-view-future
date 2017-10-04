@@ -8,7 +8,7 @@ import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
 export default {
   name: 'app',
-  created () {
+  mounted () {
     this.init_all()
   },
   methods: {

@@ -32,22 +32,22 @@ let initial_state = {
       },
       deputy: {
         id: null,
-        matter: 5,
-        manner: 5,
+        matter: 2.5,
+        manner: 2.5,
         best_debater: false,
         poi_prize: false
       },
       member: {
         id: null,
-        matter: 5,
-        manner: 5,
+        matter: 2.5,
+        manner: 2.5,
         best_debater: false,
         poi_prize: false
       },
       reply: {
         id: null,
-        matter: 2.5,
-        manner: 2.5,
+        matter: 5,
+        manner: 5,
         best_debater: false,
         poi_prize: false
       }
@@ -65,22 +65,22 @@ let initial_state = {
       },
       deputy: {
         id: null,
-        matter: 5,
-        manner: 5,
+        matter: 2.5,
+        manner: 2.5,
         best_debater: false,
         poi_prize: false
       },
       member: {
         id: null,
-        matter: 5,
-        manner: 5,
+        matter: 2.5,
+        manner: 2.5,
         best_debater: false,
         poi_prize: false
       },
       reply: {
         id: null,
-        matter: 2.5,
-        manner: 2.5,
+        matter: 5,
+        manner: 5,
         best_debater: false,
         poi_prize: false
       }
@@ -113,7 +113,21 @@ export default {
       state.complete = true
     },
     reset_state (state) {
-      state = JSON.parse(JSON.stringify(initial_state))
+      let sides = ['og', 'oo']
+      let roles = ['leader', 'deputy', 'member', 'reply']
+      for (let side of sides) {
+          for (let role of roles) {
+              state[side].result[role].id = null
+              state[side].result[role].best_debater = false
+              state[side].result[role].poi_prize = false
+              state[side].result[role].matter = 5
+              state[side].result[role].manner = 5
+              if (role === 'deputy' || role === 'member') {
+                  state[side].result[role].matter /= 2
+                  state[side].result[role].manner /= 2
+              }
+          }
+      }
     }
   },
   actions: {

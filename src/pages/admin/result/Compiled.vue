@@ -3,7 +3,8 @@
     section.page-header
       h1 {{ target_tournament.name }}
     loading-container(:loading="loading")
-    el-tabs(type="card")
+    p(v-if="target_tournament.compiled_team_results.length == 0 && target_tournament.compiled_speaker_results.length == 0") No teams are registered or Please recompile results.
+    el-tabs(type="card", v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
       el-tab-pane(label="Team results")
         section(v-if="!loading")
           el-table(:data="target_tournament.compiled_team_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")

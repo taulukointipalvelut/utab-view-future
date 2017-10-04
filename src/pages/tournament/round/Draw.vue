@@ -62,6 +62,14 @@ export default {
       'draw_by_r',
       'venue_by_id'
     ])
+  },
+  methods: {
+    ...mapActions([
+      'init_draws'
+    ])
+  },
+  mounted () {
+    this.init_draws()
   }
 }
 </script>

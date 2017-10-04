@@ -127,6 +127,12 @@ export default {
     ...mapMutations('ballot', [
       'reset_state'
     ]),
+    ...mapActions('ballot', [
+      'send_ballot'
+    ]),
+    ...mapActions([
+      'init_all'
+    ]),
     on_prev () {
       this.$router.push('score/og-reply')
     },
@@ -134,6 +140,7 @@ export default {
       this.$store.commit('ballot/complete', {})
       this.sending = true
       this.send_ballot({ score_sheet: this.score_sheet, tournament: this.target_tournament })
+        .then(this.init_all)
         .then(() => {
           this.reset_state()
           this.sending = false
@@ -142,10 +149,7 @@ export default {
     },
     total (side) {
       return Object.values(side.result).map(x => x.matter + x.manner).reduce((a, b) => a + b, 0)
-    },
-    ...mapActions('ballot', [
-      'send_ballot'
-    ])
+    }
   },
   filters: {
     defaults (value, d_value) {

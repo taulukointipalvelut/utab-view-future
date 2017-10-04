@@ -43,7 +43,13 @@ export default {
   methods: {
     url (round, ...targets) {
       return `${ round.href.path }/${ targets.join('/') }`
-    }
+    },
+    ...mapActions([
+      'init_draws'
+    ])
+  },
+  mounted () {
+    this.init_draws()
   }
 }
 </script>

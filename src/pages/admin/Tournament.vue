@@ -588,6 +588,9 @@ export default {
           delete entity.available
         }
     }
+  },
+  mounted () {
+    this.init_all()
   }
 }
 </script>
