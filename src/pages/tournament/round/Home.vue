@@ -7,7 +7,7 @@
         legend(slot="legend") Audience
         router-link(to="draw")
           link-list-item Draw &amp; Allocation
-      link-list
+      //link-list
         legend(slot="legend") Debaters
         router-link(to="evaluation")
           link-list-item Judge Evaluation Sheet

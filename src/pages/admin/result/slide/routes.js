@@ -11,6 +11,6 @@ export default [
         component: Speaker
     }*//*, {
         path: '',
-        redirect: 'home'
+        redirect: 'team'
     }*/
 ]

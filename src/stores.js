@@ -1,7 +1,8 @@
 import ballot from 'pages/tournament/round/ballot/adjudicator/stores'
 import math from 'assets/js/math.js'
 
-let API_BASE_URL = 'http://localhost:7024'
+const API_BASE_URL = 'http://localhost/api'
+//const API_BASE_URL = 'https://pda.herokuapp.com/api'
 
 function find_tournament (state, payload) {
     return state.tournaments.find(t => t.name === payload.tournament.name)
@@ -97,6 +98,44 @@ export default {
         }
         return score_sheets
     },
+    target_evaluation_sheets: (state, getters) => {
+        let tournament = getters.target_tournament
+        let draw = getters.target_draw
+        if (draw === undefined) {
+            return []
+        }
+        let allocation = draw.allocation
+        let r = draw.r
+        let evaluation_sheets = []
+        let teams_submitted = Array.from(new Set(getters.raw_adjudicator_results_by_r(r).map(res => res.from_id)))
+        for (let square of allocation) {
+            for (let from_id of Object.values(square.teams)) {
+                let evaluation_sheet = {
+                    r,
+                    done: teams_submitted.includes(from_id),
+                    adjudicators: square.chairs.concat(square.panels),
+                    from_id,
+                    is_adjudicator: false,
+                    venue: square.venue,
+                    href: { to: String(from_id) }
+                }
+                evaluation_sheets.push(evaluation_sheet)
+            }
+            for (let from_id of square.chairs.concat(square.panels).concat(square.trainees)) {
+                let evaluation_sheet = {
+                    r,
+                    done: teams_submitted.includes(from_id),
+                    adjudicators: square.chairs.concat(square.panels).concat(square.trainees),
+                    from_id,
+                    is_adjudicator: true,
+                    venue: square.venue,
+                    href: { to: String(from_id) }
+                }
+                evaluation_sheets.push(evaluation_sheet)
+            }
+        }
+        return evaluation_sheets
+    },
     score_sheet_by_id: (state, getters) => {
         return id => {
             return getters.target_score_sheets.find(ss => ss.from_id === parseInt(id))
@@ -119,6 +158,7 @@ export default {
     },
     raw_team_results_by_r: results_factory('raw_team_results'),
     raw_speaker_results_by_r: results_factory('raw_speaker_results'),
+    raw_adjudicator_results_by_r: results_factory('raw_adjudicator_results'),
     details_1: function (state, getters) {
         return entity => {
             return Object.assign(entity, entity.details.find(d => d.r === 1))
@@ -148,12 +188,13 @@ export default {
           teams: [],
           adjudicators: [],
           speakers: [],
+          venues: [],
           draws: [],
           raw_team_results: [],
           raw_speaker_results: [],
+          raw_adjudicator_results: [],
           compiled_team_results: [],
           compiled_speaker_results: [],
-          draw_temporary: null,
           style: {
             score_weights: [
               1,
@@ -302,6 +343,7 @@ export default {
                     tournament.venues = []
                     tournament.raw_speaker_results = []
                     tournament.raw_team_results = []
+                    tournament.raw_adjudicator_results = []
                     tournament.compiled_speaker_results = []
                     tournament.compiled_team_results = []
                     tournaments.push(tournament)
@@ -492,8 +534,8 @@ export default {
         })*/
     },
     init_raw_results ({ state, commit, dispatch }, payload) {
-        let labels = ['teams', 'speakers']
-        let labels_singular = ['team', 'speaker']
+        let labels = ['teams', 'speakers', 'adjudicators']
+        let labels_singular = ['team', 'speaker', 'adjudicator']
         let ps = []
         for (let t of state.tournaments) {
             for (let index of math.range(labels.length)) {

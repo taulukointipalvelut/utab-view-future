@@ -1,95 +1,96 @@
-
-export default {
-  namespaced: true,
-  state: {
-    complete: false,
-    steps: ['speaker', 'score', 'winner', 'check', 'done'],
-    roles: ['leader', 'deputy', 'member', 'reply'],
-    sequence: ['../speaker', 'og-leader', 'oo-leader', 'og-deputy', 'oo-deputy', 'og-member', 'oo-member', 'oo-reply', 'og-reply', '../winner'],
-    style: {
-      roles: {
-        og: {
-          leader: { long: 'Prime Minister', abbr: 'PM' },
-          deputy: { long: 'Member of Government1', abbr: 'MG1' },
-          member: { long: 'Member of Government2', abbr: 'MG2' },
-          reply: { long: 'Government Reply', abbr: 'GR' }
-        },
-        oo: {
-          leader: { long: 'Leader of Opposition', abbr: 'LO' },
-          deputy: { long: 'Member of Opposition1', abbr: 'MO1' },
-          member: { long: 'Member of Opposition2', abbr: 'MO2' },
-          reply: { long: 'Opposition Reply', abbr: 'OR' }
-        }
-      }
-    },
-    winner: null,
-    og: {
-      side: 'og',
-      result: {
-        leader: {
-          id: null,
-          matter: 5,
-          manner: 5,
-          best_debater: false,
-          poi_prize: false
-        },
-        deputy: {
-          id: null,
-          matter: 5,
-          manner: 5,
-          best_debater: false,
-          poi_prize: false
-        },
-        member: {
-          id: null,
-          matter: 5,
-          manner: 5,
-          best_debater: false,
-          poi_prize: false
-        },
-        reply: {
-          id: null,
-          matter: 2.5,
-          manner: 2.5,
-          best_debater: false,
-          poi_prize: false
-        }
-      }
-    },
-    oo: {
-      side: 'oo',
-      result: {
-        leader: {
-          id: null,
-          matter: 5,
-          manner: 5,
-          best_debater: false,
-          poi_prize: false
-        },
-        deputy: {
-          id: null,
-          matter: 5,
-          manner: 5,
-          best_debater: false,
-          poi_prize: false
-        },
-        member: {
-          id: null,
-          matter: 5,
-          manner: 5,
-          best_debater: false,
-          poi_prize: false
-        },
-        reply: {
-          id: null,
-          matter: 2.5,
-          manner: 2.5,
-          best_debater: false,
-          poi_prize: false
-        }
+let initial_state = {
+  complete: false,
+  steps: ['speaker', 'score', 'winner', 'check', 'done'],
+  roles: ['leader', 'deputy', 'member', 'reply'],
+  sequence: ['../speaker', 'og-leader', 'oo-leader', 'og-deputy', 'oo-deputy', 'og-member', 'oo-member', 'oo-reply', 'og-reply', '../winner'],
+  style: {
+    roles: {
+      og: {
+        leader: { long: 'Prime Minister', abbr: 'PM' },
+        deputy: { long: 'Member of Government1', abbr: 'MG1' },
+        member: { long: 'Member of Government2', abbr: 'MG2' },
+        reply: { long: 'Government Reply', abbr: 'GR' }
+      },
+      oo: {
+        leader: { long: 'Leader of Opposition', abbr: 'LO' },
+        deputy: { long: 'Member of Opposition1', abbr: 'MO1' },
+        member: { long: 'Member of Opposition2', abbr: 'MO2' },
+        reply: { long: 'Opposition Reply', abbr: 'OR' }
       }
     }
   },
+  winner: null,
+  og: {
+    side: 'og',
+    result: {
+      leader: {
+        id: null,
+        matter: 5,
+        manner: 5,
+        best_debater: false,
+        poi_prize: false
+      },
+      deputy: {
+        id: null,
+        matter: 5,
+        manner: 5,
+        best_debater: false,
+        poi_prize: false
+      },
+      member: {
+        id: null,
+        matter: 5,
+        manner: 5,
+        best_debater: false,
+        poi_prize: false
+      },
+      reply: {
+        id: null,
+        matter: 2.5,
+        manner: 2.5,
+        best_debater: false,
+        poi_prize: false
+      }
+    }
+  },
+  oo: {
+    side: 'oo',
+    result: {
+      leader: {
+        id: null,
+        matter: 5,
+        manner: 5,
+        best_debater: false,
+        poi_prize: false
+      },
+      deputy: {
+        id: null,
+        matter: 5,
+        manner: 5,
+        best_debater: false,
+        poi_prize: false
+      },
+      member: {
+        id: null,
+        matter: 5,
+        manner: 5,
+        best_debater: false,
+        poi_prize: false
+      },
+      reply: {
+        id: null,
+        matter: 2.5,
+        manner: 2.5,
+        best_debater: false,
+        poi_prize: false
+      }
+    }
+  }
+}
+
+export default {
+  namespaced: true,
+  state: JSON.parse(JSON.stringify(initial_state)),
   getters: {
     current_step (state, getters, rootState, rootGetters) {
       return state.steps.findIndex(step => step === rootState.route.name)
@@ -110,6 +111,9 @@ export default {
     },
     complete (state) {
       state.complete = true
+    },
+    reset_state (state) {
+      state = JSON.parse(JSON.stringify(initial_state))
     }
   },
   actions: {

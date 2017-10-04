@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { smartphone } from 'assets/js/media-query'
 import loading_container from 'components/loading-container'
 import input_label from 'components/input-label'
@@ -124,6 +124,9 @@ export default {
     ])
   },
   methods: {
+    ...mapMutations('ballot', [
+      'reset_state'
+    ]),
     on_prev () {
       this.$router.push('score/og-reply')
     },
@@ -132,6 +135,7 @@ export default {
       this.sending = true
       this.send_ballot({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(() => {
+          this.reset_state()
           this.sending = false
           this.$router.push('done')
         })

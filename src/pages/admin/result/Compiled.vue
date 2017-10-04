@@ -78,9 +78,6 @@ export default {
       'adjudicator_by_id'
     ])
   },
-  mounted () {
-    console.log(this.target_tournament.compiled_team_results)
-  },
   methods: {
     on_select_team_slide () {
       this.$router.push({

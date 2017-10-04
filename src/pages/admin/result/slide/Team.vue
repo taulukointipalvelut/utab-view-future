@@ -3,8 +3,7 @@
     <p>
       below are slides
     </p>
-    <div class="reveal">
-      <div class="slides">
+    <div class="reveal slides">
         <section>
           <section>
             <p>
@@ -20,7 +19,6 @@
             Hello
           </p>
         </section>
-      </div>
     </div>
   </div>
 </template><!--          section(v-for="slide in slides", :key="slide.number")

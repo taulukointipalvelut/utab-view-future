@@ -41,8 +41,7 @@ TODO: Edit dialog needs validation
         .dialog-body
           el-form(:model="dialog.rounds.form.model", :rules="dialog.compile.form.rules")
             el-form-item(label="Rounds")
-              el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r)", :key="round.r", v-model="dialog.compile.form.model.rs[round.r]")  {{ round.name }}
-              //, :disabled="round.r > target_tournament.current_round_num") {{ round.name }}
+              el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r)", :key="round.r", v-model="dialog.compile.form.model.rs[round.r]", :checked="round.r <= target_tournament.current_round_num") {{ round.name }}
             el-form-item(label="Force")
               el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.force")
             el-form-item(label="Simple")
@@ -571,19 +570,19 @@ export default {
           entity.details = this.range(tournament.total_round_num).map(num => {
             return {
               r: num+1,
-              conflicts: entity.conflicts.filter(id => id !== null),
+              conflicts: entity.teams.filter(id => id !== null),
               institutions: entity.institutions.filter(id => id !== null),
               available: entity.available
             }
           })
-          delete entity.conflicts
+          delete entity.teams
           delete entity.institutions
           delete entity.available
         } else if (label === 'venues') {
           entity.details = this.range(tournament.total_round_num).map(num => {
             return {
               r: num+1,
-              available: model.available
+              available: entity.available
             }
           })
           delete entity.available
