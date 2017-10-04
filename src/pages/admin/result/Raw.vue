@@ -69,7 +69,7 @@ export default {
       'raw_team_results_by_r'
     ]),
     adjudicators_watching () {
-      return Array.from(new Set(this.target_score_sheets.map(ss => ss.id)))
+      return Array.from(new Set(this.target_score_sheets.map(ss => ss.from_id)))
     },
     adjudicators_submitted () {
       return Array.from(new Set(this.raw_team_results_by_r(this.r_str).map(tr => tr.from_id)))

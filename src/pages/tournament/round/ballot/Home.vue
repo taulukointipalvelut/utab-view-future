@@ -4,22 +4,22 @@
       h1 Score Sheet
       h3 {{ round_by_r(r_str).name }}
     loading-container(:loading="loading")
-    section(v-if="!loading && has_adjudicators")
-      el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
-    section(v-if="!loading && has_adjudicators")
-      el-table(:data="score_sheets", @current-change="on_select", :row-class-name="row_class_name")
-        el-table-column(prop="done", label="", width="40", align="center")
-          template(scope="scope")
-            span.icon-ok(v-if="scope.row.done")
-              el-icon(name="check")
-            span(v-else)
-              el-icon(name="edit")
-        el-table-column(prop="id", label="Name")
-          template(scope="scope")
-            span {{ adjudicator_by_id(scope.row.id).name }} #[i.fa.fa-user-secret(v-if="scope.row.is_chair")]
-        el-table-column(prop="venue", label="Venue", v-if="!smartphone")
-    section(v-if="!loading && !has_adjudicators")
-      span No Adjudicators Available
+      section(v-if="!loading && has_adjudicators")
+        el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
+      section(v-if="!loading && has_adjudicators")
+        el-table(:data="score_sheets", @current-change="on_select", :row-class-name="row_class_name")
+          el-table-column(prop="done", label="", width="40", align="center")
+            template(scope="scope")
+              span.icon-ok(v-if="scope.row.done")
+                el-icon(name="check")
+              span(v-else)
+                el-icon(name="edit")
+          el-table-column(prop="from_id", label="Name")
+            template(scope="scope")
+              span {{ adjudicator_by_id(scope.row.from_id).name }} #[i.fa.fa-user-secret(v-if="scope.row.is_chair")]
+          el-table-column(prop="venue", label="Venue", v-if="!smartphone")
+      section(v-if="!loading && !has_adjudicators")
+        span No Adjudicators Available
 </template>
 
 <script>

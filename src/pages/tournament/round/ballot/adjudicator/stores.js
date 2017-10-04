@@ -173,7 +173,7 @@ export default {
                 let raw_speaker_result = {
                     id,
                     r: score_sheet.r,
-                    from_id: score_sheet.id,
+                    from_id: score_sheet.from_id,
                     weight: 1,
                     scores: [0, 1, 2, 3].map(
                         index => [0, 1, 2, 3].filter(index => converted_result[side].speakers[index] === id).includes(index) ?
@@ -186,7 +186,7 @@ export default {
             let raw_team_result = {
                 id,
                 r: score_sheet.r,
-                from_id: score_sheet.id,
+                from_id: score_sheet.from_id,
                 weight: 1,
                 win: converted_result[side].win,
                 side: sides_label[side],

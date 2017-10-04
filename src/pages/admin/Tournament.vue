@@ -6,7 +6,7 @@ TODO: Edit dialog needs validation
     h1(v-if="!loading") {{ target_tournament.name }}
     loading-container(:loading="loading")
       legend(v-if="!loading") Rounds
-        loading-container(:loading="!init_flag.rounds")
+        loading-container(:loading="loading")
           el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
             el-table-column(prop="r", label="No.", width="60", align="center")
             el-table-column(prop="name", label="Name", show-overflow-tooltip)
@@ -25,7 +25,7 @@ TODO: Edit dialog needs validation
 
       el-tabs(type="card", v-if="!loading")
         el-tab-pane(v-for="index in range(5)", :label="capitalize(entity.labels[index])", :key="index")
-          loading-container(:loading="!init_flag[entity.labels[index]]")
+          loading-container(:loading="loading")
             el-table(:data="target_tournament[entity.labels[index]].slice().sort((t1, t2) => Math.abs(t1.id) > Math.abs(t2.id) ? 1 : -1)", @row-click="on_select")
               el-table-column(prop="id", label="ID", show-overflow-tooltip, align="center", sortable)
               el-table-column(v-for="prop in entity.display_props[entity.labels[index]]", :label="capitalize(prop)", align="center", :key="prop", sortable)
@@ -33,7 +33,7 @@ TODO: Edit dialog needs validation
                   span {{ show(scope.row, prop) }}
               el-table-column(align="right")
                 template(scope="scope")
-                  el-button(size="small", @click="on_edit(entity.labels[index], scope.row)") #[el-icon(name="edit")] Edit
+                  el-button(size="small", @click="on_edit(entity.labels[index], scope.row)", disabled) #[el-icon(name="edit")] Edit
                   el-button(size="small", type="danger", @click="on_delete(entity.labels[index], entity.labels_singular[index], scope.row)") #[el-icon(name="close")] Delete
             .operations
               el-button(type="primary", @click="dialog[entity.labels[index]].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(entity.labels_singular[index]) }}
@@ -71,7 +71,7 @@ TODO: Edit dialog needs validation
               el-input(v-model="dialog[entity.labels[index]].form.model[prop_data.prop]", v-if="prop_data.type !== Number")
             el-form-item(v-for="prop_data in entity.dialog_props_editable.boolean[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[entity.labels[index]].form.model[prop_data.prop]")
-            el-form-item(v-for="prop_data in entity.dialog_props_editable.selection[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
+            el-form-item(v-for="prop_data in entity.dialog_props_editable.selection[entity.labels[index]]", :label="capitalize(prop_data.label ? prop_data.label : prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
               el-select(v-for="sub_index in range(prop_data.default_length)", v-model="dialog[entity.labels[index]].form.model[prop_data.prop][sub_index]", :key="sub_index")
                 el-option(v-for="sub_entity in data_to_select(prop_data.prop).slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
               el-button(size="mini", @click="prop_data.default_length++", v-if="prop_data.extendable") #[el-icon(name="plus")]
@@ -90,7 +90,7 @@ TODO: Edit dialog needs validation
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[entity.labels[index]].edit_form.model[prop_data.prop]")
             el-form-item(v-for="prop_data in entity.dialog_props_changeable.selection[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
               el-select(v-for="sub_index in range(prop_data.default_length)", v-model="dialog[entity.labels[index]].edit_form.model[prop_data.prop][sub_index]", :key="sub_index")
-                el-option(v-for="sub_entity in data_to_select(prop_data.prop)", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
+                el-option(v-for="sub_entity in data_to_select(prop_data.prop).slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
               el-button(size="mini", @click="prop_data.default_length++", v-if="prop_data.extendable") #[el-icon(name="plus")]
         .dialog-footer(slot="footer")
           el-button(@click="dialog[entity.labels[index]].edit_visible = false") Cancel
@@ -182,7 +182,8 @@ export default {
               default_length: 1,
               extendable: true
             }, {
-              prop: 'conflicts',
+              label: 'conflicts',
+              prop: 'teams',
               default_length: 1,
               extendable: true
             }],
@@ -242,16 +243,16 @@ export default {
           selection: {
             teams: [{
               prop: 'speakers',
-              default_length: 2,
+              default_length: 4,
               extendable: true
             }, {
               prop: 'institutions',
-              default_length: 1,
+              default_length: 2,
               extendable: true
             }],
             adjudicators: [{
               prop: 'institutions',
-              default_length: 1,
+              default_length: 2,
               extendable: true
             }],
             speakers: [],
@@ -261,15 +262,7 @@ export default {
         }
       },
       team_selected: undefined,
-      adjudicator_selected: undefined,
-      init_flag: {
-        rounds: false,
-        teams: false,
-        adjudicators: false,
-        institutions: false,
-        venues: false,
-        speakers: false
-      }
+      adjudicator_selected: undefined
     }
 
     output.dialog = {
@@ -344,11 +337,13 @@ export default {
   },
   computed: {
     data_to_select () {
-      return label => {
-        if (label === 'speakers') {
+      return prop => {
+        if (prop === 'speakers') {
           return this.unallocated_speakers
-        } else if (label === 'institutions') {
+        } else if (prop === 'institutions') {
           return this.target_tournament.institutions
+        } else if (prop === 'teams') {
+          return this.target_tournament.teams
         } else {
         return []
         }
@@ -448,21 +443,7 @@ export default {
       const tournament = this.target_tournament
       let model = this.dialog[label].form.model
       let entity = Object.assign({}, model)
-
-      if (label === 'teams') {
-        entity.details = this.range(tournament.total_round_num).map(num => {
-          return {
-            r: num+1,
-            speakers: model.speakers.filter(id => id !== null),
-            institutions: model.institutions.filter(id => id !== null),
-            available: model.available
-          }
-        })
-        delete entity.speakers
-        delete entity.institutions
-        delete entity.available
-      }
-
+      this.convert_temp_details(entity, label)
       let payload = {
         tournament,
         label
@@ -476,6 +457,7 @@ export default {
     },
     on_edit (label, selected) {
       this.dialog[label].editing = selected
+      this.transfer(this.dialog[label].edit_form.model, selected)
       this.dialog[label].edit_visible = true
     },
     on_update (label, label_singular) {
@@ -483,7 +465,7 @@ export default {
       let tournament = this.target_tournament
       let model = this.dialog[label].edit_form.model
       let entity = Object.assign(this.dialog[label].editing, model)
-      payload = {}
+      this.convert_temp_details(entity, label)
       let payload = {
         tournament,
         label,
@@ -517,25 +499,53 @@ export default {
       'send_delete_entity',
       'send_update_entity',
       'init_all'
-    ])
-  },
-  mounted () {
-    if (!this.loading) {
-      this.init_all().then(() => {
-        this.init_flag.rounds = true
-        this.init_flag.adjudicators = true
-        this.init_flag.teams = true
-        this.init_flag.institutions = true
-        this.init_flag.speakers = true
-        this.init_flag.venues = true
-      })
-    } else {
-      this.init_flag.rounds = true
-      this.init_flag.adjudicators = true
-      this.init_flag.teams = true
-      this.init_flag.institutions = true
-      this.init_flag.speakers = true
-      this.init_flag.venues = true}
+    ]),
+    transfer (to, from) {
+      if (from.hasOwnProperty('details')) {
+        this.transfer(to, from.details[0])
+      }
+      for (let key in to) {
+        if (from.hasOwnProperty(key)) {
+          to[key] = from[key]
+        }
+      }
+    },
+    convert_temp_details (entity, label) {
+        let tournament = this.target_tournament
+        if (label === 'teams') {
+          entity.details = this.range(tournament.total_round_num).map(num => {
+            return {
+              r: num+1,
+              speakers: entity.speakers.filter(id => id !== null),
+              institutions: entity.institutions.filter(id => id !== null),
+              available: entity.available
+            }
+          })
+          delete entity.speakers
+          delete entity.institutions
+          delete entity.available
+        } else if (label === 'adjudicators') {
+          entity.details = this.range(tournament.total_round_num).map(num => {
+            return {
+              r: num+1,
+              conflicts: entity.conflicts.filter(id => id !== null),
+              institutions: entity.institutions.filter(id => id !== null),
+              available: entity.available
+            }
+          })
+          delete entity.conflicts
+          delete entity.institutions
+          delete entity.available
+        } else if (label === 'venues') {
+          entity.details = this.range(tournament.total_round_num).map(num => {
+            return {
+              r: num+1,
+              available: model.available
+            }
+          })
+          delete entity.available
+        }
+    }
   }
 }
 </script>

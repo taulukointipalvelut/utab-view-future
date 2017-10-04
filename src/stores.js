@@ -72,6 +72,7 @@ export default {
         return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str))
     },
     target_score_sheets: (state, getters) => {
+        let tournament = getters.target_tournament
         let draw = getters.target_draw
         if (draw === undefined) {
             return []
@@ -79,16 +80,17 @@ export default {
         let allocation = draw.allocation
         let r = draw.r
         let score_sheets = []
+        let adjudicators_submitted = Array.from(new Set(tournament.raw_team_results.map(r => r.from_id)))
         for (let square of allocation) {
-            for (let id of [].concat(square.chairs).concat(square.panels)) {
+            for (let from_id of [].concat(square.chairs).concat(square.panels)) {
                 let score_sheet = {
                     r,
-                    done: false,
+                    done: adjudicators_submitted.includes(from_id),
                     teams: square.teams,
-                    id,
+                    from_id,
                     venue: square.venue,
-                    is_chair: square.chairs.includes(id) ? true : false,
-                    href: { to: String(id) }
+                    is_chair: square.chairs.includes(from_id) ? true : false,
+                    href: { to: String(from_id) }
                 }
                 score_sheets.push(score_sheet)
             }
@@ -97,7 +99,7 @@ export default {
     },
     score_sheet_by_id: (state, getters) => {
         return id => {
-            return getters.target_score_sheets.find(ss => ss.id === parseInt(id))
+            return getters.target_score_sheets.find(ss => ss.from_id === parseInt(id))
         }
     },
     round_by_r: select_by_key_factory('rounds', 'r'),
@@ -111,7 +113,7 @@ export default {
         let tournament = getters.target_tournament
         let allocated_speakers = []
         for (let team of tournament.teams) {
-            allocated_speakers = allocated_speakers.concat(team.speakers)
+            allocated_speakers = allocated_speakers.concat(team.details[0].speakers)
         }
         return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))
     },
@@ -224,7 +226,7 @@ export default {
     },
     delete_round (state, payload) {
         let tournament = find_tournament(state, payload)
-        tournament.rounds = tournament.rounds.filter(e => e.r === payload.round.r)
+        tournament.rounds = tournament.rounds.filter(e => e.r !== payload.round.r)
     },
     finish_loading (state) {
         state.loading = false
@@ -251,7 +253,6 @@ export default {
             .then(() => commit('add_entities', payload))
       },
       send_update_entity ({state, commit, dispatch}, payload) {
-          console.log("preparing")
         return fetch_data('PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label])
             .then(() => commit('update_entity', payload))
       },
