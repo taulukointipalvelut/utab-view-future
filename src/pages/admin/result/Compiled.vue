@@ -30,6 +30,7 @@
               template(scope="scope")
                 span {{ scope.row.sd }}
           .operations
+            el-button(@click="on_download_team_results") Download Team Results
             el-button(type="primary", @click="on_select_team_slide") #[el-icon(name="picture")] &nbsp;Slide Show
 
       el-tab-pane(label="Speaker results")
@@ -50,6 +51,7 @@
             template(scope="scope")
               span {{ scope.row.sd }}
         .operations
+          el-button(@click="on_download_speaker_results") Download Speaker Results
           el-button(type="primary", @click="on_select_speaker_slide") #[el-icon(name="picture")] &nbsp;Slide Show
 </template>
 
@@ -89,6 +91,36 @@ export default {
       this.$router.push({
         path: 'slide/speaker'
       })
+    },
+    on_download_team_results () {
+      let results = this.target_tournament.compiled_team_results
+      let blob = new Blob([this.team_results_to_csv_text(results)], {type: 'text/plain'})
+      let link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = name + '.txt'
+      link.click()
+    },
+    on_download_speaker_results () {
+      let results = this.target_tournament.compiled_speaker_results
+      let blob = new Blob([this.speaker_results_to_csv_text(results)], {type: 'text/plain'})
+      let link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = name + '.txt'
+      link.click()
+    },
+    team_results_to_csv_text (results) {
+      let csv = ['name', 'ranking', 'win', 'sum', 'margin', 'vote', 'stDev'].join(',') + '\n'
+      for (let result of results.slice().sort((r1, r2) => r1.ranking > r2.ranking)) {
+        csv += [this.team_by_id(result.id).name, result.ranking, result.win, result.sum, result.margin, result.vote, result.sd].join(',') + '\n'
+      }
+      return csv
+    },
+    speaker_results_to_csv_text (results) {
+      let csv = ['name', 'ranking', 'average', 'sum', 'stDev'].join(',') + '\n'
+      for (let result of results.slice().sort((r1, r2) => r1.ranking > r2.ranking)) {
+        csv += [this.speaker_by_id(result.id).name, result.ranking, result.average, result.sum, result.sd].join(',') + '\n'
+      }
+      return csv
     }
   }
 }
