@@ -424,9 +424,13 @@ export default {
     on_create_round () {
       this.dialog.round.loading = true
       let tournament = this.target_tournament
-      let round = Object.assign({}, this.dialog.round.form.model)
+      let model = this.dialog.round.form.model
+      let round = Object.assign({}, model)
       round.r = tournament.rounds.length + 1
       round.href = { path: `/${ tournament.name }/rounds/${ round.r }` }
+      if (model.name === '') {
+        round.name = 'Round '+round.r
+      }
       let payload = { tournament, round }
       this.send_create_round(payload)
       this.dialog.round.loading = false

@@ -535,7 +535,6 @@ export default {
                     for (let round_fetched of data) {
                         let round = Object.assign({}, round_fetched)
                         round.href = { path: '/'+t.name+'/rounds/'+round_fetched.r }
-                        round.name = "Round "+round_fetched.r
                         rounds.push(round)
                     }
                     commit('rounds', { tournament: t, rounds })
