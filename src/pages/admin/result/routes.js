@@ -6,15 +6,14 @@ import Slide from './slide/Index'
 export default [
     {
         path: 'compiled',
-        props: true,
         component: Compiled
     }, {
-        path: '',
-        redirect: 'raw'
+        path: 'raw/:r_str',
+        component: Raw,
+        props: true
     }, {
-        path: 'raw',
-        props: true,
-        component: Raw
+        path: '',
+        redirect: 'compiled'
     }/*, {
         path: 'slide',
         props: true,

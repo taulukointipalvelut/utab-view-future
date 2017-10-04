@@ -40,6 +40,7 @@
                   el-button.edit(size="small", disabled) #[el-icon(name="edit")]
                   el-button.delete(size="small", type="danger", disabled) #[el-icon(name="close")]
 </template>
+
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import link_list from 'components/link-list.vue'

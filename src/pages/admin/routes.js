@@ -20,7 +20,7 @@ export default [{
     props: true,
     component: Allocation
   }, {
-    path: ':tournament_name/rounds/:r_str/result',
+    path: ':tournament_name/result',
     props: true,
     component: Result,
     children: result_routes

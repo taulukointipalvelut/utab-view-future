@@ -14,13 +14,11 @@ TODO: Edit dialog needs validation
               template(scope="scope")
                 el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
                 el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)", disabled) #[el-icon(name="close")] Delete
-                el-button(size="small", @click="on_result_round(scope.row)") #[el-icon(name="information")] Result
+                el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
                 el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
           .operations
-            el-dropdown(@command="handle_compiled_command")
-              el-button.compiled(:disabled="target_tournament.rounds.length === 0") Compiled Results #[el-icon(name="caret-bottom")]
-              el-dropdown-menu(slot="dropdown")
-                el-dropdown-item(v-for="round in target_tournament.rounds", :key="round.r", :command="String(round.r)") {{ round.name }}
+
+            el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='dialog.compile.visible=true') Compile Results
             el-button(type="primary", @click="dialog.rounds.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
       el-tabs(type="card", v-if="!loading")
@@ -37,6 +35,19 @@ TODO: Edit dialog needs validation
                   el-button(size="small", type="danger", @click="on_delete(entity.labels[index], entity.labels_singular[index], scope.row)") #[el-icon(name="close")] Delete
             .operations
               el-button(type="primary", @click="dialog[entity.labels[index]].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(entity.labels_singular[index]) }}
+
+      el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
+        .dialog-body
+          el-form(:model="dialog.rounds.form.model", :rules="dialog.compile.form.rules")
+            el-form-item(label="Rounds")
+              el-checkbox(v-for="round in target_tournament.rounds", :key="round.r", v-model="dialog.compile.form.model.rs[round.r]", :disabled="round.r > target_tournament.current_round_num") {{ round.name }}
+            el-form-item(label="Force")
+              el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.force")
+            el-form-item(label="Simple")
+              el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.simple")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.compile.visible = false") Cancel
+          el-button(type="primary", @click="on_compile") Request
 
       el-dialog(title="Add New Round", :visible.sync="dialog.rounds.visible", v-if="!loading")
         .dialog-body
@@ -287,6 +298,16 @@ export default {
             adjudicator_allocation_opened: true
           }
         }
+      },
+      compile: {
+        visible: false,
+        form: {
+          model: {
+            rs: Array(100).fill(false),
+            force: false,
+            simple: false
+          }
+        }
       }
     }
     for (let label of output.entity.labels) {
@@ -372,19 +393,14 @@ export default {
         return entity.details[0][prop]
       }
     },
-    handle_compiled_command (r_str) {
-      this.$router.push({
-        path: 'rounds/'+r_str+'/result/compiled'
-      })
-    },
     on_allocation_round (selected) {
       this.$router.push({
         path: 'rounds/'+selected.r+'/allocation'
       })
     },
-    on_result_round (selected) {
+    on_raw_result (selected) {
       this.$router.push({
-        path: 'rounds/'+selected.r+'/result'
+        path: 'result/raw/'+selected.r
       })
     },
     on_select_round (selected, ev, col) {
@@ -432,6 +448,28 @@ export default {
       this.dialog[rounds].edit_visible = false
       console.log("preparing")
       //this.$refs.dialog[rounds].edit.resetFields()
+    },
+    on_compile () {
+      let tournament = this.target_tournament
+      let model = this.dialog.compile.form.model
+      let payload = {
+        tournament,
+        request: {
+          rs: Object.keys(model.rs).filter(r => model.rs[r]).map(parseInt),
+          options: {
+            simple: model.simple,
+            force: model.force
+          }
+        }
+      }
+      let ps = model.simple ? this.request_compiled_team_results(payload)
+                        : Promise.all([this.request_compiled_team_results(payload), this.request_compiled_speaker_results(payload)])
+      ps.then(() => {
+          this.dialog.compile.visible = false
+          this.$router.push({
+            path: 'result/compiled'
+          })
+      })
     },
     on_select (selected, ev, col) {
       console.log("preparing")
@@ -498,6 +536,8 @@ export default {
       'send_create_entities',
       'send_delete_entity',
       'send_update_entity',
+      'request_compiled_team_results',
+      'request_compiled_speaker_results',
       'init_all'
     ]),
     transfer (to, from) {

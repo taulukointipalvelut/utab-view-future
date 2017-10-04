@@ -119,8 +119,6 @@ export default {
     },
     raw_team_results_by_r: results_factory('raw_team_results'),
     raw_speaker_results_by_r: results_factory('raw_speaker_results'),
-    compiled_team_results_by_r: results_factory('compiled_team_results'),
-    compiled_speaker_results_by_r: results_factory('compiled_speaker_results'),
     details_1: function (state, getters) {
         return entity => {
             return Object.assign(entity, entity.details.find(d => d.r === 1))
@@ -199,6 +197,14 @@ export default {
         let tournament = find_tournament(state, payload)
         tournament['raw_'+payload.label_singular+'_results'] = payload.raw_results
     },
+    compiled_team_results (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament.compiled_team_results = payload.compiled_team_results
+    },
+    compiled_speaker_results (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament.compiled_speaker_results = payload.compiled_speaker_results
+    },
     add_raw_results (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament['raw_'+payload.label_singular+'_results'].concat(payload.raw_results)
@@ -268,6 +274,14 @@ export default {
       send_delete_entity ({state, commit, dispatch}, payload) {
         return fetch_data('DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id)
             .then(() => commit('delete_entity', payload))
+      },
+      request_compiled_team_results ({state, commit, dispatch}, payload) {
+        return fetch_data('PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/teams', payload.request)
+            .then((compiled_team_results) => commit('compiled_team_results', { tournament: payload.tournament, compiled_team_results }))
+      },
+      request_compiled_speaker_results ({state, commit, dispatch}, payload) {
+        return fetch_data('PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/speakers', payload.request)
+            .then((compiled_speaker_results) => commit('compiled_speaker_results', { tournament: payload.tournament, compiled_speaker_results }))
       },
       init_tournaments ({ commit }) {
         return fetch_data('GET', API_BASE_URL+'/tournaments')

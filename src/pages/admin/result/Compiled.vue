@@ -6,7 +6,7 @@
     el-tabs(type="card")
       el-tab-pane(label="Team results")
         section(v-if="!loading")
-          el-table(:data="compiled_team_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
+          el-table(:data="target_tournament.compiled_team_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
             el-table-column(prop="ranking", label="Ranking", align="center", sortable)
               template(scope="scope")
                 span {{ scope.row.ranking }}
@@ -32,7 +32,7 @@
             el-button(type="primary", @click="on_select_team_slide") #[el-icon(name="picture")] &nbsp;Slide Show
 
       el-tab-pane(label="Speaker results")
-        el-table(:data="compiled_speaker_results_by_r(r_str).slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
+        el-table(:data="target_tournament.compiled_speaker_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
           el-table-column(prop="ranking", label="Ranking", align="center", sortable)
             template(scope="scope")
               span {{ scope.row.ranking }}
@@ -75,10 +75,11 @@ export default {
       'target_tournament',
       'team_by_id',
       'speaker_by_id',
-      'adjudicator_by_id',
-      'compiled_speaker_results_by_r',
-      'compiled_team_results_by_r'
+      'adjudicator_by_id'
     ])
+  },
+  mounted () {
+    console.log(this.target_tournament.compiled_team_results)
   },
   methods: {
     on_select_team_slide () {
