@@ -290,6 +290,11 @@ export default {
         let tournament = find_tournament(state, payload)
         tournament.rounds = tournament.rounds.filter(e => e.r !== payload.round.r)
     },
+    update_round (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament.rounds = tournament.rounds.filter(e => e.r !== payload.round.r)
+        tournament.rounds.push(payload.round)
+    },
     finish_loading (state) {
         state.loading = false
     },
@@ -304,6 +309,10 @@ export default {
       send_create_round ({state, commit, dispatch}, payload) {
           return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds', payload.round)
              .then(() => commit('add_round', payload))
+      },
+      send_update_round ({state, commit, dispatch}, payload) {
+          return fetch_data('PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r, payload.round)
+             .then(() => commit('update_round', payload))
       },
       send_delete_round ({state, commit, dispatch}, payload) {
           return fetch_data('DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r, payload.round)

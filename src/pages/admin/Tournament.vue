@@ -12,7 +12,7 @@ TODO: Edit dialog needs validation
             el-table-column(prop="name", label="Name", show-overflow-tooltip)
             el-table-column
               template(scope="scope")
-                el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
+                el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")] Edit
                 el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")] Delete
                 el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
                 el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
@@ -20,7 +20,7 @@ TODO: Edit dialog needs validation
                 el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
           .operations
             el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='dialog.compile.visible=true') Compile Results
-            el-button(type="primary", @click="dialog.rounds.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+            el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
       el-tabs(type="card", v-if="!loading")
         el-tab-pane(v-for="index in range(5)", :label="capitalize(entity.labels[index])", :key="index")
@@ -39,7 +39,7 @@ TODO: Edit dialog needs validation
 
       el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
         .dialog-body
-          el-form(:model="dialog.rounds.form.model", :rules="dialog.compile.form.rules")
+          el-form(:model="dialog.round.form.model", :rules="dialog.compile.form.rules")
             el-form-item(label="Rounds")
               el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r)", :key="round.r", v-model="dialog.compile.form.model.rs[round.r]", :checked="round.r <= target_tournament.current_round_num") {{ round.name }}
             el-form-item(label="Force")
@@ -50,30 +50,33 @@ TODO: Edit dialog needs validation
           el-button(@click="dialog.compile.visible = false") Cancel
           el-button(type="primary", @click="on_compile") Request
 
-      el-dialog(title="Add New Round", :visible.sync="dialog.rounds.visible", v-if="!loading")
+      el-dialog(title="Add New Round", :visible.sync="dialog.round.visible", v-if="!loading")
         .dialog-body
-          el-form(ref="dialog_round", :model="dialog.rounds.form.model", :rules="dialog.rounds.form.rules")
+          el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
             h3(align="center") Round {{ target_tournament.rounds.length + 1 }}
             el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.rounds.form.model.name")
+              el-input(v-model="dialog.round.form.model.name")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.teams.form.model.team_allocation_opened")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.team_allocation_opened")
             el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.teams.form.model.adjudicator_allocation_opened")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.adjudicator_allocation_opened")
         .dialog-footer(slot="footer")
-          el-button(@click="dialog.rounds.visible = false") Cancel
-          el-button(type="primary", :loading="dialog.rounds.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.rounds.loading")] Create
+          el-button(@click="dialog.round.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.round.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
 
-      //el-dialog(title="Edit Round", :visible.sync="dialog.round_edit.visible")
+      el-dialog(title="Edit Round", :visible.sync="dialog.round.edit_visible")
         .dialog-body
-          el-form(ref="dialog_round_edit", :model="dialog.round_edit.form.model")
-            el-form-item(label="Round No.", prop="r")
-              el-input(type="number", v-model="dialog.round_edit.form.model.r", readonly)
+          el-form(:model="dialog.round.edit_form.model")
+            h3(align="center") Round No. {{ dialog.round.edit_form.model.r }}
             el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.round_edit.form.model.name")
+              el-input(v-model="dialog.round.edit_form.model.name")
+            el-form-item(label="Draw Opened", prop="team_allocation_opened")
+              el-switch(on-text="", off-text="", v-model="dialog.round.edit_form.model.team_allocation_opened")
+            el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
+              el-switch(on-text="", off-text="", v-model="dialog.round.edit_form.model.adjudicator_allocation_opened")
         .dialog-footer(slot="footer")
-          el-button(@click="dialog.round_edit.visible = false") Cancel
-          el-button(type="primary", :loading="dialog.round_edit.loading", @click="on_update_round()") OK
+          el-button(@click="dialog.round.edit_visible = false") Cancel
+          el-button(type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
 
       el-dialog(v-for="index in range(5)", :title="'Add New '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].visible", :key="index", v-if="!loading")
         .dialog-body
@@ -278,7 +281,7 @@ export default {
     }
 
     output.dialog = {
-      rounds: {
+      round: {
         loading: false,
         edit_loading: false,
         visible: false,
@@ -387,6 +390,7 @@ export default {
       'send_create_entities',
       'send_delete_entity',
       'send_update_entity',
+      'send_update_round',
       'request_compiled_team_results',
       'request_compiled_speaker_results',
       'init_all',
@@ -418,23 +422,15 @@ export default {
       //this.$router.push(selected.href)
     },
     on_create_round () {
-      this.dialog.rounds.loading = true
-      this.$refs.dialog_round.validate((valid) => {
-        if (valid) {
-          let tournament = this.target_tournament
-          let payload = { tournament }
-          payload.round = Object.assign({}, this.dialog.rounds.form.model)
-          payload.round.r = tournament.rounds.length + 1
-          payload.round.href = { path: `/${ tournament.name }/rounds/${ payload.round.r }` }
-          this.send_create_round(payload)
-          this.dialog.rounds.loading = false
-          this.dialog.rounds.visible = false
-          //this.$refs.dialog_round.resetFields()
-        } else {
-          this.dialog.rounds.loading = false
-          return false
-        }
-      })
+      this.dialog.round.loading = true
+      let tournament = this.target_tournament
+      let round = Object.assign({}, this.dialog.round.form.model)
+      round.r = tournament.rounds.length + 1
+      round.href = { path: `/${ tournament.name }/rounds/${ round.r }` }
+      let payload = { tournament, round }
+      this.send_create_round(payload)
+      this.dialog.round.loading = false
+      this.dialog.round.visible = false
     },
     async on_send_delete_round (selected) {
       const ans = await this.$confirm('Are you sure?')
@@ -444,21 +440,18 @@ export default {
       }
     },
     on_edit_round (selected) {
-      console.log('preparing')
-      this.dialog.rounds.edit_form.model = Object.assign({}, selected)
-      this.dialog.rounds.edit_visible = true
+      this.transfer(this.dialog.round.edit_form.model, selected)
+      this.dialog.round.edit_visible = true
     },
     on_update_round () {
-      this.dialog[rounds].edit_loading = true
+      this.dialog.round.edit_loading = true
       const tournament = this.target_tournament
-      const round = Object.assign({}, this.dialog.rounds.edit_form.model)
+      const round = Object.assign({}, this.dialog.round.edit_form.model)
       round.href = { path: `/${ tournament.name }/rounds/${ round.r }` }
-      this.send_delete_round({ tournament, round })
-      this.send_create_round({ tournament, rounds: [round] })
-      this.dialog[rounds].edit_loading = false
-      this.dialog[rounds].edit_visible = false
-      console.log("preparing")
-      //this.$refs.dialog[rounds].edit.resetFields()
+      this.send_update_round({ tournament, round }).then(() => {
+        this.dialog.round.edit_loading = false
+        this.dialog.round.edit_visible = false
+      })
     },
     on_compile () {
       let tournament = this.target_tournament
