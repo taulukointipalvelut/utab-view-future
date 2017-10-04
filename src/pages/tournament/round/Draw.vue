@@ -21,7 +21,7 @@
             .adjudicator(v-for="id in scope.row.panels") {{ adjudicator_by_id(id).name }}
         el-table-column.adjudicator-container(label="Trainee", v-if="adjudicator_allocation_opened")
           template(scope="scope")
-            .adjudicator(v-for="id in scope.row.trainees") {{ scope.row.trainees.length }}
+            .adjudicator(v-for="id in scope.row.trainees") {{ adjudicator_by_id(id).name }}
     section(v-else)
       p Draw for {{ round_by_r(r_str).name }} is not released.
 </template>

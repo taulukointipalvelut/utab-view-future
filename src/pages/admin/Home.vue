@@ -12,9 +12,9 @@
           el-table-column(label="Rounds", width="100", align="right")
             template(scope="scope")
               span {{ num_of_rounds(scope.row.current_round_num, scope.row.total_round_num) }}
-          el-table-column
+          el-table-column(align="right")
             template(scope="scope")
-              el-button(size="small", @click="on_edit(scope.row)") #[el-icon(name="edit")] Edit
+              //el-button(size="small", @click="on_edit(scope.row)") #[el-icon(name="edit")] Edit
               el-button(disabled, size="small", type="danger", @click="on_delete(scope.row)") #[el-icon(name="close")] Delete
         span(v-if="!loading && !has_tournaments") No Tournaments Available
       .operations(v-if="!loading")

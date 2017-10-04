@@ -80,7 +80,7 @@ export default {
         let allocation = draw.allocation
         let r = draw.r
         let score_sheets = []
-        let adjudicators_submitted = Array.from(new Set(tournament.raw_team_results.map(r => r.from_id)))
+        let adjudicators_submitted = Array.from(new Set(getters.raw_team_results_by_r(r).map(res => res.from_id)))
         for (let square of allocation) {
             for (let from_id of [].concat(square.chairs).concat(square.panels)) {
                 let score_sheet = {
@@ -242,13 +242,16 @@ export default {
     }
   },
   actions: {
+      next_round (state, payload) {
+          console.log("preparing")
+      },
       send_create_round ({state, commit, dispatch}, payload) {
           return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds', payload.round)
              .then(() => commit('add_round', payload))
       },
       send_delete_round ({state, commit, dispatch}, payload) {
-          console.log('preparing')
-          commit('delete_round', payload)
+          return fetch_data('DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r, payload.round)
+              .then(() => commit('delete_round', payload))
       },
       send_tournament ({state, commit, dispatch}, payload) {
          return fetch_data('POST', API_BASE_URL+'/tournaments', payload.tournament)

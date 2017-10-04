@@ -6,7 +6,7 @@
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[i.fa.fa-home] Home
-      el-button(type="primary" @click="on_next", :disabled="loading") Next #[el-icon(name="arrow-right")]
+      //el-button(type="primary" @click="on_next", :disabled="loading") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>

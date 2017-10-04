@@ -13,11 +13,12 @@ TODO: Edit dialog needs validation
             el-table-column
               template(scope="scope")
                 el-button(size="small", @click="on_edit_round(scope.row)", disabled) #[el-icon(name="edit")] Edit
-                el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)", disabled) #[el-icon(name="close")] Delete
+                el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")] Delete
                 el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
                 el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+                el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
+                el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
           .operations
-
             el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='dialog.compile.visible=true') Compile Results
             el-button(type="primary", @click="dialog.rounds.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
@@ -40,7 +41,8 @@ TODO: Edit dialog needs validation
         .dialog-body
           el-form(:model="dialog.rounds.form.model", :rules="dialog.compile.form.rules")
             el-form-item(label="Rounds")
-              el-checkbox(v-for="round in target_tournament.rounds", :key="round.r", v-model="dialog.compile.form.model.rs[round.r]", :disabled="round.r > target_tournament.current_round_num") {{ round.name }}
+              el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r)", :key="round.r", v-model="dialog.compile.form.model.rs[round.r]")  {{ round.name }}
+              //, :disabled="round.r > target_tournament.current_round_num") {{ round.name }}
             el-form-item(label="Force")
               el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.force")
             el-form-item(label="Simple")
@@ -348,8 +350,6 @@ export default {
         edit_visible: false,
         form,
         edit_form,
-        original_form: Object.assign({}, form),
-        original_edit_form: Object.assign({}, edit_form),
         editing: null
       }
     }
@@ -382,6 +382,17 @@ export default {
     ])
   },
   methods: {
+    ...mapActions([
+      'send_create_round',
+      'send_delete_round',
+      'send_create_entities',
+      'send_delete_entity',
+      'send_update_entity',
+      'request_compiled_team_results',
+      'request_compiled_speaker_results',
+      'init_all',
+      'next_round'
+    ]),
     range: math.range,
     capitalize (p) {
       return p.charAt(0).toUpperCase() + p.slice(1)
@@ -404,7 +415,8 @@ export default {
       })
     },
     on_select_round (selected, ev, col) {
-      this.$router.push(selected.href)
+      console.log("preparing")
+      //this.$router.push(selected.href)
     },
     on_create_round () {
       this.dialog.rounds.loading = true
@@ -471,6 +483,9 @@ export default {
           })
       })
     },
+    on_next(step) {
+      this.next_round({ step })
+    },
     on_select (selected, ev, col) {
       console.log("preparing")
       //this.$router.push(selected.href)
@@ -491,7 +506,6 @@ export default {
       this.send_create_entities(payload)
       this.dialog[label].loading = false
       this.dialog[label].visible = false
-      this.dialog[label].form = this.dialog[label].original_form
     },
     on_edit (label, selected) {
       this.dialog[label].editing = selected
@@ -513,7 +527,6 @@ export default {
       this.send_update_entity(payload)
       this.dialog[label].edit_loading = false
       this.dialog[label].edit_visible = false
-      this.dialog[label].edit_form = this.dialog[label].original_edit_form
     },
     async on_delete (label, label_singular, selected) {
       const ans = await this.$confirm('Are you sure?')
@@ -530,16 +543,6 @@ export default {
         this.send_delete_entity(payload)
       }
     },
-    ...mapActions([
-      'send_create_round',
-      'send_delete_round',
-      'send_create_entities',
-      'send_delete_entity',
-      'send_update_entity',
-      'request_compiled_team_results',
-      'request_compiled_speaker_results',
-      'init_all'
-    ]),
     transfer (to, from) {
       if (from.hasOwnProperty('details')) {
         this.transfer(to, from.details[0])
