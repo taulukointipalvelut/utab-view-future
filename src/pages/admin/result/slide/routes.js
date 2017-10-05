@@ -1,4 +1,5 @@
 import Team from './Team'
+//import Speaker from './Speaker'
 
 export default [
     {
@@ -9,7 +10,7 @@ export default [
         path: 'speaker',
         props: true,
         component: Speaker
-    }*//*, {
+    }, {
         path: '',
         redirect: 'team'
     }*/

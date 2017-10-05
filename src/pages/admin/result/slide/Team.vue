@@ -1,53 +1,34 @@
-<template>
-  <div>
-    <p>
-      below are slides
-    </p>
-    <div class="reveal slides">
-        <section>
-          <section>
-            <p>
-              Hello
-            </p>
-          </section>
-          <section>
-            <h2> Hi </h2>
-          </section>
-        </section>
-        <section>
-          <p>
-            Hello
-          </p>
-        </section>
-    </div>
-  </div>
-</template><!--          section(v-for="slide in slides", :key="slide.number")
-            section(v-if="config.show_place")
-              h2 {{ slide.place }} Place
-            section
-              span
-            section
-              h2(v-if="config.show_place") {{ slide.place }} Place
-              h1 {{ slide.name }}
-          div(style="display: block; position: absolute; upper: 16px; left: 10px; margin-left: -139px; z-index: 20;")
-            p {{ config.name }}
-</template>-->
+<template lang="pug">
+  div
+    .cover
+    .projection
+      slides(title="Team Result", :texts_list="texts_list")
+</template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import link_list from 'components/link-list.vue'
 import link_list_item from 'components/link-list-item.vue'
 import loading_container from 'components/loading-container'
-import Reveal from 'assets/js/reveal.js'
+import slides from 'components/slides.vue'
 
 export default {
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item,
-    'loading-container': loading_container
+    'loading-container': loading_container,
+    'slides': slides
   },
-  props: ['loading', 'r_str'],
   data () {
+    return {
+      config: {
+          max_teams_rewarded: 3,
+          name: "PDA Tournament 2018",
+          show_place: true
+      }
+    }
+  },
+  /*data () {
     return {
       config: {
           max_teams_rewarded: 3,
@@ -55,17 +36,17 @@ export default {
           show_place: true
       },
       teams: [{
-          id: 1,
-          name: "t1"
-      }, {
-          id: 2,
-          name: "t2"
-      }, {
-          id: 3,
-          name: "t3"
-      }, {
-          id: 4,
-          name: "t4"
+            id: 1,
+            name: "t1"
+        }, {
+            id: 2,
+            name: "t2"
+        }, {
+            id: 3,
+            name: "t3"
+        }, {
+            id: 4,
+            name: "t4"
       }],
       results: [{
             id: 2,
@@ -112,14 +93,31 @@ export default {
             ranking: 4
       }]
     }
-  },
+  },*/
   computed: {
-    slides() {
+    texts_list () {
+      let texts_list = []
+      let slide_groups = this.slide_groups
+      for (let slide_group of slide_groups) {
+        texts_list.push([
+          { tag: 'h2', text: slide_group.place+' Place'  }
+        ])
+        texts_list.push([])
+        texts_list.push([
+          { tag: 'h2', text: slide_group.place+' Place' },
+          { tag: 'h1', text: slide_group.name },
+          { tag: 'p', text: slide_group.institutions.join(', ') }
+        ])
+      }
+      return texts_list
+    },
+    slide_groups () {
         let output = []
 
-        let results_sorted = [].concat(this.results).sort((r1, r2) => r1.ranking < r2.ranking)
+        let results_sorted = [].concat(this.target_tournament.compiled_team_results).sort((r1, r2) => r1.ranking < r2.ranking)
 
-        number = 0
+        let number = 0
+        let place = ""
         for (let result of results_sorted) {
             if (result.ranking > this.config.max_teams_rewarded) {
                 continue
@@ -137,67 +135,38 @@ export default {
             output.push({
                 number,
                 property: {},
-                name: this.entities.find(t => t.id === result.id).name,
-                place: place
+                name: this.team_by_id(result.id).name,//this.team_by_id(result.id).name,
+                place: place,
+                institutions: this.team_by_id(result.id).details[0].institutions.map(this.institution_by_id).map(i=>i.name)//this.team_by_id(result.id).institutions
             })
             number++
         }
-
         return output
     },
-    ...mapState([
-      'auth'
-    ]),
     ...mapGetters([
-      'isAuth',
-      'target_tournament'
+      'target_tournament',
+      'team_by_id',
+      'institution_by_id'
     ])
-  },
-  mounted() {
-    Reveal.initialize()
   }
 }
 </script>
 
-<style src="assets/css/reveal.css"></style>
-<style>
-
-.reveal * {
-  color: #555;
-}
-
-.reveal h1 {
-  font-size: 8rem;
-}
-
-.reveal h2 {
-  font-size: 4rem;
-}
-
-.reveal p {
-  font-size: 3rem;
-  margin: 2rem 0;
-}
-
-</style>
-<!--
 <style lang="stylus">
-  body
-    background-color #f5f5f5
-  #app-content
-    margin 0
-    padding 0
+  .cover:not(.projection)
+    position absolute
+    top 0px
+    left 0px
     width 100%
-    min-height 100vh
-  a
-    text-decoration none
-    color inherit
-  main
-    padding 5%
-
-  @media (min-width: 600px)
-    main
-      max-width 600px
-      margin 0 auto
-
-</style>-->
+    height 120%
+    background black
+    opacity 0.5
+    z-index 1
+    display table
+  .projection
+    position relative
+    width 100%
+    background-color white
+    margin-top 3rem
+    z-index 2
+</style>
