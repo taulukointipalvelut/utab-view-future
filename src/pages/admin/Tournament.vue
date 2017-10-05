@@ -118,15 +118,13 @@ TODO: Edit dialog needs validation
 /* @flow */
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
-import entity_list from 'components/entity-list'
 import Lazy from 'assets/js/lazy'
 import math from 'assets/js/math'
 import { validators, not, is_integer, is_nonzero, is_positive, exists } from 'assets/js/form-validator'
 
 export default {
   components: {
-    'loading-container': loading_container,
-    'entity-list': entity_list
+    'loading-container': loading_container
   },
   data () {
     let output = {
