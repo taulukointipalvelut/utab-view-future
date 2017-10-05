@@ -81,6 +81,7 @@
     },
     methods: {
       on_select (index, indexPath) {
+        this.nav_opened = false
         location.href = this.menu_links[index]
       },
       toggleDropdownMenu () {
@@ -95,15 +96,9 @@
       ...mapActions([
         'init_all'
       ]),
-      ...mapMutations([
-        'start_loading',
-        'finish_loading'
-      ]),
       reload () {
-        this.start_loading()
-        this.init_all().then(() => {
-          this.finish_loading()
-        })
+        this.nav_opened = false
+        this.init_all()
       }
     }
   }
