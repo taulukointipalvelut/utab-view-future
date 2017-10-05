@@ -3,7 +3,6 @@ import Tournament from './Tournament'
 import Allocation from './Allocation'
 import Result from './result/Index'
 import result_routes from './result/routes'
-//import Round from './Round'
 
 export default [{
     path: 'home',
@@ -25,11 +24,6 @@ export default [{
     component: Result,
     children: result_routes
   }, {
-/*  }, {
-    path: ':tournament_name/rounds/:r',
-    props: true,
-    component: Round
-  }, {*/
     path: '',
     redirect: 'home'
 }]

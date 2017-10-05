@@ -4,15 +4,15 @@
       el-card(:class="side_name")
         div(slot="header").card-header-container
           span.card-title {{ role_name_long(role_name) | camelize }}
-          span.card-subtitle {{ side_name | capitalize }}
+          //span.card-subtitle {{ side_name | capitalize }}
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
             el-select(:value="result.id", @input="on_input_result('id', $event)", placeholder="Select Speaker")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams[side_name])).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="Matter", required)
-            number-box(:value="result.matter", @input="on_input_result('matter', $event)", :min="1", :max="role_name === 'reply' ? 5 : 10", :step="role_name === 'reply' ? 0.5 : 1")
+            number-box(:value="result.matter", @input="on_input_result('matter', $event)", :min="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1", :max="role_name === 'deputy' || role_name === 'member' ? 5 : 10", :step="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1")
           el-form-item(label="Manner", required)
-            number-box(:value="result.manner", @input="on_input_result('manner', $event)", :min="1", :max="role_name === 'reply' ? 5 : 10", :step="role_name === 'reply' ? 0.5 : 1")
+            number-box(:value="result.manner", @input="on_input_result('manner', $event)", :min="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1", :max="role_name === 'deputy' || role_name === 'member' ? 5 : 10", :step="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1")
           el-form-item(label="Total Score")
             input-label(:value="total_score")
           el-form-item(label="Best Debater")

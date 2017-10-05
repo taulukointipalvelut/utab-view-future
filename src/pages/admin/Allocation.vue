@@ -126,7 +126,7 @@ export default {
         group: { name: 'venue-list' },
         animation: 100
       },
-      draw_adjusted: { r: parseInt(this.r_str), allocation: [] },
+      draw_adjusted: { r: parseInt(this.r_str, 10), allocation: [] },
       teams: [],
       adjudicators: [],
       venues: []
@@ -275,7 +275,7 @@ export default {
     },
     convert_to_draw () {
       let draw = {
-        r: parseInt(this.r_str),
+        r: parseInt(this.r_str, 10),
         allocation: []
       }
       for (let raw_square of this.draw_adjusted.allocation) {

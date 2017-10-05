@@ -30,14 +30,14 @@
       .dialog-body
         el-form(ref="dialog_create_form", :model="dialog.create.form.model", :rules="dialog.create.form.rules")
           el-form-item(label="ID", prop="id")
-            el-input(type="number", :value="dialog.create.form.model.id", @input="value => dialog.create.form.model.id = parseInt(value)")
+            el-input(type="number", :value="dialog.create.form.model.id", @input="value => dialog.create.form.model.id = parseInt(value, 10)")
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.create.form.model.name")
           el-form-item(label="Style", prop="style_name")
             el-select(placeholder="Select style", v-model="dialog.create.form.model.style_name", disabled)
               el-option(label="PDA", value="PDA")
           el-form-item(label="Number of Rounds", prop="total_round_num")
-            el-input(type="number", :value="dialog.create.form.model.total_round_num", @input="value => dialog.create.form.model.total_round_num = parseInt(value)")
+            el-input(type="number", :value="dialog.create.form.model.total_round_num", @input="value => dialog.create.form.model.total_round_num = parseInt(value, 10)")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create

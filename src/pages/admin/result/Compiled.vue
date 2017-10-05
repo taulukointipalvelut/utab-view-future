@@ -97,7 +97,7 @@ export default {
       let blob = new Blob([this.team_results_to_csv_text(results)], {type: 'text/plain'})
       let link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.download = name + '.txt'
+      link.download = 'team_results.csv'
       link.click()
     },
     on_download_speaker_results () {
@@ -105,7 +105,7 @@ export default {
       let blob = new Blob([this.speaker_results_to_csv_text(results)], {type: 'text/plain'})
       let link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.download = name + '.txt'
+      link.download = 'speaker_results.csv'
       link.click()
     },
     team_results_to_csv_text (results) {

@@ -11,6 +11,11 @@ export default {
   mounted () {
     this.init_all()
   },
+  computed: {
+    ...mapState([
+      'errors'
+    ])
+  },
   methods: {
     ...mapActions([
       'init_all'
@@ -18,6 +23,12 @@ export default {
     ...mapMutations([
       'finish_loading'
     ])
+  },
+  watch: {
+    errors (errs) {
+      console.log(errs)
+      errs.map(err => this.$notify.error({ title: 'Error', message: err.message }))
+    }
   }
 }
 </script>

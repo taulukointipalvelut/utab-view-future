@@ -53,7 +53,8 @@ TODO: Edit dialog needs validation
       el-dialog(title="Add New Round", :visible.sync="dialog.round.visible", v-if="!loading")
         .dialog-body
           el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
-            h3(align="center") Round {{ target_tournament.rounds.length + 1 }}
+            el-form-item(label="Round No.", prop="r")
+              el-input(v-model="dialog.round.form.model.r")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.form.model.name")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
@@ -67,7 +68,8 @@ TODO: Edit dialog needs validation
       el-dialog(title="Edit Round", :visible.sync="dialog.round.edit_visible")
         .dialog-body
           el-form(:model="dialog.round.edit_form.model")
-            h3(align="center") Round No. {{ dialog.round.edit_form.model.r }}
+            el-form-item(label="Round No.", prop="r")
+              el-input(v-model="dialog.round.edit_form.model.r")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.edit_form.model.name")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
@@ -426,7 +428,6 @@ export default {
       let tournament = this.target_tournament
       let model = this.dialog.round.form.model
       let round = Object.assign({}, model)
-      round.r = tournament.rounds.length + 1
       round.href = { path: `/${ tournament.name }/rounds/${ round.r }` }
       if (model.name === '') {
         round.name = 'Round '+round.r
@@ -463,7 +464,7 @@ export default {
       let payload = {
         tournament,
         request: {
-          rs: Object.keys(model.rs).filter(r => model.rs[r]).map(parseInt),
+          rs: Object.keys(model.rs).filter(index => model.rs[index]).map(v => parseInt(v, 10)),
           options: {
             simple: model.simple,
             force: model.force

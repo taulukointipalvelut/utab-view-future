@@ -8,17 +8,23 @@ function find_tournament (state, payload) {
     return state.tournaments.find(t => t.name === payload.tournament.name)
 }
 
-function treat_reponse (promise) {
-    return promise.then(response => response.json()).then(response => {
-        if (response.errors.length > 0) {
-            throw response.errors
-        } else {
-            return response.data
-        }
-    })
+function treat_reponse (promise, commit) {
+    return promise.then(response => response.json())
+        .catch(() => {
+            commit('errors', { errors: ['Network Error'] })
+            throw new Error('Network Error')
+        })
+        .then(response => {
+            if (response.errors.length > 0) {
+                commit('errors', response)
+                throw response.errors
+            } else {
+                return response.data
+            }
+        })
 }
 
-function fetch_data (method, url, data=null) {
+function fetch_data (commit, method, url, data=null) {
     let request = { method }
     if (data !== null) {
         request.body = JSON.stringify(data)
@@ -27,14 +33,14 @@ function fetch_data (method, url, data=null) {
           'Content-Type': 'application/json'
         }
     }
-    return treat_reponse(fetch(url, request))
+    return treat_reponse(fetch(url, request), commit)
 }
 
 function select_by_key_factory (label, key="id") {
     function select_by_key (state, getters) {
         return key_str => {
             let targets = getters.target_tournament[label]
-            return targets.find(t => t[key] === parseInt(key_str))
+            return targets.find(t => t[key] === parseInt(key_str, 10))
         }
     }
     return select_by_key
@@ -47,7 +53,7 @@ function results_factory(label) {
             return []
         }
         return r_str => {
-            return tournament[label].filter(res => res.r === parseInt(r_str)).sort((r1, r2) => r1.from_id > r2.from_id)
+            return tournament[label].filter(res => res.r === parseInt(r_str, 10)).sort((r1, r2) => r1.from_id > r2.from_id)
         }
     }
 }
@@ -62,7 +68,8 @@ export default {
         logout: { to: '/logout' }
       }
     },
-    tournaments: []
+    tournaments: [],
+    errors: []
   },
   getters: {
     isAuth: state => true,//{ return (state.auth && state.auth.session) ? true: false; },
@@ -70,7 +77,7 @@ export default {
       return state.tournaments.find(t => t.name === state.route.params.tournament_name)
     },
     target_draw: (state, getters) => {
-        return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str))
+        return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str, 10))
     },
     target_score_sheets: (state, getters) => {
         let tournament = getters.target_tournament
@@ -138,7 +145,7 @@ export default {
     },
     score_sheet_by_id: (state, getters) => {
         return id => {
-            return getters.target_score_sheets.find(ss => ss.from_id === parseInt(id))
+            return getters.target_score_sheets.find(ss => ss.from_id === parseInt(id, 10))
         }
     },
     round_by_r: select_by_key_factory('rounds', 'r'),
@@ -169,6 +176,10 @@ export default {
     /* auth.session */
     session (state, payload) {
       state.auth.session = payload.session
+    },
+    /* tournaments */
+    errors (state, payload) {
+      state.errors = payload.errors
     },
     /* tournaments */
     tournaments (state, payload) {
@@ -307,60 +318,60 @@ export default {
           console.log("preparing")
       },
       send_create_round ({state, commit, dispatch}, payload) {
-          return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds', payload.round)
+          return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds', payload.round)
              .then(() => commit('add_round', payload))
       },
       send_update_round ({state, commit, dispatch}, payload) {
-          return fetch_data('PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r, payload.round)
+          return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r, payload.round)
              .then(() => commit('update_round', payload))
       },
       send_delete_round ({state, commit, dispatch}, payload) {
-          return fetch_data('DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r, payload.round)
+          return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r, payload.round)
               .then(() => commit('delete_round', payload))
       },
       send_tournament ({state, commit, dispatch}, payload) {
-         return fetch_data('POST', API_BASE_URL+'/tournaments', payload.tournament)
+         return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
             .then(() => commit('add_tournament', payload))
       },
       send_create_entities ({state, commit, dispatch}, payload) {
-        return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label, payload[payload.label])
+        return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label, payload[payload.label])
             .then(() => commit('add_entities', payload))
       },
       send_update_entity ({state, commit, dispatch}, payload) {
-        return fetch_data('PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label])
+        return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label])
             .then(() => commit('update_entity', payload))
       },
       send_update_result ({state, commit, dispatch}, payload) {
-        return fetch_data('PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.raw_result.r+'/results/raw/'+payload.label+'/'+payload.raw_result.id+'/'+payload.raw_result.from_id,  payload.raw_result)
+        return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.raw_result.r+'/results/raw/'+payload.label+'/'+payload.raw_result.id+'/'+payload.raw_result.from_id,  payload.raw_result)
             .then(() => commit('update_result', payload))
       },
       send_delete_result ({state, commit, dispatch}, payload) {
-        return fetch_data('DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.raw_result.r+'/results/raw/'+payload.label+'/'+payload.raw_result.id+'/'+payload.raw_result.from_id,  payload.raw_result)
+        return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.raw_result.r+'/results/raw/'+payload.label+'/'+payload.raw_result.id+'/'+payload.raw_result.from_id,  payload.raw_result)
             .then(() => commit('delete_result', payload))
       },
       send_raw_results ({state, commit, dispatch}, payload) {
-        return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/raw/'+payload.label, payload.raw_results)
+        return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/raw/'+payload.label, payload.raw_results)
             .then(() => commit('add_raw_results', payload))
       },
       send_update_entity ({state, commit, dispatch}, payload) {
           console.log("preparing")
-        return fetch_data('PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label])
+        return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label])
             .then(() => commit('update_entity', payload))
       },
       send_delete_entity ({state, commit, dispatch}, payload) {
-        return fetch_data('DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id)
+        return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id)
             .then(() => commit('delete_entity', payload))
       },
       request_compiled_team_results ({state, commit, dispatch}, payload) {
-        return fetch_data('PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/teams', payload.request)
+        return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/teams', payload.request)
             .then((compiled_team_results) => commit('compiled_team_results', { tournament: payload.tournament, compiled_team_results }))
       },
       request_compiled_speaker_results ({state, commit, dispatch}, payload) {
-        return fetch_data('PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/speakers', payload.request)
+        return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/speakers', payload.request)
             .then((compiled_speaker_results) => commit('compiled_speaker_results', { tournament: payload.tournament, compiled_speaker_results }))
       },
       init_tournaments ({ commit }) {
-        return fetch_data('GET', API_BASE_URL+'/tournaments')
+        return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments')
             .then(function (data) {
                 let tournaments = []
                 for (let t of data) {
@@ -516,7 +527,7 @@ export default {
     },
     init_draws ({ state, commit, dispatch }, payload) {
         return Promise.all(state.tournaments.map(t =>
-            fetch_data('GET', API_BASE_URL+'/tournaments/'+t.id+'/draws')
+            fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/draws')
                 .then(data => {
                     const draws = []
                     for (let draw_fetched of data) {
@@ -529,7 +540,7 @@ export default {
     },
     init_rounds ({ state, commit, dispatch }, payload) {
         return Promise.all(state.tournaments.map(t =>
-            fetch_data('GET', API_BASE_URL+'/tournaments/'+t.id+'/rounds')
+            fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/rounds')
                 .then(data => {
                     const rounds = []
                     for (let round_fetched of data) {
@@ -572,7 +583,7 @@ export default {
             for (let index of math.range(labels.length)) {
                 let label = labels[index]
                 let label_singular = labels_singular[index]
-                ps.push(fetch_data('GET', API_BASE_URL+'/tournaments/'+t.id+'/results/raw/'+label)
+                ps.push(fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/results/raw/'+label)
                     .then(data => {
                         let raw_results = data
                         commit('raw_results', { tournament: t, raw_results, label_singular })
@@ -685,7 +696,7 @@ export default {
         for (let tournament of state.tournaments) {
             for (let index of math.range(5)) {
                 let label = labels[index]
-                ps.push(fetch_data('GET', API_BASE_URL+'/tournaments/'+tournament.id+'/'+labels[index])
+                ps.push(fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+tournament.id+'/'+labels[index])
                     .then(data => {
                         let entities = data
                         let new_payload = { tournament }
@@ -745,7 +756,7 @@ export default {
     },
     request_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
-        return fetch_data('PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.r_str+'/draws')
+        return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.r_str+'/draws')
             .then(data => {
                 let draw = data
                 commit('change_draw', { tournament, draw })
@@ -753,14 +764,14 @@ export default {
     },
     submit_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
-        return fetch_data('POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw).then(data => {
+        return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw).then(data => {
             let draw = data
             commit('change_draw', { tournament, draw })
         })
     },
     update_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
-        return fetch_data('PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw).then(data => {
+        return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw).then(data => {
             let draw = data
             commit('change_draw', { tournament, draw })
         })
