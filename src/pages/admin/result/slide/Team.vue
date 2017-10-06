@@ -1,7 +1,9 @@
 <template lang="pug">
-  div
+  .router-view-content(v-if="target_tournament")
+    section.page-header
+      h1 {{ target_tournament.name }}
     div(:class="{ cover: started }")
-    div.projection
+    .projection
       slides(title="Team Result", :texts_list="texts_list")
 </template>
 
@@ -152,6 +154,7 @@ export default {
   },
   mounted () {
     this.started = true
+    this.config.max_teams_rewarded = this.$route.query.max_teams_rewarded
   }
 }
 </script>
@@ -165,13 +168,11 @@ export default {
     height 100%
     background black
     opacity 0.7
-    z-index 1
     display table
     transition all 7s
   .projection
     position relative
     width 100%
     background-color white
-    margin-top 3rem
-    z-index 2
+    transition all 2s
 </style>

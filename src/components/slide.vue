@@ -2,12 +2,15 @@
   .context
     .title
       h1 {{ title }}
-    .slide
-      section(v-for="text in texts", :key="text.text")
-          h1.content(v-if="text.tag === 'h1'") {{ text.text }}
-          h2.content(v-if="text.tag === 'h2'") {{ text.text }}
-          h3.content(v-if="text.tag === 'h3'") {{ text.text }}
-          p.content(v-if="text.tag === 'p'") {{ text.text }}
+    .content
+        //div(:class="{ slide: on, unslide: !on }")
+        section(v-for="text in texts", :key="text.text")
+            h1.text(v-if="text.tag === 'h1'") {{ text.text }}
+            h2.text(v-if="text.tag === 'h2'") {{ text.text }}
+            h3.text(v-if="text.tag === 'h3'") {{ text.text }}
+            p.text(v-if="text.tag === 'p'") {{ text.text }}
+    .credit
+      p {{ credit }}
 </template>
 
 <script>
@@ -19,7 +22,13 @@ export default {
     texts: {
       default () { return [] }
     },
-    title: ""
+    title: "",
+    on: false
+  },
+  data () {
+    return {
+      credit: "PDA Tournament 2018"
+    }
   },
   methods: {
     texts_by_tag (tag) {
@@ -38,7 +47,7 @@ export default {
     position relative
     font-size 1.5rem
     margin-left 1.5rem
-    height 15%
+    height 17%
     & h1
       margin-top 1rem
       padding-right 0.3rem
@@ -47,8 +56,9 @@ export default {
       //border-bottom 2px solid
       //line-height 2rem
       font-family serif
-  .slide
-    height 85%
+
+  .content
+    height 80%
     position relative
     display flex
     flex-direction column
@@ -68,7 +78,22 @@ export default {
     & p
       font-size 2rem
 
-  .content
+    .unslide
+      opacity 1
+      border solid 1px red
+      transition all 1.5s
+
+    .slide
+      opacity 1
+      border solid 1px red
+      transition all 1.5s
+
+  .text
     margin 0
     padding 0
+
+  .credit
+    height 3%
+    text-align right
+    margin-right 1rem
 </style>

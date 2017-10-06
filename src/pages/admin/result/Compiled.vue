@@ -31,7 +31,7 @@
                 span {{ scope.row.sd }}
           .operations
             el-button(@click="on_download_team_results") Download Team Results
-            el-button(type="primary", @click="on_select_team_slide") #[el-icon(name="picture")] &nbsp;Slide Show
+            el-button(type="primary", @click="on_configure_slide('team')") #[el-icon(name="picture")] &nbsp;Slide Show
 
       el-tab-pane(label="Speaker results")
         el-table(:data="target_tournament.compiled_speaker_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
@@ -52,7 +52,25 @@
               span {{ scope.row.sd }}
         .operations
           el-button(@click="on_download_speaker_results") Download Speaker Results
-          el-button(type="primary", @click="on_select_speaker_slide") #[el-icon(name="picture")] &nbsp;Slide Show
+          el-button(type="primary", @click="on_configure_slide('speaker')") #[el-icon(name="picture")] &nbsp;Slide Show
+
+      el-dialog(title="Slide Show", :visible.sync="dialog.team_slide.visible", v-if="!loading")
+        .dialog-body
+          el-form(:model="dialog.team_slide.form.model")
+            el-form-item(label="Max Teams Rewarded")
+              el-input(v-model="dialog.team_slide.form.model.max_teams_rewarded")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.team_slide.visible = false") Cancel
+          el-button(type="primary", @click="on_start_slide('teams', 'team')") Start
+
+      el-dialog(title="Slide Show", :visible.sync="dialog.speaker_slide.visible", v-if="!loading")
+        .dialog-body
+          el-form(:model="dialog.speaker_slide.form.model")
+            el-form-item(label="Max Speakers Rewarded")
+              el-input(v-model="dialog.speaker_slide.form.model.max_speakers_rewarded")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.speaker_slide.visible = false") Cancel
+          el-button(type="primary", @click="on_start_slide('speakers', 'speaker')") Start
 </template>
 
 <script>
@@ -68,6 +86,28 @@ export default {
     'loading-container': loading_container
   },
   props: ['r_str'],
+  data () {
+    return {
+      dialog: {
+        team_slide: {
+          visible: false,
+          form: {
+            model: {
+              max_teams_rewarded: 3
+            }
+          }
+        },
+        speaker_slide: {
+          visible: false,
+          form: {
+            model: {
+              max_speakers_rewarded: 3
+            }
+          }
+        }
+      }
+    }
+  },
   computed: {
     ...mapState([
       'auth',
@@ -82,14 +122,13 @@ export default {
     ])
   },
   methods: {
-    on_select_team_slide () {
-      this.$router.push({
-        path: 'slide/team'
-      })
+    on_configure_slide (label_singular) {
+      this.dialog[label_singular+'_slide'].visible = true
     },
-    on_select_speaker_slide () {
+    on_start_slide (label, label_singular) {
+      let model = this.dialog[label_singular+'_slide'].form.model
       this.$router.push({
-        path: 'slide/speaker'
+        path: 'slide/'+label_singular+'?max_'+label+'_rewarded='+model['max_'+label+'_rewarded']
       })
     },
     on_download_team_results () {
