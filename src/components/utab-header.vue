@@ -16,11 +16,11 @@
           a(@click="reload", v-if="!reloading") Reload
           a(v-if="reloading") #[el-icon(name="loading")]
         li(v-if="login")
-          router-link(:to="logout_href") Logout #[el-icon(name="circle-cross")]
+          router-link(:to="logout_href", @click.native="toggleDropdownMenu") Logout #[el-icon(name="circle-cross")]
         li(v-if="login")
-          router-link(:to="admin_href") Admin #[el-icon(name="setting")]
+          router-link(:to="admin_href", @click.native="toggleDropdownMenu") Admin #[el-icon(name="setting")]
         li(v-else)
-          router-link(:to="login_href") Login
+          router-link(:to="login_href", @click.native="toggleDropdownMenu") Login
 </template>
 
 <script>

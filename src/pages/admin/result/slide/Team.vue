@@ -1,7 +1,7 @@
 <template lang="pug">
   div
-    .cover
-    .projection
+    div(:class="{ cover: started }")
+    div.projection
       slides(title="Team Result", :texts_list="texts_list")
 </template>
 
@@ -21,6 +21,7 @@ export default {
   },
   data () {
     return {
+      started: false,
       config: {
           max_teams_rewarded: 3,
           name: "PDA Tournament 2018",
@@ -148,6 +149,9 @@ export default {
       'team_by_id',
       'institution_by_id'
     ])
+  },
+  mounted () {
+    this.started = true
   }
 }
 </script>
@@ -158,11 +162,12 @@ export default {
     top 0px
     left 0px
     width 100%
-    height 120%
+    height 100%
     background black
-    opacity 0.5
+    opacity 0.7
     z-index 1
     display table
+    transition all 7s
   .projection
     position relative
     width 100%

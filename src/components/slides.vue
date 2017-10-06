@@ -43,9 +43,9 @@ export default {
     },
     range: math.range,
     on_keyup_event(evt) {
-      if (evt.key === 'Enter' || evt.key === ' ') {
+      if (evt.key === 'Enter' || evt.key === ' ' || evt.key === 'ArrowRight') {
         this.on_next()
-      } else if (evt.key === 'Backspace') {
+      } else if (evt.key === 'Backspace' || evt.key === 'ArrowLeft') {
         this.on_previous()
       }
     }

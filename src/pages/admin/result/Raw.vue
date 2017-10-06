@@ -146,14 +146,17 @@ export default {
       this.transfer(this.dialog[label_singular+'_result'].form.model, raw_result)
       this.dialog[label_singular+'_result'].visible = true
     },
-    on_delete (label, label_singular, raw_result) {
-      let payload = {
-        label,
-        label_singular,
-        tournament: this.target_tournament,
-        raw_result
+    async on_delete (label, label_singular, raw_result) {
+      const ans = await this.$confirm('Are you sure?')
+      if (ans === 'confirm') {
+        let payload = {
+          label,
+          label_singular,
+          tournament: this.target_tournament,
+          raw_result
+        }
+        this.send_delete_result(payload)
       }
-      this.send_delete_result(payload)
     },
     on_update (label, label_singular) {
       let payload = {
