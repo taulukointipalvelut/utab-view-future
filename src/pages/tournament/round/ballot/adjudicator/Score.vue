@@ -42,7 +42,7 @@ export default {
   computed: {
     smartphone: smartphone,
     proceedable () {
-      return true//this.result_editing.speakers[this.role_name] !== null
+      return this.result_editing.speakers[this.role_name] !== null
     },
     total_score () {
       return this.result_editing.matters[this.role_name] + this.result_editing.manners[this.role_name]

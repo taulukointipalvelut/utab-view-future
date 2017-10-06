@@ -34,16 +34,16 @@ export default {
     complete: false,
     steps: ['speaker', 'score', 'winner', 'check', 'done'],
     roles: ['leader', 'deputy', 'member', 'reply'],
-    sequence: ['../speaker', 'og-leader', 'oo-leader', 'og-deputy', 'oo-deputy', 'og-member', 'oo-member', 'oo-reply', 'og-reply', '../winner'],
+    sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-deputy', 'opp-deputy', 'gov-member', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
     style: {
       roles: {
-        og: {
+        gov: {
           leader: { long: 'Prime Minister', abbr: 'PM' },
           deputy: { long: 'Member of Government1', abbr: 'MG1' },
           member: { long: 'Member of Government2', abbr: 'MG2' },
           reply: { long: 'Government Reply', abbr: 'GR' }
         },
-        oo: {
+        opp: {
           leader: { long: 'Leader of Opposition', abbr: 'LO' },
           deputy: { long: 'Member of Opposition1', abbr: 'MO1' },
           member: { long: 'Member of Opposition2', abbr: 'MO2' },
@@ -53,7 +53,7 @@ export default {
     },
     result: {
       winner: null,
-      og: {
+      gov: {
           speakers: {
               leader: null,
               deputy: null,
@@ -85,7 +85,7 @@ export default {
               reply: false
           }
       },
-      oo: {
+      opp: {
           speakers: {
               leader: null,
               deputy: null,
@@ -125,11 +125,11 @@ export default {
     }
   },
   mutations: {
-    og_pos_name (state, payload) {
-      state.result.og.speakers[payload.pos_name] = payload.value
+    gov_pos_name (state, payload) {
+      state.result.gov.speakers[payload.pos_name] = payload.value
     },
-    oo_pos_name (state, payload) {
-      state.result.oo.speakers[payload.pos_name] = payload.value
+    opp_pos_name (state, payload) {
+      state.result.opp.speakers[payload.pos_name] = payload.value
     },
     input_result (state, payload) {
       state.result[payload.side][payload.key][payload.role] = payload.value
@@ -141,7 +141,7 @@ export default {
       state.complete = true
     },
     reset_state (state) {
-      let sides = ['og', 'oo']
+      let sides = ['gov', 'opp']
       let roles = ['leader', 'deputy', 'member', 'reply']
       for (let side of sides) {
           for (let role of roles) {
@@ -182,34 +182,34 @@ export default {
         }
         let roles = ['leader', 'deputy', 'member', 'reply']
         let converted_result = {
-            og: {
-                id: score_sheet.teams.og,
-                win: state.result.winner === score_sheet.teams.og,
-                speakers: state.result.og.speakers,
-                scores: object_adder(state.result.og.matters, state.result.og.manners),
-                matters: state.result.og.matters,
-                manners: state.result.og.manners,
-                best: state.result.og.best,
-                poi: state.result.og.poi
+            gov: {
+                id: score_sheet.teams.gov,
+                win: state.result.winner === score_sheet.teams.gov,
+                speakers: state.result.gov.speakers,
+                scores: object_adder(state.result.gov.matters, state.result.gov.manners),
+                matters: state.result.gov.matters,
+                manners: state.result.gov.manners,
+                best: state.result.gov.best,
+                poi: state.result.gov.poi
             },
-            oo: {
-                id: score_sheet.teams.oo,
-                win: state.result.winner === score_sheet.teams.oo,
-                speakers: state.result.oo.speakers,
-                scores: object_adder(state.result.oo.matters, state.result.oo.manners),
-                matters: state.result.oo.matters,
-                manners: state.result.oo.manners,
-                best: state.result.oo.best,
-                poi: state.result.oo.poi
+            opp: {
+                id: score_sheet.teams.opp,
+                win: state.result.winner === score_sheet.teams.opp,
+                speakers: state.result.opp.speakers,
+                scores: object_adder(state.result.opp.matters, state.result.opp.manners),
+                matters: state.result.opp.matters,
+                manners: state.result.opp.manners,
+                best: state.result.opp.best,
+                poi: state.result.opp.poi
             }
         }
 
         let raw_team_results = []
         let raw_speaker_results = []
-        let sides = ['og', 'oo']
+        let sides = ['gov', 'opp']
         let sides_label = {
-            og: 'gov',
-            oo: 'opp',
+            gov: 'gov',
+            opp: 'opp',
             cg: 'gov',
             co: 'opp'
         }

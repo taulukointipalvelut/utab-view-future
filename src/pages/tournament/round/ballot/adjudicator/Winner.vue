@@ -6,13 +6,13 @@
           .winner-selector
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Gov
-              .sideinfo-header__item {{ total('og') }} pts
+              .sideinfo-header__item {{ total('gov') }} pts
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Opp
-              .sideinfo-header__item {{ total('oo') }} pts
+              .sideinfo-header__item {{ total('opp') }} pts
           el-radio-group.winner-selector(:value="result.winner", @input="on_selected($event)", size="large")
-            el-radio-button.winner-selector__item(:label="score_sheet.teams.og") {{ team_by_id(score_sheet.teams.og).name }}
-            el-radio-button.winner-selector__item(:label="score_sheet.teams.oo") {{ team_by_id(score_sheet.teams.oo).name }}
+            el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ team_by_id(score_sheet.teams.gov).name }}
+            el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ team_by_id(score_sheet.teams.opp).name }}
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -47,7 +47,7 @@ export default {
   },
   methods: {
     on_prev () {
-      this.$router.push('score/og-reply')
+      this.$router.push('score/gov-reply')
     },
     on_next () {
       this.$router.push('check')

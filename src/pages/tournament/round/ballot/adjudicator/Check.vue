@@ -1,72 +1,73 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
     .card-container(v-if="!loading")
-      el-card.og
+      el-card.gov
         div(slot="header").card-header-container
-          span.card-title {{ team_by_id(score_sheet.teams.og).name }}
+          span.card-title {{ team_by_id(score_sheet.teams.gov).name }}
           span.card-subtitle Gov
         .outer-table
           .outer-table-tr(v-for="role in roles", :key="role")
             .outer-table-td.role
               .inner-table
                 .inner-table-tr
-                  .inner-table-td {{ style.roles.og[role].abbr }}
+                  .inner-table-td {{ style.roles.gov[role].abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="result.og.best[role]") BEST
+                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="result.gov.best[role]") BEST
                     br
-                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="result.og.poi[role]") POI
+                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="result.gov.poi[role]") POI
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(result.og.speakers[role]).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(result.gov.speakers[role]).name | defaults('Not specified yet') }}
                   .inner-table-td.right
-                    router-link(:to="{ path: `score/og-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
+                    router-link(:to="{ path: `score/gov-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
-                  .inner-table-td.right {{ result.og.matters[role] }}
+                  .inner-table-td.right {{ result.gov.matters[role] }}
                 .inner-table-tr
                   .inner-table-td Manner
-                  .inner-table-td.right {{ result.og.manners[role] }}
+                  .inner-table-td.right {{ result.gov.manners[role] }}
                 .inner-table-tr.total
                   .inner-table-td Total
-                  .inner-table-td.right {{ Number(result.og.matters[role]) + Number(result.og.manners[role]) }}
+                  .inner-table-td.right {{ Number(result.gov.matters[role]) + Number(result.gov.manners[role]) }}
           .outer-table-tr
             .outer-table-td.role Total
-            .outer-table-td.flex.right {{ total('og') }}
+            .outer-table-td.flex.right {{ total('gov') }}
 
-      el-card.oo
+      el-card.opp
         div(slot="header").card-header-container
-          span.card-title {{ team_by_id(score_sheet.teams.oo).name }}
+          span.card-title {{ team_by_id(score_sheet.teams.opp).name }}
           span.card-subtitle Opp
         .outer-table
           .outer-table-tr(v-for="role in roles")
             .outer-table-td.role
               .inner-table
                 .inner-table-tr
-                  .inner-table-td {{ style.roles.oo[role].abbr }}
+                  .inner-table-td {{ style.roles.opp[role].abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(v-if="result.oo.best[role]")
-                    i.fa.fa-hand-paper-o.small(v-if="result.oo.poi[role]")
+                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="result.opp.best[role]") BEST
+                    br
+                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="result.opp.poi[role]") POI
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(result.oo.speakers[role]).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(result.opp.speakers[role]).name | defaults('Not specified yet') }}
                   .inner-table-td.right
-                    router-link(:to="{ path: `score/oo-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
+                    router-link(:to="{ path: `score/opp-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
-                  .inner-table-td.right {{ result.oo.matters[role] }}
+                  .inner-table-td.right {{ result.opp.matters[role] }}
                 .inner-table-tr
                   .inner-table-td Manner
-                  .inner-table-td.right {{ result.oo.manners[role] }}
+                  .inner-table-td.right {{ result.opp.manners[role] }}
                 .inner-table-tr.total
                   .inner-table-td Total
-                  .inner-table-td.right {{ Number(result.oo.matters[role]) + Number(result.oo.manners[role]) }}
+                  .inner-table-td.right {{ Number(result.opp.matters[role]) + Number(result.opp.manners[role]) }}
           .outer-table-tr
             .outer-table-td.role Total
-            .outer-table-td.flex.right {{ total('oo') }}
+            .outer-table-td.flex.right {{ total('opp') }}
 
     .card-container(v-if="!loading")
       el-card.flat
@@ -132,7 +133,7 @@ export default {
       'init_all'
     ]),
     on_prev () {
-      this.$router.push('score/og-reply')
+      this.$router.push('score/gov-reply')
     },
     on_next () {
       this.$store.commit('ballot/complete', {})

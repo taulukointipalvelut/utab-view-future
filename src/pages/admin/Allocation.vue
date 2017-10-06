@@ -15,8 +15,8 @@
                     p id: {{ id }}
           el-table-column(label="Gov")
             template(scope="scope")
-              draggable.adj-list(v-model="scope.row.teams.og", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.og)", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
-                .draggable-item(v-for="id in scope.row.teams.og", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
+              draggable.adj-list(v-model="scope.row.teams.gov", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.gov)", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
+                .draggable-item(v-for="id in scope.row.teams.gov", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
                   el-popover(placement="right", trigger="hover")
                     el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
                     p id: {{ id }}
@@ -24,8 +24,8 @@
                     p speakers: {{ speaker_names_by_team_id(id) }}
           el-table-column(label="Opp")
             template(scope="scope")
-              draggable.adj-list(v-model="scope.row.teams.oo", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.oo)", @end="on_end")
-                .draggable-item(v-for="id in scope.row.teams.oo", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
+              draggable.adj-list(v-model="scope.row.teams.opp", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.opp)", @end="on_end")
+                .draggable-item(v-for="id in scope.row.teams.opp", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
                   el-popover(placement="right", trigger="hover")
                     el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
                     p id: {{ id }}
@@ -217,7 +217,7 @@ export default {
       }
     },
     square_sendable (square) {
-      if (square.teams.og.length !== 1 || square.teams.oo.length !== 1) {
+      if (square.teams.gov.length !== 1 || square.teams.opp.length !== 1) {
         return false
       } else if (square.venues.length !== 1 || square.chairs.length === 0) {
         return false
@@ -237,8 +237,8 @@ export default {
       return warnings
     },
     warn_institutions (square) {
-      let t0_insti = square.teams.og.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.og)).institutions
-      let t1_insti = square.teams.oo.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.oo)).institutions
+      let t0_insti = square.teams.gov.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.gov)).institutions
+      let t1_insti = square.teams.opp.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.opp)).institutions
       if (!math.disjoint(t0_insti, t1_insti)) {
         return {
           code: 600,
@@ -253,8 +253,8 @@ export default {
       }
     },
     warn_conflicts (square) {
-      let t0_insti = square.teams.og.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.og)).institutions
-      let t1_insti = square.teams.oo.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.oo)).institutions
+      let t0_insti = square.teams.gov.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.gov)).institutions
+      let t1_insti = square.teams.opp.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.opp)).institutions
       let adj_insti = Array.prototype.concat.apply(
                         [],
                         square.chairs.concat(square.panels).concat(square.trainees).map(this.adjudicator_by_id)
@@ -282,8 +282,8 @@ export default {
         let square = {
           venue: raw_square.venues[0],
           teams: {
-            og: raw_square.teams.og[0],
-            oo: raw_square.teams.oo[0]
+            gov: raw_square.teams.gov[0],
+            opp: raw_square.teams.opp[0]
           },
           chairs: raw_square.chairs,
           panels: raw_square.panels,
@@ -319,7 +319,7 @@ export default {
     teams_in_draw () {
       let teams_in_draw = []
       for (let square of this.draw_adjusted.allocation) {
-        teams_in_draw = teams_in_draw.concat(square.teams.og).concat(square.teams.oo)
+        teams_in_draw = teams_in_draw.concat(square.teams.gov).concat(square.teams.opp)
       }
       return teams_in_draw
     },
@@ -339,8 +339,8 @@ export default {
                 this.draw_adjusted.allocation.push({
                     venues: [square.venue],
                     teams: {
-                        og: [square.teams.og],
-                        oo: [square.teams.oo]
+                        gov: [square.teams.gov],
+                        opp: [square.teams.opp]
                     },
                     chairs: square.chairs,
                     panels: square.panels,
@@ -352,8 +352,8 @@ export default {
                 this.draw_adjusted.allocation.push({
                     venues: [],
                     teams: {
-                        og: [],
-                        oo: []
+                        gov: [],
+                        opp: []
                     },
                     chairs: [],
                     panels: [],
