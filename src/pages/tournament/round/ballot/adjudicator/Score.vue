@@ -1,25 +1,25 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
-    section(v-if="team")
+    section(v-if="result_editing")
       el-card(:class="side_name")
         div(slot="header").card-header-container
           span.card-title {{ role_name_long(role_name) | camelize }}
-          //span.card-subtitle {{ side_name | capitalize }}
+          span.card-subtitle {{ side_name | capitalize }}
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
-            el-select(:value="result.id", @input="on_input_result('id', $event)", placeholder="Select Speaker")
+            el-select(:value="result_editing.speakers[role_name]", @input="on_input_result('speakers', $event)", placeholder="Select Speaker")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams[side_name])).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="Matter", required)
-            number-box(:value="result.matter", @input="on_input_result('matter', $event)", :min="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1", :max="role_name === 'deputy' || role_name === 'member' ? 5 : 10", :step="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1")
+            number-box(:value="result_editing.matters[role_name]", @input="on_input_result('matters', $event)", :min="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1", :max="role_name === 'deputy' || role_name === 'member' ? 5 : 10", :step="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1")
           el-form-item(label="Manner", required)
-            number-box(:value="result.manner", @input="on_input_result('manner', $event)", :min="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1", :max="role_name === 'deputy' || role_name === 'member' ? 5 : 10", :step="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1")
+            number-box(:value="result_editing.manners[role_name]", @input="on_input_result('manners', $event)", :min="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1", :max="role_name === 'deputy' || role_name === 'member' ? 5 : 10", :step="role_name === 'deputy' || role_name === 'member' ? 0.5 : 1")
           el-form-item(label="Total Score")
             input-label(:value="total_score")
           el-form-item(label="Best Debater")
-            el-switch(:value="result.best_debater", @input="on_input_result('best_debater', $event)", on-text="Yes", off-text="No")
+            el-switch(:value="result_editing.best[role_name]", @input="on_input_result('best', $event)", on-text="Yes", off-text="No")
           el-form-item(label="POI Prize")
-            el-switch(:value="result.poi_prize", @input="on_input_result('poi_prize', $event)", on-text="Yes", off-text="No")
-    section.buttons(v-if="team")
+            el-switch(:value="result_editing.poi[role_name]", @input="on_input_result('poi', $event)", on-text="Yes", off-text="No")
+    section.buttons(v-if="result_editing")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
 </template>
@@ -42,25 +42,22 @@ export default {
   computed: {
     smartphone: smartphone,
     proceedable () {
-      return this.result.id
+      return true//this.result_editing.speakers[this.role_name] !== null
     },
     total_score () {
-      return this.result.matter + this.result.manner
+      return this.result_editing.matters[this.role_name] + this.result_editing.manners[this.role_name]
     },
     query () {
       return qs.parse(location.search.slice(1))
     },
     side_name () {
-      return this.sequence_name.split('-')[0]
+      return this.sequence_name.split('-')[0].toLocaleLowerCase()
     },
     role_name () {
-      return this.sequence_name.split('-')[1]
+      return this.sequence_name.split('-')[1].toLocaleLowerCase()
     },
-    team () {
-      return [this.og, this.oo].find(team => team.side.toLocaleLowerCase() === this.side_name.toLocaleLowerCase())
-    },
-    result () {
-      return this.team.result[this.role_name.toLocaleLowerCase()]
+    result_editing () {
+      return this.result[this.side_name]
     },
     current_sequence_index () {
       return this.sequence.findIndex(x => x.toLocaleLowerCase() === this.sequence_name.toLocaleLowerCase())
@@ -80,8 +77,8 @@ export default {
       'loading'
     ]),
     ...mapState('ballot', [
-      'og',
-      'oo',
+      'result',
+      'speakers',
       'sequence',
       'style'
     ])
@@ -101,7 +98,7 @@ export default {
       this.$store.commit('ballot/input_result', { side, role, key, value })
     },
     role_name_long (role_name) {
-      return this.style.roles[this.side_name.toLocaleLowerCase()][role_name.toLocaleLowerCase()].long
+      return this.style.roles[this.side_name][this.role_name].long
     }
   },
   filters: {

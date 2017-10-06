@@ -6,34 +6,34 @@
           span.card-title {{ team_by_id(score_sheet.teams.og).name }}
           span.card-subtitle Gov
         .outer-table
-          .outer-table-tr(v-for="role in roles")
+          .outer-table-tr(v-for="role in roles", :key="role")
             .outer-table-td.role
               .inner-table
                 .inner-table-tr
                   .inner-table-td {{ style.roles.og[role].abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="og.result[role].best_debater") BEST
+                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="result.og.best[role]") BEST
                     br
-                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="og.result[role].poi_prize") POI
+                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="result.og.poi[role]") POI
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(og.result[role].id).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(result.og.speakers[role]).name | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/og-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
-                  .inner-table-td.right {{ og.result[role].matter }}
+                  .inner-table-td.right {{ result.og.matters[role] }}
                 .inner-table-tr
                   .inner-table-td Manner
-                  .inner-table-td.right {{ og.result[role].manner }}
+                  .inner-table-td.right {{ result.og.manners[role] }}
                 .inner-table-tr.total
                   .inner-table-td Total
-                  .inner-table-td.right {{ Number(og.result[role].matter) + Number(og.result[role].manner) }}
+                  .inner-table-td.right {{ Number(result.og.matters[role]) + Number(result.og.manners[role]) }}
           .outer-table-tr
             .outer-table-td.role Total
-            .outer-table-td.flex.right {{ total(og) }}
+            .outer-table-td.flex.right {{ total('og') }}
 
       el-card.oo
         div(slot="header").card-header-container
@@ -47,33 +47,33 @@
                   .inner-table-td {{ style.roles.oo[role].abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(v-if="oo.result[role].best_speaker")
-                    i.fa.fa-hand-paper-o.small(v-if="oo.result[role].poi_prize")
+                    i.fa.fa-star.small(v-if="result.oo.best[role]")
+                    i.fa.fa-hand-paper-o.small(v-if="result.oo.poi[role]")
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(oo.result[role].id).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(result.oo.speakers[role]).name | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/oo-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
-                  .inner-table-td.right {{ oo.result[role].matter }}
+                  .inner-table-td.right {{ result.oo.matters[role] }}
                 .inner-table-tr
                   .inner-table-td Manner
-                  .inner-table-td.right {{ oo.result[role].manner }}
+                  .inner-table-td.right {{ result.oo.manners[role] }}
                 .inner-table-tr.total
                   .inner-table-td Total
-                  .inner-table-td.right {{ Number(oo.result[role].matter) + Number(oo.result[role].manner) }}
+                  .inner-table-td.right {{ Number(result.oo.matters[role]) + Number(result.oo.manners[role]) }}
           .outer-table-tr
             .outer-table-td.role Total
-            .outer-table-td.flex.right {{ total(oo) }}
+            .outer-table-td.flex.right {{ total('oo') }}
 
     .card-container(v-if="!loading")
       el-card.flat
         .outer-table.no-border
           .outer-table-tr
             .outer-table-td.label Winner
-            .outer-table-td.winner {{ team_by_id(winner).name | defaults('Not specified yet') }}
+            .outer-table-td.winner {{ team_by_id(result.winner).name | defaults('Not specified yet') }}
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
           .outer-table-tr.check__label
@@ -116,11 +116,9 @@ export default {
       'target_tournament'
     ]),
     ...mapState('ballot', [
-      'og',
-      'oo',
-      'winner',
-      'style',
-      'roles'
+      'result',
+      'roles',
+      'style'
     ])
   },
   methods: {
@@ -148,7 +146,7 @@ export default {
         })
     },
     total (side) {
-      return Object.values(side.result).map(x => x.matter + x.manner).reduce((a, b) => a + b, 0)
+      return Object.values(this.result[side].matters).reduce((a, b) => a + b, 0) + Object.values(this.result[side].manners).reduce((a, b) => a + b, 0)
     }
   },
   filters: {

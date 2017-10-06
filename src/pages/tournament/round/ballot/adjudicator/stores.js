@@ -1,96 +1,124 @@
-let initial_state = {
-  complete: false,
-  steps: ['speaker', 'score', 'winner', 'check', 'done'],
-  roles: ['leader', 'deputy', 'member', 'reply'],
-  sequence: ['../speaker', 'og-leader', 'oo-leader', 'og-deputy', 'oo-deputy', 'og-member', 'oo-member', 'oo-reply', 'og-reply', '../winner'],
-  style: {
-    roles: {
-      og: {
-        leader: { long: 'Prime Minister', abbr: 'PM' },
-        deputy: { long: 'Member of Government1', abbr: 'MG1' },
-        member: { long: 'Member of Government2', abbr: 'MG2' },
-        reply: { long: 'Government Reply', abbr: 'GR' }
-      },
-      oo: {
-        leader: { long: 'Leader of Opposition', abbr: 'LO' },
-        deputy: { long: 'Member of Opposition1', abbr: 'MO1' },
-        member: { long: 'Member of Opposition2', abbr: 'MO2' },
-        reply: { long: 'Opposition Reply', abbr: 'OR' }
-      }
+
+function object_adder (obj1, obj2) {
+    let added = {}
+    for (let key in obj1) {
+        added[key] = obj1[key] + obj2[key]
     }
-  },
-  winner: null,
-  og: {
-    side: 'og',
-    result: {
-      leader: {
-        id: null,
-        matter: 5,
-        manner: 5,
-        best_debater: false,
-        poi_prize: false
-      },
-      deputy: {
-        id: null,
-        matter: 2.5,
-        manner: 2.5,
-        best_debater: false,
-        poi_prize: false
-      },
-      member: {
-        id: null,
-        matter: 2.5,
-        manner: 2.5,
-        best_debater: false,
-        poi_prize: false
-      },
-      reply: {
-        id: null,
-        matter: 5,
-        manner: 5,
-        best_debater: false,
-        poi_prize: false
-      }
+    return added
+}
+
+function scores_converter (result) {
+    let id_to_roles = {}
+    for (let role in result.speakers) {
+        let id = result.speakers[role]
+        if (id_to_roles.hasOwnProperty(id)) {
+            id_to_roles[id].push(role)
+        } else {
+            id_to_roles[id] = [role]
+        }
     }
-  },
-  oo: {
-    side: 'oo',
-    result: {
-      leader: {
-        id: null,
-        matter: 5,
-        manner: 5,
-        best_debater: false,
-        poi_prize: false
-      },
-      deputy: {
-        id: null,
-        matter: 2.5,
-        manner: 2.5,
-        best_debater: false,
-        poi_prize: false
-      },
-      member: {
-        id: null,
-        matter: 2.5,
-        manner: 2.5,
-        best_debater: false,
-        poi_prize: false
-      },
-      reply: {
-        id: null,
-        matter: 5,
-        manner: 5,
-        best_debater: false,
-        poi_prize: false
-      }
+    let converted = {}
+    for (let id in id_to_roles) {
+        let filtered_scores = {}
+        for (let role in result.scores) {
+            filtered_scores[role] = id_to_roles[id].includes(role) ? result.scores[role] : 0
+        }
+        converted[id] = filtered_scores
     }
-  }
+    return converted
 }
 
 export default {
   namespaced: true,
-  state: JSON.parse(JSON.stringify(initial_state)),
+  state: {
+    complete: false,
+    steps: ['speaker', 'score', 'winner', 'check', 'done'],
+    roles: ['leader', 'deputy', 'member', 'reply'],
+    sequence: ['../speaker', 'og-leader', 'oo-leader', 'og-deputy', 'oo-deputy', 'og-member', 'oo-member', 'oo-reply', 'og-reply', '../winner'],
+    style: {
+      roles: {
+        og: {
+          leader: { long: 'Prime Minister', abbr: 'PM' },
+          deputy: { long: 'Member of Government1', abbr: 'MG1' },
+          member: { long: 'Member of Government2', abbr: 'MG2' },
+          reply: { long: 'Government Reply', abbr: 'GR' }
+        },
+        oo: {
+          leader: { long: 'Leader of Opposition', abbr: 'LO' },
+          deputy: { long: 'Member of Opposition1', abbr: 'MO1' },
+          member: { long: 'Member of Opposition2', abbr: 'MO2' },
+          reply: { long: 'Opposition Reply', abbr: 'OR' }
+        }
+      }
+    },
+    result: {
+      winner: null,
+      og: {
+          speakers: {
+              leader: null,
+              deputy: null,
+              member: null,
+              reply: null
+          },
+          matters: {
+              leader: 5,
+              deputy: 2.5,
+              member: 2.5,
+              reply: 5
+          },
+          manners: {
+              leader: 5,
+              deputy: 2.5,
+              member: 2.5,
+              reply: 5
+          },
+          best: {
+              leader: false,
+              deputy: false,
+              member: false,
+              reply: false
+          },
+          poi: {
+              leader: false,
+              deputy: false,
+              member: false,
+              reply: false
+          }
+      },
+      oo: {
+          speakers: {
+              leader: null,
+              deputy: null,
+              member: null,
+              reply: null
+          },
+          matters: {
+              leader: 5,
+              deputy: 2.5,
+              member: 2.5,
+              reply: 5
+          },
+          manners: {
+              leader: 5,
+              deputy: 2.5,
+              member: 2.5,
+              reply: 5
+          },
+          best: {
+              leader: false,
+              deputy: false,
+              member: false,
+              reply: false
+          },
+          poi: {
+              leader: false,
+              deputy: false,
+              member: false,
+              reply: false
+          }
+      }
+    }
+  },
   getters: {
     current_step (state, getters, rootState, rootGetters) {
       return state.steps.findIndex(step => step === rootState.route.name)
@@ -98,16 +126,16 @@ export default {
   },
   mutations: {
     og_pos_name (state, payload) {
-      state.og.result[payload.pos_name].id = payload.value
+      state.result.og.speakers[payload.pos_name] = payload.value
     },
     oo_pos_name (state, payload) {
-      state.oo.result[payload.pos_name].id = payload.value
+      state.result.oo.speakers[payload.pos_name] = payload.value
     },
     input_result (state, payload) {
-      state[payload.side].result[payload.role][payload.key] = payload.value
+      state.result[payload.side][payload.key][payload.role] = payload.value
     },
     winner (state, payload) {
-      state.winner = payload.winner
+      state.result.winner = payload.winner
     },
     complete (state) {
       state.complete = true
@@ -117,14 +145,14 @@ export default {
       let roles = ['leader', 'deputy', 'member', 'reply']
       for (let side of sides) {
           for (let role of roles) {
-              state[side].result[role].id = null
-              state[side].result[role].best_debater = false
-              state[side].result[role].poi_prize = false
-              state[side].result[role].matter = 5
-              state[side].result[role].manner = 5
+              state.result[side].speakers[role] = null
+              state.result[side].best[role] = false
+              state.result[side].poi[role] = false
+              state.result[side].matters[role] = 5
+              state.result[side].manners[role] = 5
               if (role === 'deputy' || role === 'member') {
-                  state[side].result[role].matter /= 2
-                  state[side].result[role].manner /= 2
+                  state.result[side].matters[role] /= 2
+                  state.result[side].manners[role] /= 2
               }
           }
       }
@@ -147,7 +175,7 @@ export default {
         }
         return Promise.all([dispatch('send_raw_results', payload1, { root: true }), dispatch('send_raw_results', payload2, { root: true })])
     },
-    convert_from_ballot ({ commit, state}, payload) {
+    convert_from_ballot ({ commit, state }, payload) {
         let score_sheet = payload.score_sheet
         if (!state.complete) {
             return null
@@ -156,23 +184,23 @@ export default {
         let converted_result = {
             og: {
                 id: score_sheet.teams.og,
-                win: state.winner === score_sheet.teams.og,
-                speakers: roles.map(role => state.og.result[role].id),
-                matters: roles.map(role => state.og.result[role].matter),
-                manners: roles.map(role => state.og.result[role].manner),
-                scores: roles.map(role => state.og.result[role].matter+state.og.result[role].manner),
-                best: roles.map(role => state.og.result[role].best_debater),
-                poi: roles.map(role => state.og.result[role].poi_prize)
+                win: state.result.winner === score_sheet.teams.og,
+                speakers: state.result.og.speakers,
+                scores: object_adder(state.result.og.matters, state.result.og.manners),
+                matters: state.result.og.matters,
+                manners: state.result.og.manners,
+                best: state.result.og.best,
+                poi: state.result.og.poi
             },
             oo: {
                 id: score_sheet.teams.oo,
-                win: state.winner === score_sheet.teams.oo,
-                speakers: roles.map(role => state.oo.result[role].id),
-                matters: roles.map(role => state.oo.result[role].matter),
-                manners: roles.map(role => state.oo.result[role].manner),
-                scores: roles.map(role => state.oo.result[role].matter+state.oo.result[role].manner),
-                best: roles.map(role => state.oo.result[role].best_debater),
-                poi: roles.map(role => state.oo.result[role].poi_prize)
+                win: state.result.winner === score_sheet.teams.oo,
+                speakers: state.result.oo.speakers,
+                scores: object_adder(state.result.oo.matters, state.result.oo.manners),
+                matters: state.result.oo.matters,
+                manners: state.result.oo.manners,
+                best: state.result.oo.best,
+                poi: state.result.oo.poi
             }
         }
 
@@ -187,15 +215,20 @@ export default {
         }
         for (let i of [0, 1]) {
             let side = sides[i]
-            for (let id of Array.from(new Set(converted_result[side].speakers))) {
+            let scores_converted = scores_converter(converted_result[side])
+            for (let id of Array.from(new Set(Object.values(converted_result[side].speakers)))) {
                 let raw_speaker_result = {
                     id,
                     r: score_sheet.r,
                     from_id: score_sheet.from_id,
                     weight: 1,
-                    scores: [0, 1, 2, 3].map(
-                        index => [0, 1, 2, 3].filter(index => converted_result[side].speakers[index] === id).includes(index) ?
-                            converted_result[side].scores[index] : 0)
+                    scores: scores_converted[id],
+                    user_defined_data: {
+                        matters: converted_result[side].matters,
+                        manners: converted_result[side].manners,
+                        best: converted_result[side].best,
+                        poi: converted_result[side].poi
+                    }
                 }
                 raw_speaker_results.push(raw_speaker_result)
             }

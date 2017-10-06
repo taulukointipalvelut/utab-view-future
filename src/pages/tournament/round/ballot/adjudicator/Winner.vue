@@ -6,11 +6,11 @@
           .winner-selector
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Gov
-              .sideinfo-header__item {{ total(og) }} pts
+              .sideinfo-header__item {{ total('og') }} pts
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Opp
-              .sideinfo-header__item {{ total(oo) }} pts
-          el-radio-group.winner-selector(:value="winner", @input="on_selected($event)", size="large")
+              .sideinfo-header__item {{ total('oo') }} pts
+          el-radio-group.winner-selector(:value="result.winner", @input="on_selected($event)", size="large")
             el-radio-button.winner-selector__item(:label="score_sheet.teams.og") {{ team_by_id(score_sheet.teams.og).name }}
             el-radio-button.winner-selector__item(:label="score_sheet.teams.oo") {{ team_by_id(score_sheet.teams.oo).name }}
 
@@ -31,7 +31,7 @@ export default {
   props: ['score_sheet'],
   computed: {
     proceedable () {
-      return this.winner && this.winner !== ''
+      return this.result.winner && this.result.winner !== ''
     },
     ...mapState([
       'auth',
@@ -42,9 +42,7 @@ export default {
       'team_by_id'
     ]),
     ...mapState('ballot', [
-      'og',
-      'oo',
-      'winner'
+      'result'
     ])
   },
   methods: {
@@ -58,7 +56,7 @@ export default {
       this.$store.commit('ballot/winner', { winner })
     },
     total (side) {
-      return Object.values(side.result).map(x => x.matter + x.manner).reduce((a, b) => a + b, 0)
+      return Object.values(this.result[side].matters).reduce((a, b) => a + b, 0) + Object.values(this.result[side].matters).reduce((a, b) => a + b, 0)
     }
   }
 }

@@ -2,13 +2,14 @@
   .context
     .title
       h1 {{ title }}
+      p {{ on }}
     .content
-        //div(:class="{ slide: on, unslide: !on }")
+      div(:class="texts_class")
         section(v-for="text in texts", :key="text.text")
-            h1.text(v-if="text.tag === 'h1'") {{ text.text }}
-            h2.text(v-if="text.tag === 'h2'") {{ text.text }}
-            h3.text(v-if="text.tag === 'h3'") {{ text.text }}
-            p.text(v-if="text.tag === 'p'") {{ text.text }}
+          h1.text(v-if="text.tag === 'h1'") {{ text.text }}
+          h2.text(v-if="text.tag === 'h2'") {{ text.text }}
+          h3.text(v-if="text.tag === 'h3'") {{ text.text }}
+          p.text(v-if="text.tag === 'p'") {{ text.text }}
     .credit
       p {{ credit }}
 </template>
@@ -22,18 +23,30 @@ export default {
     texts: {
       default () { return [] }
     },
-    title: "",
-    on: false
+    title: ""
   },
   data () {
     return {
-      credit: "PDA Tournament 2018"
+      credit: "PDA Tournament 2018",
+      on: false
+    }
+  },
+  computed: {
+    texts_class () {
+      return {
+        'fadeout': !this.on
+      }
     }
   },
   methods: {
     texts_by_tag (tag) {
       return this.texts.filter(t => t.tag === tag)
     }
+  },
+  mounted () {
+    setTimeout(() => {
+      this.on = true
+    }, 2000)
   }
 }
 </script>
@@ -64,6 +77,7 @@ export default {
     flex-direction column
     justify-content center
     align-items center
+    text-align center
     font-family Times, 'Times New Roman'
 
     & h1
@@ -78,15 +92,13 @@ export default {
     & p
       font-size 2rem
 
-    .unslide
-      opacity 1
-      border solid 1px red
-      transition all 1.5s
+  .fadeout
+    opacity 0.5
+    transition all 1.5s
 
-    .slide
-      opacity 1
-      border solid 1px red
-      transition all 1.5s
+  .fadein
+    transition all 1.5s
+    opacity 1
 
   .text
     margin 0

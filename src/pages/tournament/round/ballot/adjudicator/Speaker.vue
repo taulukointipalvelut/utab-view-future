@@ -7,16 +7,16 @@
           span.card-subtitle Gov
         el-form
           el-form-item(label="PM", required, error="Select PM's Name")
-            el-select(:value="og.result.leader.id", @input="on_og_pos_name('leader', $event)", placeholder="Select PM")
+            el-select(:value="result.og.speakers.leader", @input="on_og_pos_name('leader', $event)", placeholder="Select PM")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.og)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="DPM", required, error="Select DPM's Name")
-            el-select(:value="og.result.deputy.id", @input="on_og_pos_name('deputy', $event)", placeholder="Select DPM")
+            el-select(:value="result.og.speakers.deputy", @input="on_og_pos_name('deputy', $event)", placeholder="Select DPM")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.og)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="MG", required, error="Select MG's Name")
-            el-select(:value="og.result.member.id", @input="on_og_pos_name('member', $event)", placeholder="Select MG")
+            el-select(:value="result.og.speakers.member", @input="on_og_pos_name('member', $event)", placeholder="Select MG")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.og)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="GR", required, error="Select GR's Name")
-            el-select(:value="og.result.reply.id", @input="on_og_pos_name('reply', $event)", placeholder="Select GR")
+            el-select(:value="result.og.speakers.reply", @input="on_og_pos_name('reply', $event)", placeholder="Select GR")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.og)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
       el-card.oo
         div(slot="header").card-header-container
@@ -24,16 +24,16 @@
           span.card-subtitle Opp
         el-form
           el-form-item(label="LO", required, error="Select LO's Name")
-            el-select(:value="oo.result.leader.id", @input="on_oo_pos_name('leader', $event)", placeholder="Select LO")
+            el-select(:value="result.oo.speakers.leader", @input="on_oo_pos_name('leader', $event)", placeholder="Select LO")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.oo)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="DLO", required, error="Select DLO's Name")
-            el-select(:value="oo.result.deputy.id", @input="on_oo_pos_name('deputy', $event)", placeholder="Select DLO")
+            el-select(:value="result.oo.speakers.deputy", @input="on_oo_pos_name('deputy', $event)", placeholder="Select DLO")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.oo)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="MO", required, error="Select MO's Name")
-            el-select(:value="oo.result.member.id", @input="on_oo_pos_name('member', $event)", placeholder="Select MO")
+            el-select(:value="result.oo.speakers.member", @input="on_oo_pos_name('member', $event)", placeholder="Select MO")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.oo)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="OR", required, error="Select OR's Name")
-            el-select(:value="oo.result.reply.id", @input="on_oo_pos_name('reply', $event)", placeholder="Select OR")
+            el-select(:value="result.oo.speakers.reply", @input="on_oo_pos_name('reply', $event)", placeholder="Select OR")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.oo)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -52,7 +52,7 @@ export default {
   props: ['score_sheet'],
   computed: {
     proceedable () {
-      return Object.values(this.og.result).every(role => role.id) && Object.values(this.oo.result).every(role => role.id)
+      return true//Object.values(this.result.og.speakers).every(id => id !== null) && Object.values(this.result.oo.speakers).every(id => id !== null)
     },
     ...mapState([
       'auth',
@@ -65,11 +65,7 @@ export default {
       'details_1'
     ]),
     ...mapState('ballot', [
-      'og',
-      'oo'
-    ]),
-    ...mapGetters('ballot', [
-      'converted'
+      'result'
     ])
   },
   methods: {
