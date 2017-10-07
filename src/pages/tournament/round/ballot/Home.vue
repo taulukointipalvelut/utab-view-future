@@ -85,7 +85,8 @@ export default {
   },
   methods: {
     ...mapActions([
-      'init_draws'
+      'init_draws',
+      'init_raw_results'
     ]),
     on_select (selected) {
       if (!selected.done) {
@@ -102,6 +103,7 @@ export default {
   },
   mounted () {
     this.init_draws()
+    this.init_raw_results()
   }
 }
 </script>

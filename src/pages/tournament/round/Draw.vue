@@ -2,7 +2,7 @@
   .router-view-content(v-if="!loading")
     section(v-if="!loading").page-header
       h1 {{ round_by_r(r_str).name }}
-    section(v-if="!loading && team_allocation_opened")
+    section(v-if="!loading && team_allocation_opened && sorted_rows.length > 0")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue")
           template(scope="scope")

@@ -7,7 +7,7 @@
       section(v-if="!loading && has_adjudicators")
         el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
       section(v-if="!loading && has_adjudicators")
-        el-table(:data="target_evaluation_sheets.slice().sort((ev1, ev2) => ev1.from_id > ev2.from_id)", @current-change="on_select", :row-class-name="row_class_name")
+        el-table(:data="target_evaluation_sheets.slice().sort((ev1, ev2) => ev1.from_id > ev2.from_id ? 1 : -1)", @current-change="on_select", :row-class-name="row_class_name")
           el-table-column(prop="done", label="", width="40", align="center")
             template(scope="scope")
               span.icon-ok(v-if="scope.row.done")
