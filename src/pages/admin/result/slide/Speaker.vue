@@ -4,7 +4,7 @@
       h1 {{ target_tournament.name }}
     div(:class="{ cover: started }")
     .projection
-      slides(:title="capitalize(label_singular)+' Result'", :texts_list="texts_list", :credit="config.credit")
+      slides(title="Speaker Result", :texts_list="texts_list", :credit="config.credit")
 </template>
 
 <script>
@@ -13,7 +13,6 @@ import link_list from 'components/link-list.vue'
 import link_list_item from 'components/link-list-item.vue'
 import loading_container from 'components/loading-container'
 import slides from 'components/slides.vue'
-import math from 'assets/js/math'
 
 export default {
   components: {
@@ -28,14 +27,7 @@ export default {
       config: {
           max_ranking_rewarded: 3,
           credit: ''
-      },
-      sub_label_singular: 'institution',
-      label_singular: 'team',
-      label: 'teams',
-      sub_label: 'institutions',
-      compiled_result: [
-        {id: 1, ranking: 1}
-      ]
+      }
     }
   },
   computed: {
@@ -50,7 +42,7 @@ export default {
         texts_list.push([
           { tag: 'h2', text: slide_group.place },
           { tag: 'h1', text: slide_group.name },
-          { tag: 'p', text: slide_group.sub_names.join(', ') }
+          { tag: 'p', text: slide_group.team }
         ])
         texts_list.push([])
       }
@@ -58,11 +50,12 @@ export default {
     },
     slide_groups () {
         let output = []
-        let results_sorted = [].concat(this.compiled_result).sort((r1, r2) => r1.ranking < r2.ranking)
+
+        let results_sorted = [].concat(this.target_tournament.compiled_speaker_results).sort((r1, r2) => r1.ranking < r2.ranking)
+
         let number = 0
         let rankings = results_sorted.map(r => r.ranking)
         let tie_rankings = rankings.filter(r => rankings.filter(r2 => r2 === r).length > 1)
-
         for (let result of results_sorted) {
             if (result.ranking > this.config.max_ranking_rewarded) {
                 continue
@@ -83,13 +76,13 @@ export default {
                 place += " Place"
             }
 
-            let entity = this[this.label_singular+'_by_id'](result.id)
-            let sub_entities = this.details_1(entity)[this.sub_label].map(id => this[this.sub_label_singular+'_by_id'](id))
+            let team = this.target_tournament.teams.find(t => t.details[0].speakers.includes(result.id))
             output.push({
                 number,
-                name: entity.name,
+                property: {},
+                name: this.speaker_by_id(result.id).name,
                 place: place,
-                sub_names: sub_entities.map(e => e.name)
+                team: team ? team.name : ''
             })
             number++
         }
@@ -97,14 +90,10 @@ export default {
     },
     ...mapGetters([
       'target_tournament',
-      'team_by_id',
       'speaker_by_id',
-      'institution_by_id',
-      'details_1'
+      'team_by_id',
+      'institution_by_id'
     ])
-  },
-  methods: {
-      capitalize: math.capitalize,
   },
   mounted () {
     this.started = true
@@ -129,5 +118,4 @@ export default {
     position relative
     width 100%
     background-color white
-
 </style>

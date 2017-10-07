@@ -5,7 +5,7 @@
     loading-container(:loading="loading")
     p(v-if="target_tournament.compiled_team_results.length == 0 && target_tournament.compiled_speaker_results.length == 0") No teams are registered or Please recompile results.
     el-tabs(type="card", v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
-      el-tab-pane(label="Team results")
+      el-tab-pane(label="Team Results")
         section(v-if="!loading")
           el-table(:data="target_tournament.compiled_team_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
             el-table-column(prop="ranking", label="Ranking", align="center", sortable)
@@ -33,7 +33,7 @@
             el-button(@click="on_download_team_results") Download Team Results
             el-button(type="primary", @click="on_configure_slide('team')") #[el-icon(name="picture")] &nbsp;Slide Show
 
-      el-tab-pane(label="Speaker results")
+      el-tab-pane(label="Speaker Results")
         el-table(:data="target_tournament.compiled_speaker_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
           el-table-column(prop="ranking", label="Ranking", align="center", sortable)
             template(scope="scope")
@@ -66,8 +66,10 @@
       el-dialog(title="Slide Show", :visible.sync="dialog.speaker_slide.visible", v-if="!loading")
         .dialog-body
           el-form(:model="dialog.speaker_slide.form.model")
-            el-form-item(label="Max Speakers Rewarded")
-              el-input(v-model="dialog.speaker_slide.form.model.max_speakers_rewarded")
+            el-form-item(label="Max Speaker Ranking Rewarded")
+              el-input(v-model="dialog.speaker_slide.form.model.max_ranking_rewarded")
+            el-form-item(label="Credit")
+              el-input(v-model="dialog.speaker_slide.form.model.credit")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.speaker_slide.visible = false") Cancel
           el-button(type="primary", @click="on_start_slide('speakers', 'speaker')") Start
@@ -78,6 +80,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import link_list from 'components/link-list.vue'
 import link_list_item from 'components/link-list-item.vue'
 import loading_container from 'components/loading-container'
+import math from 'assets/js/math'
 
 export default {
   components: {
@@ -93,7 +96,8 @@ export default {
           visible: false,
           form: {
             model: {
-              max_teams_rewarded: 3
+              max_ranking_rewarded: 3,
+              credit: ''
             }
           }
         },
@@ -101,7 +105,8 @@ export default {
           visible: false,
           form: {
             model: {
-              max_speakers_rewarded: 3
+              max_ranking_rewarded: 3,
+              credit: ''
             }
           }
         }
@@ -128,7 +133,7 @@ export default {
     on_start_slide (label, label_singular) {
       let model = this.dialog[label_singular+'_slide'].form.model
       this.$router.push({
-        path: 'slide/'+label_singular+'?max_'+label+'_rewarded='+model['max_'+label+'_rewarded']
+        path: 'slide/'+label_singular+'?'+math.query_from_obj(this.dialog[label_singular+'_slide'].form.model)
       })
     },
     on_download_team_results () {
