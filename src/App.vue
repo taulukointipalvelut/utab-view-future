@@ -27,7 +27,12 @@ export default {
   watch: {
     errors (errs) {
       console.log(errs)
-      errs.map(err => this.$notify.error({ title: 'Error', message: err.message }))
+      errs.map(err => this.$notify({
+        type: "error",
+        title: "Error",
+        message: err.message,
+        duration: 0
+      }))
     }
   }
 }
