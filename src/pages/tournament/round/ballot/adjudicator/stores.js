@@ -7,7 +7,7 @@ function object_adder (obj1, obj2) {
     return added
 }
 
-function scores_converter (result) {
+function object_converter (result, prop, default_value=0) {
     let id_to_roles = {}
     for (let role in result.speakers) {
         let id = result.speakers[role]
@@ -19,22 +19,34 @@ function scores_converter (result) {
     }
     let converted = {}
     for (let id in id_to_roles) {
-        let filtered_scores = {}
-        for (let role in result.scores) {
-            filtered_scores[role] = id_to_roles[id].includes(role) ? result.scores[role] : 0
+        let filtered_property = {}
+        for (let role in result[prop]) {
+            filtered_property[role] = id_to_roles[id].includes(role) ? result[prop][role] : default_value
         }
-        converted[id] = filtered_scores
+        converted[id] = filtered_property
     }
     return converted
+}
+
+function object_converter_temp (obj) {
+    let obj2 = {}
+    for (let key in obj) {
+        if (key === 'deputy' || key === 'member') {
+            obj2[key] = obj[key]/2
+        } else {
+            obj2[key] = obj[key]
+        }
+    }
+    return obj2
 }
 
 export default {
   namespaced: true,
   state: {
-    complete: false,
+    path_valid: false,
     steps: ['speaker', 'score', 'winner', 'check', 'done'],
     roles: ['leader', 'deputy', 'member', 'reply'],
-    sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-deputy', 'opp-deputy', 'gov-member', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
+    sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-deputy', 'gov-member', 'opp-deputy', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
     style: {
       roles: {
         gov: {
@@ -62,14 +74,14 @@ export default {
           },
           matters: {
               leader: 5,
-              deputy: 2.5,
-              member: 2.5,
+              deputy: 5,
+              member: 5,
               reply: 5
           },
           manners: {
               leader: 5,
-              deputy: 2.5,
-              member: 2.5,
+              deputy: 5,
+              member: 5,
               reply: 5
           },
           best: {
@@ -94,14 +106,14 @@ export default {
           },
           matters: {
               leader: 5,
-              deputy: 2.5,
-              member: 2.5,
+              deputy: 5,
+              member: 5,
               reply: 5
           },
           manners: {
               leader: 5,
-              deputy: 2.5,
-              member: 2.5,
+              deputy: 5,
+              member: 5,
               reply: 5
           },
           best: {
@@ -125,6 +137,9 @@ export default {
     }
   },
   mutations: {
+    path_confirmed (state, payload) {
+      state.path_valid = true
+    },
     gov_pos_name (state, payload) {
       state.result.gov.speakers[payload.pos_name] = payload.value
     },
@@ -137,12 +152,11 @@ export default {
     winner (state, payload) {
       state.result.winner = payload.winner
     },
-    complete (state) {
-      state.complete = true
-    },
     reset_state (state) {
       let sides = ['gov', 'opp']
       let roles = ['leader', 'deputy', 'member', 'reply']
+      state.result.winner = null
+      state.path_valid = false
       for (let side of sides) {
           for (let role of roles) {
               state.result[side].speakers[role] = null
@@ -150,10 +164,6 @@ export default {
               state.result[side].poi[role] = false
               state.result[side].matters[role] = 5
               state.result[side].manners[role] = 5
-              if (role === 'deputy' || role === 'member') {
-                  state.result[side].matters[role] /= 2
-                  state.result[side].manners[role] /= 2
-              }
           }
       }
     }
@@ -177,18 +187,15 @@ export default {
     },
     convert_from_ballot ({ commit, state }, payload) {
         let score_sheet = payload.score_sheet
-        if (!state.complete) {
-            return null
-        }
         let roles = ['leader', 'deputy', 'member', 'reply']
         let converted_result = {
             gov: {
                 id: score_sheet.teams.gov,
                 win: state.result.winner === score_sheet.teams.gov,
                 speakers: state.result.gov.speakers,
-                scores: object_adder(state.result.gov.matters, state.result.gov.manners),
-                matters: state.result.gov.matters,
-                manners: state.result.gov.manners,
+                scores: object_adder(object_converter_temp(state.result.gov.matters), object_converter_temp(state.result.gov.manners)),
+                matters: object_converter_temp(state.result.gov.matters),
+                manners: object_converter_temp(state.result.gov.manners),
                 best: state.result.gov.best,
                 poi: state.result.gov.poi
             },
@@ -196,9 +203,9 @@ export default {
                 id: score_sheet.teams.opp,
                 win: state.result.winner === score_sheet.teams.opp,
                 speakers: state.result.opp.speakers,
-                scores: object_adder(state.result.opp.matters, state.result.opp.manners),
-                matters: state.result.opp.matters,
-                manners: state.result.opp.manners,
+                scores: object_adder(object_converter_temp(state.result.opp.matters), object_converter_temp(state.result.opp.manners)),
+                matters: object_converter_temp(state.result.opp.matters),
+                manners: object_converter_temp(state.result.opp.manners),
                 best: state.result.opp.best,
                 poi: state.result.opp.poi
             }
@@ -207,15 +214,13 @@ export default {
         let raw_team_results = []
         let raw_speaker_results = []
         let sides = ['gov', 'opp']
-        let sides_label = {
-            gov: 'gov',
-            opp: 'opp',
-            cg: 'gov',
-            co: 'opp'
-        }
         for (let i of [0, 1]) {
             let side = sides[i]
-            let scores_converted = scores_converter(converted_result[side])
+            let scores_converted = object_converter(converted_result[side], 'scores')
+            let matters_converted = object_converter(converted_result[side], 'matters')
+            let manners_converted = object_converter(converted_result[side], 'manners')
+            let poi_converted = object_converter(converted_result[side], 'poi', false)
+            let best_converted = object_converter(converted_result[side], 'best', false)
             for (let id of Array.from(new Set(Object.values(converted_result[side].speakers)))) {
                 let raw_speaker_result = {
                     id,
@@ -224,10 +229,10 @@ export default {
                     weight: 1,
                     scores: scores_converted[id],
                     user_defined_data: {
-                        matters: converted_result[side].matters,
-                        manners: converted_result[side].manners,
-                        best: converted_result[side].best,
-                        poi: converted_result[side].poi
+                        matters: matters_converted[id],
+                        manners: manners_converted[id],
+                        best: best_converted[id],
+                        poi: poi_converted[id]
                     }
                 }
                 raw_speaker_results.push(raw_speaker_result)
@@ -240,7 +245,7 @@ export default {
                 from_id: score_sheet.from_id,
                 weight: 1,
                 win: converted_result[side].win,
-                side: sides_label[side],
+                side,
                 opponents: [score_sheet.teams[sides[1-i]]]
             }
             raw_team_results.push(raw_team_result)

@@ -54,11 +54,22 @@
           el-button(@click="on_download_speaker_results") Download Speaker Results
           el-button(type="primary", @click="on_configure_slide('speaker')") #[el-icon(name="picture")] &nbsp;Slide Show
 
+      el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Speaker Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize")
+        el-table(:data="target_tournament.compiled_speaker_results.slice().sort((a, b) => get_sub_prize(a, sub_prize) < get_sub_prize(b, sub_prize) ? 1 : -1)")
+          el-table-column(label="Name", align="center", sortable)
+            template(scope="scope")
+              span {{ speaker_by_id(scope.row.id).name }}
+          el-table-column(label="Total", align="center", sortable, prop="sub_prize")
+            template(scope="scope")
+              span {{ get_sub_prize(scope.row, sub_prize) }}
+
       el-dialog(title="Slide Show", :visible.sync="dialog.team_slide.visible", v-if="!loading")
         .dialog-body
           el-form(:model="dialog.team_slide.form.model")
-            el-form-item(label="Max Teams Rewarded")
-              el-input(v-model="dialog.team_slide.form.model.max_teams_rewarded")
+            el-form-item(label="Max Team Ranking Rewarded")
+              el-input(v-model="dialog.team_slide.form.model.max_ranking_rewarded")
+            el-form-item(label="Credit")
+              el-input(v-model="dialog.team_slide.form.model.credit")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.team_slide.visible = false") Cancel
           el-button(type="primary", @click="on_start_slide('teams', 'team')") Start
@@ -127,6 +138,18 @@ export default {
     ])
   },
   methods: {
+    capitalize: math.capitalize,
+    get_sub_prize (speaker_result, sub_prize) {
+      let nums = []
+      for (let detail of speaker_result.details) {
+        let nums_sub = []
+        for (let user_defined_data of detail.user_defined_data_collection) {
+          nums_sub.push(Object.values(user_defined_data[sub_prize]).filter(tf => tf).length)
+        }
+        nums.push(math.average(nums_sub))
+      }
+      return  math.sum(nums)
+    },
     on_configure_slide (label_singular) {
       this.dialog[label_singular+'_slide'].visible = true
     },
