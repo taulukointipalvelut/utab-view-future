@@ -5,14 +5,14 @@
         div(slot="header").card-header-container
           span.card-title {{ team_by_id(score_sheet.teams.gov).name }}
           span.card-subtitle Gov
-</template><!--        el-form
+        el-form
           el-form-item(label="PM", required, error="Select PM's Name")
             el-select(:value="result.gov.speakers.leader", @input="on_gov_pos_name('leader', $event)", placeholder="Select PM")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.gov)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
-          el-form-item(label="DPM", required, error="Select DPM's Name")
+          el-form-item(label="MG1", required, error="Select DPM's Name")
             el-select(:value="result.gov.speakers.deputy", @input="on_gov_pos_name('deputy', $event)", placeholder="Select DPM")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.gov)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
-          el-form-item(label="MG", required, error="Select MG's Name")
+          el-form-item(label="MG2", required, error="Select MG's Name")
             el-select(:value="result.gov.speakers.member", @input="on_gov_pos_name('member', $event)", placeholder="Select MG")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.gov)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="GR", required, error="Select GR's Name")
@@ -26,10 +26,10 @@
           el-form-item(label="LO", required, error="Select LO's Name")
             el-select(:value="result.opp.speakers.leader", @input="on_opp_pos_name('leader', $event)", placeholder="Select LO")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.opp)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
-          el-form-item(label="DLO", required, error="Select DLO's Name")
+          el-form-item(label="MO1", required, error="Select DLO's Name")
             el-select(:value="result.opp.speakers.deputy", @input="on_opp_pos_name('deputy', $event)", placeholder="Select DLO")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.opp)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
-          el-form-item(label="MO", required, error="Select MO's Name")
+          el-form-item(label="MO2", required, error="Select MO's Name")
             el-select(:value="result.opp.speakers.member", @input="on_opp_pos_name('member', $event)", placeholder="Select MO")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.opp)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="OR", required, error="Select OR's Name")
@@ -38,10 +38,10 @@
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
-</template>-->
+</template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { smartphone } from 'assets/js/media-query'
 import loading_container from 'components/loading-container'
 
@@ -69,10 +69,14 @@ export default {
     ])
   },
   methods: {
+    ...mapMutations('ballot', [
+      'path_confirmed'
+    ]),
     on_prev () {
       this.$router.push('../home')
     },
     on_next () {
+      this.path_confirmed()
       this.$router.push('score/gov-leader')
     },
     on_gov_pos_name (pos_name, value) {

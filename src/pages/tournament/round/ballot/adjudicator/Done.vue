@@ -5,7 +5,7 @@
         h2 Thank you! Your ballot was successfully sent.
 
     section.buttons(v-if="!loading")
-      el-button(@click="on_prev") #[i.fa.fa-home] Home
+      el-button(@click="on_home") #[i.fa.fa-home] Home
       //el-button(type="primary" @click="on_next", :disabled="loading") Next #[el-icon(name="arrow-right")]
 </template>
 
@@ -32,7 +32,7 @@ export default {
     ])
   },
   methods: {
-    on_prev () {
+    on_home () {
       this.$router.push('/home')
     },
     on_next () {

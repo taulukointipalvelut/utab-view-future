@@ -15,7 +15,7 @@
 
 <script>
 /* @flow */
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {

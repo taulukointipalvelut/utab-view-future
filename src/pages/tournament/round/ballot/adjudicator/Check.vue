@@ -1,6 +1,6 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
-    .card-container(v-if="!loading")
+    .card-container(v-if="!loading && path_valid")
       el-card.gov
         div(slot="header").card-header-container
           span.card-title {{ team_by_id(score_sheet.teams.gov).name }}
@@ -31,7 +31,7 @@
                 .inner-table-tr.total
                   .inner-table-td Total
                   .inner-table-td.right {{ Number(result.gov.matters[role]) + Number(result.gov.manners[role]) }}
-          .outer-table-tr
+          //.outer-table-tr
             .outer-table-td.role Total
             .outer-table-td.flex.right {{ total('gov') }}
 
@@ -65,11 +65,11 @@
                 .inner-table-tr.total
                   .inner-table-td Total
                   .inner-table-td.right {{ Number(result.opp.matters[role]) + Number(result.opp.manners[role]) }}
-          .outer-table-tr
+          //.outer-table-tr
             .outer-table-td.role Total
             .outer-table-td.flex.right {{ total('opp') }}
 
-    .card-container(v-if="!loading")
+    .card-container(v-if="!loading && path_valid")
       el-card.flat
         .outer-table.no-border
           .outer-table-tr
@@ -82,9 +82,13 @@
             .outer-table-td
               el-checkbox(v-model="confirmed") Yes
 
-    section.buttons(v-if="!loading")
+    section.buttons(v-if="!loading && path_valid")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="on_next", :loading="sending", :disabled="loading || !confirmed") {{ sending ? 'Sending...' : 'Send' }} #[i.fa.fa-paper-plane]
+
+    p(v-if="!loading && !path_valid", style="text-align: center;") Sorry, you seem to have reloaded this page. Please try again.
+    section.buttons(v-if="!loading")
+      el-button(@click="on_home") #[i.fa.fa-home] Home
 </template>
 
 <script>
@@ -119,7 +123,8 @@ export default {
     ...mapState('ballot', [
       'result',
       'roles',
-      'style'
+      'style',
+      'path_valid'
     ])
   },
   methods: {
@@ -132,11 +137,13 @@ export default {
     ...mapActions([
       'init_all'
     ]),
+    on_home () {
+      this.$router.push('/home')
+    },
     on_prev () {
       this.$router.push('score/gov-reply')
     },
     on_next () {
-      this.$store.commit('ballot/complete', {})
       this.sending = true
       this.send_ballot({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(this.init_all)

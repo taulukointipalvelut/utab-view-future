@@ -6,10 +6,10 @@
           .winner-selector
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Gov
-              .sideinfo-header__item {{ total('gov') }} pts
+              //.sideinfo-header__item {{ total('gov') }} pts
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Opp
-              .sideinfo-header__item {{ total('opp') }} pts
+              //.sideinfo-header__item {{ total('opp') }} pts
           el-radio-group.winner-selector(:value="result.winner", @input="on_selected($event)", size="large")
             el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ team_by_id(score_sheet.teams.gov).name }}
             el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ team_by_id(score_sheet.teams.opp).name }}
@@ -56,7 +56,7 @@ export default {
       this.$store.commit('ballot/winner', { winner })
     },
     total (side) {
-      return Object.values(this.result[side].matters).reduce((a, b) => a + b, 0) + Object.values(this.result[side].matters).reduce((a, b) => a + b, 0)
+      return Object.values(this.result[side].matters).reduce((a, b) => a + b, 0) + Object.values(this.result[side].manners).reduce((a, b) => a + b, 0)
     }
   }
 }
