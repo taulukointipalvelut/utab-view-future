@@ -24,7 +24,7 @@ export default {
     'loading-container': loading_container
   },
   computed: {
-    round() {
+    round () {
       return this.round_by_r(this.r_str)
     },
     adjudicator () {

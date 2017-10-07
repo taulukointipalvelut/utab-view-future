@@ -42,14 +42,20 @@ export default {
       if (this.texts_list.length > this.current_slide + 1) {
         this.current_slide += 1
       } else {
-        this.$message.error('Last Slide')
+        this.$message({
+          message: 'Last Slide',
+          type: 'warning'
+        })
       }
     },
     on_previous () {
       if (this.current_slide > 0) {
         this.current_slide -= 1
       } else {
-        this.$message.error('First Slide')
+        this.$message({
+          message: 'First Slide',
+          type: 'warning'
+        })
       }
     },
     range: math.range,
