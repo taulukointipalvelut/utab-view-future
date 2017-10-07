@@ -1,5 +1,5 @@
 <template lang="pug">
-  router-view
+    router-view
 </template>
 
 <script>
@@ -16,7 +16,8 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'isAuth'
+      'isAuth',
+      'target_tournament'
     ])
   }
 }

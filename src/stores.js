@@ -170,7 +170,43 @@ export default {
         return entity => {
             return Object.assign(entity, entity.details.find(d => d.r === 1))
         }
-    }
+    },
+    compiled_sub_prize_results: function (state, getters) {
+        return function (sub_prize) {
+            let compiled_speaker_results = getters.target_tournament.compiled_speaker_results
+            if (compiled_speaker_results.length === 0) {
+                return []
+            } else {
+                let compiled_sub_prize_results = compiled_speaker_results.map(result => Object.assign({}, result))
+                for (let result of compiled_sub_prize_results) {
+                    let nums = []
+                    for (let detail of result.details) {
+                        let nums_sub = []
+                        for (let user_defined_data of detail.user_defined_data_collection) {
+                            nums_sub.push(Object.values(user_defined_data[sub_prize]).filter(tf => tf).length)
+                        }
+                        nums.push(math.average(nums_sub))
+                    }
+                    result[sub_prize] = math.sum(nums)
+                }
+                compiled_sub_prize_results.sort((r1, r2) => r1[sub_prize] < r2[sub_prize] ? 1 : -1)
+                let ranking = 0
+                let stay = 0
+                let current_sub_prize = null
+                for (let result of compiled_sub_prize_results) {
+                    if (result[sub_prize] !== current_sub_prize) {
+                        ranking += stay + 1
+                        stay = 0
+                        current_sub_prize = result[sub_prize]
+                    } else {
+                        stay += 1
+                    }
+                    result.ranking = ranking
+                }
+                return compiled_sub_prize_results
+            }
+        }
+      }
   },
   mutations: {
     /* auth.session */

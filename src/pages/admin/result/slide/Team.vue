@@ -4,112 +4,49 @@
       h1 {{ target_tournament.name }}
     div(:class="{ cover: started }")
     .projection
-      slides(:title="capitalize(label_singular)+' Result'", :texts_list="texts_list", :credit="config.credit")
+      slides-wrapper(title="Team Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="teams", label_singular="team", sub_label="institutions", sub_label_singular="institution")
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-import link_list from 'components/link-list.vue'
-import link_list_item from 'components/link-list-item.vue'
 import loading_container from 'components/loading-container'
-import slides from 'components/slides.vue'
-import math from 'assets/js/math'
+import slides_wrapper from 'components/slides-wrapper.vue'
 
 export default {
   components: {
-    'link-list': link_list,
-    'link-list-item': link_list_item,
     'loading-container': loading_container,
-    'slides': slides
+    'slides-wrapper': slides_wrapper
   },
   data () {
     return {
-      started: false,
-      config: {
-          max_ranking_rewarded: 3,
-          credit: ''
-      },
-      sub_label_singular: 'institution',
-      label_singular: 'team',
-      label: 'teams',
-      sub_label: 'institutions',
-      compiled_result: [
-        {id: 1, ranking: 1}
-      ]
+      credit: '',
+      max_ranking_rewarded: null,
+      started: false
     }
   },
   computed: {
-    texts_list () {
-      let texts_list = []
-      let slide_groups = this.slide_groups
-      for (let slide_group of slide_groups) {
-        texts_list.push([
-          { tag: 'h2', text: slide_group.place }
-        ])
-        texts_list.push([])
-        texts_list.push([
-          { tag: 'h2', text: slide_group.place },
-          { tag: 'h1', text: slide_group.name },
-          { tag: 'p', text: slide_group.sub_names.join(', ') }
-        ])
-        texts_list.push([])
+    organized_results () {
+      let organized_results = []
+      for (let compiled_result of this.target_tournament.compiled_team_results) {
+        let team = this.team_by_id(compiled_result.id)
+        let result = Object.assign({}, compiled_result)
+        result.name = team.name
+        result.institutions = this.details_1(team).institutions.map(this.institution_by_id).map(e => e.name)
+        organized_results.push(result)
       }
-      return texts_list
-    },
-    slide_groups () {
-        let output = []
-        let results_sorted = [].concat(this.compiled_result).sort((r1, r2) => r1.ranking < r2.ranking)
-        let number = 0
-        let rankings = results_sorted.map(r => r.ranking)
-        let tie_rankings = rankings.filter(r => rankings.filter(r2 => r2 === r).length > 1)
-
-        for (let result of results_sorted) {
-            if (result.ranking > this.config.max_ranking_rewarded) {
-                continue
-            }
-            let place = ""
-            if (result.ranking === 1) {
-                place = "1st"
-            } else if (result.ranking === 2) {
-                place = "2nd"
-            } else if (result.ranking === 3){
-                place = "3rd"
-            } else {
-                place = result.ranking+"th"
-            }
-            if (tie_rankings.includes(result.ranking)) {
-                place += " Place (Tie)"
-            } else {
-                place += " Place"
-            }
-
-            let entity = this[this.label_singular+'_by_id'](result.id)
-            let sub_entities = this.details_1(entity)[this.sub_label].map(id => this[this.sub_label_singular+'_by_id'](id))
-            output.push({
-                number,
-                name: entity.name,
-                place: place,
-                sub_names: sub_entities.map(e => e.name)
-            })
-            number++
-        }
-        return output
+      return organized_results
     },
     ...mapGetters([
       'target_tournament',
       'team_by_id',
-      'speaker_by_id',
       'institution_by_id',
       'details_1'
     ])
   },
-  methods: {
-      capitalize: math.capitalize,
-  },
   mounted () {
     this.started = true
-    this.config.max_ranking_rewarded = this.$route.query.max_ranking_rewarded
-    this.config.credit = this.$route.query.credit
+    this.max_ranking_rewarded = this.$route.query.max_ranking_rewarded
+    this.credit = this.$route.query.credit
   }
 }
 </script>

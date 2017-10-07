@@ -4,7 +4,7 @@
       h1 {{ target_tournament.name }}
     div(:class="{ cover: started }")
     .projection
-      slides-wrapper(title="Speaker Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="speakers", label_singular="speaker", sub_label="teams", sub_label_singular="team")
+      slides-wrapper(title="Best Speaker Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="speakers", label_singular="speaker", sub_label="teams", sub_label_singular="team")
 </template>
 
 <script>
@@ -27,7 +27,7 @@ export default {
   computed: {
     organized_results () {
       let organized_results = []
-      for (let compiled_result of this.target_tournament.compiled_speaker_results) {
+      for (let compiled_result of this.compiled_sub_prize_results('best')) {
         let speaker = this.speaker_by_id(compiled_result.id)
         let result = Object.assign({}, compiled_result)
         result.name = speaker.name
@@ -39,6 +39,7 @@ export default {
     },
     ...mapGetters([
       'target_tournament',
+      'compiled_sub_prize_results',
       'team_by_id',
       'speaker_by_id',
       'details_1'
