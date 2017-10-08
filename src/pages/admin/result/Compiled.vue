@@ -41,6 +41,9 @@
           el-table-column(prop="id", label="Name", align="center", sortable)
             template(scope="scope")
               span {{ speaker_by_id(scope.row.id).name }}
+          el-table-column(label="Team", align="center", sortable)
+            template(scope="scope")
+              span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
           el-table-column(prop="average", label="Average", align="center", sortable)
             template(scope="scope")
               span {{ scope.row.average }}
@@ -55,18 +58,21 @@
           el-button(type="primary", @click="on_configure_slide('speaker')") #[el-icon(name="picture")] &nbsp;Slide Show
 
       el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Speaker Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize")
-        el-table(:data="compiled_sub_prize_results(sub_prize).slice().sort((a, b) => a[sub_prize] < b[sub_prize] ? 1 : -1)")
+        el-table(:data="compiled_sub_prize_results(sub_prize)")
           el-table-column(prop="ranking", label="Ranking", align="center", sortable)
             template(scope="scope")
               span {{ scope.row.ranking }}
           el-table-column(label="Name", align="center", sortable)
             template(scope="scope")
               span {{ speaker_by_id(scope.row.id).name }}
+          el-table-column(label="Team", align="center", sortable)
+            template(scope="scope")
+              span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
           el-table-column(label="Total", align="center", sortable, prop="sub_prize")
             template(scope="scope")
               span {{ scope.row[sub_prize] }}
         .operations
-          el-button(@click="on_download_speaker_results", disabled) Download Speaker Results
+          el-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Speaker', poi: 'POI'}[sub_prize] }} Results
           el-button(type="primary", @click="on_configure_slide(sub_prize)") #[el-icon(name="picture")] &nbsp;Slide Show
 
       el-dialog(title="Slide Show", :visible.sync="dialog.team_slide.visible", v-if="!loading")
@@ -168,6 +174,7 @@ export default {
       'isAuth',
       'target_tournament',
       'team_by_id',
+      'teams_by_speaker_id',
       'speaker_by_id',
       'adjudicator_by_id',
       'compiled_sub_prize_results'
@@ -186,32 +193,39 @@ export default {
     },
     on_download_team_results () {
       let results = this.target_tournament.compiled_team_results
-      let blob = new Blob([this.team_results_to_csv_text(results)], {type: 'text/plain'})
-      let link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.download = 'team_results.csv'
-      link.click()
+      let organized_results = results.map(result => Object.assign({}, result))
+      for (let result of organized_results) {
+        result.name = this.team_by_id(result.id).name
+      }
+      this.download_results_as_csv('team_results.csv', organized_results, ['ranking', 'name', 'win', 'sum', 'margin', 'vote', 'sd'], ['Ranking', 'Name', 'Win', 'Sum', 'Margin', 'Vote', 'StDev'])
     },
     on_download_speaker_results () {
       let results = this.target_tournament.compiled_speaker_results
-      let blob = new Blob([this.speaker_results_to_csv_text(results)], {type: 'text/plain'})
+      let organized_results = results.map(result => Object.assign({}, result))
+      for (let result of organized_results) {
+        result.name = this.speaker_by_id(result.id).name
+        result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
+      }
+      this.download_results_as_csv('speaker_results.csv', organized_results, ['ranking', 'name', 'team_name', 'average', 'sum', 'sd'], ['Ranking', 'Name', 'Team', 'Average', 'Sum', 'StDev'])
+    },
+    on_download_sub_prize_results (sub_prize, head) {
+      let results = this.compiled_sub_prize_results(sub_prize)
+      let organized_results = results.map(result => Object.assign({}, result))
+      for (let result of organized_results) {
+        result.name = this.speaker_by_id(result.id).name
+        result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
+      }
+      this.download_results_as_csv({poi: "poi", best: "best_speaker"}[sub_prize]+'_results.csv', organized_results, ['ranking', 'name', 'team_name', sub_prize], ['Ranking', 'Name', 'Team', head])
+    },
+    download_results_as_csv (filename, results, labels, headers) {
       let link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.download = 'speaker_results.csv'
+      let csv = headers.join(',') + '\n'
+      for (let result of results.slice().sort((r1, r2) => r1.ranking > r2.ranking)) {
+        csv += labels.map(label => result[label]).join(',') + '\n'
+      }
+      link.href = URL.createObjectURL(new Blob([csv], {type: 'text/plain'}))
+      link.download = filename
       link.click()
-    },
-    team_results_to_csv_text (results) {
-      let csv = ['name', 'ranking', 'win', 'sum', 'margin', 'vote', 'stDev'].join(',') + '\n'
-      for (let result of results.slice().sort((r1, r2) => r1.ranking > r2.ranking)) {
-        csv += [this.team_by_id(result.id).name, result.ranking, result.win, result.sum, result.margin, result.vote, result.sd].join(',') + '\n'
-      }
-      return csv
-    },
-    speaker_results_to_csv_text (results) {
-      let csv = ['name', 'ranking', 'average', 'sum', 'stDev'].join(',') + '\n'
-      for (let result of results.slice().sort((r1, r2) => r1.ranking > r2.ranking)) {
-        csv += [this.speaker_by_id(result.id).name, result.ranking, result.average, result.sum, result.sd].join(',') + '\n'
-      }
       return csv
     }
   }

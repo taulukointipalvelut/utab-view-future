@@ -148,6 +148,12 @@ export default {
             return getters.target_score_sheets.find(ss => ss.from_id === parseInt(id, 10))
         }
     },
+    teams_by_speaker_id: (state, getters) => {
+        return id => {
+            let teams = getters.target_tournament.teams
+            return teams.filter(team => getters.details_1(team).speakers.includes(id))
+        }
+    },
     round_by_r: select_by_key_factory('rounds', 'r'),
     draw_by_r: select_by_key_factory('draws', 'r'),
     team_by_id: select_by_key_factory('teams'),

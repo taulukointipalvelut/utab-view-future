@@ -31,8 +31,7 @@ export default {
         let speaker = this.speaker_by_id(compiled_result.id)
         let result = Object.assign({}, compiled_result)
         result.name = speaker.name
-        let teams = this.target_tournament.teams.filter(t => this.details_1(t).speakers.includes(speaker.id))
-        result.teams = teams.map(t => t.name)
+        result.teams = this.teams_by_speaker_id(speaker.id).map(t => t.name)
         organized_results.push(result)
       }
       return organized_results
@@ -42,7 +41,7 @@ export default {
       'compiled_sub_prize_results',
       'team_by_id',
       'speaker_by_id',
-      'details_1'
+      'teams_by_speaker_id'
     ])
   },
   mounted () {
