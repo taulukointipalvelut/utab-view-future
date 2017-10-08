@@ -4,7 +4,7 @@
       #title
         span.nav-icon
           router-link(to="/"): i.fa.fa-home
-        h1: router-link(to="/") utab
+        h1: router-link(to="/") PDA
         span.nav-collapse-arrow
           button(@click="toggleDropdownMenu")
             i.caret-collapse-toggle
