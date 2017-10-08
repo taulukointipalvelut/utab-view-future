@@ -20,15 +20,11 @@ Make sure the installation has done.
 npm run dev
 ```
 
-Then visit: [http://localhost:8080/](http://localhost:8080/)
+Then visit: [http://localhost:8010/](http://localhost:8010/)
 
-### Build & Serve
+### Build
 
 ```sh
 # build for production with minification
 npm run build
-# serve them
-node server.js
 ```
-
-Then visit: [http://localhost:8080/](http://localhost:8080/)
