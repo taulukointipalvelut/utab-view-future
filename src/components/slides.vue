@@ -23,13 +23,11 @@
 import math from 'assets/js/math'
 
 export default {
-  props: {
-    texts_list: {
-      default () { return [] }
-    },
-    title: "",
-    credit: ""
-  },
+  props: [
+    'texts_list',
+    'title',
+    'credit'
+  ],
   data () {
     return {
       current_slide: 0,
@@ -94,6 +92,7 @@ export default {
     window.addEventListener('keyup', this.on_keyup_event)
   },
   mounted () {
+    this.current_texts = this.texts_list[0]
     this.$message({
       message: 'Press Space key for the next slide',
       duration: 4000,
@@ -106,7 +105,6 @@ export default {
         showClose: true
       })
     }, 4000)
-    this.current_texts = this.texts_list.length > 0 ? this.texts_list[0] : []
   },
   destroyed () {
     window.removeEventListener('keyup', this.on_keyup_event)

@@ -19,12 +19,16 @@ export default {
   },
   data () {
     return {
-      credit: '',
-      max_ranking_rewarded: null,
       started: false
     }
   },
   computed: {
+    max_ranking_rewarded () {
+      return this.$route.query.max_ranking_rewarded
+    },
+    credit () {
+      return this.$route.query.credit
+    },
     organized_results () {
       let organized_results = []
       for (let compiled_result of this.target_tournament.compiled_speaker_results) {
@@ -45,8 +49,6 @@ export default {
   },
   mounted () {
     this.started = true
-    this.max_ranking_rewarded = this.$route.query.max_ranking_rewarded
-    this.credit = this.$route.query.credit
   }
 }
 </script>
