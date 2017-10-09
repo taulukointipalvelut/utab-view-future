@@ -78,7 +78,7 @@
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
           .outer-table-tr.check__label
-            .outer-table-td.label I declare the result above is correct
+            .outer-table-td.label I declare the result above is correct (Show this page to students)
             .outer-table-td
               el-checkbox(v-model="confirmed") Yes
 
