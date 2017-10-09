@@ -1,8 +1,8 @@
 import ballot from 'pages/tournament/round/ballot/adjudicator/stores'
 import math from 'assets/js/math.js'
 
-//const API_BASE_URL = 'http://localhost/api'
-const API_BASE_URL = location.protocol+'//pda.herokuapp.com/api'
+const API_BASE_URL = 'http://localhost/api'
+//const API_BASE_URL = location.protocol+'//pda.herokuapp.com/api'
 
 function find_tournament (state, payload) {
     return state.tournaments.find(t => t.name === payload.tournament.name)
@@ -72,7 +72,7 @@ export default {
     errors: []
   },
   getters: {
-    isAuth: state => { return (state.auth && state.auth.session) ? true: false; },
+    isAuth: state => true,//{ return (state.auth && state.auth.session) ? true: false },
     target_tournament: state => {
       return state.tournaments.find(t => t.name === state.route.params.tournament_name)
     },
