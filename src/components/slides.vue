@@ -155,7 +155,7 @@ export default {
 
   .context
     background white
-    height 60vh
+    height 70vh
     color #555
     margin-top 0%
     text-shadow 0.1rem 0.1rem 0.05rem rgba(#999999, 0.15)
