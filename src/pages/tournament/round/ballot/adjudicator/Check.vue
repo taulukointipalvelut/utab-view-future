@@ -77,18 +77,24 @@
             .outer-table-td.winner {{ team_by_id(result.winner).name | defaults('Not specified yet') }}
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
-          .outer-table-tr.check__label
-            .outer-table-td.label I declare the result above is correct (Show this page to students)
-            .outer-table-td
-              el-checkbox(v-model="confirmed") Yes
 
     section.buttons(v-if="!loading && path_valid")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :loading="sending", :disabled="loading || !confirmed") {{ sending ? 'Sending...' : 'Send' }} #[i.fa.fa-paper-plane]
+      el-button(type="primary" @click="dialog.check.visible = true") OK
+        //, :loading="sending") {{ sending ? 'Sending...' : 'Send' }} #[i.fa.fa-paper-plane]
 
     p(v-if="!loading && !path_valid", style="text-align: center;") Sorry, you seem to have reloaded this page. Please try again.
     section.buttons(v-if="!loading")
       el-button(@click="on_home") #[i.fa.fa-home] Home
+
+    el-dialog(title="Confirmation", :visible.sync="dialog.check.visible")
+      .dialog-body
+        .outer-table-tr.check__label
+          p I declare the result is correct.
+          el-checkbox(v-model="dialog.check.checked") Yes
+      .dialog-footer(slot="footer")
+        el-button(@click="dialog.check.visible = false") Cancel
+        el-button(type="primary", :loading="dialog.check.sending", @click="on_next", :disabled="!dialog.check.checked") #[i.fa.fa-paper-plane] Send
 </template>
 
 <script>
@@ -105,8 +111,14 @@ export default {
   props: ['score_sheet'],
   data () {
     return {
-      sending: false,
-      confirmed: false
+      confirmed: false,
+      dialog: {
+        check: {
+          sending: false,
+          visible: false,
+          checked: false
+        }
+      }
     }
   },
   computed: {
@@ -145,11 +157,14 @@ export default {
     },
     on_next () {
       this.sending = true
+      this.dialog.check.visible = false
+      this.dialog.check.checked = false
       this.send_ballot({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(this.init_all)
         .then(() => {
+          this.reset_state()
           this.sending = false
-          this.$router.push('done')
+          this.$router.push('done?winner=1')
         })
     },
     total (side) {

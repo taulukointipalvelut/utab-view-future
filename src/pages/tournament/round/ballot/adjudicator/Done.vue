@@ -19,18 +19,13 @@ export default {
   components: {
     'loading-container': loading_container
   },
-  data () {
-    return {
-      winner: ""
-    }
-  },
   computed: {
+    winner () {
+      return this.$route.query.winner
+    },
     ...mapState([
       'auth',
       'loading'
-    ]),
-    ...mapState('ballot', [
-      'result'
     ]),
     ...mapGetters([
       'isAuth',
@@ -42,19 +37,12 @@ export default {
     ])
   },
   methods: {
-    ...mapMutations('ballot', [
-      'reset_state'
-    ]),
     on_home () {
       this.$router.push('/home')
     },
     on_next () {
       this.$router.push(this.next)
     }
-  },
-  mounted () {
-    this.winner = this.result.winner
-    this.reset_state()
   }
 }
 </script>
