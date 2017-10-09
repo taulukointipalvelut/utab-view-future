@@ -148,7 +148,6 @@ export default {
       this.send_ballot({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(this.init_all)
         .then(() => {
-          this.reset_state()
           this.sending = false
           this.$router.push('done')
         })

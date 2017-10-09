@@ -3,6 +3,7 @@
     .card-container(v-if="!loading")
       el-card
         h2 Thank you! Your ballot was successfully sent.
+        h2 You voted for {{ team_by_id(winner).name }}.
 
     section.buttons(v-if="!loading")
       el-button(@click="on_home") #[i.fa.fa-home] Home
@@ -10,7 +11,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { smartphone } from 'assets/js/media-query'
 import loading_container from 'components/loading-container'
 
@@ -18,13 +19,22 @@ export default {
   components: {
     'loading-container': loading_container
   },
+  data () {
+    return {
+      winner: ""
+    }
+  },
   computed: {
     ...mapState([
       'auth',
       'loading'
     ]),
+    ...mapState('ballot', [
+      'result'
+    ]),
     ...mapGetters([
-      'isAuth'
+      'isAuth',
+      'team_by_id'
     ]),
     ...mapGetters('ballot', [
       'next',
@@ -32,12 +42,19 @@ export default {
     ])
   },
   methods: {
+    ...mapMutations('ballot', [
+      'reset_state'
+    ]),
     on_home () {
       this.$router.push('/home')
     },
     on_next () {
       this.$router.push(this.next)
     }
+  },
+  mounted () {
+    this.winner = this.result.winner
+    this.reset_state()
   }
 }
 </script>
