@@ -1,87 +1,52 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
     .card-container(v-if="!loading && path_valid")
-      el-card.gov
+      el-card(v-for="side in ['gov', 'opp']", :class="side", :key="side")
         div(slot="header").card-header-container
-          span.card-title {{ team_by_id(score_sheet.teams.gov).name }}
-          span.card-subtitle Gov
+          span.card-title {{ team_by_id(score_sheet.teams[side]).name }}
+          span.card-subtitle {{ style.side_labels_short[side] }}
         .outer-table
-          .outer-table-tr(v-for="role in roles", :key="role")
+          .outer-table-tr(v-for="role in style.roles[side].slice().sort((r1, r2) => r1.order > r2.order ? 1 : -1)", :key="role.abbr")
             .outer-table-td.role
               .inner-table
                 .inner-table-tr
-                  .inner-table-td {{ style.roles.gov[role].abbr }}
+                  .inner-table-td {{ role.abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="result.gov.best[role]") BEST
+                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="ballot[side].best[role.abbr]") BEST
                     br
-                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="result.gov.poi[role]") POI
+                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="ballot[side].poi[role.abbr]") POI
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(result.gov.speakers[role]).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(ballot[side].speakers[role.abbr]).name | defaults('Not specified yet') }}
                   .inner-table-td.right
-                    router-link(:to="{ path: `score/gov-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
+                    router-link(:to="{ path: `score/${ side }-${ role.order }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
-                  .inner-table-td.right {{ result.gov.matters[role] }}
+                  .inner-table-td.right {{ ballot[side].matters[role.abbr] }}
                 .inner-table-tr
                   .inner-table-td Manner
-                  .inner-table-td.right {{ result.gov.manners[role] }}
+                  .inner-table-td.right {{ ballot[side].manners[role.abbr] }}
                 .inner-table-tr.total
                   .inner-table-td Total
-                  .inner-table-td.right {{ Number(result.gov.matters[role]) + Number(result.gov.manners[role]) }}
+                  .inner-table-td.right {{ Number(ballot[side].matters[role.abbr]) + Number(ballot[side].manners[role.abbr]) }}
           //.outer-table-tr
             .outer-table-td.role Total
-            .outer-table-td.flex.right {{ total('gov') }}
-
-      el-card.opp
-        div(slot="header").card-header-container
-          span.card-title {{ team_by_id(score_sheet.teams.opp).name }}
-          span.card-subtitle Opp
-        .outer-table
-          .outer-table-tr(v-for="role in roles")
-            .outer-table-td.role
-              .inner-table
-                .inner-table-tr
-                  .inner-table-td {{ style.roles.opp[role].abbr }}
-                .inner-table-tr
-                  .inner-table-td
-                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="result.opp.best[role]") BEST
-                    br
-                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="result.opp.poi[role]") POI
-            .outer-table-td.flex
-              .inner-table.result
-                .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(result.opp.speakers[role]).name | defaults('Not specified yet') }}
-                  .inner-table-td.right
-                    router-link(:to="{ path: `score/opp-${ role }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
-                .inner-table-tr
-                  .inner-table-td Matter
-                  .inner-table-td.right {{ result.opp.matters[role] }}
-                .inner-table-tr
-                  .inner-table-td Manner
-                  .inner-table-td.right {{ result.opp.manners[role] }}
-                .inner-table-tr.total
-                  .inner-table-td Total
-                  .inner-table-td.right {{ Number(result.opp.matters[role]) + Number(result.opp.manners[role]) }}
-          //.outer-table-tr
-            .outer-table-td.role Total
-            .outer-table-td.flex.right {{ total('opp') }}
+            .outer-table-td.flex.right {{ total(side) }}
 
     .card-container(v-if="!loading && path_valid")
       el-card.flat
         .outer-table.no-border
           .outer-table-tr
             .outer-table-td.label Winner
-            .outer-table-td.winner {{ team_by_id(result.winner).name | defaults('Not specified yet') }}
+            .outer-table-td.winner {{ team_by_id(ballot.winner).name | defaults('Not specified yet') }}
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
 
     section.buttons(v-if="!loading && path_valid")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="dialog.check.visible = true") OK
-        //, :loading="sending") {{ sending ? 'Sending...' : 'Send' }} #[i.fa.fa-paper-plane]
 
     p(v-if="!loading && !path_valid", style="text-align: center;") Sorry, you seem to have reloaded this page. Please try again.
     section.buttons(v-if="!loading")
@@ -130,12 +95,11 @@ export default {
       'isAuth',
       'team_by_id',
       'speaker_by_id',
-      'target_tournament'
+      'target_tournament',
+      'style'
     ]),
     ...mapState('ballot', [
-      'result',
-      'roles',
-      'style',
+      'ballot',
       'path_valid'
     ])
   },
@@ -153,7 +117,7 @@ export default {
       this.$router.push('/home')
     },
     on_prev () {
-      this.$router.push('score/gov-reply')
+      this.$router.push('score/'+this.style.speaker_sequence[this.style.speaker_sequence.length - 1])
     },
     on_next () {
       this.sending = true

@@ -39,7 +39,8 @@ export default {
     ]),
     ...mapGetters([
       'isAuth',
-      'team_by_id'
+      'team_by_id',
+      'style'
     ]),
     ...mapState('ballot', [
       'ballot'
@@ -53,7 +54,7 @@ export default {
       this.winner({ winner })
     },
     on_prev () {
-      this.$router.push('score/gov-reply')
+      this.$router.push('score/'+this.style.speaker_sequence[this.style.speaker_sequence.length - 1])
     },
     on_next () {
       this.$router.push('check')

@@ -86,7 +86,6 @@ export default {
       this.input_result({ side: this.side_name, key, role: this.role_name, value })
     },
     on_prev () {
-      console.log(this.style.speaker_sequence)
       let seq_index = this.style.speaker_sequence.findIndex(seq => seq === this.sequence_name)
       if (seq_index === 0) {
         return this.$router.push('../speaker')
