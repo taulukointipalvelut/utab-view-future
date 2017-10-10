@@ -7,6 +7,14 @@ function object_adder (obj1, obj2) {
     return added
 }
 
+function initialize_obj(keys, default_value=null) {
+    let obj = {}
+    for (let key of keys) {
+        obj[key] = default_value
+    }
+    return obj
+}
+
 function object_converter (result, prop, default_value=0) {
     let id_to_roles = {}
     for (let role in result.speakers) {
@@ -43,116 +51,47 @@ function object_converter_temp (obj) {
 export default {
   namespaced: true,
   state: {
-    path_valid: false,
-    steps: ['speaker', 'score', 'winner', 'check', 'done'],
-    roles: ['leader', 'deputy', 'member', 'reply'],
-    sequence: ['../speaker', 'gov-leader', 'opp-leader', 'gov-deputy', 'gov-member', 'opp-deputy', 'opp-member', 'opp-reply', 'gov-reply', '../winner'],
-    style: {
-      roles: {
-        gov: {
-          leader: { long: 'Prime Minister', abbr: 'PM' },
-          deputy: { long: 'Member of Government1', abbr: 'MG1' },
-          member: { long: 'Member of Government2', abbr: 'MG2' },
-          reply: { long: 'Government Reply', abbr: 'GR' }
-        },
-        opp: {
-          leader: { long: 'Leader of Opposition', abbr: 'LO' },
-          deputy: { long: 'Member of Opposition1', abbr: 'MO1' },
-          member: { long: 'Member of Opposition2', abbr: 'MO2' },
-          reply: { long: 'Opposition Reply', abbr: 'OR' }
-        }
-      }
-    },
-    result: {
-      winner: null,
-      gov: {
-          speakers: {
-              leader: null,
-              deputy: null,
-              member: null,
-              reply: null
+      path_valid: false,
+      ballot: {
+          winner: null,
+          gov: {
+              speakers: [],
+              matters: [],
+              manners: [],
+              poi: [],
+              best: []
           },
-          matters: {
-              leader: 5,
-              deputy: 5,
-              member: 5,
-              reply: 5
-          },
-          manners: {
-              leader: 5,
-              deputy: 5,
-              member: 5,
-              reply: 5
-          },
-          best: {
-              leader: false,
-              deputy: false,
-              member: false,
-              reply: false
-          },
-          poi: {
-              leader: false,
-              deputy: false,
-              member: false,
-              reply: false
-          }
-      },
-      opp: {
-          speakers: {
-              leader: null,
-              deputy: null,
-              member: null,
-              reply: null
-          },
-          matters: {
-              leader: 5,
-              deputy: 5,
-              member: 5,
-              reply: 5
-          },
-          manners: {
-              leader: 5,
-              deputy: 5,
-              member: 5,
-              reply: 5
-          },
-          best: {
-              leader: false,
-              deputy: false,
-              member: false,
-              reply: false
-          },
-          poi: {
-              leader: false,
-              deputy: false,
-              member: false,
-              reply: false
+          opp: {
+              speakers: [],
+              matters: [],
+              manners: [],
+              poi: [],
+              best: []
           }
       }
-    }
-  },
-  getters: {
-    current_step (state, getters, rootState, rootGetters) {
-      return state.steps.findIndex(step => step === rootState.route.name)
-    }
   },
   mutations: {
-    path_confirmed (state, payload) {
-      state.path_valid = true
+    path_confirmed (state) {
+        state.path_valid = true
     },
-    gov_pos_name (state, payload) {
-      state.result.gov.speakers[payload.pos_name] = payload.value
-    },
-    opp_pos_name (state, payload) {
-      state.result.opp.speakers[payload.pos_name] = payload.value
+    init_ballot (state, payload) {
+        state.path_valid = false
+        state.ballot.winner = null
+        for (let side of ['gov', 'opp']) {
+            state.ballot[side].speakers = initialize_obj(payload.roles[side])
+            state.ballot[side].matters = initialize_obj(payload.roles[side], 5)
+            state.ballot[side].manners = initialize_obj(payload.roles[side], 5)
+            state.ballot[side].poi = initialize_obj(payload.roles[side], false)
+            state.ballot[side].best = initialize_obj(payload.roles[side], false)
+        }
     },
     input_result (state, payload) {
-      state.result[payload.side][payload.key][payload.role] = payload.value
+      state.ballot[payload.side][payload.key][payload.role] = payload.value
     },
     winner (state, payload) {
-      state.result.winner = payload.winner
-    },
-    reset_state (state) {
+      state.ballot.winner = payload.winner
+    }
+    /*reset_state (state) {
       let sides = ['gov', 'opp']
       let roles = ['leader', 'deputy', 'member', 'reply']
       state.result.winner = null
@@ -166,7 +105,7 @@ export default {
               state.result[side].manners[role] = 5
           }
       }
-    }
+    }*/
   },
   actions: {
     async send_ballot ({ getters, state, commit, dispatch, rootState }, payload) {

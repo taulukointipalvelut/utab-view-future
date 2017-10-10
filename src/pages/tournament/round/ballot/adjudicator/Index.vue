@@ -10,7 +10,7 @@
         el-step(title="Winner")
         el-step(title="Check")
         el-step(title="Done")
-    router-view(v-if="round && adjudicator", :score_sheet="score_sheet")
+    router-view(v-if="round && adjudicator && score_sheet", :score_sheet="score_sheet")
 </template>
 
 <script>
@@ -23,12 +23,23 @@ export default {
   components: {
     'loading-container': loading_container
   },
+  data () {
+    return {
+      steps: ['speaker', 'score', 'winner', 'check', 'done']
+    }
+  },
   computed: {
+     current_step () {
+       return this.steps.findIndex(step => step === this.$route.name)
+     },
     round () {
       return this.round_by_r(this.r_str)
     },
     adjudicator () {
       return this.adjudicator_by_id(this.id_str)
+    },
+    score_sheet () {
+      return this.score_sheet_by_id(this.id_str)
     },
     ...mapState([
       'auth',
@@ -38,22 +49,26 @@ export default {
       'isAuth',
       'round_by_r',
       'adjudicator_by_id',
-      'score_sheet_by_id'
-    ]),
-    ...mapGetters('ballot', [
-      'current_step'
-    ]),
-    score_sheet () {
-      return this.score_sheet_by_id(this.id_str)
-    }
+      'score_sheet_by_id',
+      'style'
+    ])
   },
   methods: {
+    ...mapMutations('ballot', [
+      'init_ballot'
+    ]),
     ...mapActions([
       'init_teams'
     ]),
-    ...mapActions('ballot', [
-      'init_ballot'
-    ])
+  },
+  mounted () {
+    let payload = {
+      roles: {
+        gov: this.style.roles.gov.map(r => r.abbr),
+        opp: this.style.roles.opp.map(r => r.abbr),
+      }
+    }
+    this.init_ballot(payload)
   }
 }
 </script>

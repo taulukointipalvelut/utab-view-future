@@ -1,10 +1,10 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
-    section(v-if="result_editing")
+    section(v-if="score_sheet")
       el-card(:class="side_name")
         div(slot="header").card-header-container
-          span.card-title {{ role_name_long(role_name) | camelize }}
-          span.card-subtitle {{ side_name | capitalize }}
+          span.card-title {{ role_name_long | camelize }}
+          span.card-subtitle {{ side_label | capitalize }}
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
             el-select(:value="result_editing.speakers[role_name]", @input="on_input_result('speakers', $event)", placeholder="Select Speaker")
@@ -19,13 +19,13 @@
             el-switch(:value="result_editing.best[role_name]", @input="on_input_result('best', $event)", on-text="Yes", off-text="No")
           el-form-item(label="POI Prize")
             el-switch(:value="result_editing.poi[role_name]", @input="on_input_result('poi', $event)", on-text="Yes", off-text="No")
-    section.buttons(v-if="result_editing")
+    section.buttons(v-if="score_sheet")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import qs from 'qs'
 import { smartphone } from 'assets/js/media-query'
 import number_box from 'components/number-box'
@@ -42,64 +42,66 @@ export default {
   computed: {
     smartphone: smartphone,
     proceedable () {
-      return this.result_editing.speakers[this.role_name] !== null
+      return true//this.result_editing.speakers[this.role_name] !== null
     },
     total_score () {
       return this.result_editing.matters[this.role_name] + this.result_editing.manners[this.role_name]
     },
-    query () {
-      return qs.parse(location.search.slice(1))
+    side_label () {
+      return this.style.side_labels_short[this.side_name]
     },
     side_name () {
-      return this.sequence_name.split('-')[0].toLocaleLowerCase()
+      return this.sequence_name.split('-')[0]
+    },
+    role_order () {
+      return parseInt(this.sequence_name.split('-')[1].toLocaleLowerCase(), 10)
     },
     role_name () {
-      return this.sequence_name.split('-')[1].toLocaleLowerCase()
+      return this.style.roles[this.side_name].find(r => r.order === this.role_order).abbr
     },
     result_editing () {
-      return this.result[this.side_name]
+      return this.ballot[this.side_name]
     },
-    current_sequence_index () {
-      return this.sequence.findIndex(x => x.toLocaleLowerCase() === this.sequence_name.toLocaleLowerCase())
-    },
-    prev () {
-      return this.sequence[this.current_sequence_index - 1]
-    },
-    next () {
-      return this.sequence[this.current_sequence_index + 1]
+    role_name_long () {
+      return this.style.roles[this.side_name].find(r => r.order === this.role_order).long
     },
     ...mapGetters([
       'team_by_id',
       'speaker_by_id',
-      'details_1'
+      'details_1',
+      'style'
     ]),
     ...mapState([
       'loading'
     ]),
     ...mapState('ballot', [
-      'result',
-      'speakers',
-      'sequence',
-      'style'
+      'ballot'
     ])
   },
   methods: {
+    ...mapMutations('ballot', [
+      'input_result'
+    ]),
+    on_input_result (key, value) {
+      this.input_result({ side: this.side_name, key, role: this.role_name, value })
+    },
     on_prev () {
-      const prev = this.query.prev ? this.query.prev : this.prev
-      this.$router.push(prev)
+      console.log(this.style.speaker_sequence)
+      let seq_index = this.style.speaker_sequence.findIndex(seq => seq === this.sequence_name)
+      if (seq_index === 0) {
+        return this.$router.push('../speaker')
+      } else {
+        return this.$router.push(this.style.speaker_sequence[seq_index - 1])
+      }
     },
     on_next () {
-      const next = this.query.next ? this.query.next : this.next
-      this.$router.push(next)
+      let seq_index = this.style.speaker_sequence.findIndex(seq => seq === this.sequence_name)
+      if (seq_index === this.style.speaker_sequence.length - 1) {
+        return this.$router.push('../winner')
+      } else {
+        return this.$router.push(this.style.speaker_sequence[seq_index + 1])
+      }
     },
-    on_input_result (key, value) {
-      const side = this.side_name
-      const role = this.role_name
-      this.$store.commit('ballot/input_result', { side, role, key, value })
-    },
-    role_name_long (role_name) {
-      return this.style.roles[this.side_name][this.role_name].long
-    }
   },
   filters: {
     capitalize (word) {

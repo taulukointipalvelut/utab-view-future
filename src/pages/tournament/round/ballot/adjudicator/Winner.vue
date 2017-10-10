@@ -10,7 +10,7 @@
             .winner-selector__item.sideinfo-header
               .sideinfo-header__item Opp
               //.sideinfo-header__item {{ total('opp') }} pts
-          el-radio-group.winner-selector(:value="result.winner", @input="on_selected($event)", size="large")
+          el-radio-group.winner-selector(:value="ballot.winner", @input="on_select_winner", size="large")
             el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ team_by_id(score_sheet.teams.gov).name }}
             el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ team_by_id(score_sheet.teams.opp).name }}
 
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { smartphone } from 'assets/js/media-query'
 import loading_container from 'components/loading-container'
 
@@ -31,7 +31,7 @@ export default {
   props: ['score_sheet'],
   computed: {
     proceedable () {
-      return this.result.winner && this.result.winner !== ''
+      return this.ballot.winner && this.ballot.winner !== ''
     },
     ...mapState([
       'auth',
@@ -42,21 +42,24 @@ export default {
       'team_by_id'
     ]),
     ...mapState('ballot', [
-      'result'
+      'ballot'
     ])
   },
   methods: {
+    ...mapMutations('ballot', [
+      'winner'
+    ]),
+    on_select_winner (winner) {
+      this.winner({ winner })
+    },
     on_prev () {
       this.$router.push('score/gov-reply')
     },
     on_next () {
       this.$router.push('check')
     },
-    on_selected (winner) {
-      this.$store.commit('ballot/winner', { winner })
-    },
     total (side) {
-      return Object.values(this.result[side].matters).reduce((a, b) => a + b, 0) + Object.values(this.result[side].manners).reduce((a, b) => a + b, 0)
+      return Object.values(this.score_sheet.input_result[side].matters).reduce((a, b) => a + b, 0) + Object.values(this.score_sheet.input_result[side].manners).reduce((a, b) => a + b, 0)
     }
   }
 }

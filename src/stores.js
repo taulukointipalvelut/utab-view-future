@@ -38,7 +38,7 @@ function fetch_data (commit, method, url, data=null) {
 
 function select_by_key_factory (label, key="id") {
     function select_by_key (state, getters) {
-        return key_str => {
+        return function (key_str) {
             let targets = getters.target_tournament[label]
             return targets.find(t => t[key] === parseInt(key_str, 10))
         }
@@ -52,9 +52,54 @@ function results_factory(label) {
         if (tournament === undefined) {
             return []
         }
-        return r_str => {
+        return function (r_str) {
             return tournament[label].filter(res => res.r === parseInt(r_str, 10)).sort((r1, r2) => r1.from_id > r2.from_id)
         }
+    }
+}
+
+function replace_factory(label) {
+    return function (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament[label] = payload[label]
+    }
+}
+
+function add_one_factory(label, label_singular) {
+    return function (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament[label].push(payload[label_singular])
+    }
+}
+
+function add_ones_factory(label) {
+    return function (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament[label] = tournament[label].concat(payload[label])
+    }
+}
+
+function delete_factory(label, label_singular, keys=['id']) {
+    console.log("preparing")
+    return function (state, payload) {
+        let tournament = find_tournament(state, payload)
+        let fit = tournament[label]
+        for (let key of keys) {
+            fit = fit.filter(e => e[key] !== payload[label_singular][key])
+        }
+        tournament[label] = fit
+    }
+}
+
+function update_factory(label, label_singular, keys=['id']) {
+    return function (state, payload) {
+        let tournament = find_tournament(state, payload)
+        let fit = tournament[label]
+        for (let key of keys) {
+            fit = fit.filter(e => e[key] !== payload[label_singular][key])
+        }
+        tournament[label] = fit
+        tournament[label].push(payload[label])
     }
 }
 
@@ -73,15 +118,18 @@ export default {
   },
   getters: {
     isAuth: state => true,//{ return (state.auth && state.auth.session) ? true: false },
-    target_tournament: state => {
+    target_tournament (state) {
       return state.tournaments.find(t => t.name === state.route.params.tournament_name)
     },
-    target_draw: (state, getters) => {
+    target_draw (state, getters) {
         return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str, 10))
     },
-    target_score_sheets: (state, getters) => {
+    target_score_sheets (state, getters) {
         let tournament = getters.target_tournament
         let draw = getters.target_draw
+        let style = getters.style
+        let gov_roles = style.roles.gov.map(r => r.abbr)
+        let opp_roles = style.roles.opp.map(r => r.abbr)
         if (draw === undefined) {
             return []
         }
@@ -105,7 +153,7 @@ export default {
         }
         return score_sheets
     },
-    target_evaluation_sheets: (state, getters) => {
+    target_evaluation_sheets (state, getters) {
         let tournament = getters.target_tournament
         let draw = getters.target_draw
         if (draw === undefined) {
@@ -143,13 +191,13 @@ export default {
         }
         return evaluation_sheets
     },
-    score_sheet_by_id: (state, getters) => {
-        return id => {
+    score_sheet_by_id (state, getters) {
+        return function (id) {
             return getters.target_score_sheets.find(ss => ss.from_id === parseInt(id, 10))
         }
     },
-    teams_by_speaker_id: (state, getters) => {
-        return id => {
+    teams_by_speaker_id (state, getters) {
+        return function (id) {
             let teams = getters.target_tournament.teams
             return teams.filter(team => getters.details_1(team).speakers.includes(id))
         }
@@ -172,12 +220,16 @@ export default {
     raw_team_results_by_r: results_factory('raw_team_results'),
     raw_speaker_results_by_r: results_factory('raw_speaker_results'),
     raw_adjudicator_results_by_r: results_factory('raw_adjudicator_results'),
-    details_1: function (state, getters) {
-        return entity => {
+    details_1 (state, getters) {
+        return function (entity) {
             return Object.assign(entity, entity.details.find(d => d.r === 1))
         }
     },
-    compiled_sub_prize_results: function (state, getters) {
+    style (state, getters) {
+        let tournament = getters.target_tournament
+        return tournament.style
+    },
+    compiled_sub_prize_results (state, getters) {
         return function (sub_prize) {
             let compiled_speaker_results = getters.target_tournament.compiled_speaker_results
             if (compiled_speaker_results.length === 0) {
@@ -234,9 +286,10 @@ export default {
         let tournament = {
           id: payload.tournament.id,
           name: payload.tournament.name,
-          href: { path: '/'+payload.tournament.name },
-          current_round_num: 1,
+          href: payload.tournament.href,
+          current_round_num: payload.tournament.current_round_num,
           total_round_num: payload.tournament.total_round_num,
+          style: payload.tournament.style,
           rounds: [],
           teams: [],
           adjudicators: [],
@@ -248,25 +301,6 @@ export default {
           raw_adjudicator_results: [],
           compiled_team_results: [],
           compiled_speaker_results: [],
-          style: {
-            score_weights: [
-              1,
-              0.5,
-              0.5,
-              1
-            ],
-            positions_short: [
-              "Gov",
-              "Opp"
-            ],
-            positions: [
-              "Government",
-              "Opposition"
-            ],
-            team_num: 2,
-            name: "PDA3",
-            id: "PDA3"
-          }
         }
         state.tournaments.push(tournament)
     },
@@ -279,26 +313,14 @@ export default {
         tournament.draws = tournament.draws.filter(draw => draw.r !== payload.draw.r)
         tournament.draws.push(payload.draw)
     },
-    draws (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament.draws = payload.draws
-    },
-    rounds (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament.rounds = payload.rounds
-    },
+    draws: replace_factory('draws'),
+    rounds: replace_factory('rounds'),
     raw_results (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament['raw_'+payload.label_singular+'_results'] = payload.raw_results
     },
-    compiled_team_results (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament.compiled_team_results = payload.compiled_team_results
-    },
-    compiled_speaker_results (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament.compiled_speaker_results = payload.compiled_speaker_results
-    },
+    compiled_team_results: replace_factory('compiled_team_results'),
+    compiled_speaker_results: replace_factory('compiled_speaker_results'),
     add_raw_results (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament['raw_'+payload.label_singular+'_results'].concat(payload.raw_results)
@@ -335,19 +357,9 @@ export default {
         console.log("preparing")
         //tournament[payload.label].filter(e => e.id === payload[payload.label].id) = payload[payload.label]
     },
-    add_round (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament.rounds.push(payload.round)
-    },
-    delete_round (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament.rounds = tournament.rounds.filter(e => e.r !== payload.round.r)
-    },
-    update_round (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament.rounds = tournament.rounds.filter(e => e.r !== payload.round.r)
-        tournament.rounds.push(payload.round)
-    },
+    add_round: add_one_factory('rounds', 'round'),
+    delete_round: delete_factory('rounds', 'round', ['r']),
+    update_round: update_factory('rounds', 'round', ['r']),
     finish_loading (state) {
         state.loading = false
     },
@@ -372,6 +384,8 @@ export default {
               .then(() => commit('delete_round', payload))
       },
       send_tournament ({state, commit, dispatch}, payload) {
+          console.log(payload)
+          console.log("hi")
          return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
             .then(() => commit('add_tournament', payload))
       },
@@ -435,137 +449,6 @@ export default {
                 }
                 commit('tournaments', { tournaments })
             })
-
-          /*return new Promise((resolve, reject) => {
-            setTimeout(() => {
-              const tournaments = [{
-                id: 284,
-                name: 'PDA Tournament 2018',
-                href: { path: '/PDA Tournament 2018' },
-                current_round_num: 1,
-                total_round_num: 4,
-                rounds: [],
-                teams: [],
-                adjudicators: [],
-                speakers: [{
-                    id: 1,
-                    name: "s1"
-                }, {
-                    id: 2,
-                    name: "s2"
-                }, {
-                    id: 3,
-                    name: "s3"
-                }, {
-                    id: 4,
-                    name: "s4"
-                }, {
-                    id: 5,
-                    name: "s5"
-                }, {
-                    id: 6,
-                    name: "s6"
-                }, {
-                    id: 7,
-                    name: "s7"
-                }, {
-                    id: 8,
-                    name: "s8"
-                }, {
-                    id: 9,
-                    name: "s9"
-                }, {
-                    id: 10,
-                    name: "s10"
-                }, {
-                    id: 11,
-                    name: "s11"
-                }],
-                institutions: [{
-                    id: 1,
-                    name: "i1"
-                }, {
-                    id: 2,
-                    name: "i2"
-                }],
-                venues: [{
-                    id: 1,
-                    name: "v1"
-                }, {
-                    id: 2,
-                    name: "v2"
-                }, {
-                    id: 3,
-                    name: "v3"
-                }],
-                draws: [{
-                    r: 1,
-                    allocation: [{
-                        venue: 1,
-                        teams: {
-                            0: 1,
-                            1: 2
-                        },
-                        chairs: [-1],
-                        panels: [-2, -3],
-                        trainees: []
-                    }, {
-                        venue: 2,
-                        teams: {
-                            0: 3,
-                            1: 4
-                        },
-                        chairs: [-4],
-                        panels: [-5, -6],
-                        trainees: []
-                    }]
-                },{
-                    r: 2,
-                    allocation: [{
-                        venue: 1,
-                        teams: {
-                            0: 1,
-                            1: 2
-                        },
-                        chairs: [-1],
-                        panels: [-2, -3],
-                        trainees: []
-                    }, {
-                        venue: 2,
-                        teams: {
-                            0: 3,
-                            1: 4
-                        },
-                        chairs: [-4],
-                        panels: [-5, -6],
-                        trainees: []
-                    }]
-                }],
-                style: {
-                  score_weights: [
-                    1,
-                    0.5,
-                    0.5,
-                    1
-                  ],
-                  positions_short: [
-                    "Gov",
-                    "Opp"
-                  ],
-                  positions: [
-                    "Government",
-                    "Opposition"
-                  ],
-                  team_num: 2,
-                  name: "PDA3",
-                  id: "PDA3"
-                }
-              }]
-
-              commit('tournaments', { tournaments })
-              resolve()
-            }, 1000)
-        })*/
     },
     init_draws ({ state, commit, dispatch }, payload) {
         return Promise.all(state.tournaments.map(t =>
@@ -593,29 +476,6 @@ export default {
                     commit('rounds', { tournament: t, rounds })
                 })
             ))
-          /*return new Promise(async (resolve, reject) => {
-            if (state.tournaments.length === 0) {
-              await dispatch('init_tournaments')
-            }
-            setTimeout(() => {
-              const rounds = [{
-                href: { path: '/PDA Tournament 2018/rounds/1' },
-                r: 1,
-                name: "Round 1",
-                team_allocation_opened: true,
-                adjudicator_allocation_opened: true,
-              },
-              {
-                href: { path: '/PDA Tournament 2018/rounds/2' },
-                r: 2,
-                name: "Round 2",
-                team_allocation_opened: true,
-                adjudicator_allocation_opened: true,
-              }]
-              commit('rounds', { tournament: {name: 'PDA Tournament 2018'}, rounds })
-              resolve()
-            }, 1000)
-        })*/
     },
     init_raw_results ({ state, commit, dispatch }, payload) {
         let labels = ['teams', 'speakers', 'adjudicators']
@@ -633,105 +493,7 @@ export default {
             }
         }
         return Promise.all(ps)
-          /*return new Promise(async (resolve, reject) => {
-            if (state.tournaments.length === 0) {
-              await dispatch('init_tournaments')
-            }
-            setTimeout(() => {
-              const rounds = [{
-                href: { path: '/PDA Tournament 2018/rounds/1' },
-                r: 1,
-                name: "Round 1",
-                team_allocation_opened: true,
-                adjudicator_allocation_opened: true,
-              },
-              {
-                href: { path: '/PDA Tournament 2018/rounds/2' },
-                r: 2,
-                name: "Round 2",
-                team_allocation_opened: true,
-                adjudicator_allocation_opened: true,
-              }]
-              commit('rounds', { tournament: {name: 'PDA Tournament 2018'}, rounds })
-              resolve()
-            }, 1000)
-        })*/
     },
-    /*init_adjudicators ({ state, commit, dispatch }, payload) {
-        /*let p = state.tournaments.length === 0 ? dispatch('init_tournaments') : new Promise((resolve, reject) => resolve())
-        return p
-            .then(function() {
-                for (let t of state.tournaments) {
-                    fetch(API_BASE_URL+'/tournaments/'+t.id+'/adjudicators')
-                        .then(response => response.json())
-                        .then(function (response) {
-                            let adjudicators = []
-                            for (let a_fetched of response.data) {
-                                let adjudicator = {
-                                    id: a_fetched.id,
-                                    done: false,
-                                    name: a_fetched.name,
-                                    href: { to: a_fetched.name }
-                                }
-                                adjudicators.push(adjudicator)
-                            }
-                            commit('adjudicators', { tournament: {name: t.name}, adjudicators })
-                        })
-                }
-            })
-          /*return new Promise(async (resolve, reject) => {
-            if (state.tournaments.length === 0) {
-              await dispatch('init_tournaments')
-            }
-            setTimeout(() => {
-              const adjudicators = [{
-                id: -1,
-                name: 'Adjudicator 1',
-                //href: { to: `Adjudicator%201` },
-                institutions: [1],
-                available: true
-              }, {
-                id: -2,
-                name: 'Adjudicator 2',
-                //href: { to: `Adjudicator%202` },
-                institutions: [1],
-                available: true
-              }, {
-                id: -5,
-                name: 'Adjudicator 5',
-                //href: { to: `Adjudicator%205` },
-                institutions: [1],
-                available: true
-              }, {
-                id: -3,
-                name: 'Adjudicator 3',
-                //href: { to: `Adjudicator%203` },
-                institutions: [1],
-                available: true
-              }, {
-                id: -6,
-                name: 'Adjudicator 6',
-                //href: { to: `Adjudicator%206` },
-                institutions: [1],
-                available: true
-              }, {
-                id: -7,
-                name: 'Adjudicator 7',
-                //href: { to: `Adjudicator%207` },
-                institutions: [2],
-                available: true
-              }, {
-                id: -4,
-                name: 'Adjudicator 4',
-                //href: { to: `Adjudicator%204` },
-                institutions: [1],
-                available: true
-              }]
-              commit('adjudicators', { tournament: {name: 'PDA Tournament 2018'}, adjudicators })
-              resolve()
-          }, 1000)
-        })
-    },*/
     init_entities ({ state, commit, dispatch }, payload) {
         let labels = ['teams', 'adjudicators', 'speakers', 'venues', 'institutions']
         let ps = []
@@ -749,40 +511,6 @@ export default {
             }
         }
         return Promise.all(ps)
-          /*return new Promise(async (resolve, reject) => {
-            if (state.tournaments.length === 0) {
-              await dispatch('init_tournaments')
-            }
-            setTimeout(() => {
-              const teams = [{
-                  id: 1,
-                  name: 'Super Duper Jumpin\' Long Team Name',
-                  speakers: [1, 2, 3],
-                  institutions: [1],
-                  available: true
-                }, {
-                  id: 2,
-                  name: 'Team B',
-                  speakers: [4, 5, 6, 7],
-                  institutions: [1],
-                  available: true
-                }, {
-                  id: 3,
-                  name: 'Team C',
-                  speakers: [8, 9],
-                  institutions: [2],
-                  available: true
-                }, {
-                  id: 4,
-                  name: 'Team D',
-                  speakers: [10, 11],
-                  institutions: [],
-                  available: true
-                }]
-              commit('teams', { tournament: {name: 'PDA Tournament 2018'}, teams })
-              resolve()
-          }, 1000)
-      })*/
     },
     init_all ({ state, commit, dispatch }, payload) {
         return new Promise(async (resolve, reject) => {
@@ -799,10 +527,6 @@ export default {
     request_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
         return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.r_str+'/draws')
-            .then(data => {
-                let draw = data
-                commit('change_draw', { tournament, draw })
-            })
     },
     submit_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)

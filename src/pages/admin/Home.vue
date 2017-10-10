@@ -169,13 +169,36 @@ export default {
         if (valid) {
           const tournament = Object.assign({}, this.dialog.create.form.model)
           tournament.style = {
-            id: "PDA3",
+            id: 1,
             name: "PDA3",
             team_num: 2,
-            score_weights: [1, 0.5, 0.5, 1]
-          }//{ name: this.dialog.create.form.model.style_name }
+            score_weights: [1, 0.5, 0.5, 1],
+            speaker_sequence: ['gov-1', 'opp-1', 'gov-2', 'gov-3', 'opp-2', 'opp-3', 'opp-4', 'gov-4'],
+            roles: {
+                gov: [
+                  { order: 1, long: 'Prime Minister', abbr: 'PM' },
+                  { order: 2, long: 'Member of Government1', abbr: 'MG1' },
+                  { order: 3, long: 'Member of Government2', abbr: 'MG2' },
+                  { order: 4, long: 'Government Reply', abbr: 'GR' }
+                ],
+                opp: [
+                  { order: 1, long: 'Leader of Opposition', abbr: 'LO' },
+                  { order: 2, long: 'Member of Opposition1', abbr: 'MO1' },
+                  { order: 3, long: 'Member of Opposition2', abbr: 'MO2' },
+                  { order: 4, long: 'Opposition Reply', abbr: 'OR' }
+                ]
+            },
+            side_labels_short: {
+                gov: "Gov",
+                opp: "Opp"
+            },
+            side_labels: {
+                gov: "Government",
+                opp: "Opposition"
+            }
+          }
+          tournament.current_round_num = 1
           tournament.href = { path: `/${ tournament.name }` }
-          tournament.name = tournament.name
           this.send_tournament({ tournament: tournament })
           this.dialog.create.loading = false
           this.dialog.create.visible = false
