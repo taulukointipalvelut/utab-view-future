@@ -295,8 +295,11 @@ export default {
     },
     on_request_draw () {
       let tournament = this.target_tournament
-      return this.request_draw({ tournament, r_str: this.r_str }).then(() => {
-        this.init_allocation()
+      return this.request_draw({ tournament, r_str: this.r_str }).then((data) => {
+        //this.draw_requested = data
+        console.log(data)
+        console.log("preparing")
+        //this.init_allocation()
       })
     },
     on_send_allocation () {

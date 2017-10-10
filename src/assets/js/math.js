@@ -22,6 +22,10 @@ function sum (arr) {
     return arr.reduce((a, b) => a + b, 0)
 }
 
+function sum_bool (arr) {
+    return arr.reduce((a, b) => (a ? 1 : 0) + (b ? 1 : 0), 0)
+}
+
 function average (arr) {
     if (arr.length === 0) {
         return 0
@@ -42,6 +46,7 @@ exports.disjoint = disjoint
 exports.common = common
 exports.range = range
 exports.sum = sum
+exports.sum_bool = sum_bool
 exports.average = average
 exports.capitalize = capitalize
 exports.query_from_obj = query_from_obj

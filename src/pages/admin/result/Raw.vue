@@ -15,13 +15,15 @@
               el-table-column(prop="win", label="Win", align="center", sortable)
                 template(scope="scope")
                   span {{ scope.row.win }}
-              el-table-column(prop="from_id", label="From Adjudicator", align="center", sortable)
+              el-table-column(prop="from_id", label="From", align="center", sortable)
                 template(scope="scope")
                   span {{ adjudicator_by_id(scope.row.from_id).name }}
               el-table-column(align="right")
                 template(scope="scope")
                   el-button.edit(size="small", @click="on_edit('team', scope.row)") #[el-icon(name="edit")]
                   el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', scope.row)") #[el-icon(name="close")]
+          .operations
+            el-button(@click="on_download_raw_team_results") Download Raw Team Results
         el-tab-pane(label="Collected raw Speaker results")
           section(v-if="!loading")
             el-table(:data="raw_speaker_results_by_r(r_str)")
@@ -32,13 +34,15 @@
                 el-table-column(v-for="index in [0, 1, 2, 3]", prop="scores", :key="index", :label="['1st', '2nd', '3rd', '4th'][index]", align="center", sortable)
                   template(scope="scope")
                     span {{ scope.row.scores[index] === 0 ? '' : scope.row.scores[index] }}
-              el-table-column(prop="from_id", label="From Adjudicator", align="center", sortable)
+              el-table-column(prop="from_id", label="From", align="center", sortable)
                 template(scope="scope")
                   span {{ adjudicator_by_id(scope.row.from_id).name }}
               el-table-column(align="right")
                 template(scope="scope")
                   el-button.edit(size="small", @click="on_edit('speaker', scope.row)") #[el-icon(name="edit")]
                   el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', scope.row)") #[el-icon(name="close")]
+          .operations
+            el-button(@click="on_download_raw_speaker_results") Download Raw Speaker Results
 
       el-dialog(title="Edit Result", :visible.sync="dialog.team_result.visible", v-if="!loading")
         .dialog-body
@@ -120,6 +124,7 @@ export default {
       'isAuth',
       'target_tournament',
       'team_by_id',
+      'teams_by_speaker_id',
       'speaker_by_id',
       'adjudicator_by_id',
       'target_score_sheets',
@@ -171,6 +176,43 @@ export default {
         this.dialog[label_singular+'_result'].loading = false
       })
     },
+    on_download_raw_team_results () {
+      let results = this.raw_team_results_by_r(this.r_str)
+      let organized_results = results.map(result => Object.assign({}, result))
+      for (let result of organized_results) {
+        result.name = this.team_by_id(result.id).name
+        result.from_name = this.adjudicator_by_id(result.from_id).name
+        result.opponents_name = result.opponents.map(this.team_by_id).map(e => e.name).join(' ')
+      }
+      this.download_results_as_csv('raw_team_results_in_round_'+this.r_str+'.csv', organized_results, ['name', 'win', 'side', 'opponents_name', 'from_name'], ['Name', 'Win', 'Side', 'Opponents', 'From'])
+    },
+    on_download_raw_speaker_results () {
+      let results = this.raw_speaker_results_by_r(this.r_str)
+      let organized_results = results.map(result => Object.assign({}, result))
+      for (let result of organized_results) {
+        result.name = this.speaker_by_id(result.id).name
+        result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
+        result.from_name = this.adjudicator_by_id(result.from_id).name
+        let roles = ['leader', 'deputy', 'member', 'reply']
+        math.range(4).map(ind => { result['score'+(ind+1)] = result.scores[ind] })
+        math.range(4).map(ind => { result['matter'+(ind+1)] = result.user_defined_data.matters[roles[ind]] })
+        math.range(4).map(ind => { result['manner'+(ind+1)] = result.user_defined_data.manners[roles[ind]] })
+        result.poi = result.hasOwnProperty('user_defined_data') ? (result.user_defined_data.hasOwnProperty('poi') ? math.sum_bool(Object.values(result.user_defined_data.poi)) : false) : false
+        result.best = result.hasOwnProperty('user_defined_data') ? (result.user_defined_data.hasOwnProperty('best') ? math.sum_bool(Object.values(result.user_defined_data.best)) : false) : false
+      }
+      this.download_results_as_csv('raw_speaker_results_in_round_'+this.r_str+'.csv', organized_results, ['name', 'score1', 'score2', 'score3', 'score4', 'matter1', 'matter2', 'matter3', 'matter4', 'manner1', 'manner2', 'manner3', 'manner4', 'from_name', 'poi', 'best'], ['Name', 'Score(1st)', 'Score(2nd)', 'Score(3rd)', 'Score(4th)', 'Matter(1st)', 'Matter(2nd)', 'Matter(3rd)', 'Matter(4th)', 'Manner(1st)', 'Manner(2nd)', 'Manner(3rd)', 'Manner(4th)', 'From', 'POI', 'Best Speaker'])
+    },
+    download_results_as_csv (filename, results, labels, headers) {
+      let link = document.createElement('a')
+      let csv = headers.join(',') + '\n'
+      for (let result of results.slice().sort((r1, r2) => r1.ranking > r2.ranking)) {
+        csv += labels.map(label => result[label]).join(',') + '\n'
+      }
+      link.href = URL.createObjectURL(new Blob([csv], {type: 'text/plain'}))
+      link.download = filename
+      link.click()
+      return csv
+    },
     transfer (to, from) {
       for (let key in to) {
         if (from.hasOwnProperty(key)) {
@@ -199,6 +241,11 @@ export default {
     color inherit
   main
     padding 5%
+
+  .operations
+    display flex
+    justify-content flex-end
+    margin-top 1rem
 
   .edit
     margin-right .4rem
