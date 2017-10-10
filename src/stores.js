@@ -128,8 +128,6 @@ export default {
         let tournament = getters.target_tournament
         let draw = getters.target_draw
         let style = getters.style
-        let gov_roles = style.roles.gov.map(r => r.abbr)
-        let opp_roles = style.roles.opp.map(r => r.abbr)
         if (draw === undefined) {
             return []
         }

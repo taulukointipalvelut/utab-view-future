@@ -83,7 +83,7 @@ export default {
       'input_result'
     ]),
     on_input_result (key, value) {
-      this.input_result({ side: this.side_name, key, role: this.role_name, value })
+      this.input_result({ side: this.side_name, key, role_name: this.role_name, value })
     },
     on_prev () {
       let seq_index = this.style.speaker_sequence.findIndex(seq => seq === this.sequence_name)

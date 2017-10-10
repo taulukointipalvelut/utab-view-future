@@ -56,8 +56,8 @@ export default {
       this.path_confirmed()
       this.$router.push('score/'+this.style.speaker_sequence[0])
     },
-    on_speaker_name (side, role, value) {
-      this.input_result({ side, key: 'speakers', role, value })
+    on_speaker_name (side, role_name, value) {
+      this.input_result({ side, key: 'speakers', role_name, value })
     }
   }
 }

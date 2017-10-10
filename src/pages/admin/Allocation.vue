@@ -13,19 +13,10 @@
                   el-popover(placement="right", trigger="hover")
                     el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
                     p id: {{ id }}
-          el-table-column(label="Gov")
+          el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels_short[side]")
             template(scope="scope")
-              draggable.adj-list(v-model="scope.row.teams.gov", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.gov)", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
-                .draggable-item(v-for="id in scope.row.teams.gov", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
-                  el-popover(placement="right", trigger="hover")
-                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-                    p id: {{ id }}
-                    p institutions: {{ institution_names_by_team_id(id) }}
-                    p speakers: {{ speaker_names_by_team_id(id) }}
-          el-table-column(label="Opp")
-            template(scope="scope")
-              draggable.adj-list(v-model="scope.row.teams.opp", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams.opp)", @end="on_end")
-                .draggable-item(v-for="id in scope.row.teams.opp", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
+              draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams[side])", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
+                .draggable-item(v-for="id in scope.row.teams[side]", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
                   el-popover(placement="right", trigger="hover")
                     el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
                     p id: {{ id }}
@@ -164,6 +155,7 @@ export default {
     ]),
     ...mapGetters([
       'isAuth',
+      'style',
       'target_tournament',
       'team_by_id',
       'adjudicator_by_id',

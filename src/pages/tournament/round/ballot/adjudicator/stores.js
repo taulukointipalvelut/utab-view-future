@@ -78,15 +78,15 @@ export default {
         state.path_valid = false
         state.ballot.winner = null
         for (let side of ['gov', 'opp']) {
-            state.ballot[side].speakers = initialize_obj(payload.roles[side])
-            state.ballot[side].matters = initialize_obj(payload.roles[side], 5)
-            state.ballot[side].manners = initialize_obj(payload.roles[side], 5)
-            state.ballot[side].poi = initialize_obj(payload.roles[side], false)
-            state.ballot[side].best = initialize_obj(payload.roles[side], false)
+            state.ballot[side].speakers = initialize_obj(payload.role_names[side])
+            state.ballot[side].matters = initialize_obj(payload.role_names[side], 5)
+            state.ballot[side].manners = initialize_obj(payload.role_names[side], 5)
+            state.ballot[side].poi = initialize_obj(payload.role_names[side], false)
+            state.ballot[side].best = initialize_obj(payload.role_names[side], false)
         }
     },
     input_result (state, payload) {
-      state.ballot[payload.side][payload.key][payload.role] = payload.value
+      state.ballot[payload.side][payload.key][payload.role_name] = payload.value
     },
     winner (state, payload) {
       state.ballot.winner = payload.winner

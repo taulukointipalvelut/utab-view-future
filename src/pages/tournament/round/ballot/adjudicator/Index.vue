@@ -63,7 +63,7 @@ export default {
   },
   mounted () {
     let payload = {
-      roles: {
+      role_names: {
         gov: this.style.roles.gov.map(r => r.abbr),
         opp: this.style.roles.opp.map(r => r.abbr),
       }

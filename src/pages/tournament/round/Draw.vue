@@ -7,10 +7,10 @@
         el-table-column(label="Venue")
           template(scope="scope")
             span {{ venue_by_id(scope.row.venue).name }}
-        el-table-column(label="Gov")
+        el-table-column(:label="style.side_labels_short['gov']")
           template(scope="scope")
             span {{ team_by_id(scope.row.teams.gov).name }}
-        el-table-column(label="Opp")
+        el-table-column(:label="style.side_labels_short['opp']")
           template(scope="scope")
             span {{ team_by_id(scope.row.teams.opp).name }}
         el-table-column.adjudicator-container(label="Chair", v-if="adjudicator_allocation_opened")
@@ -60,7 +60,8 @@ export default {
       'adjudicator_by_id',
       'round_by_r',
       'draw_by_r',
-      'venue_by_id'
+      'venue_by_id',
+      'style'
     ])
   },
   methods: {

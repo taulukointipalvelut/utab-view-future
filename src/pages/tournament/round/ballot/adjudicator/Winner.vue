@@ -5,11 +5,8 @@
         el-form
           .winner-selector
             .winner-selector__item.sideinfo-header
-              .sideinfo-header__item Gov
-              //.sideinfo-header__item {{ total('gov') }} pts
-            .winner-selector__item.sideinfo-header
-              .sideinfo-header__item Opp
-              //.sideinfo-header__item {{ total('opp') }} pts
+              div(v-for="side in ['gov', 'opp']", :key="side").sideinfo-header__item {{ style.side_labels_short[side] }}
+              //.sideinfo-header__item {{ total(side) }} pts
           el-radio-group.winner-selector(:value="ballot.winner", @input="on_select_winner", size="large")
             el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ team_by_id(score_sheet.teams.gov).name }}
             el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ team_by_id(score_sheet.teams.opp).name }}
