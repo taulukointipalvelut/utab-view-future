@@ -31,9 +31,9 @@
                 template(scope="scope")
                   span {{ speaker_by_id(scope.row.id).name }}
               el-table-column(label="scores", align="center")
-                el-table-column(v-for="index in [0, 1, 2, 3]", prop="scores", :key="index", :label="['1st', '2nd', '3rd', '4th'][index]", align="center", sortable)
+                el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
                   template(scope="scope")
-                    span {{ scope.row.scores[index] === 0 ? '' : scope.row.scores[index] }}
+                    span {{ score(scope.row.scores, index+1) === 0 ? '' : score(scope.row.scores, index+1) }}
               el-table-column(prop="from_id", label="From", align="center", sortable)
                 template(scope="scope")
                   span {{ adjudicator_by_id(scope.row.from_id).name }}
@@ -121,6 +121,7 @@ export default {
       'loading'
     ]),
     ...mapGetters([
+      'style',
       'isAuth',
       'target_tournament',
       'team_by_id',
@@ -147,6 +148,20 @@ export default {
       'send_delete_result',
       'init_raw_results'
     ]),
+    ordinal (order) {
+      if (order === 1) {
+        return '1st'
+      } else if (order === 2) {
+        return '2nd'
+      } else if (order === 3) {
+        return '3rd'
+      } else {
+        return order + 'th'
+      }
+    },
+    score (scores, order) {
+      return scores.find(sc => sc.order === order).score
+    },
     on_edit (label_singular, raw_result) {
       this.transfer(this.dialog[label_singular+'_result'].form.model, raw_result)
       this.dialog[label_singular+'_result'].visible = true

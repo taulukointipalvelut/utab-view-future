@@ -80,12 +80,13 @@ function add_ones_factory(label) {
 }
 
 function delete_factory(label, label_singular, keys=['id']) {
-    console.log("preparing")
     return function (state, payload) {
         let tournament = find_tournament(state, payload)
-        let fit = tournament[label]
+        let unfit = tournament[label]
+        let fit = []
         for (let key of keys) {
-            fit = fit.filter(e => e[key] !== payload[label_singular][key])
+            fit.concat(unfit.filter(e => e[key] !== payload[label_singular][key]))
+            unfit = unfit.filter(e => e[key] === payload[label_singular][key])
         }
         tournament[label] = fit
     }
@@ -363,6 +364,7 @@ export default {
     add_round: add_one_factory('rounds', 'round'),
     delete_round: delete_factory('rounds', 'round', ['r']),
     update_round: update_factory('rounds', 'round', ['r']),
+    delete_draw: delete_factory('draws', 'draw', ['r']),
     finish_loading (state) {
         state.loading = false
     },
@@ -383,12 +385,14 @@ export default {
              .then(() => commit('update_round', payload))
       },
       send_delete_round ({state, commit, dispatch}, payload) {
-          return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r, payload.round)
+          return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r)
               .then(() => commit('delete_round', payload))
       },
+      send_delete_draw ({state, commit, dispatch}, payload) {
+          return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws')
+              .then(() => commit('delete_draw', payload))
+      },
       send_tournament ({state, commit, dispatch}, payload) {
-          console.log(payload)
-          console.log("hi")
          return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
             .then(() => commit('add_tournament', payload))
       },

@@ -3,7 +3,7 @@
     section.page-header
       h1 Draw &amp; Allocation
       h3(v-if="!loading") {{ round_by_r(r_str).name }}
-    section
+    section(v-if="style")
       loading-container(:loading="loading")
         el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border)
           el-table-column(label="Venue")
@@ -39,8 +39,10 @@
                   p message: {{ warning.message }}
                   p details: {{ warning.details }}
         .operations
+          el-button(@click="on_reset_draw") Reset
           el-button(@click="dialog.draw.visible = true") Request
           el-button(type="primary", @click="on_send_allocation", :disabled="!sendable") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
+          el-button(@click="on_delete_draw", type="danger", :disabled="new_draw") Delete
 
     legend Waiting Adjudicators
     loading-container(:loading="loading")
@@ -70,12 +72,11 @@
               el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
               p id: {{ id }}
 
-
       el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
         el-tabs(v-model="dialog.draw.allocation_type")
-          el-tab-pane(v-for="label in (draw_temp.hasOwnProperty('allocation') ? ['all', 'teams', 'adjudicators', 'venues'] : ['all', 'teams'])", :label="capitalize(label)", :key="label", :name="label")
+          el-tab-pane(v-for="label in (draw_temp !== null ? ['all', 'teams', 'adjudicators', 'venues'] : ['all', 'teams'])", :label="capitalize(label)", :key="label", :name="label")
             .dialog-body
-              h3(v-if="label === 'adjudicators' || label === 'venues'", style="text-align: center;") Request allocation from existing draw
+              h3(v-if="label === 'adjudicators' || label === 'venues'", style="text-align: center;") Request allocation of {{ capitalize(label) }} with existing draw
               el-form(:model="dialog.draw.form.model", :rules="dialog.draw.form.rules")
                 el-form-item(label="Shuffle Venue", v-if="label === 'all' || label === 'venues'")
                   el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
@@ -91,6 +92,8 @@
                     el-option(v-for="algorithm in ['standard', 'strict']", :key="algorithm", :value="algorithm", :label="algorithm")
                 el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
                   el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
+                el-form-item(label="Considering Rounds")
+                  el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r)", :key="round.r", v-model="dialog.draw.considering_rs[round.r]", :checked="round.r < parseInt(r_str, 10)") {{ round.name }}
         .dialog-footer(slot="footer")
           el-button(@click="dialog.draw.visible = false") Cancel
           el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
@@ -117,6 +120,7 @@ export default {
           allocation_type: 'all',
           visible: false,
           loading: false,
+          considering_rs: Array(parseInt(this.r_str, 10)).fill(false),
           form: {
             model: {
               simple: false,
@@ -145,7 +149,7 @@ export default {
           }
         }
       },
-      new: true,
+      new_draw: true,
       active_institutions: [],
       team_options: {
         group: { name: 'team-list' },
@@ -163,7 +167,7 @@ export default {
       teams: [],
       adjudicators: [],
       venues: [],
-      draw_temp: {}
+      draw_temp: null
     }
   },
   computed: {
@@ -185,8 +189,8 @@ export default {
       return this.tournament ? this.tournament.href : { to: '/home' }
     },
     suggested_action () {
-      if (this.new) {
-        return 'submit'
+      if (this.new_draw) {
+        return 'save'
       } else {
         return 'update'
       }
@@ -211,12 +215,27 @@ export default {
     ])
   },
   methods: {
+    on_reset_draw () {
+      this.draw_temp = null,
+      this.init_allocation()
+    },
+    async on_delete_draw () {
+      const ans = await this.$confirm('Are you sure?')
+      if (ans === 'confirm') {
+        let payload = {
+          tournament: this.target_tournament,
+          draw: this.round_by_r(this.r_str)
+        }
+        this.send_delete_draw(payload)
+      }
+    },
     capitalize: math.capitalize,
     ...mapActions([
       'request_draw',
       'submit_draw',
       'update_draw',
-      'init_all'
+      'init_all',
+      'send_delete_draw'
     ]),
     team_same_institution (id) {
       return !math.disjoint(this.details_1(this.team_by_id(id)).institutions, this.active_institutions)
@@ -366,9 +385,12 @@ export default {
           shuffle: model.venue_allocation_algorithm_options.shuffle
         }
       }
+      options.by = Object.keys(this.dialog.draw.considering_rs).filter(key => this.dialog.draw.considering_rs[key]).map(key => parseInt(key, 10))
       return this.request_draw({ tournament, r_str: this.r_str, options, draw, allocation_type }).then((data) => {
         this.draw_temp = data
         this.init_allocation()
+        this.dialog.draw.loading = false
+      }).catch(() => {
         this.dialog.draw.loading = false
       })
     },
@@ -378,9 +400,9 @@ export default {
       let action = this.suggested_action
       let actions = {
         'update': this.update_draw,
-        'submit': this.submit_draw
+        'save': this.submit_draw
       }
-      return actions[action]({ tournament, draw }).then(() => { this.new = false })
+      return actions[action]({ tournament, draw }).then(() => { this.new_draw = false })
     },
     adjudicators_in_draw () {
       let adjudicators_in_draw = []
@@ -404,28 +426,21 @@ export default {
       return venues_in_draw
     },
     init_allocation () {
-        let draw = this.draw_by_r(this.r_str)
-        if (this.draw_temp.hasOwnProperty('allocation')) {
-            draw = this.draw_temp
-        } else {
-            this.draw_temp = draw.hasOwnProperty('allocation') ? draw : {}
-        }
+        let draw = {}
         let tournament = this.target_tournament
         this.draw_adjusted.allocation = []
-        if (draw !== undefined ) {
-            for (let square of draw.allocation) {
-                this.draw_adjusted.allocation.push({
-                    venues: square.venue === null ? [] : [square.venue],
-                    teams: {
-                        gov: [square.teams.gov],
-                        opp: [square.teams.opp]
-                    },
-                    chairs: square.chairs,
-                    panels: square.panels,
-                    trainees: square.trainees
-                })
-            }
-        } else {
+        let no_draw = true
+
+        if (this.draw_temp !== null) {
+            draw = this.draw_temp
+            no_draw = false
+        } else if (this.draw_by_r(this.r_str) !== undefined) {
+            draw = this.draw_by_r(this.r_str)
+            this.draw_temp = draw
+            no_draw = false
+        }
+
+        if (no_draw) {
             for (let square of Array(Math.floor(tournament.teams.length/2))) {
                 this.draw_adjusted.allocation.push({
                     venues: [],
@@ -438,7 +453,21 @@ export default {
                     trainees: []
                 })
             }
+        } else {
+            for (let square of draw.allocation) {
+                this.draw_adjusted.allocation.push({
+                    venues: square.venue === null ? [] : [square.venue],
+                    teams: {
+                        gov: [square.teams.gov],
+                        opp: [square.teams.opp]
+                    },
+                    chairs: square.chairs,
+                    panels: square.panels,
+                    trainees: square.trainees
+                })
+            }
         }
+
         this.venues = tournament.venues.map(v => v.id).filter(id => !this.venues_in_draw().includes(id))
         this.adjudicators = tournament.adjudicators.map(a => a.id).filter(id => !this.adjudicators_in_draw().includes(id))
         this.teams = tournament.teams.map(t => t.id).filter(id => !this.teams_in_draw().includes(id))
@@ -449,7 +478,7 @@ export default {
       this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
     }
     this.init_all().then(() => {
-      this.new = this.draw_by_r(this.r_str) === undefined ? true : false
+      this.new_draw = this.draw_by_r(this.r_str) === undefined ? true : false
       this.init_allocation()
     })
   }
