@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content
     section.page-header
-      h1 Allocation
+      h1 Draw &amp; Allocation
       h3(v-if="!loading") {{ round_by_r(r_str).name }}
     section
       loading-container(:loading="loading")
@@ -32,14 +32,14 @@
                     p institutions: {{ institution_names_by_adjudicator_id(id) }}
           el-table-column(v-for="label in ['team', 'adj']", :key="label", :label="{ team: 'Warnings(Team)', adj: 'Warnings(Adj)' }[label]")
             template(scope="scope")
-              div(v-for="warning in warn_team(scope.row)", :key="warning.code")
+              div(v-for="warning in warn(label, scope.row)", :key="warning.code")
                 el-popover(placement="right", width="200", trigger="hover")
                   el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
                   p code: {{ warning.code }}
                   p message: {{ warning.message }}
                   p details: {{ warning.details }}
         .operations
-          el-button(@click="on_request_draw") Request
+          el-button(@click="dialog.draw.visible = true") Request
           el-button(type="primary", @click="on_send_allocation", :disabled="!sendable") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
 
     legend Waiting Adjudicators
@@ -69,6 +69,31 @@
             el-popover(placement="right", trigger="hover")
               el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
               p id: {{ id }}
+
+
+      el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
+        el-tabs(v-model="dialog.draw.allocation_type")
+          el-tab-pane(v-for="label in (draw_temp.hasOwnProperty('allocation') ? ['all', 'teams', 'adjudicators', 'venues'] : ['all', 'teams'])", :label="capitalize(label)", :key="label", :name="label")
+            .dialog-body
+              h3(v-if="label === 'adjudicators' || label === 'venues'", style="text-align: center;") Request allocation from existing draw
+              el-form(:model="dialog.draw.form.model", :rules="dialog.draw.form.rules")
+                el-form-item(label="Shuffle Venue", v-if="label === 'all' || label === 'venues'")
+                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
+                el-form-item(label="Simple", prop="simple", v-if="label !== 'venues' || !dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
+                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.simple")
+                el-form-item(label="Force", prop="force", v-if="label !== 'venues' || !dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
+                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.force")
+                el-form-item(label="Teaming algorithm", v-if="label === 'all' || label === 'teams'")
+                  el-select(v-model="dialog.draw.form.model.team_allocation_algorithm")
+                    el-option(v-for="algorithm in ['standard', 'traditional']", :key="algorithm", :value="algorithm", :label="algorithm")
+                el-form-item(label="Allocation algorithm", v-if="label === 'all' || label === 'adjudicators'")
+                  el-select(v-model="dialog.draw.form.model.adjudicator_allocation_algorithm")
+                    el-option(v-for="algorithm in ['standard', 'strict']", :key="algorithm", :value="algorithm", :label="algorithm")
+                el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
+                  el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.draw.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
 </template>
 
 <script>
@@ -87,6 +112,39 @@ export default {
   props: ['r_str'],
   data () {
     return {
+      dialog: {
+        draw: {
+          allocation_type: 'all',
+          visible: false,
+          loading: false,
+          form: {
+            model: {
+              simple: false,
+              force: false,
+              team_allocation_algorithm: 'standard',
+              team_allocation_algorithm_options: {
+                avoid_conflict: false,
+                method: 'custom',
+                weights: [1, 0, 1, 0, 0, 0, 0],
+                filters: ['by_strength', 'by_side', 'by_past_opponent', 'by_institution']
+              },
+              adjudicator_allocation_algorithm: 'standard',
+              adjudicator_allocation_algorithm_options: {
+                assign: 'high_to_slight'
+              },
+              numbers_of_adjudicators: {
+                chairs: 1,
+                panels: 0,
+                trainees: 0
+              },
+              venue_allocation_algorithm_options: {
+                shuffle: false
+              }
+            },
+            rules: {}
+          }
+        }
+      },
       new: true,
       active_institutions: [],
       team_options: {
@@ -104,7 +162,8 @@ export default {
       draw_adjusted: { r: parseInt(this.r_str, 10), allocation: [] },
       teams: [],
       adjudicators: [],
-      venues: []
+      venues: [],
+      draw_temp: {}
     }
   },
   computed: {
@@ -196,27 +255,19 @@ export default {
     square_sendable (square) {
       if (square.teams.gov.length !== 1 || square.teams.opp.length !== 1) {
         return false
-      } else if (square.venues.length !== 1 || square.chairs.length === 0) {
+      } else if (square.venues.length > 1) {
         return false
       } else {
         return true
       }
     },
-    warn_team (square) {
+    warn (label, square) {
       let warnings = []
-      let check_funcs = [this.check_institutions]
-      for (let check_func of check_funcs) {
-        let warning = check_func(square)
-        if (warning !== null) {
-          warnings.push(warning)
-        }
+      let check_funcs = {
+        team: [this.check_institutions],
+        adj: [this.check_conflicts]
       }
-      return warnings
-    },
-    warn_adjudicator (square) {
-      let warnings = []
-      let check_funcs = [this.check_conflicts]
-      for (let check_func of check_funcs) {
+      for (let check_func of check_funcs[label]) {
         let warning = check_func(square)
         if (warning !== null) {
           warnings.push(warning)
@@ -282,12 +333,43 @@ export default {
       return draw
     },
     on_request_draw () {
+      this.dialog.draw.visible = false
+      this.dialog.draw.loading = true
       let tournament = this.target_tournament
-      return this.request_draw({ tournament, r_str: this.r_str }).then((data) => {
-        //this.draw_requested = data
-        console.log(data)
-        console.log("preparing")
-        //this.init_allocation()
+      let model = this.dialog.draw.form.model
+      let allocation_type = this.dialog.draw.allocation_type
+      let options = {}
+      let draw = {}
+      if (allocation_type === 'all') {
+        options = model
+      } else if (allocation_type === 'teams') {
+        options = {
+          simple: model.simple,
+          force: model.force,
+          algorithm: model.team_allocation_algorithm,
+          algorithm_options: model.team_allocation_algorithm_options,
+        }
+      } else if (allocation_type === 'adjudicators') {
+        draw = this.draw_temp
+        options = {
+          simple: model.simple,
+          force: model.force,
+          algorithm: model.adjudicator_allocation_algorithm,
+          algorithm_options: model.adjudicator_allocation_algorithm_options,
+          numbers_of_adjudicators: model.numbers_of_adjudicators
+        }
+      } else {
+        draw = this.draw_temp
+        options = {
+          simple: model.simple,
+          force: model.force,
+          shuffle: model.venue_allocation_algorithm_options.shuffle
+        }
+      }
+      return this.request_draw({ tournament, r_str: this.r_str, options, draw, allocation_type }).then((data) => {
+        this.draw_temp = data
+        this.init_allocation()
+        this.dialog.draw.loading = false
       })
     },
     on_send_allocation () {
@@ -323,12 +405,17 @@ export default {
     },
     init_allocation () {
         let draw = this.draw_by_r(this.r_str)
+        if (this.draw_temp.hasOwnProperty('allocation')) {
+            draw = this.draw_temp
+        } else {
+            this.draw_temp = draw.hasOwnProperty('allocation') ? draw : {}
+        }
         let tournament = this.target_tournament
         this.draw_adjusted.allocation = []
         if (draw !== undefined ) {
             for (let square of draw.allocation) {
                 this.draw_adjusted.allocation.push({
-                    venues: [square.venue],
+                    venues: square.venue === null ? [] : [square.venue],
                     teams: {
                         gov: [square.teams.gov],
                         opp: [square.teams.opp]
@@ -371,6 +458,7 @@ export default {
 
 <style lang="stylus">
   @import '../../draggable'
+  @import "../../common"
 
   .operations
     display flex

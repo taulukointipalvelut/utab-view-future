@@ -529,7 +529,15 @@ export default {
     },
     request_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
-        return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.r_str+'/draws')
+        let suffix = ''
+        if (payload.allocation_type === 'teams') {
+            suffix = '/teams'
+        } else if (payload.allocation_type === 'adjudicators') {
+            suffix = '/adjudicators'
+        } else if (payload.allocation_type === 'venues') {
+            suffix = '/venues'
+        }
+        return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.r_str+'/draws'+suffix, { draw: payload.draw, options: payload.options })
     },
     submit_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
