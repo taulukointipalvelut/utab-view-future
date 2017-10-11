@@ -104,7 +104,7 @@ export default {
         return this.$router.push(this.style.speaker_sequence[seq_index + 1])
       }
     },
-  },
+  }/*,
   filters: {
     capitalize (word) {
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -114,7 +114,7 @@ export default {
       const words = v.split(' ')
       return words.map(word => word === 'of' ? word : capitalize(word)).join(' ')
     }
-  }
+  }*/
 }
 </script>
 

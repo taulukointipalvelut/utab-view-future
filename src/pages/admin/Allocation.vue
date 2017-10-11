@@ -22,33 +22,17 @@
                     p id: {{ id }}
                     p institutions: {{ institution_names_by_team_id(id) }}
                     p speakers: {{ speaker_names_by_team_id(id) }}
-          el-table-column(label="Chairs")
+          el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label")
             template(scope="scope")
-              draggable.adj-list.chair(v-model="scope.row.chairs", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row.chairs)", @end="on_end")
-                .draggable-item(v-for="id in scope.row.chairs", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
+              draggable(class="adj-list", v-model="scope.row[label]", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row[label])", @end="on_end")
+                .draggable-item(v-for="id in scope.row[label]", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
                   el-popover(placement="right", trigger="hover")
                     el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
                     p id: {{ id }}
                     p institutions: {{ institution_names_by_adjudicator_id(id) }}
-          el-table-column(label="Panels")
+          el-table-column(v-for="label in ['team', 'adj']", :key="label", :label="{ team: 'Warnings(Team)', adj: 'Warnings(Adj)' }[label]")
             template(scope="scope")
-              draggable.adj-list.panel(v-model="scope.row.panels", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row.panels)", @end="on_end")
-                .draggable-item(v-for="id in scope.row.panels", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
-                  el-popover(placement="right", trigger="hover")
-                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-                    p id: {{ id }}
-                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
-          el-table-column(label="Trainees")
-            template(scope="scope")
-              draggable.adj-list.trainee(v-model="scope.row.trainees", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row.trainees)", @end="on_end")
-                .draggable-item(v-for="id in scope.row.trainees", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
-                  el-popover(placement="right", trigger="hover")
-                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-                    p id: {{ id }}
-                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
-          el-table-column(label="Warnings")
-            template(scope="scope")
-              div(v-for="warning in warn(scope.row)", :key="warning.code")
+              div(v-for="warning in warn_team(scope.row)", :key="warning.code")
                 el-popover(placement="right", width="200", trigger="hover")
                   el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
                   p code: {{ warning.code }}
@@ -168,6 +152,7 @@ export default {
     ])
   },
   methods: {
+    capitalize: math.capitalize,
     ...mapActions([
       'request_draw',
       'submit_draw',
@@ -217,18 +202,29 @@ export default {
         return true
       }
     },
-    warn (square) {
+    warn_team (square) {
       let warnings = []
-      let warn_funcs = [this.warn_institutions, this.warn_conflicts]
-      for (let warn_func of warn_funcs) {
-        let warning = warn_func(square)
+      let check_funcs = [this.check_institutions]
+      for (let check_func of check_funcs) {
+        let warning = check_func(square)
         if (warning !== null) {
           warnings.push(warning)
         }
       }
       return warnings
     },
-    warn_institutions (square) {
+    warn_adjudicator (square) {
+      let warnings = []
+      let check_funcs = [this.check_conflicts]
+      for (let check_func of check_funcs) {
+        let warning = check_func(square)
+        if (warning !== null) {
+          warnings.push(warning)
+        }
+      }
+      return warnings
+    },
+    check_institutions (square) {
       let t0_insti = square.teams.gov.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.gov)).institutions
       let t1_insti = square.teams.opp.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.opp)).institutions
       if (!math.disjoint(t0_insti, t1_insti)) {
@@ -244,7 +240,7 @@ export default {
         return null
       }
     },
-    warn_conflicts (square) {
+    check_conflicts (square) {
       let t0_insti = square.teams.gov.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.gov)).institutions
       let t1_insti = square.teams.opp.length === 0 ? [] : this.details_1(this.team_by_id(square.teams.opp)).institutions
       let adj_insti = Array.prototype.concat.apply(
