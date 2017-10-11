@@ -7,7 +7,7 @@
           span.card-subtitle {{ style.side_labels_short[side] }}
         el-form
           el-form-item(v-for="role in style.roles[side].slice().sort((r1, r2) => r1.order > r2.order ? 1 : -1)", :key="role.abbr", :label="role.abbr", required, :error='"Select "+role.abbr+"\'s Name"')
-            el-select(:value="result[side].speakers[role.abbr]", @input="on_speaker_name(side, role.abbr, $event)", :placeholder="'Select '+role.abbr")
+            el-select(:value="value(side, 'speakers', role.order)", @input="on_speaker_name(side, role.order, $event)", :placeholder="'Select '+role.abbr")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.gov)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -42,6 +42,9 @@ export default {
       'speaker_by_id',
       'details_1',
       'style'
+    ]),
+    ...mapGetters('ballot', [
+      'value'
     ])
   },
   methods: {
@@ -56,8 +59,8 @@ export default {
       this.path_confirmed()
       this.$router.push('score/'+this.style.speaker_sequence[0])
     },
-    on_speaker_name (side, role_name, value) {
-      this.input_result({ side, key: 'speakers', role_name, value })
+    on_speaker_name (side, role_order, value) {
+      this.input_result({ side, key: 'speakers', role_order, value })
     }
   }
 }

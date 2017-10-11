@@ -69,21 +69,15 @@ export default {
       opp: opp_roles.map(r => r.abbr),
     }
     let score_default = {
-      gov: {},
-      opp: {}
+      gov: this.style.roles.gov.map(r => r.range.default),
+      opp: this.style.roles.opp.map(r => r.range.default)
     }
     let sub_prize_default = {
-      gov: {},
-      opp: {}
-    }
-    for (let side of ['gov', 'opp']) {
-      for (let role_name of role_names[side]) {
-        score_default[side][role_name] = this.style.roles[side].find(r => r.abbr === role_name).range.default
-        sub_prize_default[side][role_name] = false
-      }
+      gov: this.style.roles.gov.map(r => false),
+      opp: this.style.roles.opp.map(r => false)
     }
     let payload = {
-      role_names,
+      len: this.style.score_weights.length,
       score_default,
       sub_prize_default
     }

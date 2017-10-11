@@ -13,24 +13,24 @@
                   .inner-table-td {{ role.abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="result[side].best[role.abbr]") BEST
+                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="value(side, 'best', role.order)") BEST
                     br
-                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="result[side].poi[role.abbr]") POI
+                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="value(side, 'poi', role.order)") POI
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(result[side].speakers[role.abbr]).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(value(side, 'speakers', role.order)).name | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/${ side }-${ role.order }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
-                  .inner-table-td.right {{ result[side].matters[role.abbr] }}
+                  .inner-table-td.right {{ value(side, 'matters', role.order) }}
                 .inner-table-tr
                   .inner-table-td Manner
-                  .inner-table-td.right {{ result[side].manners[role.abbr] }}
+                  .inner-table-td.right {{ value(side, 'manners', role.order) }}
                 .inner-table-tr.total
                   .inner-table-td Total
-                  .inner-table-td.right {{ Number(result[side].matters[role.abbr]) + Number(result[side].manners[role.abbr]) }}
+                  .inner-table-td.right {{ value(side, 'matters', role.order) + value(side, 'manners', role.order) }}
           //.outer-table-tr
             .outer-table-td.role Total
             .outer-table-td.flex.right {{ total(side) }}
@@ -97,6 +97,9 @@ export default {
       'speaker_by_id',
       'target_tournament',
       'style'
+    ]),
+    ...mapGetters('ballot', [
+      'value'
     ]),
     ...mapState('ballot', [
       'result',

@@ -1,18 +1,23 @@
+import math from 'assets/js/math.js'
 
-function object_adder (obj1, obj2) {
-    let added = {}
-    for (let key in obj1) {
-        added[key] = obj1[key] + obj2[key]
+function array_adder (arr1, arr2) {
+    let added = []
+    for (let e of arr1) {
+        let e2 = arr2.find(e3 => e3.order === e.order)
+        added.push({
+            order: e.order,
+            value: e.value + e2.value
+        })
     }
     return added
 }
 
-function initialize_obj(keys, default_values={}) {
-    let obj = {}
-    for (let key of keys) {
-        obj[key] = default_values.hasOwnProperty(key) ? default_values[key] : null
+function initialize_arr(len, default_values=undefined) {
+    let arr = []
+    for (let index of math.range(len)) {
+        arr.push({ order: index+1, value: default_values === undefined ? null : default_values[index] })
     }
-    return obj
+    return arr
 }
 
 function object_converter (result, prop, default_value=0) {
@@ -36,16 +41,15 @@ function object_converter (result, prop, default_value=0) {
     return converted
 }
 
-function object_converter_temp (obj) {
-    let obj2 = {}
-    for (let key in obj) {
-        if (key === 'deputy' || key === 'member') {
-            obj2[key] = obj[key]/2
-        } else {
-            obj2[key] = obj[key]
-        }
+function array_converter_temp (arr) {
+    let arr2 = []
+    for (let e of arr) {
+        arr2.push({
+            order: e.order,
+            value: e.order === 1 || e.order === 2 ? e.value/2 : e.value
+        })
     }
-    return obj2
+    return arr2
 }
 
 export default {
@@ -70,6 +74,14 @@ export default {
           }
       }
   },
+  getters: {
+    value (state) {
+        return function (side, label, order) {
+            let target = state.result[side][label].find(r => r.order === order)
+            return target.value
+        }
+    }
+  },
   mutations: {
     path_confirmed (state) {
         state.path_valid = true
@@ -78,15 +90,15 @@ export default {
         state.path_valid = false
         state.result.winner = null
         for (let side of ['gov', 'opp']) {
-            state.result[side].speakers = initialize_obj(payload.role_names[side])
-            state.result[side].matters = initialize_obj(payload.role_names[side], payload.score_default[side])
-            state.result[side].manners = initialize_obj(payload.role_names[side], payload.score_default[side])
-            state.result[side].poi = initialize_obj(payload.role_names[side], payload.sub_prize_default[side])
-            state.result[side].best = initialize_obj(payload.role_names[side], payload.sub_prize_default[side])
+            state.result[side].speakers = initialize_arr(payload.len)
+            state.result[side].matters = initialize_arr(payload.len, payload.score_default[side])
+            state.result[side].manners = initialize_arr(payload.len, payload.score_default[side])
+            state.result[side].poi = initialize_arr(payload.len, payload.sub_prize_default[side])
+            state.result[side].best = initialize_arr(payload.len, payload.sub_prize_default[side])
         }
     },
     input_result (state, payload) {
-      state.result[payload.side][payload.key][payload.role_name] = payload.value
+      state.result[payload.side][payload.key].find(r => r.order === payload.role_order).value = payload.value
     },
     winner (state, payload) {
       state.result.winner = payload.winner
@@ -126,15 +138,14 @@ export default {
     },
     convert_from_result ({ commit, state }, payload) {
         let score_sheet = payload.score_sheet
-        let roles = ['leader', 'deputy', 'member', 'reply']
         let converted_result = {
             gov: {
                 id: score_sheet.teams.gov,
                 win: state.result.winner === score_sheet.teams.gov,
                 speakers: state.result.gov.speakers,
-                scores: object_adder(object_converter_temp(state.result.gov.matters), object_converter_temp(state.result.gov.manners)),
-                matters: object_converter_temp(state.result.gov.matters),
-                manners: object_converter_temp(state.result.gov.manners),
+                scores: array_adder(array_converter_temp(state.result.gov.matters), array_converter_temp(state.result.gov.manners)),
+                matters: array_converter_temp(state.result.gov.matters),
+                manners: array_converter_temp(state.result.gov.manners),
                 best: state.result.gov.best,
                 poi: state.result.gov.poi
             },
@@ -142,14 +153,14 @@ export default {
                 id: score_sheet.teams.opp,
                 win: state.result.winner === score_sheet.teams.opp,
                 speakers: state.result.opp.speakers,
-                scores: object_adder(object_converter_temp(state.result.opp.matters), object_converter_temp(state.result.opp.manners)),
-                matters: object_converter_temp(state.result.opp.matters),
-                manners: object_converter_temp(state.result.opp.manners),
+                scores: array_adder(array_converter_temp(state.result.opp.matters), array_converter_temp(state.result.opp.manners)),
+                matters: array_converter_temp(state.result.opp.matters),
+                manners: array_converter_temp(state.result.opp.manners),
                 best: state.result.opp.best,
                 poi: state.result.opp.poi
             }
         }
-
+        console.log(converted_result)
         let raw_team_results = []
         let raw_speaker_results = []
         let sides = ['gov', 'opp']

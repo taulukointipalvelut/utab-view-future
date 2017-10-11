@@ -7,18 +7,18 @@
           span.card-subtitle {{ side_label | capitalize }}
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
-            el-select(:value="result_editing.speakers[role_name]", @input="on_input_result('speakers', $event)", placeholder="Select Speaker")
+            el-select(:value="value(side_name, 'speakers', role_order)", @input="on_input_result('speakers', $event)", placeholder="Select Speaker")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams[side_name])).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="Matter", required)
-            number-box(:value="result_editing.matters[role_name]", @input="on_input_result('matters', $event)", :min="role_range.from", :max="role_range.to", :step="role_range.unit")
+            number-box(:value="value(side_name, 'matters', role_order)", @input="on_input_result('matters', $event)", :min="role_range.from", :max="role_range.to", :step="role_range.unit")
           el-form-item(label="Manner", required)
-            number-box(:value="result_editing.manners[role_name]", @input="on_input_result('manners', $event)", :min="role_range.from", :max="role_range.to", :step="role_range.unit")
+            number-box(:value="value(side_name, 'manners', role_order)", @input="on_input_result('manners', $event)", :min="role_range.from", :max="role_range.to", :step="role_range.unit")
           el-form-item(label="Total Score")
             input-label(:value="total_score")
           el-form-item(label="Best Debater")
-            el-switch(:value="result_editing.best[role_name]", @input="on_input_result('best', $event)", on-text="Yes", off-text="No")
+            el-switch(:value="value(side_name, 'best', role_order)", @input="on_input_result('best', $event)", on-text="Yes", off-text="No")
           el-form-item(label="POI Prize")
-            el-switch(:value="result_editing.poi[role_name]", @input="on_input_result('poi', $event)", on-text="Yes", off-text="No")
+            el-switch(:value="value(side_name, 'poi', role_order)", @input="on_input_result('poi', $event)", on-text="Yes", off-text="No")
     section.buttons(v-if="score_sheet")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
@@ -45,7 +45,7 @@ export default {
       return true//this.result_editing.speakers[this.role_name] !== null
     },
     total_score () {
-      return this.result_editing.matters[this.role_name] + this.result_editing.manners[this.role_name]
+      return this.value(this.side_name, 'manners', this.role_order) + this.value(this.side_name, 'matters', this.role_order)
     },
     side_label () {
       return this.style.side_labels_short[this.side_name]
@@ -56,11 +56,11 @@ export default {
     role_order () {
       return parseInt(this.sequence_name.split('-')[1].toLocaleLowerCase(), 10)
     },
-    role_name () {
-      return this.style.roles[this.side_name].find(r => r.order === this.role_order).abbr
-    },
     role_range () {
       return this.style.roles[this.side_name].find(r => r.order === this.role_order).range
+    },
+    role_name () {
+      return this.style.roles[this.side_name].find(r => r.order === this.role_order).abbr
     },
     result_editing () {
       return this.result[this.side_name]
@@ -74,6 +74,9 @@ export default {
       'details_1',
       'style'
     ]),
+    ...mapGetters('ballot', [
+      'value'
+    ]),
     ...mapState([
       'loading'
     ]),
@@ -86,7 +89,7 @@ export default {
       'input_result'
     ]),
     on_input_result (key, value) {
-      this.input_result({ side: this.side_name, key, role_name: this.role_name, value })
+      this.input_result({ side: this.side_name, key, role_order: this.role_order, value })
     },
     on_prev () {
       let seq_index = this.style.speaker_sequence.findIndex(seq => seq === this.sequence_name)
@@ -104,7 +107,7 @@ export default {
         return this.$router.push(this.style.speaker_sequence[seq_index + 1])
       }
     },
-  }/*,
+  },
   filters: {
     capitalize (word) {
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -114,7 +117,7 @@ export default {
       const words = v.split(' ')
       return words.map(word => word === 'of' ? word : capitalize(word)).join(' ')
     }
-  }*/
+  }
 }
 </script>
 
