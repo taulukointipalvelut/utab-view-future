@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content
     section.page-header
-      h1 Adjudicator Evaluation Sheet
+      h1 Judge Evaluation Sheet
       h3 {{ round_by_r(r_str).name }}
     loading-container(:loading="loading")
       section(v-if="!loading && has_adjudicators")
@@ -19,6 +19,8 @@
               span(v-if="scope.row.is_adjudicator") {{ adjudicator_by_id(scope.row.from_id).name }}
               span(v-if="!scope.row.is_adjudicator") {{ team_by_id(scope.row.from_id).name }}
           el-table-column(prop="venue", label="Venue", v-if="!smartphone")
+            template(scope="scope")
+              span {{ venue_by_id(scope.row.venue).name }}
       section(v-if="!loading && !has_adjudicators && !has_teams")
         span No Adjudicators and Teams Available
 </template>
@@ -43,6 +45,7 @@ export default {
       'round_by_r',
       'adjudicator_by_id',
       'team_by_id',
+      'venue_by_id',
       'details_1',
       'target_evaluation_sheets'
     ]),

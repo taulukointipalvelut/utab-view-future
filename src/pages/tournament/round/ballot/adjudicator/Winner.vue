@@ -7,7 +7,7 @@
             .winner-selector__item.sideinfo-header
               div(v-for="side in ['gov', 'opp']", :key="side").sideinfo-header__item {{ style.side_labels_short[side] }}
               //.sideinfo-header__item {{ total(side) }} pts
-          el-radio-group.winner-selector(:value="ballot.winner", @input="on_select_winner", size="large")
+          el-radio-group.winner-selector(:value="result.winner", @input="on_select_winner", size="large")
             el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ team_by_id(score_sheet.teams.gov).name }}
             el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ team_by_id(score_sheet.teams.opp).name }}
 
@@ -28,7 +28,7 @@ export default {
   props: ['score_sheet'],
   computed: {
     proceedable () {
-      return this.ballot.winner && this.ballot.winner !== ''
+      return this.result.winner && this.result.winner !== ''
     },
     ...mapState([
       'auth',
@@ -40,7 +40,7 @@ export default {
       'style'
     ]),
     ...mapState('ballot', [
-      'ballot'
+      'result'
     ])
   },
   methods: {

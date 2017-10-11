@@ -13,24 +13,24 @@
                   .inner-table-td {{ role.abbr }}
                 .inner-table-tr
                   .inner-table-td
-                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="ballot[side].best[role.abbr]") BEST
+                    i.fa.fa-star.small(style="border: 1px solid #333333", v-if="result[side].best[role.abbr]") BEST
                     br
-                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="ballot[side].poi[role.abbr]") POI
+                    i.fa.fa-hand-paper-o.small(style="border: 1px solid #333333", v-if="result[side].poi[role.abbr]") POI
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(ballot[side].speakers[role.abbr]).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ speaker_by_id(result[side].speakers[role.abbr]).name | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/${ side }-${ role.order }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
                   .inner-table-td Matter
-                  .inner-table-td.right {{ ballot[side].matters[role.abbr] }}
+                  .inner-table-td.right {{ result[side].matters[role.abbr] }}
                 .inner-table-tr
                   .inner-table-td Manner
-                  .inner-table-td.right {{ ballot[side].manners[role.abbr] }}
+                  .inner-table-td.right {{ result[side].manners[role.abbr] }}
                 .inner-table-tr.total
                   .inner-table-td Total
-                  .inner-table-td.right {{ Number(ballot[side].matters[role.abbr]) + Number(ballot[side].manners[role.abbr]) }}
+                  .inner-table-td.right {{ Number(result[side].matters[role.abbr]) + Number(result[side].manners[role.abbr]) }}
           //.outer-table-tr
             .outer-table-td.role Total
             .outer-table-td.flex.right {{ total(side) }}
@@ -40,7 +40,7 @@
         .outer-table.no-border
           .outer-table-tr
             .outer-table-td.label Winner
-            .outer-table-td.winner {{ team_by_id(ballot.winner).name | defaults('Not specified yet') }}
+            .outer-table-td.winner {{ team_by_id(result.winner).name | defaults('Not specified yet') }}
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
 
@@ -99,7 +99,7 @@ export default {
       'style'
     ]),
     ...mapState('ballot', [
-      'ballot',
+      'result',
       'path_valid'
     ])
   },
@@ -108,7 +108,7 @@ export default {
       'reset_state'
     ]),
     ...mapActions('ballot', [
-      'send_ballot'
+      'send_result'
     ]),
     ...mapActions([
       'init_all'
@@ -123,7 +123,7 @@ export default {
       this.sending = true
       this.dialog.check.visible = false
       this.dialog.check.checked = false
-      this.send_ballot({ score_sheet: this.score_sheet, tournament: this.target_tournament })
+      this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(this.init_all)
         .then(() => {
           this.reset_state()

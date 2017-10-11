@@ -7,10 +7,10 @@ function object_adder (obj1, obj2) {
     return added
 }
 
-function initialize_obj(keys, default_value=null) {
+function initialize_obj(keys, default_values={}) {
     let obj = {}
     for (let key of keys) {
-        obj[key] = default_value
+        obj[key] = default_values.hasOwnProperty(key) ? default_values[key] : null
     }
     return obj
 }
@@ -52,7 +52,7 @@ export default {
   namespaced: true,
   state: {
       path_valid: false,
-      ballot: {
+      result: {
           winner: null,
           gov: {
               speakers: [],
@@ -74,22 +74,22 @@ export default {
     path_confirmed (state) {
         state.path_valid = true
     },
-    init_ballot (state, payload) {
+    init_result (state, payload) {
         state.path_valid = false
-        state.ballot.winner = null
+        state.result.winner = null
         for (let side of ['gov', 'opp']) {
-            state.ballot[side].speakers = initialize_obj(payload.role_names[side])
-            state.ballot[side].matters = initialize_obj(payload.role_names[side], 5)
-            state.ballot[side].manners = initialize_obj(payload.role_names[side], 5)
-            state.ballot[side].poi = initialize_obj(payload.role_names[side], false)
-            state.ballot[side].best = initialize_obj(payload.role_names[side], false)
+            state.result[side].speakers = initialize_obj(payload.role_names[side])
+            state.result[side].matters = initialize_obj(payload.role_names[side], payload.score_default[side])
+            state.result[side].manners = initialize_obj(payload.role_names[side], payload.score_default[side])
+            state.result[side].poi = initialize_obj(payload.role_names[side], payload.sub_prize_default[side])
+            state.result[side].best = initialize_obj(payload.role_names[side], payload.sub_prize_default[side])
         }
     },
     input_result (state, payload) {
-      state.ballot[payload.side][payload.key][payload.role_name] = payload.value
+      state.result[payload.side][payload.key][payload.role_name] = payload.value
     },
     winner (state, payload) {
-      state.ballot.winner = payload.winner
+      state.result.winner = payload.winner
     }
     /*reset_state (state) {
       let sides = ['gov', 'opp']
@@ -108,8 +108,8 @@ export default {
     }*/
   },
   actions: {
-    async send_ballot ({ getters, state, commit, dispatch, rootState }, payload) {
-        let { raw_team_results, raw_speaker_results } = await dispatch('convert_from_ballot', payload)
+    async send_result ({ getters, state, commit, dispatch, rootState }, payload) {
+        let { raw_team_results, raw_speaker_results } = await dispatch('convert_from_result', payload)
         let payload1 = {
             raw_results: raw_team_results,
             tournament: payload.tournament,
@@ -124,7 +124,7 @@ export default {
         }
         return Promise.all([dispatch('send_raw_results', payload1, { root: true }), dispatch('send_raw_results', payload2, { root: true })])
     },
-    convert_from_ballot ({ commit, state }, payload) {
+    convert_from_result ({ commit, state }, payload) {
         let score_sheet = payload.score_sheet
         let roles = ['leader', 'deputy', 'member', 'reply']
         let converted_result = {

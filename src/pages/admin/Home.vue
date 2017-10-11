@@ -176,16 +176,16 @@ export default {
             speaker_sequence: ['gov-1', 'opp-1', 'gov-2', 'gov-3', 'opp-2', 'opp-3', 'opp-4', 'gov-4'],
             roles: {
                 gov: [
-                  { order: 1, long: 'Prime Minister', abbr: 'PM' },
-                  { order: 2, long: 'Member of Government1', abbr: 'MG1' },
-                  { order: 3, long: 'Member of Government2', abbr: 'MG2' },
-                  { order: 4, long: 'Government Reply', abbr: 'GR' }
+                  { order: 1, long: 'Prime Minister', abbr: 'PM', range: { from: 1, to: 10, unit: 1, default: 5 } },
+                  { order: 2, long: 'Member of Government1', abbr: 'MG1', range: { from: 1, to: 10, unit: 1, default: 5 } },
+                  { order: 3, long: 'Member of Government2', abbr: 'MG2', range: { from: 1, to: 10, unit: 1, default: 5 } },
+                  { order: 4, long: 'Government Reply', abbr: 'GR', range: { from: 1, to: 10, unit: 1, default: 5 } }
                 ],
                 opp: [
-                  { order: 1, long: 'Leader of Opposition', abbr: 'LO' },
-                  { order: 2, long: 'Member of Opposition1', abbr: 'MO1' },
-                  { order: 3, long: 'Member of Opposition2', abbr: 'MO2' },
-                  { order: 4, long: 'Opposition Reply', abbr: 'OR' }
+                  { order: 1, long: 'Leader of Opposition', abbr: 'LO', range: { from: 1, to: 10, unit: 1, default: 5 } },
+                  { order: 2, long: 'Member of Opposition1', abbr: 'MO1', range: { from: 1, to: 10, unit: 1, default: 5 } },
+                  { order: 3, long: 'Member of Opposition2', abbr: 'MO2', range: { from: 1, to: 10, unit: 1, default: 5 } },
+                  { order: 4, long: 'Opposition Reply', abbr: 'OR', range: { from: 1, to: 10, unit: 1, default: 5 } }
                 ]
             },
             side_labels_short: {

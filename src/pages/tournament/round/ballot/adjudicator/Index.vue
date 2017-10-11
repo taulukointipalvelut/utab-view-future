@@ -19,7 +19,7 @@ import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['r_str', 'id_str'],
+  props: ['r_str', 'from_id_str'],
   components: {
     'loading-container': loading_container
   },
@@ -36,10 +36,10 @@ export default {
       return this.round_by_r(this.r_str)
     },
     adjudicator () {
-      return this.adjudicator_by_id(this.id_str)
+      return this.adjudicator_by_id(this.from_id_str)
     },
     score_sheet () {
-      return this.score_sheet_by_id(this.id_str)
+      return this.score_sheet_by_id(this.from_id_str)
     },
     ...mapState([
       'auth',
@@ -55,20 +55,39 @@ export default {
   },
   methods: {
     ...mapMutations('ballot', [
-      'init_ballot'
+      'init_result'
     ]),
     ...mapActions([
       'init_teams'
     ]),
   },
   mounted () {
-    let payload = {
-      role_names: {
-        gov: this.style.roles.gov.map(r => r.abbr),
-        opp: this.style.roles.opp.map(r => r.abbr),
+    let gov_roles = this.style.roles.gov
+    let opp_roles = this.style.roles.opp
+    let role_names = {
+      gov: gov_roles.map(r => r.abbr),
+      opp: opp_roles.map(r => r.abbr),
+    }
+    let score_default = {
+      gov: {},
+      opp: {}
+    }
+    let sub_prize_default = {
+      gov: {},
+      opp: {}
+    }
+    for (let side of ['gov', 'opp']) {
+      for (let role_name of role_names[side]) {
+        score_default[side][role_name] = this.style.roles[side].find(r => r.abbr === role_name).range.default
+        sub_prize_default[side][role_name] = false
       }
     }
-    this.init_ballot(payload)
+    let payload = {
+      role_names,
+      score_default,
+      sub_prize_default
+    }
+    this.init_result(payload)
   }
 }
 </script>

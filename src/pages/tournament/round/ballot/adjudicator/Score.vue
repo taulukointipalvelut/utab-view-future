@@ -10,9 +10,9 @@
             el-select(:value="result_editing.speakers[role_name]", @input="on_input_result('speakers', $event)", placeholder="Select Speaker")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams[side_name])).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
           el-form-item(label="Matter", required)
-            number-box(:value="result_editing.matters[role_name]", @input="on_input_result('matters', $event)", :min="1", :max="10", :step="1")
+            number-box(:value="result_editing.matters[role_name]", @input="on_input_result('matters', $event)", :min="role_range.from", :max="role_range.to", :step="role_range.unit")
           el-form-item(label="Manner", required)
-            number-box(:value="result_editing.manners[role_name]", @input="on_input_result('manners', $event)", :min="1", :max="10", :step="1")
+            number-box(:value="result_editing.manners[role_name]", @input="on_input_result('manners', $event)", :min="role_range.from", :max="role_range.to", :step="role_range.unit")
           el-form-item(label="Total Score")
             input-label(:value="total_score")
           el-form-item(label="Best Debater")
@@ -59,8 +59,11 @@ export default {
     role_name () {
       return this.style.roles[this.side_name].find(r => r.order === this.role_order).abbr
     },
+    role_range () {
+      return this.style.roles[this.side_name].find(r => r.order === this.role_order).range
+    },
     result_editing () {
-      return this.ballot[this.side_name]
+      return this.result[this.side_name]
     },
     role_name_long () {
       return this.style.roles[this.side_name].find(r => r.order === this.role_order).long
@@ -75,7 +78,7 @@ export default {
       'loading'
     ]),
     ...mapState('ballot', [
-      'ballot'
+      'result'
     ])
   },
   methods: {

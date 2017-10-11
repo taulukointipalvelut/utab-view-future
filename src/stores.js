@@ -190,8 +190,13 @@ export default {
         return evaluation_sheets
     },
     score_sheet_by_id (state, getters) {
-        return function (id) {
-            return getters.target_score_sheets.find(ss => ss.from_id === parseInt(id, 10))
+        return function (from_id) {
+            return getters.target_score_sheets.find(ss => ss.from_id === parseInt(from_id, 10))
+        }
+    },
+    evaluation_sheet_by_id (state, getters) {
+        return function (from_id) {
+            return getters.target_evaluation_sheets.find(es => es.from_id === parseInt(from_id, 10))
         }
     },
     teams_by_speaker_id (state, getters) {

@@ -2,11 +2,15 @@ import Home from './Home'
 import Round from './round/Index'
 import round_routes from './round/routes'
 import Adjudicator from './Adjudicator'
+import Debater from './Debater'
 
 export default [
     {
         path: 'adjudicator',
         component: Adjudicator
+    }, {
+        path: 'debater',
+        component: Debater
     }, {
         path: 'home',
         component: Home

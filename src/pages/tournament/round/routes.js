@@ -10,7 +10,7 @@ export default [{
     component: Ballot,
     children: ballot_routes
   }, {
-    path: 'evaluation',
+    path: 'feedback',
     component: Feedback,
     children: feedback_routes
   }, {

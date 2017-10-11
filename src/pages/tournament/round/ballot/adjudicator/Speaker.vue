@@ -6,8 +6,8 @@
           span.card-title {{ team_by_id(score_sheet.teams[side]).name }}
           span.card-subtitle {{ style.side_labels_short[side] }}
         el-form
-          el-form-item(v-for="role in style.roles[side].slice().sort((r1, r2) => r1.order > r2.order ? 1 : -1)", :key="role.abbr", :label="role.abbr", required, error="'Select PM's Name'")
-            el-select(:value="ballot[side].speakers[role.abbr]", @input="on_speaker_name(side, role.abbr, $event)", :placeholder="'Select '+role.abbr")
+          el-form-item(v-for="role in style.roles[side].slice().sort((r1, r2) => r1.order > r2.order ? 1 : -1)", :key="role.abbr", :label="role.abbr", required, :error='"Select "+role.abbr+"\'s Name"')
+            el-select(:value="result[side].speakers[role.abbr]", @input="on_speaker_name(side, role.abbr, $event)", :placeholder="'Select '+role.abbr")
               el-option(v-for="id in details_1(team_by_id(score_sheet.teams.gov)).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -34,7 +34,7 @@ export default {
       'loading'
     ]),
     ...mapState('ballot', [
-      'ballot'
+      'result'
     ]),
     ...mapGetters([
       'isAuth',
