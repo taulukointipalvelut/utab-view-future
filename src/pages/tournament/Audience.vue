@@ -8,8 +8,6 @@
           legend(slot="legend") {{ round.name }}
           router-link(:to="url(round, 'draw')")
             link-list-item Draw &amp; Allocation
-          router-link(:to="url(round, 'feedback')")
-            link-list-item Judge Evaluation Sheet
 </template>
 
 <script>
@@ -39,7 +37,7 @@ export default {
   },
   methods: {
     url (round, ...targets) {
-      return `${ round.href.path }/${ targets.join('/') }`+'?filter=team'
+      return `${ round.href.path }/${ targets.join('/') }`
     },
     ...mapActions([
       'init_draws'

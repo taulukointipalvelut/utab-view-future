@@ -8,11 +8,11 @@
         h3 Select Judges to evaluate
           el-checkbox-group.judge-selection(v-model="adjudicators_to_evaluate")
             el-checkbox-button(v-for="result in results", :label="result.id", :key="result.id") {{ adjudicator_by_id(result.id).name }}
-        .card-container(v-if="!loading")
-          el-card.card(v-for="result in results", :key="result.id", v-if="result_visible(result)")
-            div(slot="header").card-header-container
-              span.card-title {{ adjudicator_by_id(result.id).name }}
-              //span.card-subtitle subtitle
+        .ev-card-container(v-if="!loading")
+          el-card.ev-card(v-for="result in results", :key="result.id", v-if="result_visible(result)")
+            div(slot="header").ev-card-header-container
+              span.ev-card-title {{ adjudicator_by_id(result.id).name }}
+              //span.ev-card-subtitle subtitle
             el-form
               el-form-item(label="Matter", required)
                 number-box(v-model="result.matter", :min="1", :max="10", :step="1")

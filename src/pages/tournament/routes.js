@@ -3,6 +3,7 @@ import Round from './round/Index'
 import round_routes from './round/routes'
 import Adjudicator from './Adjudicator'
 import Debater from './Debater'
+import Audience from './Audience'
 
 export default [
     {
@@ -16,10 +17,7 @@ export default [
         component: Home
     }, {
         path: 'audience',
-        redirect: 'home'
-    }, {
-        path: 'debater',
-        redirect: 'home'
+        component: Audience
     }, {
         path: 'rounds/:r_str',
         props: true,

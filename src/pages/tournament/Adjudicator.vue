@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     url (round, ...targets) {
-      return `${ round.href.path }/${ targets.join('/') }`
+      return `${ round.href.path }/${ targets.join('/') }`+'?filter=adjudicator'
     },
     ...mapActions([
       'init_draws'

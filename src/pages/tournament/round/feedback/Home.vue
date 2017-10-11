@@ -7,7 +7,7 @@
       section(v-if="!loading && has_adjudicators")
         el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
       section(v-if="!loading && has_adjudicators")
-        el-table(:data="target_evaluation_sheets.slice().sort((ev1, ev2) => ev1.from_id > ev2.from_id ? 1 : -1)", @current-change="on_select", :row-class-name="row_class_name")
+        el-table(:data="evaluation_sheets", @current-change="on_select", :row-class-name="row_class_name")
           el-table-column(prop="done", label="", width="40", align="center")
             template(scope="scope")
               span.icon-ok(v-if="scope.row.done")
@@ -37,6 +37,15 @@ export default {
   },
   props: ['r_str'],
   computed: {
+    evaluation_sheets () {
+      let evs = this.target_evaluation_sheets
+      if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'adjudicator') {
+        evs = evs.filter(es => es.from_id < 0)
+      } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'team') {
+        evs = evs.filter(es => es.from_id > 0)
+      }
+      return evs.slice().sort((ev1, ev2) => Math.abs(ev1.from_id) > Math.abs(ev2.from_id) ? 1 : -1)
+    },
     ...mapState([
       'loading'
     ]),

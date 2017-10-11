@@ -1,14 +1,14 @@
-  .card-container
+  .ev-card-container
     display flex
     flex-direction column
     justify-content space-between
 
-    .card
+    .ev-card
       flex 1
       margin-bottom 2rem
 
-  .card .el-card__header
-    background #41a9ad
+  .ev-card .el-card__header
+    background #bf46ba
 
   .el-card__header
     margin 0
@@ -16,12 +16,12 @@
     color #fff
     height auto
 
-    & .card-header-container
+    & .ev-card-header-container
       display flex
       justify-content space-between
       align-items baseline
 
-      & .card-title
+      & .ev-card-title
         flex 1
         margin-right .5rem
         font-size 1rem
@@ -30,7 +30,7 @@
         text-overflow ellipsis
         white-space nowrap
 
-      & .card-subtitle
+      & .ev-card-subtitle
         font-size 1rem
         text-align right
 
@@ -66,8 +66,8 @@
     font-family inherit
 
   @media (min-width: 900px)
-    .card-container
+    .ev-card-container
       flex-direction column
 
-      .card
+      .ev-card
         margin-right 1rem
