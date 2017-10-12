@@ -379,7 +379,6 @@ export default {
       'adjudicators'
     ]),
     ...mapGetters([
-      'isAuth',
       'target_tournament',
       'unallocated_speakers'
     ])

@@ -17,8 +17,13 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'isAuth'
+      'is_auth'
     ])
+  },
+  mounted () {
+      if (!this.is_auth) {
+        this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
+      }
   }
 }
 </script>

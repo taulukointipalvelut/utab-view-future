@@ -55,7 +55,6 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'isAuth',
       'team_by_id',
       'adjudicator_by_id',
       'round_by_r',

@@ -1,6 +1,6 @@
 <template lang="pug">
   #app-content
-    utab-header(:login="isAuth")
+    utab-header
     main
       h1 Welcome!
       link-list(:loading="loading", no_item_text="No Tournament Available")
@@ -30,9 +30,6 @@ export default {
       'auth',
       'tournaments',
       'loading'
-    ]),
-    ...mapGetters([
-      'isAuth'
     ])
   }
 }

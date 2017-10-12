@@ -18,7 +18,6 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'isAuth',
       'round_by_r'
     ])
   }

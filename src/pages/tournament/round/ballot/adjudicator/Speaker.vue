@@ -37,7 +37,6 @@ export default {
       'result'
     ]),
     ...mapGetters([
-      'isAuth',
       'team_by_id',
       'speaker_by_id',
       'details_1',

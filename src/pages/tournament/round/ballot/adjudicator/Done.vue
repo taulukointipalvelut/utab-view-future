@@ -28,7 +28,6 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'isAuth',
       'team_by_id'
     ]),
     ...mapGetters('ballot', [

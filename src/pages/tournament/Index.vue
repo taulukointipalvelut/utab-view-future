@@ -1,6 +1,6 @@
 <template lang="pug">
   #app-content(v-loading.fillscreen.lock="loading_tournament", element-loading-text="Loading...")
-    utab-header(:login="isAuth")
+    utab-header
     main(v-if="target_tournament")
       router-view
 </template>
@@ -28,7 +28,6 @@ export default {
       'rounds'
     ]),
     ...mapGetters([
-      'isAuth',
       'target_tournament'
     ])
   },

@@ -5,12 +5,12 @@
       <span class="logo-text">utab admin interface</span>
     </div>
     <el-form class="login" :rules="rules" ref="ruleForm" :model="ruleForm" label-width="100px" >
-      <el-form-item label="User Name" prop="user_name">
-        <el-input placeholder="Please enter User Name" v-model="ruleForm.user_name" type="text" autofocus></el-input>
+      <el-form-item label="User Name" prop="username">
+        <el-input placeholder="Please enter User Name" v-model="ruleForm.username" type="text" autofocus></el-input>
       </el-form-item>
       <el-form-item label="Password" prop="password">
         <el-input placeholder="Please enter Password" v-model="ruleForm.password" type="password" @keyup.enter.native="onLogin"></el-input>
-        <span class="fail-text" v-if="login_failed">Incorrect Name or Password</span>
+        <span class="fail-text" v-if="login_failed">Incorrect Username or Password</span>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onLogin" :loading="loading">{{ loading ? 'Loading...' : 'Login' }}</el-button>
@@ -31,11 +31,11 @@
         loading: false,
         login_failed: false,
         ruleForm: {
-          user_name: '',
+          username: '',
           password: ''
         },
         rules: {
-          user_name: [
+          username: [
              { required: true, message: 'User Name required', trigger: 'blur' }
           ],
           password: [
@@ -53,8 +53,8 @@
         this.loading = true
         this.$refs.ruleForm.validate(async (valid) => {
           if (valid) {
-            const isAuth = await this.login({ user_name: this.ruleForm.user_name, password: this.ruleForm.password })
-            if (isAuth) {
+            const is_auth = await this.login({ username: this.ruleForm.username, password: this.ruleForm.password })
+            if (is_auth) {
               const next = this.$route.query.next
               this.$router.push(next ? next : '/')
             } else {

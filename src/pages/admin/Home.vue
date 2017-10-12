@@ -137,9 +137,6 @@ export default {
       'auth',
       'loading',
       'tournaments'
-    ]),
-    ...mapGetters([
-      'isAuth'
     ])
   },
   methods: {

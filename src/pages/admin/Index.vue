@@ -1,6 +1,6 @@
 <template lang="pug">
   #app-content(v-loading.fillscreen.lock="loading_tournaments", element-loading-text="Loading...")
-    utab-header(:login="isAuth")
+    utab-header
     main
       router-view
 </template>
@@ -25,11 +25,11 @@ export default {
       'tournaments'
     ]),
     ...mapGetters([
-      'isAuth'
+      'is_auth'
     ])
   },
   mounted () {
-    if (!this.isAuth) {
+    if (!this.is_auth) {
       this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
     }
   }

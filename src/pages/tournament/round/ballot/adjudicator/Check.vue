@@ -92,7 +92,6 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'isAuth',
       'team_by_id',
       'speaker_by_id',
       'target_tournament',

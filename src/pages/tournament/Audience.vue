@@ -31,7 +31,6 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'isAuth',
       'target_tournament'
     ])
   },

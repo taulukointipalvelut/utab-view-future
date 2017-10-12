@@ -15,9 +15,9 @@
         li
           a(@click="reload", v-if="!reloading") Reload
           a(v-if="reloading") #[el-icon(name="loading")]
-        li(v-if="login")
-          router-link(:to="logout_href", @click.native="toggleDropdownMenu") Logout #[el-icon(name="circle-cross")]
-        li(v-if="login")
+        li(v-if="is_auth")
+          a(@click="on_logout") Logout #[el-icon(name="circle-cross")]
+        li(v-if="is_auth")
           router-link(:to="admin_href", @click.native="toggleDropdownMenu") Admin #[el-icon(name="setting")]
         li(v-else)
           router-link(:to="login_href", @click.native="toggleDropdownMenu") Login
@@ -31,9 +31,6 @@
       base_url: {
         type: String,
         default: ''
-      },
-      tournament: {
-        type: null
       },
       next: {
         type: String,
@@ -53,9 +50,6 @@
       login_href () {
         return { path: '/login', query: { next: this.nextLoginPath } }
       },
-      logout_href () {
-        return { path: '/logout', query: { next: this.nextLogoutPath } }
-      },
       admin_href () {
         return { path: '/admin', query: { next: this.nextLogoutPath } }
       },
@@ -72,14 +66,29 @@
       ...mapState([
         'loadng'
       ]),
-      ...mapGetters({
-        login: 'isAuth'
-      }),
+      ...mapGetters([
+        'is_auth'
+      ]),
       ...mapGetters([
         'target_tournament'
       ])
     },
     methods: {
+      ...mapMutations([
+        'start_loading',
+        'finish_loading'
+      ]),
+      ...mapActions([
+        'init_all',
+        'logout'
+      ]),
+      on_logout () {
+        this.start_loading()
+        this.logout().then(() => {
+          this.init_all()
+          this.$router.push('/')
+        })
+      },
       on_select (index, indexPath) {
         this.nav_opened = false
         location.href = this.menu_links[index]
@@ -93,9 +102,6 @@
         }
         return this.base_url + target
       },
-      ...mapActions([
-        'init_all'
-      ]),
       reload () {
         this.nav_opened = false
         this.init_all()

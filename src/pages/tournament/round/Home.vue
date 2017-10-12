@@ -36,7 +36,6 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'isAuth',
       'round_by_r'
     ])
   }

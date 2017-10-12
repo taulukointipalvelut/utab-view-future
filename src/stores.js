@@ -28,11 +28,14 @@ function fetch_data (commit, method, url, data=null) {
     let request = { method }
     if (data !== null) {
         request.body = JSON.stringify(data)
-        request.headers = {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
     }
+    request.headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Type adsfa:dsaf'
+    }
+    request.mode = "cors"
+    request.credentials = 'include'
     return treat_reponse(fetch(url, request), commit)
 }
 
@@ -108,7 +111,7 @@ export default {
   state: {
     loading: true,
     auth: {
-      session: null,
+      value: false,
       href: {
         login: { to: '/login' },
         logout: { to: '/logout' }
@@ -118,7 +121,7 @@ export default {
     errors: []
   },
   getters: {
-    isAuth: state => true,//{ return (state.auth && state.auth.session) ? true: false },
+    is_auth: state => state.auth.value,//{ return (state.auth && state.auth.session !== '') ? true: false },
     target_tournament (state) {
       return state.tournaments.find(t => t.name === state.route.params.tournament_name)
     },
@@ -275,9 +278,9 @@ export default {
       }
   },
   mutations: {
-    /* auth.session */
-    session (state, payload) {
-      state.auth.session = payload.session
+    /* auth.value */
+    auth (state, payload) {
+      state.auth.value = payload.value
     },
     /* tournaments */
     errors (state, payload) {
@@ -562,32 +565,20 @@ export default {
         })
     },
     login ({ state, commit, dispatch }, payload) {
-      return new Promise(async (resolve, reject) => {
-        if (state.auth.session) {
-          await dispatch('logout', { session: state.auth.session })
-        }
-        let session = null
-        if (payload.user_name === "admin" && payload.password === "nimda") {
-          setTimeout(() => {
-            session = 'c0rjqc+as-wAJwkfj2jrdKSDqce2-qo'
-            commit('session', { session })
-            resolve(true)
-          }, 1000)
-        } else {
-          setTimeout(() => {
-            resolve(false)
-          }, 1000)
-        }
-      })
+      return fetch_data(commit, 'POST', API_BASE_URL+'/login', payload)
+            .then(function(data) {
+                commit('auth', { value: true })
+                return true
+            }).catch(function(err) {
+                return false
+            })
     },
     logout ({ state, commit, dispatch }, payload) {
-      return new Promise(async (resolve, reject) => {
-        let session = 'c0rjqc+as-wAJwkfj2jrdKSDqce2-qo';
-        setTimeout(() => {
-          commit('session', { session: null })
-          resolve(true)
-        }, 1000)
-      })
+        return fetch_data(commit, 'DELETE', API_BASE_URL+'/logout')
+              .then(function(data) {
+                  commit('auth', { value: true })
+                  return true
+              })
     }
   },
   modules: {

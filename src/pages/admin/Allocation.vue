@@ -201,7 +201,6 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'isAuth',
       'style',
       'target_tournament',
       'team_by_id',
@@ -478,9 +477,6 @@ export default {
     }
   },
   mounted () {
-    if (!this.isAuth) {
-      this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
-    }
     this.init_all().then(() => {
       this.new_draw = this.draw_by_r(this.r_str) === undefined ? true : false
       this.init_allocation()

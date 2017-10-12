@@ -46,7 +46,6 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'isAuth',
       'round_by_r',
       'adjudicator_by_id',
       'score_sheet_by_id',
