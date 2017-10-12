@@ -169,7 +169,12 @@ export default {
             id: 1,
             name: "PDA3",
             team_num: 2,
-            score_weights: [1, 0.5, 0.5, 1],
+            score_weights: [
+              { order: 1, value: 1},
+              { order: 2, value: 0.5},
+              { order: 3, value: 0.5},
+              { order: 4, value: 1}
+            ],
             speaker_sequence: ['gov-1', 'opp-1', 'gov-2', 'gov-3', 'opp-2', 'opp-3', 'opp-4', 'gov-4'],
             roles: {
                 gov: [

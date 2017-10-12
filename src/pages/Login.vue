@@ -1,23 +1,18 @@
-<template>
-  <el-card class="login-card">
-    <div slot="header">
-      <img :src="logo" class="logo-img">
-      <span class="logo-text">utab admin interface</span>
-    </div>
-    <el-form class="login" :rules="rules" ref="ruleForm" :model="ruleForm" label-width="100px" >
-      <el-form-item label="User Name" prop="username">
-        <el-input placeholder="Please enter User Name" v-model="ruleForm.username" type="text" autofocus></el-input>
-      </el-form-item>
-      <el-form-item label="Password" prop="password">
-        <el-input placeholder="Please enter Password" v-model="ruleForm.password" type="password" @keyup.enter.native="onLogin"></el-input>
-        <span class="fail-text" v-if="login_failed">Incorrect Username or Password</span>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onLogin" :loading="loading">{{ loading ? 'Loading...' : 'Login' }}</el-button>
-        <el-button type="text" @click="onHome">Go back to Home</el-button>
-      </el-form-item>
-    </el-form>
-  </el-card>
+<template lang="pug">
+  el-card(class="login-card")
+    div(slot="header")
+      img.logo-img(:src="logo")
+      span.logo-text utab admin interface
+      span.message {{ message }}
+    el-form.login(:rules="rules", ref="ruleForm", :model="ruleForm", label-width="100px")
+      el-form-item(label="User Name", prop="username")
+        el-input(placeholder="Please enter User Name", v-model="ruleForm.username", type="text", autofocus)
+      el-form-item(label="Password" prop="password")
+        el-input(placeholder="Please enter Password", v-model="ruleForm.password", type="password", @keyup.enter.native="onLogin")
+        span.fail-text(v-if="login_failed") Incorrect Username or Password
+      el-form-item
+        el-button(type="primary", @click="onLogin", :loading="loading") {{ loading ? 'Loading...' : 'Login' }}
+        el-button(type="text", @click="onHome") Go back to Home
 </template>
 
 <script>
@@ -43,6 +38,11 @@
           ]
         },
         error: null
+      }
+    },
+    computed: {
+      message () {
+        return this.$route.query.message
       }
     },
     methods: {
@@ -88,6 +88,12 @@
   .logo-text {
     display: inline-block;
     font-family: "Oswald", sans-serif;
+    color: gray;
+  }
+  .message {
+    color: red;
+    font-size: 13px;
+    float: right;
   }
   .fail-text {
     display: inline-block;

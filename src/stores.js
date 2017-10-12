@@ -16,7 +16,11 @@ function treat_reponse (promise, commit) {
         })
         .then(response => {
             if (response.errors.length > 0) {
-                commit('errors', response)
+                if (response.errors[0].name === 'InvalidSession') {
+                    commit('auth', { value: false })
+                } else {
+                    commit('errors', response)
+                }
                 throw response.errors
             } else {
                 return response.data
@@ -113,8 +117,7 @@ export default {
     auth: {
       value: false,
       href: {
-        login: { to: '/login' },
-        logout: { to: '/logout' }
+        login: { to: '/login' }
       }
     },
     tournaments: [],
@@ -252,7 +255,7 @@ export default {
                     for (let detail of result.details) {
                         let nums_sub = []
                         for (let user_defined_data of detail.user_defined_data_collection) {
-                            nums_sub.push(Object.values(user_defined_data[sub_prize]).filter(tf => tf).length)
+                            nums_sub.push(user_defined_data[sub_prize].map(s => s.value).filter(tf => tf).length)
                         }
                         nums.push(math.average(nums_sub))
                     }
@@ -576,8 +579,7 @@ export default {
     logout ({ state, commit, dispatch }, payload) {
         return fetch_data(commit, 'DELETE', API_BASE_URL+'/logout')
               .then(function(data) {
-                  commit('auth', { value: true })
-                  return true
+                  commit('auth', { value: false })
               })
     }
   },

@@ -30,7 +30,14 @@ export default {
   },
   mounted () {
     if (!this.is_auth) {
-      this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
+      this.$router.replace({ path: this.auth.href.login.to+'?message=Please Login', query: { next: this.$route.fullPath } })
+    }
+  },
+  watch: {
+    is_auth (new_value) {
+      if (!new_value) {
+        this.$router.replace({ path: this.auth.href.login.to+'?message=Login Timed Out', query: { next: this.$route.fullPath } })
+      }
     }
   }
 }

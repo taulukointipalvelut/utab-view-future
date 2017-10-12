@@ -21,9 +21,6 @@ export default [
     },
     children: admin_routes
   }, {
-    path: '/logout',
-    redirect: '/home'
-  }, {
     path: '/:tournament_name',
     component: Tournament,
     props: true,
