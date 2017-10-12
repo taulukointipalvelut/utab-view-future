@@ -100,7 +100,7 @@ function update_factory(label, label_singular, keys=['id']) {
             fit = fit.filter(e => e[key] !== payload[label_singular][key])
         }
         tournament[label] = fit
-        tournament[label].push(payload[label])
+        tournament[label].push(payload[label_singular])
     }
 }
 
