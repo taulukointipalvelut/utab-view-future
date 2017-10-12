@@ -5,9 +5,9 @@
       h3 {{ round_by_r(r_str).name }}
     loading-container(:loading="loading")
       section(v-if="round_by_r(r_str).team_allocation_opened && round_by_r(r_str).adjudicator_allocation_opened")
-        section(v-if="!loading && has_adjudicators")
+        section(v-if="!loading")
           el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
-        section(v-if="!loading && has_adjudicators")
+        section(v-if="!loading")
           el-table(:data="score_sheets", @current-change="on_select", :row-class-name="row_class_name")
             el-table-column(prop="done", label="", width="40", align="center")
               template(scope="scope")
@@ -21,10 +21,8 @@
             el-table-column(prop="venue", label="Venue", v-if="!smartphone")
               template(scope="scope")
                 span {{ venue_by_id(scope.row.venue).name }}
-        section(v-if="!loading && !has_adjudicators")
-          span No Adjudicators Available
       section(v-else)
-        p Score Sheet for {{ round_by_r(r_str).name }} is not available.
+        p Score Sheets for {{ round_by_r(r_str).name }} are not available.
 </template>
 
 <script>
@@ -50,33 +48,12 @@ export default {
       'target_tournament'
     ]),
     smartphone: smartphone,
-    has_adjudicators () {
-      return this.sorted_adjudicators && this.sorted_adjudicators.length > 0
-    },
-    sorted_adjudicators () {
-      return this.target_tournament.adjudicators.slice().sort((a, b) => {
-        if (a.done && !b.done) {
-          return 1;
-        } else if (!a.done && b.done) {
-          return -1;
-        } else if (a.done && b.done) {
-          if (a.time !== b.time) {
-            return a.time - b.time
-          } else {
-            return a.name.localeCompare(b.name)
-          }
-        } else if (!a.done && !b.done) {
-          return a.name.localeCompare(b.name)
-        }
-        return 0
-      })
-    },
     score_sheets () {
       return this.target_score_sheets
     },
     percentage (): number {
       if (this.target_score_sheets.length === 0) {
-        return 100
+        return 0
       } else {
         const score_sheets_done = this.target_score_sheets.filter(ss => ss.done)
         return Math.round((score_sheets_done.length / this.target_score_sheets.length) * 1000) / 10
