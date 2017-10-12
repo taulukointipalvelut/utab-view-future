@@ -23,10 +23,20 @@
               el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment on '+adjudicator_by_id(result.id).name+', if any'")
         section.buttons
           el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-          el-button(type="primary" @click="on_send", :disabled="loading || adjudicators_to_evaluate.length === 0") Send #[i.fa.fa-paper-plane]
+          el-button(type="primary" @click="dialog.check.visible = true", :disabled="loading || adjudicators_to_evaluate.length === 0") Send #[i.fa.fa-paper-plane]
       section(v-if="sent && !loading")
         h2 Thank you! Your evaluation sheet was successfully sent.
-        el-button(@click="on_home") #[i.fa.fa-home] Home
+        .buttons
+          el-button(@click="on_home") #[i.fa.fa-home] Home
+
+      el-dialog(title="Confirmation", :visible.sync="dialog.check.visible")
+        .dialog-body
+          .outer-table-tr.check__label
+            p I declare the result is correct.
+            el-checkbox(v-model="dialog.check.checked") Yes
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.check.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.check.sending", @click="on_send", :disabled="!dialog.check.checked") #[i.fa.fa-paper-plane] Send
 </template>
 
 <script>
@@ -46,11 +56,17 @@ export default {
   props: ['r_str', 'from_id_str'],
   data () {
     return {
-      sending: false,
       sent: false,
       adjudicators_to_evaluate: [],
       results: [],
-      active_a_id: ''
+      active_a_id: '',
+      dialog: {
+        check: {
+          visible: false,
+          checked: false,
+          sending: false
+        }
+      }
     }
   },
   computed: {
@@ -107,7 +123,7 @@ export default {
       this.$router.push('../feedback')
     },
     on_send () {
-      this.sending = true
+      this.dialog.check.sending = true
       this.send_raw_results({
         tournament: this.target_tournament,
         raw_results: this.converted_results,
@@ -115,7 +131,8 @@ export default {
         label_singular: 'adjudicator'
       }).then(this.init_raw_results)
         .then(() => {
-          this.sending = false
+          this.dialog.check.sending = false
+          this.dialog.check.visible = false
           this.sent = true
         })
     },

@@ -59,7 +59,7 @@
           el-checkbox(v-model="dialog.check.checked") Yes
       .dialog-footer(slot="footer")
         el-button(@click="dialog.check.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.check.sending", @click="on_next", :disabled="!dialog.check.checked") #[i.fa.fa-paper-plane] Send
+        el-button(type="primary", :loading="dialog.check.sending", @click="on_send", :disabled="!dialog.check.checked") #[i.fa.fa-paper-plane] Send
 </template>
 
 <script>
@@ -121,15 +121,15 @@ export default {
     on_prev () {
       this.$router.push('score/'+this.style.speaker_sequence[this.style.speaker_sequence.length - 1])
     },
-    on_next () {
+    on_send () {
       this.sending = true
-      this.dialog.check.visible = false
       this.dialog.check.checked = false
       this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(this.init_all)
         .then(() => {
           //this.reset_state()
           this.sending = false
+          this.dialog.check.visible = false
           this.$router.push('done?winner=1')
         })
     },
