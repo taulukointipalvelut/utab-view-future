@@ -4,7 +4,7 @@
       h1 {{ from.name }}
       h3 {{ round_by_r(r_str).name }}
     loading-container(:loading="loading")
-      section(v-if="!loading")
+      section(v-if="!loading && !sent")
         h3 Select Judges to evaluate
           el-checkbox-group.judge-selection(v-model="adjudicators_to_evaluate")
             el-checkbox-button(v-for="result in results", :label="result.id", :key="result.id") {{ adjudicator_by_id(result.id).name }}
@@ -22,8 +22,11 @@
                 input-label(:value="result.matter+result.manner")
               el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment on '+adjudicator_by_id(result.id).name+', if any'")
         section.buttons
-          el-button(@click="on_prev") #[el-icon(name="arrow-left")] Select Again
+          el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
           el-button(type="primary" @click="on_send", :disabled="loading || adjudicators_to_evaluate.length === 0") Send #[i.fa.fa-paper-plane]
+      section(v-if="sent && !loading")
+        h2 Thank you! Your evaluation sheet was successfully sent.
+        el-button(@click="on_home") #[i.fa.fa-home] Home
 </template>
 
 <script>
@@ -43,6 +46,8 @@ export default {
   props: ['r_str', 'from_id_str'],
   data () {
     return {
+      sending: false,
+      sent: false,
       adjudicators_to_evaluate: [],
       results: [],
       active_a_id: ''
@@ -72,23 +77,62 @@ export default {
     smartphone: smartphone,
     evaluation_sheet () {
       return this.evaluation_sheet_by_id(this.from_id_str)
+    },
+    converted_results () {
+      let results = this.results.filter(r => this.adjudicators_to_evaluate.includes(r.id))
+      let converted_results = []
+      for (let result of results) {
+        converted_results.push({
+          id: result.id,
+          from_id: result.from_id,
+          r: result.r,
+          judged_teams: [result.teams.gov, result.teams.opp],
+          score: result.matter + result.manner,
+          comment: result.comment,
+          user_defined_data: {
+            matter: result.matter,
+            manner: result.manner
+          }
+        })
+      }
+      return converted_results
     }
   },
   methods: {
+    ...mapActions([
+      'send_raw_results',
+      'init_raw_results'
+    ]),
     on_prev () {
       this.$router.push('../feedback')
     },
     on_send () {
-      console.log("preparing")
+      this.sending = true
+      this.send_raw_results({
+        tournament: this.target_tournament,
+        raw_results: this.converted_results,
+        label: 'adjudicators',
+        label_singular: 'adjudicator'
+      }).then(this.init_raw_results)
+        .then(() => {
+          this.sending = false
+          this.sent = true
+        })
+    },
+    on_home () {
+      this.$router.push('/home')
     },
     result_visible(result) {
       return this.adjudicators_to_evaluate.includes(result.id)
     }
   },
   mounted () {
-    for (let id of this.evaluation_sheet.adjudicators.filter(id => id !== this.evaluation_sheet.from_id)) {
+    for (let id of this.evaluation_sheet.adjudicators) {
       this.results.push({
         id,
+        from_id: this.evaluation_sheet.from_id,
+        r: this.evaluation_sheet.r,
+        teams: this.evaluation_sheet.teams,
         comment: '',
         matter: 5,
         manner: 5,

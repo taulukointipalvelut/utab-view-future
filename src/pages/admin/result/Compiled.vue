@@ -3,7 +3,7 @@
     section.page-header
       h1 {{ target_tournament.name }}
     loading-container(:loading="loading")
-    p(v-if="target_tournament.compiled_team_results.length == 0 && target_tournament.compiled_speaker_results.length == 0") No teams are registered or Please recompile results.
+    p(v-if="target_tournament.compiled_team_results.length === 0 && target_tournament.compiled_speaker_results.length === 0 && target_tournament.compiled_adjudicator_results.length === 0") No results are collected or Please recompile results.
     el-tabs(type="card", v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
       el-tab-pane(label="Team Results")
         section(v-if="!loading")
@@ -50,6 +50,24 @@
           el-table-column(prop="sum", label="Sum", align="center", sortable)
             template(scope="scope")
               span {{ scope.row.sum }}
+          el-table-column(prop="sd", label="StDev", align="center", sortable)
+            template(scope="scope")
+              span {{ scope.row.sd }}
+        .operations
+          el-button(@click="on_download_speaker_results") Download Speaker Results
+          el-button(type="primary", @click="on_configure_slide('speaker')") #[el-icon(name="picture")] &nbsp;Slide Show
+
+      el-tab-pane(label="Adjudicator Results")
+        el-table(:data="target_tournament.compiled_adjudicator_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
+          el-table-column(prop="ranking", label="Ranking", align="center", sortable)
+            template(scope="scope")
+              span {{ scope.row.ranking }}
+          el-table-column(prop="id", label="Name", align="center", sortable)
+            template(scope="scope")
+              span {{ adjudicator_by_id(scope.row.id).name }}
+          el-table-column(prop="average", label="Average", align="center", sortable)
+            template(scope="scope")
+              span {{ scope.row.average }}
           el-table-column(prop="sd", label="StDev", align="center", sortable)
             template(scope="scope")
               span {{ scope.row.sd }}
@@ -107,7 +125,7 @@
         .dialog-footer(slot="footer")
           el-button(@click="dialog[sub_prize+'_slide'].visible = false") Cancel
           el-button(type="primary", @click="on_start_slide(sub_prize, sub_prize)") Start
-</template>
+</template>-->
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'

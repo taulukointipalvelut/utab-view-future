@@ -168,6 +168,7 @@ export default {
                     r,
                     done: teams_submitted.includes(from_id),
                     adjudicators: square.chairs.concat(square.panels),
+                    teams: square.teams,
                     from_id,
                     is_adjudicator: false,
                     venue: square.venue,
@@ -176,10 +177,13 @@ export default {
                 evaluation_sheets.push(evaluation_sheet)
             }
             for (let from_id of square.chairs.concat(square.panels).concat(square.trainees)) {
+                let adjudicators = square.chairs.concat(square.panels).concat(square.trainees).filter(id => id !== from_id)
+                if (adjudicators.length === 0) { break }
                 let evaluation_sheet = {
                     r,
                     done: teams_submitted.includes(from_id),
-                    adjudicators: square.chairs.concat(square.panels).concat(square.trainees),
+                    adjudicators,
+                    teams: square.teams,
                     from_id,
                     is_adjudicator: true,
                     venue: square.venue,
@@ -305,6 +309,7 @@ export default {
           raw_adjudicator_results: [],
           compiled_team_results: [],
           compiled_speaker_results: [],
+          compiled_adjudicator_results: []
         }
         state.tournaments.push(tournament)
     },
@@ -323,11 +328,13 @@ export default {
         let tournament = find_tournament(state, payload)
         tournament['raw_'+payload.label_singular+'_results'] = payload.raw_results
     },
-    compiled_team_results: replace_factory('compiled_team_results'),
-    compiled_speaker_results: replace_factory('compiled_speaker_results'),
+    compiled_results (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament['compiled_'+payload.label_singular+'_results'] = tournament['compiled_'+payload.label_singular+'_results'].concat(payload.compiled_results)
+    },
     add_raw_results (state, payload) {
         let tournament = find_tournament(state, payload)
-        tournament['raw_'+payload.label_singular+'_results'].concat(payload.raw_results)
+        tournament['raw_'+payload.label_singular+'_results'] = tournament['raw_'+payload.label_singular+'_results'].concat(payload.raw_results)
     },
     add_raw_result (state, payload) {
         let tournament = find_tournament(state, payload)
@@ -425,13 +432,9 @@ export default {
         return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id)
             .then(() => commit('delete_entity', payload))
       },
-      request_compiled_team_results ({state, commit, dispatch}, payload) {
-        return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/teams', payload.request)
-            .then((compiled_team_results) => commit('compiled_team_results', { tournament: payload.tournament, compiled_team_results }))
-      },
-      request_compiled_speaker_results ({state, commit, dispatch}, payload) {
-        return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/speakers', payload.request)
-            .then((compiled_speaker_results) => commit('compiled_speaker_results', { tournament: payload.tournament, compiled_speaker_results }))
+      request_compiled_results ({state, commit, dispatch}, payload) {
+        return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/'+payload.label, payload.request)
+            .then((compiled_results) => commit('compiled_results', { tournament: payload.tournament, compiled_results, label_singular: payload.label_singular }))
       },
       init_tournaments ({ commit }) {
         return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments')
@@ -452,6 +455,7 @@ export default {
                     tournament.raw_adjudicator_results = []
                     tournament.compiled_speaker_results = []
                     tournament.compiled_team_results = []
+                    tournament.compiled_adjudicator_results = []
                     tournaments.push(tournament)
                 }
                 commit('tournaments', { tournaments })

@@ -226,7 +226,11 @@ export default {
           tournament: this.target_tournament,
           draw: this.round_by_r(this.r_str)
         }
-        this.send_delete_draw(payload)
+        this.send_delete_draw(payload).then(() => {
+          this.draw_temp = null
+          this.new_draw = true
+          this.init_allocation()
+        })
       }
     },
     capitalize: math.capitalize,

@@ -45,7 +45,8 @@ TODO: Edit dialog needs validation
             el-form-item(label="Force")
               el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.force")
             el-form-item(label="Simple")
-              el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.simple")
+              el-checkbox-group(v-model="dialog.compile.entities")
+                el-checkbox(v-for="label in ['teams', 'adjudicators', 'speakers']", :label="label", :key="label")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.compile.visible = false") Cancel
           el-button(type="primary", @click="on_compile") Request
@@ -304,12 +305,12 @@ export default {
         }
       },
       compile: {
+        entities: [],
         visible: false,
         form: {
           model: {
             rs: Array(100).fill(false),
-            force: false,
-            simple: false
+            force: false
           }
         }
       }
@@ -391,8 +392,7 @@ export default {
       'send_delete_entity',
       'send_update_entity',
       'send_update_round',
-      'request_compiled_team_results',
-      'request_compiled_speaker_results',
+      'request_compiled_results',
       'init_all',
       'next_round'
     ]),
@@ -459,19 +459,38 @@ export default {
     on_compile () {
       let tournament = this.target_tournament
       let model = this.dialog.compile.form.model
-      let payload = {
+      let _payload = {
         tournament,
         request: {
           rs: Object.keys(model.rs).filter(index => model.rs[index]).map(v => parseInt(v, 10)),
           options: {
-            simple: model.simple,
+            simple: !this.dialog.compile.entities.includes('speakers'),
             force: model.force
           }
         }
       }
-      let ps = model.simple ? this.request_compiled_team_results(payload)
-                        : Promise.all([this.request_compiled_team_results(payload), this.request_compiled_speaker_results(payload)])
-      ps.then(() => {
+      let payloads = []
+      if (this.dialog.compile.entities.includes('adjudicators')) {
+        let payload = Object.assign({}, _payload)
+        payload.label = 'adjudicators'
+        payload.label_singular = 'adjudicator'
+        payloads.push(payload)
+      }
+      if (this.dialog.compile.entities.includes('speakers')) {
+        let payload = Object.assign({}, _payload)
+        payload.label = 'speakers'
+        payload.label_singular = 'speaker'
+        payloads.push(payload)
+      }
+      if (this.dialog.compile.entities.includes('teams')) {
+        let payload = Object.assign({}, _payload)
+        payload.label = 'teams'
+        payload.label_singular = 'team'
+        payloads.push(payload)
+      }
+
+      Promise.all(payloads.map(this.request_compiled_results))
+        .then(() => {
           this.dialog.compile.visible = false
           this.$router.push({
             path: 'result/compiled'

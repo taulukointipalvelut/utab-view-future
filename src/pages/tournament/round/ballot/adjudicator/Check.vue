@@ -49,7 +49,7 @@
       el-button(type="primary" @click="dialog.check.visible = true") OK
 
     p(v-if="!loading && !path_valid", style="text-align: center;") Sorry, you seem to have reloaded this page. Please try again.
-    section.buttons(v-if="!loading")
+    section.buttons(v-if="!loading && !path_valid")
       el-button(@click="on_home") #[i.fa.fa-home] Home
 
     el-dialog(title="Confirmation", :visible.sync="dialog.check.visible")
@@ -107,9 +107,9 @@ export default {
     ])
   },
   methods: {
-    ...mapMutations('ballot', [
+    /*...mapMutations('ballot', [
       'reset_state'
-    ]),
+    ]),*/
     ...mapActions('ballot', [
       'send_result'
     ]),
@@ -129,7 +129,7 @@ export default {
       this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(this.init_all)
         .then(() => {
-          this.reset_state()
+          //this.reset_state()
           this.sending = false
           this.$router.push('done?winner=1')
         })

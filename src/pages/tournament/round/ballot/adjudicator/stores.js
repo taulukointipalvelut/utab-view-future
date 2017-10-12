@@ -21,22 +21,25 @@ function initialize_arr(len, default_values=undefined) {
 }
 
 function object_converter (result, prop, default_value=0) {
-    let id_to_roles = {}
-    for (let role in result.speakers) {
-        let id = result.speakers[role]
-        if (id_to_roles.hasOwnProperty(id)) {
-            id_to_roles[id].push(role)
+    let id_to_orders = {}
+    for (let r of result.speakers) {
+        let id = r.value
+        if (id_to_orders.hasOwnProperty(id)) {
+            id_to_orders[id].push(r.order)
         } else {
-            id_to_roles[id] = [role]
+            id_to_orders[id] = [r.order]
         }
     }
     let converted = {}
-    for (let id in id_to_roles) {
-        let filtered_property = {}
-        for (let role in result[prop]) {
-            filtered_property[role] = id_to_roles[id].includes(role) ? result[prop][role] : default_value
+    for (let id in id_to_orders) {
+        let filtered_result = []
+        for (let r of result[prop]) {
+            filtered_result.push({
+                order: r.order,
+                value: id_to_orders[id].includes(r.order) ? r.value : default_value
+            })
         }
-        converted[id] = filtered_property
+        converted[id] = filtered_result
     }
     return converted
 }
@@ -46,7 +49,7 @@ function array_converter_temp (arr) {
     for (let e of arr) {
         arr2.push({
             order: e.order,
-            value: e.order === 1 || e.order === 2 ? e.value/2 : e.value
+            value: e.order === 2 || e.order === 3 ? e.value/2 : e.value
         })
     }
     return arr2
@@ -160,7 +163,7 @@ export default {
                 poi: state.result.opp.poi
             }
         }
-        console.log(converted_result)
+
         let raw_team_results = []
         let raw_speaker_results = []
         let sides = ['gov', 'opp']
@@ -171,7 +174,7 @@ export default {
             let manners_converted = object_converter(converted_result[side], 'manners')
             let poi_converted = object_converter(converted_result[side], 'poi', false)
             let best_converted = object_converter(converted_result[side], 'best', false)
-            for (let id of Array.from(new Set(Object.values(converted_result[side].speakers)))) {
+            for (let id of Array.from(new Set(converted_result[side].speakers.map(r => r.value)))) {
                 let raw_speaker_result = {
                     id,
                     r: score_sheet.r,
@@ -187,6 +190,7 @@ export default {
                 }
                 raw_speaker_results.push(raw_speaker_result)
             }
+            console.log(raw_speaker_results)
 
             let id = converted_result[side].id
             let raw_team_result = {
