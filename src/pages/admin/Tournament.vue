@@ -45,8 +45,12 @@ TODO: Edit dialog needs validation
             el-form-item(label="Force")
               el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.force")
             el-form-item(label="Simple")
+              el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.simple")
+            el-form-item(label="Target")
               el-checkbox-group(v-model="dialog.compile.entities")
-                el-checkbox(v-for="label in ['teams', 'adjudicators', 'speakers']", :label="label", :key="label")
+                el-checkbox(label="teams", :checked="true")
+                el-checkbox(label="adjudicators", :checked="true")
+                el-checkbox(label="speakers", :disabled="dialog.compile.form.model.simple")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.compile.visible = false") Cancel
           el-button(type="primary", @click="on_compile") Request
@@ -310,7 +314,8 @@ export default {
         form: {
           model: {
             rs: Array(100).fill(false),
-            force: false
+            force: false,
+            simple: false
           }
         }
       }
@@ -463,7 +468,7 @@ export default {
         request: {
           rs: Object.keys(model.rs).filter(index => model.rs[index]).map(v => parseInt(v, 10)),
           options: {
-            simple: !this.dialog.compile.entities.includes('speakers'),
+            simple: model.simple,
             force: model.force
           }
         }
@@ -475,7 +480,8 @@ export default {
         payload.label_singular = 'adjudicator'
         payloads.push(payload)
       }
-      if (this.dialog.compile.entities.includes('speakers')) {
+      if (this.dialog.compile.entities.includes('speakers') && !model.simple) {
+        console.log("called")
         let payload = Object.assign({}, _payload)
         payload.label = 'speakers'
         payload.label_singular = 'speaker'
