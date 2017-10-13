@@ -570,6 +570,9 @@ export default {
     login ({ state, commit, dispatch }, payload) {
       return fetch_data(commit, 'POST', API_BASE_URL+'/login', payload)
             .then(function(data) {
+                setTimeout(() => {
+                    commit('auth', { value: false })
+                }, data)
                 commit('auth', { value: true })
                 return true
             }).catch(function(err) {

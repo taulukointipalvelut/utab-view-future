@@ -15,7 +15,7 @@
                     p id: {{ id }}
           el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels_short[side]")
             template(scope="scope")
-              draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options", @start="evt => on_team(evt.oldIndex, scope.row.teams[side])", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
+              draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options", @start="evt => on_entity(evt.oldIndex, scope.row.teams[side], 'team')", @end="on_end", @mouseover.native="evt => {test = evt}", @mouseleave.native="test=null")
                 .draggable-item(v-for="id in scope.row.teams[side]", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
                   el-popover(placement="right", trigger="hover")
                     el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
@@ -24,7 +24,7 @@
                     p speakers: {{ speaker_names_by_team_id(id) }}
           el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label")
             template(scope="scope")
-              draggable(class="adj-list", v-model="scope.row[label]", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, scope.row[label])", @end="on_end")
+              draggable(class="adj-list", v-model="scope.row[label]", :options="adjudicator_options", @start="evt => on_entity(evt.oldIndex, scope.row[label], 'adjudicator')", @end="on_end")
                 .draggable-item(v-for="id in scope.row[label]", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
                   el-popover(placement="right", trigger="hover")
                     el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
@@ -43,34 +43,34 @@
           el-button(@click="dialog.draw.visible = true") Request
           el-button(type="primary", @click="on_send_allocation", :disabled="!sendable") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
           el-button(@click="on_delete_draw", type="danger", :disabled="new_draw") Delete
-
-    legend Waiting Adjudicators
-    loading-container(:loading="loading")
-      section.adj-list-container
-        draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options", @start="evt => on_adjudicator(evt.oldIndex, adjudicators)", @end="on_end")
-          .draggable-item(v-for="id in adjudicators", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
-            el-popover(placement="right", trigger="hover")
-              el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-              p id: {{ id }}
-              p institutions: {{ institution_names_by_adjudicator_id(id) }}
-    legend Waiting Teams
-    loading-container(:loading="loading")
-      section.adj-list-container
-        draggable.adj-list.src(v-model="teams", :options="team_options", @start="evt => on_team(evt.oldIndex, teams)", @end="on_end")
-          .draggable-item(v-for="id in teams", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
-            el-popover(placement="right", trigger="hover")
-              el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-              p id: {{ id }}
-              p institutions: {{ institution_names_by_team_id(id) }}
-              p speakers: {{ speaker_names_by_team_id(id) }}
-    legend Waiting Venues
-    loading-container(:loading="loading")
-      section.adj-list-container
-        draggable.adj-list.src(v-model="venues", :options="venue_options")
-          .draggable-item(v-for="id in venues") {{ venue_by_id(id).name }}
-            el-popover(placement="right", trigger="hover")
-              el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
-              p id: {{ id }}
+    .page-footer
+      legend Waiting Adjudicators
+      loading-container(:loading="loading")
+        section.adj-list-container
+          draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options", @start="evt => on_entity(evt.oldIndex, adjudicators, 'adjudicator')", @end="on_end")
+            .draggable-item(v-for="id in adjudicators", :class="{same_institution: adjudicator_same_institution(id)}") {{ adjudicator_by_id(id).name }}
+              el-popover(placement="right", trigger="hover")
+                el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                p id: {{ id }}
+                p institutions: {{ institution_names_by_adjudicator_id(id) }}
+      legend Waiting Teams
+      loading-container(:loading="loading")
+        section.adj-list-container
+          draggable.adj-list.src(v-model="teams", :options="team_options", @start="evt => on_entity(evt.oldIndex, teams, 'team')", @end="on_end")
+            .draggable-item(v-for="id in teams", :class="{same_institution: team_same_institution(id)}") {{ team_by_id(id).name }}
+              el-popover(placement="right", trigger="hover")
+                el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                p id: {{ id }}
+                p institutions: {{ institution_names_by_team_id(id) }}
+                p speakers: {{ speaker_names_by_team_id(id) }}
+      legend Waiting Venues
+      loading-container(:loading="loading")
+        section.adj-list-container
+          draggable.adj-list.src(v-model="venues", :options="venue_options")
+            .draggable-item(v-for="id in venues") {{ venue_by_id(id).name }}
+              el-popover(placement="right", trigger="hover")
+                el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                p id: {{ id }}
 
       el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
         el-tabs(v-model="dialog.draw.allocation_type")
@@ -151,6 +151,7 @@ export default {
       },
       new_draw: true,
       active_institutions: [],
+      active_entity: null,
       team_options: {
         group: { name: 'team-list' },
         animation: 100
@@ -241,18 +242,17 @@ export default {
       'send_delete_draw'
     ]),
     team_same_institution (id) {
-      return !math.disjoint(this.details_1(this.team_by_id(id)).institutions, this.active_institutions)
+      return !math.disjoint(this.details_1(this.team_by_id(id)).institutions, this.active_institutions) && id !== this.active_entity
     },
     adjudicator_same_institution (id) {
-      return !math.disjoint(this.details_1(this.adjudicator_by_id(id)).institutions, this.active_institutions)
+      return !math.disjoint(this.details_1(this.adjudicator_by_id(id)).institutions, this.active_institutions) && id !== this.active_entity
     },
-    on_team (index, teams) {
-      this.active_institutions = this.details_1(this.team_by_id(teams[index])).institutions
-    },
-    on_adjudicator (index, adjudicators) {
-      this.active_institutions = this.details_1(this.adjudicator_by_id(adjudicators[index])).institutions
+    on_entity (index, entities, label_singular) {
+      this.active_entity = entities[index]
+      this.active_institutions = this.details_1(this[label_singular+'_by_id'](entities[index])).institutions
     },
     on_end () {
+      this.active_entity = null
       this.active_institutions = []
     },
     speaker_names_by_team_id (id) {
@@ -489,6 +489,13 @@ export default {
   @import '../../draggable'
   @import "../../common"
 
+  //.page-footer
+  //  position fixed
+  //  bottom 1rem
+  //  left 4rem
+  //  right 4rem
+  //  background rgba(0, 0, 0, 0.03)
+
   .operations
     display flex
     justify-content flex-end
@@ -513,7 +520,8 @@ export default {
       margin 0 auto
 
   .same_institution
-    border-color lightgreen
+    //border-color lightgreen
+    border 5px solid lightgreen
 
   .el-table .unsendable
     background #ff5e62
