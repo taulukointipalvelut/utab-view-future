@@ -50,7 +50,8 @@ export default {
       this.winner({ winner })
     },
     on_prev () {
-      this.$router.push('score/'+this.style.speaker_sequence[this.style.speaker_sequence.length - 1])
+      let speaker_sequence = this.style.speaker_sequence.slice().sort((s1, s2) => s1.order > s2.order ? 1 : -1)
+      this.$router.push('score/'+speaker_sequence[this.style.speaker_sequence.length - 1].value)
     },
     on_next () {
       this.$router.push('check')

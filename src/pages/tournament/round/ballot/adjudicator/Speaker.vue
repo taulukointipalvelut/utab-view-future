@@ -56,7 +56,8 @@ export default {
     },
     on_next () {
       this.path_confirmed()
-      this.$router.push('score/'+this.style.speaker_sequence[0])
+      let speaker_sequence = this.style.speaker_sequence.slice().sort((s1, s2) => s1.order > s2.order ? 1 : -1)
+      this.$router.push('score/'+speaker_sequence[0].value)
     },
     on_speaker_name (side, role_order, value) {
       this.input_result({ side, key: 'speakers', role_order, value })

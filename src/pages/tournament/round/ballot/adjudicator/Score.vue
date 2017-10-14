@@ -92,19 +92,21 @@ export default {
       this.input_result({ side: this.side_name, key, role_order: this.role_order, value })
     },
     on_prev () {
-      let seq_index = this.style.speaker_sequence.findIndex(seq => seq === this.sequence_name)
+      let speaker_sequence = this.style.speaker_sequence.slice().sort((s1, s2) => s1.order > s2.order ? 1 : -1)
+      let seq_index = speaker_sequence.findIndex(seq => seq.value === this.sequence_name)
       if (seq_index === 0) {
         return this.$router.push('../speaker')
       } else {
-        return this.$router.push(this.style.speaker_sequence[seq_index - 1])
+        return this.$router.push(speaker_sequence[seq_index - 1].value)
       }
     },
     on_next () {
-      let seq_index = this.style.speaker_sequence.findIndex(seq => seq === this.sequence_name)
+      let speaker_sequence = this.style.speaker_sequence.slice().sort((s1, s2) => s1.order > s2.order ? 1 : -1)
+      let seq_index = speaker_sequence.findIndex(seq => seq.value === this.sequence_name)
       if (seq_index === this.style.speaker_sequence.length - 1) {
         return this.$router.push('../winner')
       } else {
-        return this.$router.push(this.style.speaker_sequence[seq_index + 1])
+        return this.$router.push(speaker_sequence[seq_index + 1].value)
       }
     },
   },
