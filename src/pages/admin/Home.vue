@@ -15,16 +15,10 @@
           el-table-column(align="right")
             template(scope="scope")
               //el-button(size="small", @click="on_edit(scope.row)") #[el-icon(name="edit")] Edit
-              el-button(disabled, size="small", type="danger", @click="on_delete(scope.row)") #[el-icon(name="close")] Delete
+              el-button(size="small", type="danger", @click="on_delete(scope.row)") #[el-icon(name="close")] Delete
         span(v-if="!loading && !has_tournaments") No Tournaments Available
       .operations(v-if="!loading")
         el-button(type="primary", @click="on_new_tournament") #[el-icon(name="plus")] &nbsp;Create New Tournament
-
-      section
-        legend Styles
-        span(v-if="!loading") No Styles Available
-      .operations(v-if="!loading")
-        el-button(disabled, type="primary") #[el-icon(name="plus")] &nbsp;Define New Style
 
     el-dialog(title="Create New Tournament", :visible.sync="dialog.create.visible")
       .dialog-body
@@ -33,23 +27,23 @@
             el-input(type="number", :value="dialog.create.form.model.id", @input="value => dialog.create.form.model.id = parseInt(value, 10)")
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.create.form.model.name")
-          el-form-item(label="Style", prop="style_name")
-            el-select(placeholder="Select style", v-model="dialog.create.form.model.style_name", disabled)
-              el-option(label="PDA", value="PDA")
+          el-form-item(label="Style", prop="style_id")
+            el-select(placeholder="Select style", v-model="dialog.create.form.model.style_id")
+              el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
           el-form-item(label="Number of Rounds", prop="total_round_num")
             el-input(type="number", :value="dialog.create.form.model.total_round_num", @input="value => dialog.create.form.model.total_round_num = parseInt(value, 10)")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
-    el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
+    //el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
       .dialog-body
         el-form(ref="dialog_edit_form", :model="dialog.edit.form.model", :rules="dialog.edit.form.rules")
           el-form-item(label="ID", prop="id")
             el-input(type="number", v-model="dialog.edit.form.model.id")
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.edit.form.model.name")
-          el-form-item(label="Style", prop="style_name")
-            el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_name", disabled)
+          el-form-item(label="Style", prop="style")
+            el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_id", disabled)
               el-option(label="PDA", value="PDA")
           el-form-item(label="Number of Rounds", prop="total_round_num")
             el-input(type="number", v-model="dialog.edit.form.model.total_round_num")
@@ -77,7 +71,7 @@ export default {
             model: {
               id: '',
               name: '',
-              style_name: '',
+              style_id: null,
               total_round_num: ''
             },
             rules: {
@@ -88,8 +82,8 @@ export default {
               name: [
                 { required: true, message: 'Please input Tournamrnt Name' }
               ],
-              style_name: [
-                { required: false, message: 'Please select Tournamrnt\'s Style' }
+              style_id: [
+                { required: true, message: 'Please select Tournamrnt\'s Style' }
               ],
               total_round_num: [
                 { required: true, message: 'Please input Number of Rounds' },
@@ -105,7 +99,7 @@ export default {
             model: {
               id: '',
               name: '',
-              style_name: '',
+              style_id: '',
               total_round_num: ''
             },
             rules: {
@@ -116,7 +110,7 @@ export default {
               name: [
                 { required: true, message: 'Please input Tournamrnt Name' }
               ],
-              style_name: [
+              style_id: [
                 { required: true, message: 'Please select Tournamrnt\'s Style' }
               ],
               total_round_num: [
@@ -136,7 +130,8 @@ export default {
     ...mapState([
       'auth',
       'loading',
-      'tournaments'
+      'tournaments',
+      'styles'
     ])
   },
   methods: {
@@ -165,43 +160,10 @@ export default {
       this.$refs.dialog_create_form.validate((valid) => {
         if (valid) {
           const tournament = Object.assign({}, this.dialog.create.form.model)
-          tournament.style = {
-            id: 1,
-            name: "PDA3",
-            team_num: 2,
-            score_weights: [
-              { order: 1, value: 1},
-              { order: 2, value: 0.5},
-              { order: 3, value: 0.5},
-              { order: 4, value: 1}
-            ],
-            speaker_sequence: ['gov-1', 'opp-1', 'gov-2', 'gov-3', 'opp-2', 'opp-3', 'opp-4', 'gov-4'],
-            roles: {
-                gov: [
-                  { order: 1, long: 'Prime Minister', abbr: 'PM', range: { from: 1, to: 10, unit: 1, default: 5 } },
-                  { order: 2, long: 'Member of Government1', abbr: 'MG1', range: { from: 1, to: 10, unit: 1, default: 5 } },
-                  { order: 3, long: 'Member of Government2', abbr: 'MG2', range: { from: 1, to: 10, unit: 1, default: 5 } },
-                  { order: 4, long: 'Government Reply', abbr: 'GR', range: { from: 1, to: 10, unit: 1, default: 5 } }
-                ],
-                opp: [
-                  { order: 1, long: 'Leader of Opposition', abbr: 'LO', range: { from: 1, to: 10, unit: 1, default: 5 } },
-                  { order: 2, long: 'Member of Opposition1', abbr: 'MO1', range: { from: 1, to: 10, unit: 1, default: 5 } },
-                  { order: 3, long: 'Member of Opposition2', abbr: 'MO2', range: { from: 1, to: 10, unit: 1, default: 5 } },
-                  { order: 4, long: 'Opposition Reply', abbr: 'OR', range: { from: 1, to: 10, unit: 1, default: 5 } }
-                ]
-            },
-            side_labels_short: {
-                gov: "Gov",
-                opp: "Opp"
-            },
-            side_labels: {
-                gov: "Government",
-                opp: "Opposition"
-            }
-          }
+          tournament.style = this.styles.find(s => s.id === tournament.style_id)
           tournament.current_round_num = 1
           tournament.href = { path: `/${ tournament.name }` }
-          this.send_tournament({ tournament: tournament })
+          this.send_create_tournament({ tournament: tournament })
           this.dialog.create.loading = false
           this.dialog.create.visible = false
         } else {
@@ -213,7 +175,11 @@ export default {
     async on_delete (selected) {
       const ans = await this.$confirm('Are you sure?')
       if (ans === 'confirm') {
-        this.delete_tournament({ tournament: selected })
+        this.send_delete_tournament({ tournament: selected })
+          .then(this.init_all)
+          .then(() => {
+            this.$router.push('/admin')
+          })
       }
     },
     on_select_tournament (selected) {
@@ -229,8 +195,9 @@ export default {
     ...mapMutations([
     ]),
     ...mapActions([
-      'send_tournament',
-      'delete_tournament'
+      'send_create_tournament',
+      'send_delete_tournament',
+      'init_all'
     ])
   }
 }

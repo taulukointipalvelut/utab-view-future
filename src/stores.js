@@ -120,6 +120,7 @@ export default {
         login: { to: '/login' }
       }
     },
+    styles: [],
     tournaments: [],
     errors: []
   },
@@ -293,6 +294,10 @@ export default {
     tournaments (state, payload) {
       state.tournaments = payload.tournaments
     },
+    /* styles */
+    styles (state, payload) {
+      state.styles = payload.styles
+    },
     /*add_tournaments (state, payload) {
       state.tournaments += payload.tournaments
     },*/
@@ -405,9 +410,13 @@ export default {
           return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws')
               .then(() => commit('delete_draw', payload))
       },
-      send_tournament ({state, commit, dispatch}, payload) {
+      send_create_tournament ({state, commit, dispatch}, payload) {
          return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
             .then(() => commit('add_tournament', payload))
+      },
+      send_delete_tournament ({state, commit, dispatch}, payload) {
+         return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id)
+            .then(() => commit('delete_tournament', payload))
       },
       send_create_entities ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label, payload[payload.label])
@@ -466,6 +475,13 @@ export default {
                 }
                 commit('tournaments', { tournaments })
             })
+    },
+    init_styles ({ state, commit, dispatch }, payload) {
+        return fetch_data(commit, 'GET', API_BASE_URL+'/styles')
+                .then(data => {
+                    const styles = data
+                    commit('styles', { styles })
+                })
     },
     init_draws ({ state, commit, dispatch }, payload) {
         return Promise.all(state.tournaments.map(t =>
@@ -532,6 +548,7 @@ export default {
     init_all ({ state, commit, dispatch }, payload) {
         return new Promise(async (resolve, reject) => {
             commit('start_loading')
+            await dispatch('init_styles')
             await dispatch('init_tournaments')
             await dispatch('init_rounds')
             await dispatch('init_draws')

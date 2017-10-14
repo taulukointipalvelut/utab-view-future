@@ -190,7 +190,6 @@ export default {
                 }
                 raw_speaker_results.push(raw_speaker_result)
             }
-            console.log(raw_speaker_results)
 
             let id = converted_result[side].id
             let raw_team_result = {
