@@ -59,7 +59,7 @@ TODO: Edit dialog needs validation
         .dialog-body
           el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
             el-form-item(label="Round No.", prop="r")
-              el-input(v-model="dialog.round.form.model.r")
+              el-input-number(v-model="dialog.round.form.model.r", :min="0")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.form.model.name")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")

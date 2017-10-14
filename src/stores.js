@@ -232,6 +232,9 @@ export default {
         }
         return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))
     },
+    compiled_team_result_by_id: select_by_key_factory('compiled_team_results'),
+    compiled_speaker_result_by_id: select_by_key_factory('compiled_speaker_results'),
+    compiled_adjudicator_result_by_id: select_by_key_factory('compiled_adjudicator_results'),
     raw_team_results_by_r: results_factory('raw_team_results'),
     raw_speaker_results_by_r: results_factory('raw_speaker_results'),
     raw_adjudicator_results_by_r: results_factory('raw_adjudicator_results'),

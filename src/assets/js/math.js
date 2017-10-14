@@ -10,6 +10,26 @@ function disjoint_loose (list1, list2) {
     }
 }*/
 
+function pairs (list1, list2) {
+    pairs = []
+    for (let e1 of list1) {
+        for (let e2 of list2) {
+            pairs.push([e1, e2])
+        }
+    }
+    return pairs
+}
+
+function count(list, e) {
+    let c = 0
+    for (let e1 of list) {
+        if (e1 === e) {
+            c += 1
+        }
+    }
+    return c
+}
+
 function query_from_obj(obj) {
     return Object.keys(obj).map(key => key+'='+obj[key]).join('&')
 }
@@ -50,3 +70,5 @@ exports.sum_bool = sum_bool
 exports.average = average
 exports.capitalize = capitalize
 exports.query_from_obj = query_from_obj
+exports.count = count
+exports.pairs = pairs
