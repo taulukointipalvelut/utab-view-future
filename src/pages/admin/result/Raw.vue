@@ -16,6 +16,9 @@
               el-table-column(prop="win", label="Win", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ scope.row.win }}
+              el-table-column(prop="side", label="Side", align="center", sortable)
+                template(slot-scope="scope")
+                  span {{ scope.row.side }}
               el-table-column(prop="from_id", label="From", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ adjudicator_by_id(scope.row.from_id).name }}
