@@ -11,16 +11,16 @@
           section(v-if="!loading")
             el-table(:data="raw_team_results_by_r(r_str)")
               el-table-column(prop="id", label="Name", align="center", sortable)
-                template(scope="scope")
+                template(slot-scope="scope")
                   span {{ team_by_id(scope.row.id).name }}
               el-table-column(prop="win", label="Win", align="center", sortable)
-                template(scope="scope")
+                template(slot-scope="scope")
                   span {{ scope.row.win }}
               el-table-column(prop="from_id", label="From", align="center", sortable)
-                template(scope="scope")
+                template(slot-scope="scope")
                   span {{ adjudicator_by_id(scope.row.from_id).name }}
               el-table-column(align="right")
-                template(scope="scope")
+                template(slot-scope="scope")
                   el-button.edit(size="small", @click="on_edit('team', scope.row)") #[el-icon(name="edit")]
                   el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', scope.row)") #[el-icon(name="close")]
           .operations
@@ -30,17 +30,17 @@
           section(v-if="!loading")
             el-table(:data="raw_speaker_results_by_r(r_str)")
               el-table-column(prop="id", label="Name", align="center", sortable)
-                template(scope="scope")
+                template(slot-scope="scope")
                   span {{ speaker_by_id(scope.row.id).name }}
               el-table-column(label="scores", align="center")
                 el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
-                  template(scope="scope")
+                  template(slot-scope="scope")
                     span {{ score(scope.row.scores, index+1) === 0 ? '' : score(scope.row.scores, index+1) }}
               el-table-column(prop="from_id", label="From", align="center", sortable)
-                template(scope="scope")
+                template(slot-scope="scope")
                   span {{ adjudicator_by_id(scope.row.from_id).name }}
               el-table-column(align="right")
-                template(scope="scope")
+                template(slot-scope="scope")
                   el-button.edit(size="small", @click="on_edit('speaker', scope.row)") #[el-icon(name="edit")]
                   el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', scope.row)") #[el-icon(name="close")]
           .operations
@@ -50,16 +50,16 @@
           section(v-if="!loading")
             el-table(:data="raw_adjudicator_results_by_r(r_str)")
               el-table-column(prop="id", label="Name", align="center", sortable)
-                template(scope="scope")
+                template(slot-scope="scope")
                   span {{ adjudicator_by_id(scope.row.id).name }}
               el-table-column(label="Score", align="center", sortable)
-                template(scope="scope")
+                template(slot-scope="scope")
                   span {{ scope.row.score }}
               el-table-column(prop="from_id", label="From", align="center", sortable)
-                template(scope="scope")
+                template(slot-scope="scope")
                   span {{ scope.row.from_id < 0 ? adjudicator_by_id(scope.row.from_id).name : team_by_id(scope.row.from_id).name }}
               el-table-column(align="right")
-                template(scope="scope")
+                template(slot-scope="scope")
                   el-button.edit(size="small", @click="on_edit('adjudicator', scope.row)") #[el-icon(name="edit")]
                   el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', scope.row)") #[el-icon(name="close")]
           .operations

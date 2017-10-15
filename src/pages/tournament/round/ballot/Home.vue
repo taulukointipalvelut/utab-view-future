@@ -10,16 +10,16 @@
         section(v-if="!loading")
           el-table(:data="score_sheets", @current-change="on_select", :row-class-name="row_class_name")
             el-table-column(prop="done", label="", width="40", align="center")
-              template(scope="scope")
+              template(slot-scope="scope")
                 span.icon-ok(v-if="scope.row.done")
                   el-icon(name="check")
                 span(v-else)
                   el-icon(name="edit")
             el-table-column(prop="from_id", label="Name")
-              template(scope="scope")
+              template(slot-scope="scope")
                 span {{ adjudicator_by_id(scope.row.from_id).name }} #[i.fa.fa-user-secret(v-if="scope.row.is_chair")]
             el-table-column(prop="venue", label="Venue", v-if="!smartphone")
-              template(scope="scope")
+              template(slot-scope="scope")
                 span {{ venue_by_id(scope.row.venue).name }}
       section(v-else)
         p Score Sheets for {{ round_by_r(r_str).name }} are not available.

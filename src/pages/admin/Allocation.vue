@@ -7,19 +7,19 @@
       loading-container(:loading="loading")
         el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border)
           el-table-column(label="Venue")
-            template(scope="scope")
+            template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row.venues", :options="venue_options")
                 .draggable-item(v-for="id in scope.row.venues") {{ venue_by_id(id).name }}
-                  el-popover(placement="right", trigger="click")
-                    el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                  el-popover(:open-delay="500", placement="right", trigger="click")
+                    el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                     p id: {{ id }}
           el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels_short[side]")
-            template(scope="scope")
+            template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
                 .draggable-item(v-for="id in scope.row.teams[side]", :class="warn_item_team(id, side)")
                   .draggable-content(@mouseover="selected_team = id", @mouseout="selected_team = null") {{ team_by_id(id).name }}
-                    el-popover(placement="right", trigger="hover")
-                      el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                    el-popover(:open-delay="500", placement="right", trigger="click")
+                      el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                       p id: {{ id }}
                       p institutions: {{ institution_names_by_team_id(id) }}
                       p speakers: {{ speaker_names_by_team_id(id) }}
@@ -29,12 +29,12 @@
                       p ranking: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).ranking : '' }}
                       p sides: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).past_sides.join(', ') : '' }}
           el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label")
-            template(scope="scope")
+            template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row[label]", :options="adjudicator_options")
                 .draggable-item(v-for="id in scope.row[label]", :class="warn_item_adjudicator(id)")
                   .draggable-content(@mouseover="selected_adjudicator = id", @mouseout="selected_adjudicator = null") {{ adjudicator_by_id(id).name }}
-                    el-popover(placement="right", trigger="hover")
-                      el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                    el-popover(:open-delay="500", placement="right", trigger="click")
+                      el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                       p id: {{ id }}
                       p institutions: {{ institution_names_by_adjudicator_id(id) }}
                       p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
@@ -42,21 +42,20 @@
                       p ranking: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).ranking : '' }}
                       p judged_teams: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).judged_teams.join(', ') : '' }}
           el-table-column(label="Warnings(Draw)")
-            template(scope="scope")
-              div(v-for="warning in warn_square_teams(scope.row)", :key="warning.name")
-                el-popover(placement="right", width="200", trigger="hover")
+            template(slot-scope="scope")
+              div(v-for="warning in warn_square_teams(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
+                el-popover(placement="right", width="200", trigger="click")
                   el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
-                  p message: {{ warning.message }}
-                  p gov: {{ warning.gov }}
-                  p opp: {{ warning.opp }}
+                  p {{ warning.message }}
+                  p teams: {{ warning.teams.map(team_by_id).map(t => t.name).join(', ') }}
           el-table-column(label="Warnings(Alloc)")
-            template(scope="scope")
-              div(v-for="warning in warn_square_adjudicators(scope.row)", :key="warning.name")
-                el-popover(placement="right", width="200", trigger="hover")
+            template(slot-scope="scope")
+              div(v-for="warning in warn_square_adjudicators(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
+                el-popover(placement="right", width="200", trigger="click")
                   el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
-                  p message: {{ warning.message }}
-                  p team: {{ warning.team }}
-                  p adjudicator: {{ warning.adjudicator }}
+                  p {{ warning.message }}
+                  p team: {{ team_by_id(warning.teams[0]).name }}
+                  p adjudicator: {{ adjudicator_by_id(warning.adjudicators[0]).name }}
         .operations
           el-button(@click="on_reset_draw") Reset
           el-button(@click="dialog.draw.visible = true") Request
@@ -69,8 +68,8 @@
           draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options")
             .draggable-item(v-for="id in adjudicators", :class="warn_item_adjudicator(id)")
               .draggable-content(@mouseover="selected_adjudicator = id", @mouseout="selected_adjudicator = null") {{ adjudicator_by_id(id).name }}
-                el-popover(placement="right", trigger="hover")
-                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                el-popover(:open-delay="500", placement="right", trigger="click")
+                  el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                   p id: {{ id }}
                   p institutions: {{ institution_names_by_adjudicator_id(id) }}
                   p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
@@ -83,8 +82,8 @@
           draggable.adj-list.src(v-model="teams", :options="team_options")
             .draggable-item(v-for="id in teams", :class="warn_item_team(id, '')")
               .draggable-content(@mouseover="selected_team = id", @mouseout="selected_team = null") {{ team_by_id(id).name }}
-                el-popover(placement="right", trigger="hover")
-                  el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+                el-popover(:open-delay="500", placement="right", trigger="click")
+                  el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                   p id: {{ id }}
                   p institutions: {{ institution_names_by_team_id(id) }}
                   p speakers: {{ speaker_names_by_team_id(id) }}
@@ -98,8 +97,8 @@
         section.adj-list-container
           draggable.adj-list.src(v-model="venues", :options="venue_options")
             .draggable-item(v-for="id in venues") {{ venue_by_id(id).name }}
-              el-popover(placement="right", trigger="hover")
-                el-button.details(slot="reference", size="mini") #[el-icon(name="more")]
+              el-popover(:open-delay="500", placement="right", trigger="click")
+                el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                 p id: {{ id }}
 
       el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
@@ -182,6 +181,7 @@ export default {
       new_draw: true,
       selected_team: null,
       selected_adjudicator: null,
+      selected_warning: null,
       team_options: {
         group: { name: 'team-list' },
         animation: 100
@@ -273,7 +273,7 @@ export default {
     ]),
     warn_item_team (id, side) {
         let warn_item_team = {
-          'selected': id === this.selected_team,
+          'selected': id === this.selected_team || (this.selected_warning !== null && this.selected_warning.teams.includes(id)),
           'same-institution': false,
           'different-win': false,
           'personal-conflicts': false,
@@ -299,15 +299,15 @@ export default {
           warn_item_team['conflicts'] = this.check_conflicts(team, adjudicator)
           warn_item_team['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
         }
-        let result = this.compiled_team_result_by_id(id)
-        if (result !== undefined) {
-          warn_item_team['sided'] = Math.abs(math.count(result.past_sides.concat([side]), 'gov') - math.count(result.past_sides.concat([side]), 'opp')) > 1
-        }
+        //let result = this.compiled_team_result_by_id(id)
+        //if (result !== undefined) {
+        //  warn_item_team['sided'] = this.check_sided(result, side)
+        //}
         return warn_item_team
     },
     warn_item_adjudicator (id) {
         let warn_item_adjudicator = {
-          'selected': id === this.selected_adjudicator,
+          'selected': id === this.selected_adjudicator || (this.selected_warning !== null && this.selected_warning.adjudicators.includes(id)),
           'conflicts': false,
           'personal-conflicts': false,
           'same-institution': false
@@ -388,14 +388,34 @@ export default {
         let opp = this.team_by_id(pair[1])
         let result0 = this.compiled_team_result_by_id(pair[0])
         let result1 = this.compiled_team_result_by_id(pair[1])
+        if (result0 !== undefined) {
+          if (this.check_sided(result0, 'gov')) {
+            warnings.push({
+              name: "OneSided",
+              message: "Team is one sided to gov",
+              teams: [pair[0]],
+              adjudicators: []
+            })
+          }
+        }
+        if (result1 !== undefined) {
+          if (this.check_sided(result1, 'opp')) {
+            warnings.push({
+              name: "OneSided",
+              message: "Team is one sided to opp",
+              teams: [pair[1]],
+              adjudicators: []
+            })
+          }
+        }
         for (let check of checks) {
           if (!check.require_results || result0 !== undefined && result1 !== undefined) {
             if (check.func(gov, opp, result0, result1)) {
               warnings.push({
                 name: check.name,
                 message: check.message,
-                gov: gov.name,
-                opp: opp.name
+                teams: pair,
+                adjudicators: []
               })
             }
           }
@@ -424,13 +444,16 @@ export default {
             warnings.push({
               name: check.name,
               message: check.message,
-              team: team.name,
-              adjudicator: adj.name
+              teams: [pair[0]],
+              adjudicators: [pair[1]]
             })
           }
         }
       }
       return warnings
+    },
+    check_sided (result, side) {
+      return Math.abs(math.count(result.past_sides.concat([side]), 'gov') - math.count(result.past_sides.concat([side]), 'opp')) > 1
     },
     check_institutions (team0, team1) {
       return !math.disjoint(this.details_1(team0).institutions, this.details_1(team1).institutions) && team0.id !== team1.id
@@ -651,33 +674,39 @@ export default {
 
   .selected
     transition-timing-function ease
-    transition all 0.25s
-    border 2px solid #20A0FF
+    transition all 0.4s
+    //border 2px solid #20A0FF
+    background-color #20A0FF
 
   .same-institution
     transition-timing-function ease
-    transition all 0.25s
-    border 2px solid #F7B82A
+    transition all 0.4s
+    //border 2px solid #F7B82A
+    background-color #F7B82A
 
   .sided
     transition-timing-function ease
-    transition all 0.25s
-    border 2px solid #F7B82A
+    transition all 0.4s
+    //border 2px solid #F7B82A
+    background-color #F7B82A
 
   .different-win
     transition-timing-function ease
-    transition all 0.25s
-    border 2px solid #13CE66
+    transition all 0.4s
+    //border 2px solid #13CE66
+    background-color #13CE66
 
   .conflicts
     transition-timing-function ease
-    transition all 0.25s
-    border 2px solid #FF4949
+    transition all 0.4s
+    //border 2px solid #FF4949
+    background-color #FF4949
 
   .personal-conflicts
     transition-timing-function ease
-    transition all 0.25s
-    border 2px solid #FF4949
+    transition all 0.4s
+    //border 2px solid #FF4949
+    background-color #FF4949
 
   .el-table .unsendable
     background #ff5e62

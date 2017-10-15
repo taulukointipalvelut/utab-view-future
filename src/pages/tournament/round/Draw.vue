@@ -5,22 +5,22 @@
     section(v-if="!loading && team_allocation_opened && sorted_rows.length > 0")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue")
-          template(scope="scope")
+          template(slot-scope="scope")
             span {{ venue_by_id(scope.row.venue).name }}
         el-table-column(:label="style.side_labels_short['gov']")
-          template(scope="scope")
+          template(slot-scope="scope")
             span {{ team_by_id(scope.row.teams.gov).name }}
         el-table-column(:label="style.side_labels_short['opp']")
-          template(scope="scope")
+          template(slot-scope="scope")
             span {{ team_by_id(scope.row.teams.opp).name }}
         el-table-column.adjudicator-container(label="Chair", v-if="adjudicator_allocation_opened")
-          template(scope="scope")
+          template(slot-scope="scope")
             .adjudicator(v-for="id in scope.row.chairs") {{ adjudicator_by_id(id).name }}
         el-table-column.adjudicator-container(label="Panel", v-if="adjudicator_allocation_opened")
-          template(scope="scope")
+          template(slot-scope="scope")
             .adjudicator(v-for="id in scope.row.panels") {{ adjudicator_by_id(id).name }}
         el-table-column.adjudicator-container(label="Trainee", v-if="adjudicator_allocation_opened")
-          template(scope="scope")
+          template(slot-scope="scope")
             .adjudicator(v-for="id in scope.row.trainees") {{ adjudicator_by_id(id).name }}
     section(v-else)
       p Draw for {{ round_by_r(r_str).name }} is not released.

@@ -11,7 +11,7 @@ TODO: Edit dialog needs validation
             el-table-column(prop="r", label="No.", width="60", align="center")
             el-table-column(prop="name", label="Name", show-overflow-tooltip)
             el-table-column
-              template(scope="scope")
+              template(slot-scope="scope")
                 el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")] Edit
                 el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")] Delete
                 el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
@@ -28,10 +28,10 @@ TODO: Edit dialog needs validation
             el-table(:data="target_tournament[entity.labels[index]].slice().sort((t1, t2) => Math.abs(t1.id) > Math.abs(t2.id) ? 1 : -1)", @row-click="on_select")
               el-table-column(prop="id", label="ID", show-overflow-tooltip, align="center", sortable)
               el-table-column(v-for="prop in entity.display_props[entity.labels[index]]", :label="capitalize(prop)", align="center", :key="prop", sortable)
-                template(scope="scope")
+                template(slot-scope="scope")
                   span {{ show(scope.row, prop) }}
               el-table-column(align="right")
-                template(scope="scope")
+                template(slot-scope="scope")
                   el-button(size="small", @click="on_edit(entity.labels[index], scope.row)", disabled) #[el-icon(name="edit")] Edit
                   el-button(size="small", type="danger", @click="on_delete(entity.labels[index], entity.labels_singular[index], scope.row)") #[el-icon(name="close")] Delete
             .operations

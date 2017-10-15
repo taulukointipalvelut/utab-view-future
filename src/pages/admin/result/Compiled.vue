@@ -9,25 +9,25 @@
         section(v-if="!loading")
           el-table(:data="target_tournament.compiled_team_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
             el-table-column(prop="ranking", label="Ranking", align="center", sortable)
-              template(scope="scope")
+              template(slot-scope="scope")
                 span {{ scope.row.ranking }}
             el-table-column(prop="id", label="Name", align="center", sortable)
-              template(scope="scope")
+              template(slot-scope="scope")
                 span {{ team_by_id(scope.row.id).name }}
             el-table-column(prop="win", label="Win", align="center", sortable)
-              template(scope="scope")
+              template(slot-scope="scope")
                 span {{ scope.row.win }}
             el-table-column(prop="sum", label="Sum", align="center", sortable)
-              template(scope="scope")
+              template(slot-scope="scope")
                 span {{ scope.row.sum }}
             el-table-column(prop="margin", label="Margin", align="center", sortable)
-              template(scope="scope")
+              template(slot-scope="scope")
                 span {{ scope.row.margin }}
             el-table-column(prop="vote", label="Vote", align="center", sortable)
-              template(scope="scope")
+              template(slot-scope="scope")
                 span {{ scope.row.vote }}
             el-table-column(prop="sd", label="StDev", align="center", sortable)
-              template(scope="scope")
+              template(slot-scope="scope")
                 span {{ scope.row.sd }}
           .operations
             el-button(@click="on_download_team_results") Download Team Results
@@ -36,22 +36,22 @@
       el-tab-pane(label="Speaker Results")
         el-table(:data="target_tournament.compiled_speaker_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
           el-table-column(prop="ranking", label="Ranking", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ scope.row.ranking }}
           el-table-column(prop="id", label="Name", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ speaker_by_id(scope.row.id).name }}
           el-table-column(label="Team", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
           el-table-column(prop="average", label="Average", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ scope.row.average }}
           el-table-column(prop="sum", label="Sum", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ scope.row.sum }}
           el-table-column(prop="sd", label="StDev", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ scope.row.sd }}
         .operations
           el-button(@click="on_download_speaker_results") Download Speaker Results
@@ -60,16 +60,16 @@
       el-tab-pane(label="Adjudicator Results")
         el-table(:data="target_tournament.compiled_adjudicator_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
           el-table-column(prop="ranking", label="Ranking", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ scope.row.ranking }}
           el-table-column(prop="id", label="Name", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ adjudicator_by_id(scope.row.id).name }}
           el-table-column(prop="average", label="Average", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ scope.row.average }}
           el-table-column(prop="sd", label="StDev", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ scope.row.sd }}
         .operations
           el-button(@click="on_download_speaker_results") Download Speaker Results
@@ -78,16 +78,16 @@
       el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Speaker Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize")
         el-table(:data="compiled_sub_prize_results(sub_prize)")
           el-table-column(prop="ranking", label="Ranking", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ scope.row.ranking }}
           el-table-column(label="Name", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ speaker_by_id(scope.row.id).name }}
           el-table-column(label="Team", align="center", sortable)
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
           el-table-column(label="Total", align="center", sortable, prop="sub_prize")
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ scope.row[sub_prize] }}
         .operations
           el-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Speaker', poi: 'POI'}[sub_prize] }} Results

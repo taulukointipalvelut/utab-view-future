@@ -9,17 +9,17 @@
       section(v-if="!loading && round_by_r(r_str).team_allocation_opened && round_by_r(r_str).adjudicator_allocation_opened")
         el-table(:data="evaluation_sheets", @current-change="on_select", :row-class-name="row_class_name")
           el-table-column(prop="done", label="", width="40", align="center")
-            template(scope="scope")
+            template(slot-scope="scope")
               span.icon-ok(v-if="scope.row.done")
                 el-icon(name="check")
               span(v-else)
                 el-icon(name="edit")
           el-table-column(prop="name", label="Name")
-            template(scope="scope")
+            template(slot-scope="scope")
               span(v-if="scope.row.is_adjudicator") {{ adjudicator_by_id(scope.row.from_id).name }}
               span(v-if="!scope.row.is_adjudicator") {{ team_by_id(scope.row.from_id).name }}
           el-table-column(prop="venue", label="Venue", v-if="!smartphone")
-            template(scope="scope")
+            template(slot-scope="scope")
               span {{ venue_by_id(scope.row.venue).name }}
       section(v-else)
         p Evaluation Sheets for {{ round_by_r(r_str).name }} are not available.
