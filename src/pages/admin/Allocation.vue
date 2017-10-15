@@ -9,10 +9,11 @@
           el-table-column(label="Venue")
             template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row.venues", :options="venue_options")
-                .draggable-item(v-for="id in scope.row.venues") {{ venue_by_id(id).name }}
-                  el-popover(:open-delay="500", placement="right", trigger="click")
-                    el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                    p id: {{ id }}
+                .draggable-item(v-for="id in scope.row.venues", :class="warn_item_venue(id)")
+                  .draggable-content(@mouseover="selected_venue = id", @mouseout="selected_venue = null") {{ venue_by_id(id).name }}
+                    el-popover(:open-delay="500", placement="right", trigger="click")
+                      el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
+                      p id: {{ id }}
           el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels_short[side]")
             template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
@@ -96,10 +97,11 @@
       loading-container(:loading="loading")
         section.adj-list-container
           draggable.adj-list.src(v-model="venues", :options="venue_options")
-            .draggable-item(v-for="id in venues") {{ venue_by_id(id).name }}
-              el-popover(:open-delay="500", placement="right", trigger="click")
-                el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                p id: {{ id }}
+            .draggable-item(v-for="id in venues", :class="warn_item_venue(id)")
+              .draggable-content(@mouseover="selected_venue = id", @mouseout="selected_venue = null") {{ venue_by_id(id).name }}
+                el-popover(:open-delay="500", placement="right", trigger="click")
+                  el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
+                  p id: {{ id }}
 
       el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
         el-tabs(v-model="dialog.draw.allocation_type")
@@ -182,6 +184,7 @@ export default {
       selected_team: null,
       selected_adjudicator: null,
       selected_warning: null,
+      selected_venue: null,
       team_options: {
         group: { name: 'team-list' },
         animation: 100
@@ -278,7 +281,8 @@ export default {
           'different-win': false,
           'personal-conflicts': false,
           'conflicts': false,
-          'sided': false
+          'sided': false,
+          'sided-border': false
         }
 
         if (this.selected_team !== null) {//FOR RELATIONS WARNINGS
@@ -299,10 +303,10 @@ export default {
           warn_item_team['conflicts'] = this.check_conflicts(team, adjudicator)
           warn_item_team['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
         }
-        //let result = this.compiled_team_result_by_id(id)
-        //if (result !== undefined) {
-        //  warn_item_team['sided'] = this.check_sided(result, side)
-        //}
+        let result = this.compiled_team_result_by_id(id)
+        if (result !== undefined) {
+          warn_item_team['sided-border'] = this.check_sided(result, side)
+        }
         return warn_item_team
     },
     warn_item_adjudicator (id) {
@@ -327,6 +331,13 @@ export default {
           warn_item_adjudicator['same-institution'] = this.check_institutions(adjudicator0, adjudicator1)
         }
         return warn_item_adjudicator
+    },
+    warn_item_venue (id) {
+        let warn_item_venue = {
+          'selected': id === this.selected_venue
+        }
+
+        return warn_item_venue
     },
     on_team (selected) {
       this.selected_team = selected
@@ -383,31 +394,25 @@ export default {
         name: "DiffWin",
         message: "Two teams have different total win",
       }]
+      for (let side of ['gov', 'opp']) {
+        for (let id of square.teams[side]) {
+          let team = this.team_by_id(id)
+          let result = this.compiled_team_result_by_id(id)
+          if (result !== undefined && this.check_sided(result, side)) {
+            warnings.push({
+              name: "OneSided",
+              message: "Team is one sided to "+side,
+              teams: [id],
+              adjudicators: []
+            })
+          }
+        }
+      }
       for (let pair of math.pairs(square.teams.gov, square.teams.opp)) {
         let gov = this.team_by_id(pair[0])
         let opp = this.team_by_id(pair[1])
         let result0 = this.compiled_team_result_by_id(pair[0])
         let result1 = this.compiled_team_result_by_id(pair[1])
-        if (result0 !== undefined) {
-          if (this.check_sided(result0, 'gov')) {
-            warnings.push({
-              name: "OneSided",
-              message: "Team is one sided to gov",
-              teams: [pair[0]],
-              adjudicators: []
-            })
-          }
-        }
-        if (result1 !== undefined) {
-          if (this.check_sided(result1, 'opp')) {
-            warnings.push({
-              name: "OneSided",
-              message: "Team is one sided to opp",
-              teams: [pair[1]],
-              adjudicators: []
-            })
-          }
-        }
         for (let check of checks) {
           if (!check.require_results || result0 !== undefined && result1 !== undefined) {
             if (check.func(gov, opp, result0, result1)) {
@@ -568,7 +573,7 @@ export default {
         let draw = {}
         let tournament = this.target_tournament
         let request = {
-          rs: math.range(parseInt(this.r_str, 10)).map(ind => ind+1),
+          rs: math.range(parseInt(this.r_str-1, 10)).map(ind => ind+1),
           options: { force: true }
         }
         this.request_compiled_results({ tournament, label_singular: 'team', label: 'teams', request })
@@ -676,7 +681,7 @@ export default {
     transition-timing-function ease
     transition all 0.4s
     //border 2px solid #20A0FF
-    background-color #20A0FF
+    background-color rgba(#20a0ff, 0.5)
 
   .same-institution
     transition-timing-function ease
@@ -689,6 +694,11 @@ export default {
     transition all 0.4s
     //border 2px solid #F7B82A
     background-color #F7B82A
+
+  .sided-border
+    transition-timing-function ease
+    transition all 0.4s
+    border 2px solid #F7B82A
 
   .different-win
     transition-timing-function ease
