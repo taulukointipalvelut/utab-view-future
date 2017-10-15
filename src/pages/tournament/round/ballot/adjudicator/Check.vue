@@ -125,13 +125,15 @@ export default {
     on_send () {
       this.sending = true
       this.dialog.check.checked = false
+      let winner = this.result.winner
+      let side = this.score_sheet.teams.gov === winner ? 'gov' : 'opp'
       this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(this.init_all)
         .then(() => {
           //this.reset_state()
           this.sending = false
           this.dialog.check.visible = false
-          this.$router.push('done?winner=1')
+          this.$router.push('done?winner='+winner+'&side='+side)
         })
     },
     total (side) {

@@ -3,7 +3,7 @@
     .card-container(v-if="!loading")
       el-card
         h2 Thank you! Your ballot was successfully sent.
-        h2 You voted for {{ team_by_id(winner).name }}.
+        h2 You voted for {{ team_by_id(winner).name }} ({{ capitalize(side) }}).
 
     section.buttons(v-if="!loading")
       el-button(@click="on_home") #[i.fa.fa-home] Home
@@ -14,6 +14,7 @@
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { smartphone } from 'assets/js/media-query'
 import loading_container from 'components/loading-container'
+import math from 'assets/js/math'
 
 export default {
   components: {
@@ -22,6 +23,9 @@ export default {
   computed: {
     winner () {
       return this.$route.query.winner
+    },
+    side () {
+      return this.$route.query.side
     },
     ...mapState([
       'auth',
@@ -36,6 +40,7 @@ export default {
     ])
   },
   methods: {
+    capitalize: math.capitalize,
     on_home () {
       this.$router.push('/home')
     },
