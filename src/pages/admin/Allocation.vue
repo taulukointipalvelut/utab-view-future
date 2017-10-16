@@ -2,7 +2,7 @@
   .router-view-content
     section.page-header
       h1 Draw &amp; Allocation
-      h3(v-if="!loading") {{ round_by_r(r_str).name }}
+      h3(v-if="!loading") {{ target_round.name }}
     section(v-if="style")
       loading-container(:loading="loading")
         el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border)
@@ -55,8 +55,8 @@
                 el-popover(placement="right", width="200", trigger="click")
                   el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
                   p {{ warning.message }}
-                  p team: {{ entity_by_id(warning.teams[0]).name }}
-                  p adjudicator: {{ entity_by_id(warning.adjudicators[0]).name }}
+                  p teams: {{ warning.teams.map(entity_by_id).map(e => e.name).join(', ') }}
+                  p adjudicators: {{ warning.adjudicators.map(entity_by_id).map(e => e.name).join(', ') }}
         .operations
           el-button(@click="on_reset_draw") Reset
           el-button(@click="dialog.draw.visible = true") Request
@@ -235,8 +235,8 @@ export default {
       'style',
       'target_tournament',
       'entity_by_id',
-      'round_by_r',
-      'draw_by_r',
+      'target_round',
+      'target_draw',
       'details_1',
       'compiled_team_result_by_id',
       'compiled_adjudicator_result_by_id'
@@ -252,7 +252,7 @@ export default {
       if (ans === 'confirm') {
         let payload = {
           tournament: this.target_tournament,
-          draw: this.round_by_r(this.r_str)
+          draw: this.target_draw
         }
         this.send_delete_draw(payload).then(() => {
           this.draw_temp = null
@@ -426,7 +426,7 @@ export default {
     },
     warn_square_adjudicators (square) {
       let warnings = []
-      let checks = [{
+      let ta_checks = [{
         //require_results: false,
         func: this.check_conflicts,
         name: "Conflict",
@@ -440,13 +440,35 @@ export default {
       for (let pair of math.pairs(square.teams.gov.concat(square.teams.opp), square.chairs.concat(square.panels).concat(square.trainees))) {
         let team = this.entity_by_id(pair[0])
         let adj = this.entity_by_id(pair[1])
-        for (let check of checks) {
+        for (let check of ta_checks) {
           if (check.func(team, adj)) {
             warnings.push({
               name: check.name,
               message: check.message,
               teams: [pair[0]],
               adjudicators: [pair[1]]
+            })
+          }
+        }
+      }
+      let aa_checks = [{
+        //require_results: false,
+        func: this.check_institutions,
+        name: "AdjInsti",
+        message: "Adjudicators belong to the same institution",
+      }]
+      let adjudicators = square.chairs.concat(square.panels).concat(square.trainees)
+      for (let pair of math.pairs(adjudicators, adjudicators)) {
+        if (pair[0] >= pair[1]) { continue }
+        let adj0 = this.entity_by_id(pair[0])
+        let adj1 = this.entity_by_id(pair[1])
+        for (let check of aa_checks) {
+          if (check.func(adj0, adj1)) {
+            warnings.push({
+              name: check.name,
+              message: check.message,
+              teams: [],
+              adjudicators: pair
             })
           }
         }
@@ -580,8 +602,8 @@ export default {
         if (this.draw_temp !== null) {
             draw = this.draw_temp
             no_draw = false
-        } else if (this.draw_by_r(this.r_str) !== undefined) {
-            draw = this.draw_by_r(this.r_str)
+        } else if (this.target_draw !== undefined) {
+            draw = this.target_draw
             this.draw_temp = draw
             no_draw = false
         }
@@ -621,7 +643,7 @@ export default {
   },
   mounted () {
     this.init_all().then(() => {
-      this.new_draw = this.draw_by_r(this.r_str) === undefined ? true : false
+      this.new_draw = this.target_draw === undefined ? true : false
       this.init_allocation()
     })
   }

@@ -229,8 +229,6 @@ export default {
             return teams.filter(team => getters.details_1(team).speakers.includes(id))
         }
     },
-    round_by_r: select_by_key_factory('rounds', 'r'),
-    draw_by_r: select_by_key_factory('draws', 'r'),
     entity_by_id (state, getters) {
         let labels = ['teams', 'adjudicators', 'speakers', 'institutions', 'venues']
         return function (id) {

@@ -33,7 +33,7 @@ export default {
        return this.steps.findIndex(step => step === this.$route.name)
      },
     round () {
-      return this.round_by_r(this.r_str)
+      return this.target_round
     },
     adjudicator () {
       return this.entity_by_id(this.from_id_str)
@@ -46,7 +46,7 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'round_by_r',
+      'target_round',
       'entity_by_id',
       'score_sheet_by_id',
       'style'

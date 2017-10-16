@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
     section.page-header
-      h1 {{ round_by_r(r_str).name }}
+      h1 {{ target_round.name }}
     section
       link-list
         legend(slot="legend") Audience
@@ -36,7 +36,7 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'round_by_r'
+      'target_round'
     ])
   }
 }

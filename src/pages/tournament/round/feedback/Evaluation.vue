@@ -2,7 +2,7 @@
   .router-view-content
     section.page-header
       h1 {{ from.name }}
-      h3 {{ round_by_r(r_str).name }}
+      h3 {{ target_round.name }}
     loading-container(:loading="loading")
       section(v-if="!loading && !sent")
         h3 Select Judges to evaluate
@@ -80,7 +80,7 @@ export default {
     ...mapGetters([
       'target_tournament',
       'target_round',
-      'round_by_r',
+      'target_round',
       'entity_by_id',
       'details_1',
       'evaluation_sheet_by_id'

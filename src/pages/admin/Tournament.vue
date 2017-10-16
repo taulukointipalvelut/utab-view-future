@@ -77,10 +77,9 @@ TODO: Edit dialog needs validation
 
       el-dialog(title="Edit Round", :visible.sync="dialog.round.edit_visible")
         .dialog-body
-          span {{ dialog.round.form.model.evaluator_in_team }}
           el-form(:model="dialog.round.edit_form.model")
-            el-form-item(label="Round No.", prop="r")
-              el-input(v-model="dialog.round.edit_form.model.r")
+            el-form-item(label="Round No.")
+              el-input(:readonly="true", :value="dialog.round.edit_form.model.r")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.edit_form.model.name")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
@@ -438,6 +437,7 @@ export default {
     },
     on_edit_round (selected) {
       this.transfer(this.dialog.round.edit_form.model, selected)
+      this.dialog.round.edit_form.model.r = selected.r
       this.dialog.round.edit_visible = true
     },
     on_update_round () {

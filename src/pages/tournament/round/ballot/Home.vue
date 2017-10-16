@@ -2,9 +2,9 @@
   .router-view-content
     section.page-header
       h1 Score Sheet
-      h3 {{ round_by_r(r_str).name }}
+      h3 {{ target_round.name }}
     loading-container(:loading="loading")
-      section(v-if="round_by_r(r_str).team_allocation_opened && round_by_r(r_str).adjudicator_allocation_opened")
+      section(v-if="target_round.team_allocation_opened && target_round.adjudicator_allocation_opened")
         section(v-if="!loading")
           el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
         section(v-if="!loading")
@@ -22,7 +22,7 @@
               template(slot-scope="scope")
                 span {{ entity_by_id(scope.row.venue).name }}
       section(v-else)
-        p Score Sheets for {{ round_by_r(r_str).name }} are not available.
+        p Score Sheets for {{ target_round.name }} are not available.
 </template>
 
 <script>
@@ -43,7 +43,7 @@ export default {
     ...mapGetters([
       'target_score_sheets',
       'entity_by_id',
-      'round_by_r',
+      'target_round',
       'target_tournament'
     ]),
     smartphone: smartphone,

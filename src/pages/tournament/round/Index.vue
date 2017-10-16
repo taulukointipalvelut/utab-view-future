@@ -1,6 +1,6 @@
 <template lang="pug">
   loading-container.router-view-content(:loading="loading", no_item_text="Fail to load round data")
-    router-view(v-if="round_by_r(r_str)")
+    router-view(v-if="target_round")
 </template>
 
 <script>
@@ -18,7 +18,7 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'round_by_r'
+      'target_round'
     ])
   }
 }

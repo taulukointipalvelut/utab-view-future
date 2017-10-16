@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="!loading")
     section(v-if="!loading").page-header
-      h1 {{ round_by_r(r_str).name }}
+      h1 {{ target_round.name }}
     section(v-if="!loading && team_allocation_opened && sorted_rows.length > 0")
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue")
@@ -23,7 +23,7 @@
           template(slot-scope="scope")
             .adjudicator(v-for="id in scope.row.trainees") {{ entity_by_id(id).name }}
     section(v-else)
-      p Draw for {{ round_by_r(r_str).name }} is not released.
+      p Draw for {{ target_round.name }} is not released.
 </template>
 
 <script>
@@ -39,15 +39,15 @@ export default {
   },
   computed: {
     sorted_rows () {
-      let draw = this.draw_by_r(this.r_str)
+      let draw = this.target_draw
       return draw ? draw.allocation.slice().sort((a, b) => a.id > b.id ? 1 : -1) : []
     },
     team_allocation_opened () {
-      let round = this.round_by_r(this.r_str)
+      let round = this.target_round
       return round ? round.team_allocation_opened : false
     },
     adjudicator_allocation_opened () {
-      let round = this.round_by_r(this.r_str)
+      let round = this.target_round
       return round ? round.adjudicator_allocation_opened : false
     },
     ...mapState([
@@ -56,8 +56,8 @@ export default {
     ]),
     ...mapGetters([
       'entity_by_id',
-      'round_by_r',
-      'draw_by_r',
+      'target_round',
+      'target_draw',
       'style'
     ])
   },
