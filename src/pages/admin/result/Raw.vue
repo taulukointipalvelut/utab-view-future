@@ -60,7 +60,7 @@
                   span {{ scope.row.score }}
               el-table-column(prop="from_id", label="From", align="center", sortable)
                 template(slot-scope="scope")
-                  span {{ scope.row.from_id < 0 ? adjudicator_by_id(scope.row.from_id).name : team_by_id(scope.row.from_id).name }}
+                  span {{ adjudicator_result_sender(scope.row.from_id) }}
               el-table-column(align="right")
                 template(slot-scope="scope")
                   el-button.edit(size="small", @click="on_edit('adjudicator', scope.row)") #[el-icon(name="edit")]
@@ -147,13 +147,13 @@ export default {
     ...mapGetters([
       'style',
       'target_tournament',
+      'target_score_sheets',
+      'target_evaluation_sheets',
       'target_round',
       'team_by_id',
       'teams_by_speaker_id',
       'speaker_by_id',
       'adjudicator_by_id',
-      'target_score_sheets',
-      'target_evaluation_sheets',
       'raw_speaker_results_by_r',
       'raw_team_results_by_r',
       'raw_adjudicator_results_by_r'
@@ -183,6 +183,15 @@ export default {
       'send_delete_result',
       'init_raw_results'
     ]),
+    adjudicator_result_sender (from_id) {
+      if (from_id < 0) {
+        return this.adjudicator_by_id(from_id).name
+      } else if (this.target_round.evaluator_in_team === 'team') {
+        return this.team_by_id(from_id).name
+      } else {
+        return this.speaker_by_id(from_id).name
+      }
+    },
     ordinal (order) {
       if (order === 1) {
         return '1st'

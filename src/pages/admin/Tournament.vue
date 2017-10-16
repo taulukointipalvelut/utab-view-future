@@ -59,19 +59,25 @@ TODO: Edit dialog needs validation
         .dialog-body
           el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
             el-form-item(label="Round No.", prop="r")
-              el-input-number(v-model="dialog.round.form.model.r", :min="0")
+              el-input-number(v-model="dialog.round.form.model.r", :min="1")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.form.model.name")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.team_allocation_opened")
             el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.adjudicator_allocation_opened")
+            el-form-item(label="Adjudicators Evaluate Each Other", prop="evaluate_each_other")
+              el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round.form.model.evaluate_each_other")
+            el-form-item(label="Evaluator in Team", prop="evaluator_in_team")
+              el-select(v-model="dialog.round.form.model.evaluator_in_team")
+                el-option(v-for="index in range(3)", :key="index", :value="['team', 'speaker', null][index]", :label="['Team', 'Speaker', 'None'][index]")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.round.visible = false") Cancel
           el-button(type="primary", :loading="dialog.round.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
 
       el-dialog(title="Edit Round", :visible.sync="dialog.round.edit_visible")
         .dialog-body
+          span {{ dialog.round.form.model.evaluator_in_team }}
           el-form(:model="dialog.round.edit_form.model")
             el-form-item(label="Round No.", prop="r")
               el-input(v-model="dialog.round.edit_form.model.r")
@@ -81,6 +87,11 @@ TODO: Edit dialog needs validation
               el-switch(on-text="", off-text="", v-model="dialog.round.edit_form.model.team_allocation_opened")
             el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
               el-switch(on-text="", off-text="", v-model="dialog.round.edit_form.model.adjudicator_allocation_opened")
+            el-form-item(label="Adjudicators Evaluate Each Other", prop="evaluate_each_other")
+              el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round.edit_form.model.evaluate_each_other")
+            el-form-item(label="Evaluator in Team", prop="evaluator_in_team")
+              el-select(v-model="dialog.round.edit_form.model.evaluator_in_team")
+                el-option(v-for="index in range(3)", :key="index", :value="['team', 'speaker', null][index]", :label="['Team', 'Speaker', 'None'][index]")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.round.edit_visible = false") Cancel
           el-button(type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
@@ -296,7 +307,9 @@ export default {
             name: '',
             r: '',
             team_allocation_opened: true,
-            adjudicator_allocation_opened: true
+            adjudicator_allocation_opened: true,
+            evaluate_each_other: true,
+            evaluator_in_team: 'team'
           }
         },
         edit_form: {
@@ -304,7 +317,9 @@ export default {
             name: '',
             r: '',
             team_allocation_opened: true,
-            adjudicator_allocation_opened: true
+            adjudicator_allocation_opened: true,
+            evaluate_each_other: true,
+            evaluator_in_team: 'team'
           }
         }
       },
@@ -481,7 +496,6 @@ export default {
         payloads.push(payload)
       }
       if (this.dialog.compile.entities.includes('speakers') && !model.simple) {
-        console.log("called")
         let payload = Object.assign({}, _payload)
         payload.label = 'speakers'
         payload.label_singular = 'speaker'

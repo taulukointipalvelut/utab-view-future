@@ -17,7 +17,7 @@
           el-table-column(prop="name", label="Name")
             template(slot-scope="scope")
               span(v-if="scope.row.is_adjudicator") {{ adjudicator_by_id(scope.row.from_id).name }}
-              span(v-if="!scope.row.is_adjudicator") {{ team_by_id(scope.row.from_id).name }}
+              span(v-if="!scope.row.is_adjudicator") {{ target_round.evaluator_in_team === 'team' ? team_by_id(scope.row.from_id).name : speaker_by_id(scope.row.from_id).name }}
           el-table-column(prop="venue", label="Venue", v-if="!smartphone")
             template(slot-scope="scope")
               span {{ venue_by_id(scope.row.venue).name }}
@@ -41,7 +41,7 @@ export default {
       let evs = this.target_evaluation_sheets
       if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'adjudicator') {
         evs = evs.filter(es => es.from_id < 0)
-      } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'team') {
+      } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter !== 'adjudicator') {
         evs = evs.filter(es => es.from_id > 0)
       }
       return evs.slice().sort((ev1, ev2) => Math.abs(ev1.from_id) > Math.abs(ev2.from_id) ? 1 : -1)
@@ -55,16 +55,17 @@ export default {
       'adjudicator_by_id',
       'team_by_id',
       'venue_by_id',
+      'speaker_by_id',
       'details_1',
       'target_evaluation_sheets'
     ]),
     smartphone: smartphone,
     percentage (): number {
-      const teams_done = this.evaluation_sheets.filter(ev => ev.done)
+      const num_done = this.evaluation_sheets.filter(ev => ev.done)
       if (this.evaluation_sheets.length === 0) {
         return 0
       } else {
-        return Math.round((teams_done.length / this.evaluation_sheets.length) * 1000) / 10
+        return Math.round((num_done.length / this.evaluation_sheets.length) * 1000) / 10
       }
     },
     success (): string {

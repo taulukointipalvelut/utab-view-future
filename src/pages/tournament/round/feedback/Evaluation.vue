@@ -74,8 +74,10 @@ export default {
       let from_id = parseInt(this.from_id_str, 10)
       if (from_id < 0) {
         return this.adjudicator_by_id(from_id)
-      } else {
+      } else if (this.target_round.evaluator_in_team === 'team') {
         return this.team_by_id(from_id)
+      } else {
+        return this.speaker_by_id(from_id)
       }
     },
     ...mapState([
@@ -86,6 +88,7 @@ export default {
       'target_round',
       'round_by_r',
       'adjudicator_by_id',
+      'speaker_by_id',
       'team_by_id',
       'venue_by_id',
       'details_1',
