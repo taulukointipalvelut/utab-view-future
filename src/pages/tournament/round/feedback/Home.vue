@@ -16,8 +16,7 @@
                 el-icon(name="edit")
           el-table-column(prop="name", label="Name")
             template(slot-scope="scope")
-              span(v-if="scope.row.is_adjudicator") {{ entity_by_id(scope.row.from_id).name }}
-              span(v-if="!scope.row.is_adjudicator") {{ target_round.evaluator_in_team === 'team' ? entity_by_id(scope.row.from_id).name : entity_by_id(scope.row.from_id).name }}
+              span {{ entity_by_id(scope.row.from_id).name }}
           el-table-column(prop="venue", label="Venue", v-if="!smartphone")
             template(slot-scope="scope")
               span {{ entity_by_id(scope.row.venue).name }}
