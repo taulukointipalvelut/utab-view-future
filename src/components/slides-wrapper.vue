@@ -78,9 +78,6 @@ export default {
         return output
     },
     ...mapGetters([
-      'team_by_id',
-      'speaker_by_id',
-      'institution_by_id',
       'details_1'
     ])
   },

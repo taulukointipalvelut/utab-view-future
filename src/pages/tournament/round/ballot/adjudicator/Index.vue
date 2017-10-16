@@ -36,7 +36,7 @@ export default {
       return this.round_by_r(this.r_str)
     },
     adjudicator () {
-      return this.adjudicator_by_id(this.from_id_str)
+      return this.entity_by_id(this.from_id_str)
     },
     score_sheet () {
       return this.score_sheet_by_id(this.from_id_str)
@@ -47,7 +47,7 @@ export default {
     ]),
     ...mapGetters([
       'round_by_r',
-      'adjudicator_by_id',
+      'entity_by_id',
       'score_sheet_by_id',
       'style'
     ])

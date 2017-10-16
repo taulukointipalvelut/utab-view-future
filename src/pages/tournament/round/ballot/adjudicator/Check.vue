@@ -3,7 +3,7 @@
     .card-container(v-if="!loading && path_valid")
       el-card(v-for="side in ['gov', 'opp']", :class="side", :key="side")
         div(slot="header").card-header-container
-          span.card-title {{ team_by_id(score_sheet.teams[side]).name }}
+          span.card-title {{ entity_by_id(score_sheet.teams[side]).name }}
           span.card-subtitle {{ style.side_labels_short[side] }}
         .outer-table
           .outer-table-tr(v-for="role in style.roles[side].slice().sort((r1, r2) => r1.order > r2.order ? 1 : -1)", :key="role.abbr")
@@ -19,7 +19,7 @@
             .outer-table-td.flex
               .inner-table.result
                 .inner-table-tr.speaker
-                  .inner-table-td {{ speaker_by_id(value(side, 'speakers', role.order)).name | defaults('Not specified yet') }}
+                  .inner-table-td {{ entity_by_id(value(side, 'speakers', role.order)).name | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/${ side }-${ role.order }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
                 .inner-table-tr
@@ -40,7 +40,7 @@
         .outer-table.no-border
           .outer-table-tr
             .outer-table-td.label Winner
-            .outer-table-td.winner {{ team_by_id(result.winner).name | defaults('Not specified yet') }}
+            .outer-table-td.winner {{ entity_by_id(result.winner).name | defaults('Not specified yet') }}
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
 
@@ -92,8 +92,7 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'team_by_id',
-      'speaker_by_id',
+      'entity_by_id',
       'target_tournament',
       'style'
     ]),

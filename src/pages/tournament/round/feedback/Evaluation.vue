@@ -7,11 +7,11 @@
       section(v-if="!loading && !sent")
         h3 Select Judges to evaluate
           el-checkbox-group.judge-selection(v-model="adjudicators_to_evaluate")
-            el-checkbox-button(v-for="result in results", :label="result.id", :key="result.id") {{ adjudicator_by_id(result.id).name }}
+            el-checkbox-button(v-for="result in results", :label="result.id", :key="result.id") {{ entity_by_id(result.id).name }}
         .ev-card-container(v-if="!loading")
           el-card.ev-card(v-for="result in results", :key="result.id", v-if="result_visible(result)")
             div(slot="header").ev-card-header-container
-              span.ev-card-title {{ adjudicator_by_id(result.id).name }}
+              span.ev-card-title {{ entity_by_id(result.id).name }}
               //span.ev-card-subtitle subtitle
             el-form
               el-form-item(label="Matter", required)
@@ -20,7 +20,7 @@
                 number-box(v-model="result.manner", :min="1", :max="10", :step="1")
               el-form-item(label="Total Score")
                 input-label(:value="result.matter+result.manner")
-              el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment on '+adjudicator_by_id(result.id).name+', if any'")
+              el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment on '+entity_by_id(result.id).name+', if any'")
         section.buttons
           el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
           el-button(type="primary" @click="dialog.check.visible = true", :disabled="loading || adjudicators_to_evaluate.length === 0") Send #[i.fa.fa-paper-plane]
@@ -72,13 +72,7 @@ export default {
   computed: {
     from () {
       let from_id = parseInt(this.from_id_str, 10)
-      if (from_id < 0) {
-        return this.adjudicator_by_id(from_id)
-      } else if (this.target_round.evaluator_in_team === 'team') {
-        return this.team_by_id(from_id)
-      } else {
-        return this.speaker_by_id(from_id)
-      }
+      return this.entity_by_id(from_id)
     },
     ...mapState([
       'loading'
@@ -87,10 +81,7 @@ export default {
       'target_tournament',
       'target_round',
       'round_by_r',
-      'adjudicator_by_id',
-      'speaker_by_id',
-      'team_by_id',
-      'venue_by_id',
+      'entity_by_id',
       'details_1',
       'evaluation_sheet_by_id'
     ]),

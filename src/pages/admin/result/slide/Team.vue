@@ -32,18 +32,17 @@ export default {
     organized_results () {
       let organized_results = []
       for (let compiled_result of this.target_tournament.compiled_team_results) {
-        let team = this.team_by_id(compiled_result.id)
+        let team = this.entity_by_id(compiled_result.id)
         let result = Object.assign({}, compiled_result)
         result.name = team.name
-        result.institutions = this.details_1(team).institutions.map(this.institution_by_id).map(e => e.name)
+        result.institutions = this.details_1(team).institutions.map(this.entity_by_id).map(e => e.name)
         organized_results.push(result)
       }
       return organized_results
     },
     ...mapGetters([
       'target_tournament',
-      'team_by_id',
-      'institution_by_id',
+      'entity_by_id',
       'details_1'
     ])
   },

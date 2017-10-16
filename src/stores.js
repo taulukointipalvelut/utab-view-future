@@ -178,7 +178,7 @@ export default {
             if (round.evaluator_in_team === 'team') {
                 evaluators = Object.values(square.teams)
             } else if (round.evaluator_in_team === 'speaker') {
-                evaluators = [].concat(...Object.values(square.teams).map(getters.team_by_id).map(t => getters.details_1(t).speakers))
+                evaluators = [].concat(...Object.values(square.teams).map(getters.entity_by_id).map(t => getters.details_1(t).speakers))
             }
             for (let from_id of evaluators) {
                 let evaluation_sheet = {
@@ -231,11 +231,19 @@ export default {
     },
     round_by_r: select_by_key_factory('rounds', 'r'),
     draw_by_r: select_by_key_factory('draws', 'r'),
-    team_by_id: select_by_key_factory('teams'),
-    adjudicator_by_id: select_by_key_factory('adjudicators'),
-    speaker_by_id: select_by_key_factory('speakers'),
-    venue_by_id: select_by_key_factory('venues'),
-    institution_by_id: select_by_key_factory('institutions'),
+    entity_by_id (state, getters) {
+        let labels = ['teams', 'adjudicators', 'speakers', 'institutions', 'venues']
+        return function (id) {
+            let tournament = getters.target_tournament
+            for (let label of labels) {
+                let entity = tournament[label].find(e => e.id === id)
+                if (entity !== undefined) {
+                    return entity
+                }
+            }
+            return undefined
+        }
+    },
     unallocated_speakers (state, getters) {
         let tournament = getters.target_tournament
         let allocated_speakers = []

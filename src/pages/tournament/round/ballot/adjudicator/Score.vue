@@ -8,7 +8,7 @@
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
             el-select(:value="value(side_name, 'speakers', role_order)", @input="on_input_result('speakers', $event)", placeholder="Select Speaker")
-              el-option(v-for="id in details_1(team_by_id(score_sheet.teams[side_name])).speakers", :key="id", :label="speaker_by_id(id).name", :value="id")
+              el-option(v-for="id in details_1(entity_by_id(score_sheet.teams[side_name])).speakers", :key="id", :label="entity_by_id(id).name", :value="id")
           el-form-item(label="Matter", required)
             number-box(:value="value(side_name, 'matters', role_order)", @input="on_input_result('matters', $event)", :min="role_range.from", :max="role_range.to", :step="role_range.unit")
           el-form-item(label="Manner", required)
@@ -69,8 +69,7 @@ export default {
       return this.style.roles[this.side_name].find(r => r.order === this.role_order).long
     },
     ...mapGetters([
-      'team_by_id',
-      'speaker_by_id',
+      'entity_by_id',
       'details_1',
       'style'
     ]),

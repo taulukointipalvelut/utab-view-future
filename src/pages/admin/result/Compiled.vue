@@ -13,7 +13,7 @@
                 span {{ scope.row.ranking }}
             el-table-column(prop="id", label="Name", align="center", sortable)
               template(slot-scope="scope")
-                span {{ team_by_id(scope.row.id).name }}
+                span {{ entity_by_id(scope.row.id).name }}
             el-table-column(prop="win", label="Win", align="center", sortable)
               template(slot-scope="scope")
                 span {{ scope.row.win }}
@@ -40,7 +40,7 @@
               span {{ scope.row.ranking }}
           el-table-column(prop="id", label="Name", align="center", sortable)
             template(slot-scope="scope")
-              span {{ speaker_by_id(scope.row.id).name }}
+              span {{ entity_by_id(scope.row.id).name }}
           el-table-column(label="Team", align="center", sortable)
             template(slot-scope="scope")
               span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
@@ -64,7 +64,7 @@
               span {{ scope.row.ranking }}
           el-table-column(prop="id", label="Name", align="center", sortable)
             template(slot-scope="scope")
-              span {{ adjudicator_by_id(scope.row.id).name }}
+              span {{ entity_by_id(scope.row.id).name }}
           el-table-column(prop="average", label="Average", align="center", sortable)
             template(slot-scope="scope")
               span {{ scope.row.average }}
@@ -82,7 +82,7 @@
               span {{ scope.row.ranking }}
           el-table-column(label="Name", align="center", sortable)
             template(slot-scope="scope")
-              span {{ speaker_by_id(scope.row.id).name }}
+              span {{ entity_by_id(scope.row.id).name }}
           el-table-column(label="Team", align="center", sortable)
             template(slot-scope="scope")
               span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
@@ -190,10 +190,8 @@ export default {
     ]),
     ...mapGetters([
       'target_tournament',
-      'team_by_id',
+      'entity_by_id',
       'teams_by_speaker_id',
-      'speaker_by_id',
-      'adjudicator_by_id',
       'compiled_sub_prize_results'
     ])
   },
@@ -212,7 +210,7 @@ export default {
       let results = this.target_tournament.compiled_team_results
       let organized_results = results.map(result => Object.assign({}, result))
       for (let result of organized_results) {
-        result.name = this.team_by_id(result.id).name
+        result.name = this.entity_by_id(result.id).name
       }
       this.download_results_as_csv('team_results.csv', organized_results, ['ranking', 'name', 'win', 'sum', 'margin', 'vote', 'sd'], ['Ranking', 'Name', 'Win', 'Sum', 'Margin', 'Vote', 'StDev'])
     },
@@ -220,7 +218,7 @@ export default {
       let results = this.target_tournament.compiled_speaker_results
       let organized_results = results.map(result => Object.assign({}, result))
       for (let result of organized_results) {
-        result.name = this.speaker_by_id(result.id).name
+        result.name = this.entity_by_id(result.id).name
         result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
       }
       this.download_results_as_csv('speaker_results.csv', organized_results, ['ranking', 'name', 'team_name', 'average', 'sum', 'sd'], ['Ranking', 'Name', 'Team', 'Average', 'Sum', 'StDev'])
@@ -229,7 +227,7 @@ export default {
       let results = this.compiled_sub_prize_results(sub_prize)
       let organized_results = results.map(result => Object.assign({}, result))
       for (let result of organized_results) {
-        result.name = this.speaker_by_id(result.id).name
+        result.name = this.entity_by_id(result.id).name
         result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
       }
       this.download_results_as_csv({poi: "poi", best: "best_speaker"}[sub_prize]+'_results.csv', organized_results, ['ranking', 'name', 'team_name', sub_prize], ['Ranking', 'Name', 'Team', head])

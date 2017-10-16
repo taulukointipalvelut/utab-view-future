@@ -16,11 +16,11 @@
                 el-icon(name="edit")
           el-table-column(prop="name", label="Name")
             template(slot-scope="scope")
-              span(v-if="scope.row.is_adjudicator") {{ adjudicator_by_id(scope.row.from_id).name }}
-              span(v-if="!scope.row.is_adjudicator") {{ target_round.evaluator_in_team === 'team' ? team_by_id(scope.row.from_id).name : speaker_by_id(scope.row.from_id).name }}
+              span(v-if="scope.row.is_adjudicator") {{ entity_by_id(scope.row.from_id).name }}
+              span(v-if="!scope.row.is_adjudicator") {{ target_round.evaluator_in_team === 'team' ? entity_by_id(scope.row.from_id).name : entity_by_id(scope.row.from_id).name }}
           el-table-column(prop="venue", label="Venue", v-if="!smartphone")
             template(slot-scope="scope")
-              span {{ venue_by_id(scope.row.venue).name }}
+              span {{ entity_by_id(scope.row.venue).name }}
       section(v-else)
         p Evaluation Sheets for {{ target_round.name }} are not available.
 </template>
@@ -40,9 +40,9 @@ export default {
     evaluation_sheets () {
       let evs = this.target_evaluation_sheets
       if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'adjudicator') {
-        evs = evs.filter(es => es.from_id < 0)
+        evs = evs.filter(es => es.is_adjudicator)
       } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter !== 'adjudicator') {
-        evs = evs.filter(es => es.from_id > 0)
+        evs = evs.filter(es => !es.is_adjudicator)
       }
       return evs.slice().sort((ev1, ev2) => Math.abs(ev1.from_id) > Math.abs(ev2.from_id) ? 1 : -1)
     },
@@ -52,10 +52,7 @@ export default {
     ...mapGetters([
       'target_tournament',
       'target_round',
-      'adjudicator_by_id',
-      'team_by_id',
-      'venue_by_id',
-      'speaker_by_id',
+      'entity_by_id',
       'details_1',
       'target_evaluation_sheets'
     ]),
