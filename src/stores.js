@@ -92,7 +92,7 @@ function delete_factory(label, label_singular, keys=['id']) {
         let unfit = tournament[label]
         let fit = []
         for (let key of keys) {
-            fit.concat(unfit.filter(e => e[key] !== payload[label_singular][key]))
+            fit = fit.concat(unfit.filter(e => e[key] !== payload[label_singular][key]))
             unfit = unfit.filter(e => e[key] === payload[label_singular][key])
         }
         tournament[label] = fit
