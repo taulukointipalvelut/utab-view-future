@@ -132,6 +132,9 @@ export default {
     target_draw (state, getters) {
         return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str, 10))
     },
+    target_round (state, getters) {
+        return getters.target_tournament.rounds.find(d => d.r === parseInt(state.route.params.r_str, 10))
+    },
     target_score_sheets (state, getters) {
         let tournament = getters.target_tournament
         let draw = getters.target_draw
@@ -162,18 +165,25 @@ export default {
     target_evaluation_sheets (state, getters) {
         let tournament = getters.target_tournament
         let draw = getters.target_draw
+        let round = getters.target_round
         if (draw === undefined) {
             return []
         }
         let allocation = draw.allocation
         let r = draw.r
         let evaluation_sheets = []
-        let teams_submitted = Array.from(new Set(getters.raw_adjudicator_results_by_r(r).map(res => res.from_id)))
+        let submitted = Array.from(new Set(getters.raw_adjudicator_results_by_r(r).map(res => res.from_id)))
         for (let square of allocation) {
-            for (let from_id of Object.values(square.teams)) {
+            let evaluators = []
+            if (round.evaluator_in_team === 'team') {
+                evaluators = Object.values(square.teams)
+            } else if (round.evaluator_in_team === 'speaker') {
+                evaluators = [].concat(...Object.values(square.teams).map(getters.team_by_id).map(t => getters.details_1(t).speakers))
+            }
+            for (let from_id of evaluators) {
                 let evaluation_sheet = {
                     r,
-                    done: teams_submitted.includes(from_id),
+                    done: submitted.includes(from_id),
                     adjudicators: square.chairs.concat(square.panels),
                     teams: square.teams,
                     from_id,
@@ -183,20 +193,22 @@ export default {
                 }
                 evaluation_sheets.push(evaluation_sheet)
             }
-            for (let from_id of square.chairs.concat(square.panels).concat(square.trainees)) {
-                let adjudicators = square.chairs.concat(square.panels).concat(square.trainees).filter(id => id !== from_id)
-                if (adjudicators.length === 0) { break }
-                let evaluation_sheet = {
-                    r,
-                    done: teams_submitted.includes(from_id),
-                    adjudicators,
-                    teams: square.teams,
-                    from_id,
-                    is_adjudicator: true,
-                    venue: square.venue,
-                    href: { to: String(from_id) }
+            if (round.evaluate_each_other) {
+                for (let from_id of square.chairs.concat(square.panels).concat(square.trainees)) {
+                    let adjudicators = square.chairs.concat(square.panels).concat(square.trainees).filter(id => id !== from_id)
+                    if (adjudicators.length === 0) { break }
+                    let evaluation_sheet = {
+                        r,
+                        done: submitted.includes(from_id),
+                        adjudicators,
+                        teams: square.teams,
+                        from_id,
+                        is_adjudicator: true,
+                        venue: square.venue,
+                        href: { to: String(from_id) }
+                    }
+                    evaluation_sheets.push(evaluation_sheet)
                 }
-                evaluation_sheets.push(evaluation_sheet)
             }
         }
         return evaluation_sheets

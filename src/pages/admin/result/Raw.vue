@@ -147,6 +147,7 @@ export default {
     ...mapGetters([
       'style',
       'target_tournament',
+      'target_round',
       'team_by_id',
       'teams_by_speaker_id',
       'speaker_by_id',

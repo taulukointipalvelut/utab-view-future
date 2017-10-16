@@ -83,6 +83,7 @@ export default {
     ]),
     ...mapGetters([
       'target_tournament',
+      'target_round',
       'round_by_r',
       'adjudicator_by_id',
       'team_by_id',

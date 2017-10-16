@@ -2,11 +2,11 @@
   .router-view-content
     section.page-header
       h1 Judge Evaluation Sheet
-      h3 {{ round_by_r(r_str).name }}
+      h3 {{ target_round.name }}
     loading-container(:loading="loading")
       section(v-if="!loading")
         el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
-      section(v-if="!loading && round_by_r(r_str).team_allocation_opened && round_by_r(r_str).adjudicator_allocation_opened")
+      section(v-if="!loading && target_round.team_allocation_opened && target_round.adjudicator_allocation_opened")
         el-table(:data="evaluation_sheets", @current-change="on_select", :row-class-name="row_class_name")
           el-table-column(prop="done", label="", width="40", align="center")
             template(slot-scope="scope")
@@ -22,7 +22,7 @@
             template(slot-scope="scope")
               span {{ venue_by_id(scope.row.venue).name }}
       section(v-else)
-        p Evaluation Sheets for {{ round_by_r(r_str).name }} are not available.
+        p Evaluation Sheets for {{ target_round.name }} are not available.
 </template>
 
 <script>
@@ -51,7 +51,7 @@ export default {
     ]),
     ...mapGetters([
       'target_tournament',
-      'round_by_r',
+      'target_round',
       'adjudicator_by_id',
       'team_by_id',
       'venue_by_id',
