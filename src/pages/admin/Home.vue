@@ -23,8 +23,6 @@
     el-dialog(title="Create New Tournament", :visible.sync="dialog.create.visible")
       .dialog-body
         el-form(ref="dialog_create_form", :model="dialog.create.form.model", :rules="dialog.create.form.rules")
-          el-form-item(label="ID", prop="id")
-            el-input(type="number", :value="dialog.create.form.model.id", @input="value => dialog.create.form.model.id = parseInt(value, 10)")
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.create.form.model.name")
           el-form-item(label="Style", prop="style_id")
@@ -69,16 +67,11 @@ export default {
           visible: false,
           form: {
             model: {
-              id: '',
               name: '',
               style_id: null,
               total_round_num: ''
             },
             rules: {
-              id: [
-                { required: true, message: 'Please input Tournament ID' },
-                { type: 'integer', min: 0, message: 'Tournament ID must be a positive integer' }
-              ],
               name: [
                 { required: true, message: 'Please input Tournamrnt Name' }
               ],
@@ -97,16 +90,11 @@ export default {
           visible: false,
           form: {
             model: {
-              id: '',
               name: '',
               style_id: '',
               total_round_num: ''
             },
             rules: {
-              id: [
-                { required: true, message: 'Please input Tournament ID' },
-                { type: 'integer', min: 0, message: 'Tournament ID must be a positive integer' }
-              ],
               name: [
                 { required: true, message: 'Please input Tournamrnt Name' }
               ],
@@ -162,7 +150,6 @@ export default {
           const tournament = Object.assign({}, this.dialog.create.form.model)
           tournament.style = this.styles.find(s => s.id === tournament.style_id)
           tournament.current_round_num = 1
-          tournament.href = { path: `/${ tournament.name }` }
           this.send_create_tournament({ tournament: tournament })
           this.dialog.create.loading = false
           this.dialog.create.visible = false

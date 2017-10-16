@@ -320,7 +320,7 @@ export default {
         let tournament = {
           id: payload.tournament.id,
           name: payload.tournament.name,
-          href: payload.tournament.href,
+          href: { path: '/'+payload.tournament.name },
           current_round_num: payload.tournament.current_round_num,
           total_round_num: payload.tournament.total_round_num,
           style: payload.tournament.style,
@@ -427,7 +427,11 @@ export default {
       },
       send_create_tournament ({state, commit, dispatch}, payload) {
          return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
-            .then(() => commit('add_tournament', payload))
+            .then(function (data) {
+                console.log(data)
+                payload.tournament = data
+                commit('add_tournament', payload)
+            })
       },
       send_delete_tournament ({state, commit, dispatch}, payload) {
          return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id)
@@ -435,7 +439,10 @@ export default {
       },
       send_create_entities ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label, payload[payload.label])
-            .then(() => commit('add_entities', payload))
+            .then(function (data) {
+                payload[payload.label] = data
+                commit('add_entities', payload)
+            })
       },
       send_update_entity ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label])

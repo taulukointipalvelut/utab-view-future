@@ -157,33 +157,18 @@ export default {
         dialog_props_editable: {
           input: {
             teams: [{
-              prop: 'id',
-              type: Number
-            }, {
               prop: 'name'
             }],
             adjudicators: [{
-              prop: 'id',
-              type: Number
-            }, {
               prop: 'name'
             }],
             speakers: [{
-              prop: 'id',
-              type: Number
-            }, {
               prop: 'name'
             }],
             institutions: [{
-              prop: 'id',
-              type: Number
-            }, {
               prop: 'name'
             }],
             venues: [{
-              prop: 'id',
-              type: Number
-            }, {
               prop: 'name'
             }]
           },
@@ -225,21 +210,11 @@ export default {
         },
         dialog_props_unchangeable: {
           input: {
-            teams: [{
-              prop: 'id'
-            }],
-            adjudicators: [{
-              prop: 'id'
-            }],
-            speakers: [{
-              prop: 'id'
-            }],
-            institutions: [{
-              prop: 'id'
-            }],
-            venues: [{
-              prop: 'id'
-            }]
+            teams: [],
+            adjudicators: [],
+            speakers: [],
+            institutions: [],
+            venues: []
           }
         },
         dialog_props_changeable: {
