@@ -234,7 +234,7 @@ export default {
         return function (id) {
             let tournament = getters.target_tournament
             for (let label of labels) {
-                let entity = tournament[label].find(e => e.id === id)
+                let entity = tournament[label].find(e => e.id === parseInt(id, 10))
                 if (entity !== undefined) {
                     return entity
                 }
