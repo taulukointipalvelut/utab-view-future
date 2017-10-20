@@ -50,7 +50,7 @@ TODO: Edit dialog needs validation
               el-checkbox-group(v-model="dialog.compile.entities")
                 el-checkbox(label="teams", :checked="true")
                 el-checkbox(label="adjudicators", :checked="true")
-                el-checkbox(label="speakers", :disabled="dialog.compile.form.model.simple")
+                el-checkbox(label="speakers", :checked="true", :disabled="dialog.compile.form.model.simple")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.compile.visible = false") Cancel
           el-button(type="primary", @click="on_compile") Request

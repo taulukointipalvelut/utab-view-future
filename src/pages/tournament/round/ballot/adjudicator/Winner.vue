@@ -8,8 +8,8 @@
               div(v-for="side in ['gov', 'opp']", :key="side").sideinfo-header__item {{ style.side_labels_short[side] }}
               //.sideinfo-header__item {{ total(side) }} pts
           el-radio-group.winner-selector(:value="result.winner", @input="on_select_winner", size="large")
-            el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ entity_by_id(score_sheet.teams.gov).name }}
-            el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ entity_by_id(score_sheet.teams.opp).name }}
+            el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ entity_name_by_id(score_sheet.teams.gov) }}
+            el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ entity_name_by_id(score_sheet.teams.opp) }}
 
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -35,7 +35,7 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'entity_by_id',
+      'entity_name_by_id',
       'style'
     ]),
     ...mapState('ballot', [

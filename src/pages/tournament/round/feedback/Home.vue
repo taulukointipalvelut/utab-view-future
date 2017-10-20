@@ -16,10 +16,10 @@
                 el-icon(name="edit")
           el-table-column(prop="name", label="Name")
             template(slot-scope="scope")
-              span {{ entity_by_id(scope.row.from_id).name }}
+              span {{ entity_name_by_id(scope.row.from_id) }}
           el-table-column(prop="venue", label="Venue", v-if="!smartphone")
             template(slot-scope="scope")
-              span {{ entity_by_id(scope.row.venue).name }}
+              span {{ entity_name_by_id(scope.row.venue) }}
       section(v-else)
         p Evaluation Sheets for {{ target_round.name }} are not available.
 </template>
@@ -51,7 +51,7 @@ export default {
     ...mapGetters([
       'target_tournament',
       'target_round',
-      'entity_by_id',
+      'entity_name_by_id',
       'details_1',
       'target_evaluation_sheets'
     ]),

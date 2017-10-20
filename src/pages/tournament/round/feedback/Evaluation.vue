@@ -7,11 +7,11 @@
       section(v-if="!loading && !sent")
         h3 Select Judges to evaluate
           el-checkbox-group.judge-selection(v-model="adjudicators_to_evaluate")
-            el-checkbox-button(v-for="result in results", :label="result.id", :key="result.id") {{ entity_by_id(result.id).name }}
+            el-checkbox-button(v-for="result in results", :label="result.id", :key="result.id") {{ entity_name_by_id(result.id) }}
         .ev-card-container(v-if="!loading")
           el-card.ev-card(v-for="result in results", :key="result.id", v-if="result_visible(result)")
             div(slot="header").ev-card-header-container
-              span.ev-card-title {{ entity_by_id(result.id).name }}
+              span.ev-card-title {{ entity_name_by_id(result.id) }}
               //span.ev-card-subtitle subtitle
             el-form
               el-form-item(label="Matter", required)
@@ -20,7 +20,7 @@
                 number-box(v-model="result.manner", :min="1", :max="10", :step="1")
               el-form-item(label="Total Score")
                 input-label(:value="result.matter+result.manner")
-              el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment on '+entity_by_id(result.id).name+', if any'")
+              el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment on '+entity_name_by_id(result.id)+', if any'")
         section.buttons
           el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
           el-button(type="primary" @click="dialog.check.visible = true", :disabled="loading || adjudicators_to_evaluate.length === 0") Send #[i.fa.fa-paper-plane]
@@ -82,6 +82,7 @@ export default {
       'target_round',
       'target_round',
       'entity_by_id',
+      'entity_name_by_id',
       'details_1',
       'evaluation_sheet_by_id'
     ]),

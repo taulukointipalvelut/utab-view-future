@@ -35,7 +35,7 @@ export default {
         let team = this.entity_by_id(compiled_result.id)
         let result = Object.assign({}, compiled_result)
         result.name = team.name
-        result.institutions = this.details_1(team).institutions.map(this.entity_by_id).map(e => e.name)
+        result.institutions = this.details_1(team).institutions.map(this.entity_name_by_id)
         organized_results.push(result)
       }
       return organized_results
@@ -43,6 +43,7 @@ export default {
     ...mapGetters([
       'target_tournament',
       'entity_by_id',
+      'entity_name_by_id',
       'details_1'
     ])
   },

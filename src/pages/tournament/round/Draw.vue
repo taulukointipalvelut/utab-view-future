@@ -6,22 +6,22 @@
       el-table(stripe, :data="sorted_rows")
         el-table-column(label="Venue")
           template(slot-scope="scope")
-            span {{ entity_by_id(scope.row.venue).name }}
+            span {{ entity_name_by_id(scope.row.venue) }}
         el-table-column(:label="style.side_labels_short['gov']")
           template(slot-scope="scope")
-            span {{ entity_by_id(scope.row.teams.gov).name }}
+            span {{ entity_name_by_id(scope.row.teams.gov) }}
         el-table-column(:label="style.side_labels_short['opp']")
           template(slot-scope="scope")
-            span {{ entity_by_id(scope.row.teams.opp).name }}
+            span {{ entity_name_by_id(scope.row.teams.opp) }}
         el-table-column.adjudicator-container(label="Chair", v-if="adjudicator_allocation_opened")
           template(slot-scope="scope")
-            .adjudicator(v-for="id in scope.row.chairs") {{ entity_by_id(id).name }}
+            .adjudicator(v-for="id in scope.row.chairs") {{ entity_name_by_id(id) }}
         el-table-column.adjudicator-container(label="Panel", v-if="adjudicator_allocation_opened")
           template(slot-scope="scope")
-            .adjudicator(v-for="id in scope.row.panels") {{ entity_by_id(id).name }}
+            .adjudicator(v-for="id in scope.row.panels") {{ entity_name_by_id(id) }}
         el-table-column.adjudicator-container(label="Trainee", v-if="adjudicator_allocation_opened")
           template(slot-scope="scope")
-            .adjudicator(v-for="id in scope.row.trainees") {{ entity_by_id(id).name }}
+            .adjudicator(v-for="id in scope.row.trainees") {{ entity_name_by_id(id) }}
     section(v-else)
       p Draw for {{ target_round.name }} is not released.
 </template>
@@ -55,7 +55,7 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'entity_by_id',
+      'entity_name_by_id',
       'target_round',
       'target_draw',
       'style'

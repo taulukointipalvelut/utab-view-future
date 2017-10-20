@@ -242,6 +242,16 @@ export default {
             return undefined
         }
     },
+    entity_name_by_id (state, getters) {
+        return function (id) {
+            let entity = getters.entity_by_id(id)
+            if (entity === undefined) {
+                return 'Undefined'
+            } else {
+                return entity.name
+            }
+        }
+    },
     unallocated_speakers (state, getters) {
         let tournament = getters.target_tournament
         let allocated_speakers = []

@@ -17,10 +17,10 @@
                   el-icon(name="edit")
             el-table-column(prop="from_id", label="Name")
               template(slot-scope="scope")
-                span {{ entity_by_id(scope.row.from_id).name }} #[i.fa.fa-user-secret(v-if="scope.row.is_chair")]
+                span {{ entity_name_by_id(scope.row.from_id) }} #[i.fa.fa-user-secret(v-if="scope.row.is_chair")]
             el-table-column(prop="venue", label="Venue", v-if="!smartphone")
               template(slot-scope="scope")
-                span {{ entity_by_id(scope.row.venue).name }}
+                span {{ entity_name_by_id(scope.row.venue) }}
       section(v-else)
         p Score Sheets for {{ target_round.name }} are not available.
 </template>
@@ -42,7 +42,7 @@ export default {
     ]),
     ...mapGetters([
       'target_score_sheets',
-      'entity_by_id',
+      'entity_name_by_id',
       'target_round',
       'target_tournament'
     ]),
