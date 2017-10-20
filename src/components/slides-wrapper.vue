@@ -76,10 +76,7 @@ export default {
             number++
         }
         return output
-    },
-    ...mapGetters([
-      'details_1'
-    ])
+    }
   },
   methods: {
       capitalize: math.capitalize,

@@ -178,7 +178,7 @@ export default {
             if (round.evaluator_in_team === 'team') {
                 evaluators = Object.values(square.teams)
             } else if (round.evaluator_in_team === 'speaker') {
-                evaluators = [].concat(...Object.values(square.teams).map(getters.entity_by_id).map(t => getters.details_1(t).speakers))
+                evaluators = [].concat(...Object.values(square.teams).map(getters.entity_by_id).map(t => getters.details_1(t, r).speakers))
             }
             for (let from_id of evaluators) {
                 let evaluation_sheet = {
@@ -267,8 +267,8 @@ export default {
     raw_speaker_results_by_r: results_factory('raw_speaker_results'),
     raw_adjudicator_results_by_r: results_factory('raw_adjudicator_results'),
     details_1 (state, getters) {
-        return function (entity) {
-            return Object.assign(entity, entity.details.find(d => d.r === 1))
+        return function (entity, r_str=1) {
+            return Object.assign(entity, entity.details.find(d => d.r === parseInt(r_str, 10)))
         }
     },
     style (state, getters) {

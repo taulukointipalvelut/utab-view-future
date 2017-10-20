@@ -52,7 +52,6 @@ export default {
       'target_tournament',
       'target_round',
       'entity_name_by_id',
-      'details_1',
       'target_evaluation_sheets'
     ]),
     smartphone: smartphone,

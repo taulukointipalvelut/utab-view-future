@@ -347,19 +347,19 @@ export default {
       this.selected_adjudicator = null
     },
     speaker_names_by_team_id (id) {
-      return this.details_1(this.entity_by_id(id))
+      return this.details_1(this.entity_by_id(id), this.r_str)
         .speakers.map(this.entity_name_by_id).join(', ')
     },
     institution_names_by_team_id (id) {
-      return this.details_1(this.entity_by_id(id)).institutions
+      return this.details_1(this.entity_by_id(id), this.r_str).institutions
         .map(this.entity_name_by_id).join(', ')
     },
     institution_names_by_adjudicator_id (id) {
-      return this.details_1(this.entity_by_id(id)).institutions
+      return this.details_1(this.entity_by_id(id), this.r_str).institutions
         .map(this.entity_name_by_id).join(', ')
     },
     conflict_names_by_adjudicator_id (id) {
-      return this.details_1(this.entity_by_id(id)).conflicts
+      return this.details_1(this.entity_by_id(id), this.r_str).conflicts
         .map(this.entity_name_by_id).join(', ')
     },
     row_class(row, index) {
@@ -480,7 +480,7 @@ export default {
       return Math.abs(math.count(result.past_sides.concat([side]), 'gov') - math.count(result.past_sides.concat([side]), 'opp')) > 1
     },
     check_institutions (team0, team1) {
-      return !math.disjoint(this.details_1(team0).institutions, this.details_1(team1).institutions) && team0.id !== team1.id
+      return !math.disjoint(this.details_1(team0, this.r_str).institutions, this.details_1(team1, this.r_str).institutions) && team0.id !== team1.id
     },
     check_wins (team0, team1, result0, result1) {
       return result0.win !== result1.win
@@ -489,10 +489,10 @@ export default {
       return adj_result.judged_teams.includes(team.id)
     },
     check_personal_conflicts (team, adj) {
-      return this.details_1(adj).conflicts.includes(team.id)
+      return this.details_1(adj, this.r_str).conflicts.includes(team.id)
     },
     check_conflicts (team, adj) {
-      return !math.disjoint(this.details_1(team).institutions, this.details_1(adj).institutions)
+      return !math.disjoint(this.details_1(team, this.r_str).institutions, this.details_1(adj, this.r_str).institutions)
     },
     convert_to_draw () {
       let draw = {

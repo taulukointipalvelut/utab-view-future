@@ -83,7 +83,6 @@ export default {
       'target_round',
       'entity_by_id',
       'entity_name_by_id',
-      'details_1',
       'evaluation_sheet_by_id'
     ]),
     smartphone: smartphone,
