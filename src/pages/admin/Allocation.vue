@@ -279,7 +279,8 @@ export default {
           'personal-conflicts': false,
           'conflicts': false,
           'sided': false,
-          'sided-border': false
+          'sided-border': false,
+          'already-judged': false
         }
 
         if (this.selected_team !== null) {//FOR RELATIONS WARNINGS
@@ -296,6 +297,11 @@ export default {
         if (this.selected_adjudicator !== null) {//FOR ADJUDICATOR RELATIONS WARNINGS
           let team = this.entity_by_id(id)
           let adjudicator = this.entity_by_id(this.selected_adjudicator)
+          let team_result = this.compiled_team_result_by_id(id)
+          let adj_result = this.compiled_adjudicator_result_by_id(this.selected_adjudicator)
+          if (team_result !== undefined || adj_result !== undefined) {
+            warn_item_team['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
+          }
 
           warn_item_team['conflicts'] = this.check_conflicts(team, adjudicator)
           warn_item_team['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
@@ -311,12 +317,18 @@ export default {
           'selected': id === this.selected_adjudicator || (this.selected_warning !== null && this.selected_warning.adjudicators.includes(id)),
           'conflicts': false,
           'personal-conflicts': false,
-          'same-institution': false
+          'same-institution': false,
+          'already-judged': false
         }
 
         if (this.selected_team !== null) {//FOR RELATIONS WARNINGS
           let team = this.entity_by_id(this.selected_team)
           let adjudicator = this.entity_by_id(id)
+          let team_result = this.compiled_team_result_by_id(this.selected_team)
+          let adj_result = this.compiled_adjudicator_result_by_id(id)
+          if (team_result !== undefined || adj_result !== undefined) {
+            warn_item_adjudicator['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
+          }
 
           warn_item_adjudicator['conflicts'] = this.check_conflicts(team, adjudicator)
           warn_item_adjudicator['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
@@ -380,6 +392,21 @@ export default {
     },
     warn_square_teams (square) {
       let warnings = []
+      for (let side of ['gov', 'opp']) {
+        for (let id of square.teams[side]) {
+          let team = this.entity_by_id(id)
+          let result = this.compiled_team_result_by_id(id)
+          if (result === undefined) { continue }
+          if (this.check_sided(result, side)) {
+            warnings.push({
+              name: "OneSided",
+              message: "Team is one sided to "+side,
+              teams: [id],
+              adjudicators: []
+            })
+          }
+        }
+      }
       let checks = [{
         require_results: false,
         func: this.check_institutions,
@@ -391,35 +418,20 @@ export default {
         name: "DiffWin",
         message: "Two teams have different total win",
       }]
-      for (let side of ['gov', 'opp']) {
-        for (let id of square.teams[side]) {
-          let team = this.entity_by_id(id)
-          let result = this.compiled_team_result_by_id(id)
-          if (result !== undefined && this.check_sided(result, side)) {
-            warnings.push({
-              name: "OneSided",
-              message: "Team is one sided to "+side,
-              teams: [id],
-              adjudicators: []
-            })
-          }
-        }
-      }
       for (let pair of math.pairs(square.teams.gov, square.teams.opp)) {
         let gov = this.entity_by_id(pair[0])
         let opp = this.entity_by_id(pair[1])
         let result0 = this.compiled_team_result_by_id(pair[0])
         let result1 = this.compiled_team_result_by_id(pair[1])
         for (let check of checks) {
-          if (!check.require_results || result0 !== undefined && result1 !== undefined) {
-            if (check.func(gov, opp, result0, result1)) {
-              warnings.push({
-                name: check.name,
-                message: check.message,
-                teams: pair,
-                adjudicators: []
-              })
-            }
+          if (check.require_results && (result0 === undefined || result1 === undefined)) { continue }
+          if (check.func(gov, opp, result0, result1)) {
+            warnings.push({
+              name: check.name,
+              message: check.message,
+              teams: pair,
+              adjudicators: []
+            })
           }
         }
       }
@@ -428,21 +440,29 @@ export default {
     warn_square_adjudicators (square) {
       let warnings = []
       let ta_checks = [{
-        //require_results: false,
+        require_results: false,
         func: this.check_conflicts,
         name: "Conflict",
         message: "Adjudicators have an institution conflict",
       }, {
-        //require_results: false,
+        require_results: false,
         func: this.check_personal_conflicts,
         name: "Personal",
         message: "Adjudicators have a personal conflict",
+      }, {
+        require_results: true,
+        func: this.check_judged,
+        name: "Judged",
+        message: "Adjudicators already watched the teams",
       }]
       for (let pair of math.pairs(square.teams.gov.concat(square.teams.opp), square.chairs.concat(square.panels).concat(square.trainees))) {
         let team = this.entity_by_id(pair[0])
         let adj = this.entity_by_id(pair[1])
         for (let check of ta_checks) {
-          if (check.func(team, adj)) {
+          let team_result = this.compiled_team_result_by_id(pair[0])
+          let adj_result = this.compiled_adjudicator_result_by_id(pair[1])
+          if (check.require_results && (team_result === undefined || adj_result === undefined)) { continue }
+          if (check.func(team, adj, team_result, adj_result)) {
             warnings.push({
               name: check.name,
               message: check.message,
@@ -707,6 +727,12 @@ export default {
     transition all 0.4s
     //border 2px solid #F7B82A
     background-color #F7B82A
+
+  .already-judged
+    transition-timing-function ease
+    transition all 0.4s
+    //border 2px solid #F7B82A
+    background-color gray
 
   .sided
     transition-timing-function ease
