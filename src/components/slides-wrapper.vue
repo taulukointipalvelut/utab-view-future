@@ -1,11 +1,11 @@
 <template lang="pug">
-  slides(:title="title", :texts_list="texts_list", :credit="credit")
+  slides(:divided_results="divided_results", :title="title", :credit="credit")
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-import slides from 'components/slides.vue'
 import math from 'assets/js/math'
+import slides from 'components/slides'
 
 export default {
   name: 'slides-wrapper',
@@ -22,68 +22,73 @@ export default {
     'title',
     'organized_results'
   ],
+  data () {
+    return {
+      current_slide: 0,
+      texts_class: '',
+      current_texts: []
+    }
+  },
   computed: {
-    texts_list () {
+    divided_results () {
       let texts_list = []
-      let slide_groups = this.slide_groups
-      for (let slide_group of slide_groups) {
-        texts_list.push([
-          { tag: 'h2', text: slide_group.place }
-        ])
-        texts_list.push([])
-        texts_list.push([
-          { tag: 'h2', text: slide_group.place },
-          { tag: 'h1', text: slide_group.name },
-          { tag: 'p', text: slide_group.sub_names.join(', ') }
-        ])
-        texts_list.push([])
-      }
-      return texts_list
-    },
-    slide_groups () {
-        let output = []
-        let results_sorted = [].concat(this.organized_results).sort((r1, r2) => r1.ranking < r2.ranking)
-        let number = 0
-        let rankings = results_sorted.map(r => r.ranking)
-        let tie_rankings = rankings.filter(r => rankings.filter(r2 => r2 === r).length > 1)
-
-        for (let result of results_sorted) {
-            if (result.ranking > this.max_ranking_rewarded) {
-                continue
-            }
-            let place = ""
-            if (result.ranking === 1) {
-                place = "1st"
-            } else if (result.ranking === 2) {
-                place = "2nd"
-            } else if (result.ranking === 3){
-                place = "3rd"
-            } else {
-                place = result.ranking+"th"
-            }
-            if (tie_rankings.includes(result.ranking)) {
-                place += " Place (Tie)"
-            } else {
-                place += " Place"
-            }
-
-            output.push({
-                number,
-                name: result.name,
-                place: place,
-                sub_names: result[this.sub_label]
-            })
-            number++
+      let sorted_results = this.sorted_results
+      let divided_results = []
+      let num_div = 3
+      let c = 0
+      if (true) {
+        for (let result of sorted_results) {
+          if (c % num_div === 0) {
+            divided_results.push([result])
+          } else {
+            divided_results[divided_results.length - 1].push(result)
+          }
+          ++c
         }
-        return output
+      }
+      return divided_results
+    },
+    sorted_results () {
+        let sorted_results = []
+        let results = [].concat(this.organized_results).sort((r1, r2) => r1.ranking < r2.ranking)
+        let all_rankings = results.map(r => r.ranking).sort()
+        let rankings = Array.from(new Set(all_rankings)).sort()
+        let tie_rankings = rankings.filter(r => all_rankings.filter(r2 => r2 === r).length > 1)
+
+        for (let ranking of rankings) {
+          if (ranking > this.max_ranking_rewarded) {
+              continue
+          }
+          for (let result of results.filter(r => r.ranking === ranking)) {
+            sorted_results.push({
+                name: result.name,
+                place: this.place(ranking),
+                sub_names: result[this.sub_label],
+                tie: tie_rankings.includes(ranking)
+            })
+          }
+        }
+        return sorted_results
     }
   },
   methods: {
-      capitalize: math.capitalize,
-  },
+    place (ranking) {
+        let place = ""
+        if (ranking === 1) {
+            place = "1st"
+        } else if (ranking === 2) {
+            place = "2nd"
+        } else if (ranking === 3){
+            place = "3rd"
+        } else {
+            place = ranking+"th"
+        }
+        place += " Place"
+        return place
+    }
+  }
 }
 </script>
 
 <style lang="stylus">
-
 </style>

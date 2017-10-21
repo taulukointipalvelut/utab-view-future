@@ -125,7 +125,7 @@ export default {
     errors: []
   },
   getters: {
-    is_auth: state => state.auth.value,//{ return (state.auth && state.auth.session !== '') ? true: false },
+    is_auth: state => true,//state.auth.value,//{ return (state.auth && state.auth.session !== '') ? true: false },
     target_tournament (state) {
       return state.tournaments.find(t => t.name === state.route.params.tournament_name)
     },
