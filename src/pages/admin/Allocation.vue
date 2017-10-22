@@ -111,10 +111,10 @@
               el-form(:model="dialog.draw.form.model", :rules="dialog.draw.form.rules")
                 el-form-item(label="Shuffle Venue", v-if="label === 'all' || label === 'venues'")
                   el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
-                el-form-item(label="Simple", prop="simple", v-if="label !== 'venues' || !dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
-                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.simple")
-                el-form-item(label="Force", prop="force", v-if="label !== 'venues' || !dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
-                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.force")
+                el-form-item(label="Simple", prop="simple")
+                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.simple", :disabled="label === 'venues' && dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
+                el-form-item(label="Force", prop="force")
+                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.force", :disabled="label === 'venues' && dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
                 el-form-item(label="Teaming algorithm", v-if="label === 'all' || label === 'teams'")
                   el-select(v-model="dialog.draw.form.model.team_allocation_algorithm")
                     el-option(v-for="algorithm in ['standard', 'strict']", :key="algorithm", :value="algorithm", :label="algorithm")
@@ -124,7 +124,7 @@
                 el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
                   el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
                 el-form-item(label="Considering Rounds")
-                  el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-model="dialog.draw.considering_rs[round.r]", :checked="round.r < parseInt(r_str, 10)") {{ round.name }}
+                  el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-model="dialog.draw.considering_rs[round.r]", :checked="round.r < parseInt(r_str, 10)", :disabled="label === 'venues' && dialog.draw.form.model.venue_allocation_algorithm_options.shuffle") {{ round.name }}
         .dialog-footer(slot="footer")
           el-button(@click="dialog.draw.visible = false") Cancel
           el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
