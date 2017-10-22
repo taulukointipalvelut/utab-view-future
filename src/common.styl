@@ -1,6 +1,6 @@
   $primary-color = #20a0ff
-  
-  input[type=number]::-webkit-inner-spin-button, 
+
+  input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button
     -webkit-appearance none
     margin 0
@@ -18,14 +18,15 @@
   main
     max-width 800px
     padding 5%
-    
+    padding-top 13vh
+
     & h1
       margin 0 0 2rem 0
 
   .el-step__head.is-text.is-process
     background $primary-color
     border-color $primary-color
-    
+
   .el-step__head.is-text.is-success .el-step__line
     background $primary-color
 
@@ -44,7 +45,7 @@
       text-overflow ellipsis
       white-space nowrap
       max-width 100%
-      
+
       & + h3
         display inline-block
         margin 0
@@ -60,7 +61,7 @@
       margin 0 auto
     .page-header
       flex-direction row
-      
+
       & h1 + h3
         margin-left 1rem
         text-align right

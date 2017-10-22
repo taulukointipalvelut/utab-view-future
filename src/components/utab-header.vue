@@ -116,6 +116,8 @@
   $line_height = $header_height - 2rem
 
   header
+    position fixed
+    z-index 3
     background $primary-color
     margin 0
     width 100%
