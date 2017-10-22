@@ -279,7 +279,7 @@ export default {
     download_results_as_csv (filename, results, labels, headers) {
       let link = document.createElement('a')
       let csv = headers.join(',') + '\n'
-      for (let result of results.slice().sort((r1, r2) => r1.ranking > r2.ranking)) {
+      for (let result of results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)) {
         csv += labels.map(label => result[label]).join(',') + '\n'
       }
       link.href = URL.createObjectURL(new Blob([csv], {type: 'text/plain'}))

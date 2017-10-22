@@ -87,7 +87,7 @@ export default {
     },
     sorted_results () {
         let sorted_results = []
-        let results = [].concat(this.organized_results).sort((r1, r2) => r1.ranking < r2.ranking)
+        let results = [].concat(this.organized_results).sort((r1, r2) => r1.ranking < r2.ranking ? 1 : -1)
         let all_rankings = results.map(r => r.ranking).sort()
         let rankings = Array.from(new Set(all_rankings)).sort()
         let tie_rankings = rankings.filter(r => all_rankings.filter(r2 => r2 === r).length > 1)

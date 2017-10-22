@@ -60,7 +60,7 @@ function results_factory(label) {
             return []
         }
         return function (r_str) {
-            return tournament[label].filter(res => res.r === parseInt(r_str, 10)).sort((r1, r2) => r1.from_id > r2.from_id)
+            return tournament[label].filter(res => res.r === parseInt(r_str, 10)).sort((r1, r2) => r1.from_id > r2.from_id ? 1 : -1)
         }
     }
 }

@@ -41,7 +41,7 @@ TODO: Edit dialog needs validation
         .dialog-body
           el-form(:model="dialog.round.form.model", :rules="dialog.compile.form.rules")
             el-form-item(label="Rounds")
-              el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r)", :key="round.r", v-model="dialog.compile.form.model.rs[round.r]", :checked="round.r <= target_tournament.current_round_num") {{ round.name }}
+              el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-model="dialog.compile.form.model.rs[round.r]", :checked="round.r <= target_tournament.current_round_num") {{ round.name }}
             el-form-item(label="Force")
               el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.force")
             el-form-item(label="Simple")
