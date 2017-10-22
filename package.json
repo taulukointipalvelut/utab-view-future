@@ -11,6 +11,7 @@
     "axios": "^0.16.2",
     "element-ui": "^1.4.6",
     "log": "^1.4.0",
+    "qrious": "^4.0.2",
     "vue": "^2.5.2",
     "vue-router": "^2.8.1",
     "vuedraggable": "^2.14.1"

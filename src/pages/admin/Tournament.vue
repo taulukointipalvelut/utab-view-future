@@ -3,7 +3,8 @@ TODO: Edit dialog needs validation
 -->
 <template lang="pug">
   .router-view-content
-    h1(v-if="!loading") {{ target_tournament.name }}
+    div
+      h1(v-if="!loading") {{ target_tournament.name }} #[canvas(id='qr', style="float: right; ")]
     loading-container(:loading="loading")
       legend(v-if="!loading") Rounds
         loading-container(:loading="loading")
@@ -136,6 +137,7 @@ import loading_container from 'components/loading-container'
 import Lazy from 'assets/js/lazy'
 import math from 'assets/js/math'
 import { validators, not, is_integer, is_nonzero, is_positive, exists } from 'assets/js/form-validator'
+import qrious from 'qrious'
 
 export default {
   components: {
@@ -379,7 +381,8 @@ export default {
     ...mapState([
       'auth',
       'loading',
-      'adjudicators'
+      'adjudicators',
+      'base_url'
     ]),
     ...mapGetters([
       'target_tournament',
@@ -608,6 +611,13 @@ export default {
     }
   },
   mounted () {
+    let qr = new qrious({
+      element: document.getElementById('qr'),
+      value: this.base_url + '/' + this.target_tournament.name,
+      backgroundAlpha: 0,
+      level: 'L',
+      size: 90
+    })
     this.init_one({ tournament: this.target_tournament })
   }
 }
