@@ -100,28 +100,13 @@ export default {
             sorted_results.push({
                 name: result.name,
                 ranking: result.ranking,
-                place: this.place(ranking),
+                place: math.place(ranking),
                 sub_names: this.sub_label ? result[this.sub_label] : [],
                 tie: tie_rankings.includes(ranking)
             })
           }
         }
         return sorted_results
-    }
-  },
-  methods: {
-    place (ranking) {
-        let place = ""
-        if (ranking === 1) {
-            place = "1st"
-        } else if (ranking === 2) {
-            place = "2nd"
-        } else if (ranking === 3){
-            place = "3rd"
-        } else {
-            place = ranking+"th"
-        }
-        return place
     }
   }
 }

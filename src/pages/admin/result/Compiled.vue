@@ -252,8 +252,9 @@ export default {
       let organized_results = results.map(result => Object.assign({}, result))
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
+        result.place = math.place(result.ranking)
       }
-      this.download_results_as_csv('team_results.csv', organized_results, ['ranking', 'name', 'win', 'sum', 'margin', 'vote', 'sd'], ['Ranking', 'Name', 'Win', 'Sum', 'Margin', 'Vote', 'StDev'])
+      this.download_results_as_csv('team_results.csv', organized_results, ['ranking', 'place', 'name', 'win', 'sum', 'margin', 'vote', 'sd'], ['Ranking', 'Place', 'Name', 'Win', 'Sum', 'Margin', 'Vote', 'StDev'])
     },
     on_download_speaker_results () {
       let results = this.target_tournament.compiled_speaker_results
@@ -261,17 +262,19 @@ export default {
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
         result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
+        result.place = math.place(result.ranking)
       }
-      this.download_results_as_csv('speaker_results.csv', organized_results, ['ranking', 'name', 'team_name', 'average', 'sum', 'sd'], ['Ranking', 'Name', 'Team', 'Average', 'Sum', 'StDev'])
+      this.download_results_as_csv('speaker_results.csv', organized_results, ['ranking', 'place', 'name', 'team_name', 'average', 'sum', 'sd'], ['Ranking', 'Place', 'Name', 'Team', 'Average', 'Sum', 'StDev'])
     },
     on_download_adjudicator_results () {
       let results = this.target_tournament.compiled_adjudicator_results
       let organized_results = results.map(result => Object.assign({}, result))
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
+        result.place = math.place(result.ranking)
         //result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
       }
-      this.download_results_as_csv('adjudicator_results.csv', organized_results, ['ranking', 'name', 'average', 'sd'], ['Ranking', 'Name', 'Average', 'StDev'])
+      this.download_results_as_csv('adjudicator_results.csv', organized_results, ['ranking', 'place', 'name', 'average', 'sd'], ['Ranking', 'Place', 'Name', 'Average', 'StDev'])
     },
     on_download_sub_prize_results (sub_prize, head) {
       let results = this.compiled_sub_prize_results(sub_prize)
@@ -279,8 +282,9 @@ export default {
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
         result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
+        result.place = math.place(result.ranking)
       }
-      this.download_results_as_csv({poi: "poi", best: "best_speaker"}[sub_prize]+'_results.csv', organized_results, ['ranking', 'name', 'team_name', sub_prize], ['Ranking', 'Name', 'Team', head])
+      this.download_results_as_csv({poi: "poi", best: "best_speaker"}[sub_prize]+'_results.csv', organized_results, ['ranking', 'place', 'name', 'team_name', sub_prize], ['Ranking', 'Place', 'Name', 'Team', head])
     },
     download_results_as_csv (filename, results, labels, headers) {
       let link = document.createElement('a')

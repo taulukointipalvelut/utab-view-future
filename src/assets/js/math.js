@@ -61,6 +61,22 @@ function common (list1, list2) {
     return list1.filter(e1 => list2.includes(e1))
 }
 
+
+function place (ranking) {
+    let place = ""
+    if (ranking === 1) {
+        place = "1st"
+    } else if (ranking === 2) {
+        place = "2nd"
+    } else if (ranking === 3){
+        place = "3rd"
+    } else {
+        place = ranking+"th"
+    }
+    return place
+}
+
+
 //exports.disjoint_loose = disjoint_loose
 exports.disjoint = disjoint
 exports.common = common
@@ -72,3 +88,4 @@ exports.capitalize = capitalize
 exports.query_from_obj = query_from_obj
 exports.count = count
 exports.pairs = pairs
+exports.place = place
