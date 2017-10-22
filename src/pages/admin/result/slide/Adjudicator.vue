@@ -2,9 +2,7 @@
   .router-view-content(v-if="target_tournament")
     section.page-header
       h1 {{ target_tournament.name }}
-    div(:class="{ cover: started }")
-    .projection
-      slides-wrapper(title="Adjudicator Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="adjudicators", :type="type")
+    slides-wrapper(title="Adjudicator Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="adjudicators", :type="type")
 </template>
 
 <script>
@@ -56,19 +54,4 @@ export default {
 </script>
 
 <style lang="stylus">
-  .cover:not(.projection)
-    position absolute
-    top 0px
-    left 0px
-    width 100%
-    height 100%
-    background black
-    opacity 0.7
-    display table
-    transition all 7s
-  .projection
-    position relative
-    width 100%
-    background-color white
-
 </style>

@@ -1,25 +1,26 @@
 <template lang="pug">
-  .context
-    .title
-      h1 {{ title }}
-    .content
-      div(:class="slide_class")
-        section(v-for="paragraph in current_slide", :class="paragraph_classes[paragraph.num]")
-          div(v-for="phrase in paragraph")
-            h1.text(v-if="phrase.tag === 'h1'") {{ phrase.text }}
-            h2.text(v-if="phrase.tag === 'h2'") {{ phrase.text }}
-            h3.text(v-if="phrase.tag === 'h3'") {{ phrase.text }}
-            h4.text(v-if="phrase.tag === 'h4'") {{ phrase.text }}
-            h5.text(v-if="phrase.tag === 'h5'") {{ phrase.text }}
-            p.text(v-if="phrase.tag === 'p'") {{ phrase.text }}
-    .footer
-      .credit
-        p {{ credit }}
-      .pagination
-        p {{ paragraph_num+' / '+(paragraphs_list[slide_num].length-1) }}, {{ (slide_num+1)+' / '+paragraphs_list.length }}
-      .control
-        el-button(style="padding: 0; border: none; background: none;", @click="on_previous", :disabled="slide_num === 0 && paragraph_num === 0") #[el-icon(name="arrow-left")]
-        el-button(style="padding: 0; border: none; background: none;", @click="on_next", :disabled="slide_num+1 === paragraphs_list.length && paragraph_num+1 === paragraphs_list[slide_num].length") #[el-icon(name="arrow-right")]
+  .screen(@click="on_full_screen")
+    .context
+      .title
+        h1 {{ title }}
+      .content
+        div(:class="slide_class")
+          section(v-for="paragraph in current_slide", :class="paragraph_classes[paragraph.num]")
+            div(v-for="phrase in paragraph")
+              h1.text(v-if="phrase.tag === 'h1'") {{ phrase.text }}
+              h2.text(v-if="phrase.tag === 'h2'") {{ phrase.text }}
+              h3.text(v-if="phrase.tag === 'h3'") {{ phrase.text }}
+              h4.text(v-if="phrase.tag === 'h4'") {{ phrase.text }}
+              h5.text(v-if="phrase.tag === 'h5'") {{ phrase.text }}
+              p.text(v-if="phrase.tag === 'p'") {{ phrase.text }}
+      .footer
+        .credit
+          p {{ credit }}
+        .pagination
+          p {{ paragraph_num+' / '+(paragraphs_list[slide_num].length-1) }}, {{ (slide_num+1)+' / '+paragraphs_list.length }}
+        .control
+          el-button(style="padding: 0; border: none; background: none;", @click="on_previous", :disabled="slide_num === 0 && paragraph_num === 0") #[el-icon(name="arrow-left")]
+          el-button(style="padding: 0; border: none; background: none;", @click="on_next", :disabled="slide_num+1 === paragraphs_list.length && paragraph_num+1 === paragraphs_list[slide_num].length") #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -83,6 +84,16 @@ export default {
       } else if (evt.key === 'Backspace' || evt.key === 'ArrowLeft') {
         this.on_previous()
       }
+    },
+    on_full_screen () {
+      let e = document.getElementsByClassName('context')[0]
+      if (e.webkitRequestFullScreen) {
+        e.webkitRequestFullScreen()
+      } else if (e.RequestFullScreen) {
+        e.RequestFullScreen()
+      } else {
+        this.$message.error('Fullscreen mode is unavailable in your browser')
+      }
     }
   },
   created () {
@@ -97,16 +108,23 @@ export default {
     this.current_slide = this.paragraphs_list[0]
     this.$message({
       message: 'Press Enter key for the next slide',
-      duration: 4000,
+      duration: 3000,
       showClose: true
     })
     setTimeout(() => {
       this.$message({
         message: 'Press Backspace key for the previous slide',
-        duration: 4000,
+        duration: 3000,
         showClose: true
       })
-    }, 4000)
+    }, 3000)
+    setTimeout(() => {
+      this.$message({
+        message: 'Click slides to enter fullscreen mode',
+        duration: 3000,
+        showClose: true
+      })
+    }, 6000)
 
     this.$on('slide', function (step) {
       if (step === 1) {
