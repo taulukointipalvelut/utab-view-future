@@ -7,10 +7,10 @@
         el-table-column(label="Venue")
           template(slot-scope="scope")
             .venue {{ entity_name_by_id(scope.row.venue) }}
-        el-table-column(:label="style.side_labels_short['gov']")
+        el-table-column(:label="style.side_labels['gov']")
           template(slot-scope="scope")
             .team-gov {{ entity_name_by_id(scope.row.teams.gov) }}
-        el-table-column(:label="style.side_labels_short['opp']")
+        el-table-column(:label="style.side_labels['opp']")
           template(slot-scope="scope")
             .team-opp {{ entity_name_by_id(scope.row.teams.opp) }}
         el-table-column.adjudicator-container(label="Chair", v-if="adjudicator_allocation_opened")
@@ -40,7 +40,8 @@ export default {
   computed: {
     sorted_rows () {
       let draw = this.target_draw
-      return draw ? draw.allocation.slice().sort((a, b) => a.id > b.id ? 1 : -1) : []
+      return draw ? draw.allocation.slice()
+        .sort((a, b) => this.entity_name_by_id(a.venue).localeCompare(this.entity_name_by_id(b.venue))) : []
     },
     team_allocation_opened () {
       let round = this.target_round
@@ -59,7 +60,8 @@ export default {
       'target_round',
       'target_draw',
       'style',
-      'target_tournament'
+      'target_tournament',
+      'entity_name_by_id'
     ])
   },
   methods: {

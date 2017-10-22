@@ -43,7 +43,7 @@ export default {
       } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter !== 'adjudicator') {
         evs = evs.filter(es => !es.is_adjudicator)
       }
-      return evs.slice().sort((ev1, ev2) => Math.abs(ev1.from_id) > Math.abs(ev2.from_id) ? 1 : -1)
+      return evs
     },
     ...mapState([
       'loading'

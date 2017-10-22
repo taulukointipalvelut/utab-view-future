@@ -160,7 +160,7 @@ export default {
                 score_sheets.push(score_sheet)
             }
         }
-        return score_sheets
+        return score_sheets.slice().sort((a1, a2) => getters.entity_name_by_id(a1.venue).localeCompare(getters.entity_name_by_id(a2.venue)))
     },
     target_evaluation_sheets (state, getters) {
         let tournament = getters.target_tournament
@@ -211,6 +211,7 @@ export default {
                 }
             }
         }
+        evaluation_sheets.sort((e1, e2) => getters.entity_name_by_id(e1.venue).localeCompare(getters.entity_name_by_id(e2.venue)))
         return evaluation_sheets
     },
     score_sheet_by_id (state, getters) {
