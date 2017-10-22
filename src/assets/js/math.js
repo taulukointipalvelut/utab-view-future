@@ -10,6 +10,24 @@ function disjoint_loose (list1, list2) {
     }
 }*/
 
+function elapsed_string (date1, date2) {
+    let hour = date1.getHours() - date2.getHours()
+    let min = date1.getMinutes() - date2.getMinutes()
+    let sec = date1.getSeconds() - date2.getSeconds()
+    if (sec < 0) {
+        sec += 60
+        min -= 1
+    }
+    if (min < 0) {
+        min += 60
+        hour -= 1
+    }
+    let min_str = min < 10 ? '0'+min : min
+    let sec_str = sec < 10 ? '0'+sec : sec
+    //let prefix = hour === 0 && min === 0 && sec === 0 ? '' : '+'
+    return (hour === 0 ? '' : hour + '°')+min_str+'′'+sec_str+'″'
+}
+
 function pairs (list1, list2) {
     pairs = []
     for (let e1 of list1) {
@@ -89,3 +107,4 @@ exports.query_from_obj = query_from_obj
 exports.count = count
 exports.pairs = pairs
 exports.place = place
+exports.elapsed_string = elapsed_string

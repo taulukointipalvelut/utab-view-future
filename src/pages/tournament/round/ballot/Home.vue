@@ -21,6 +21,9 @@
             el-table-column(prop="venue", label="Venue", v-if="!smartphone")
               template(slot-scope="scope")
                 span {{ entity_name_by_id(scope.row.venue) }}
+            el-table-column(label="Time", v-if="!smartphone")
+              template(slot-scope="scope")
+                span {{ elapsed_time(scope.row.created) }}
       section(v-else)
         p Score Sheets for {{ target_round.name }} are not available.
 </template>
@@ -30,6 +33,7 @@
 import { smartphone } from 'assets/js/media-query.js'
 import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
+import math from 'assets/js/math.js'
 
 export default {
   props: ['r_str'],
@@ -37,6 +41,15 @@ export default {
     'loading-container': loading_container
   },
   computed: {
+    fastest_time () {
+        let sheets_done = this.score_sheets.filter(s => s.done)
+        if (sheets_done.length === 0) {
+            return null
+        } else {
+            let fastest = sheets_done.sort((ss1, ss2) => ss1.created.getTime() > ss2.created.getTime() ? 1 : -1)[0].created
+            return fastest
+        }
+    },
     ...mapState([
       'loading'
     ]),
@@ -48,7 +61,11 @@ export default {
     ]),
     smartphone: smartphone,
     score_sheets () {
-      return this.target_score_sheets
+      let score_sheets = this.target_score_sheets
+      let score_sheets_done = score_sheets.filter(s => s.done)
+      let score_sheets_undone = score_sheets.filter(s => !s.done)
+      score_sheets_done.sort((s1, s2) => s1.created.getTime() > s2.created.getTime() ? 1 : -1)
+      return score_sheets_undone.concat(score_sheets_done)
     },
     percentage (): number {
       if (this.target_score_sheets.length === 0) {
@@ -63,6 +80,10 @@ export default {
     }
   },
   methods: {
+    elapsed_time (created) {
+      if (created === null) { return '' }
+      return math.elapsed_string(created, this.fastest_time)
+    },
     ...mapActions([
       'init_one'
     ]),

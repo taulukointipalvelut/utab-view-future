@@ -20,6 +20,9 @@
           el-table-column(prop="venue", label="Venue", v-if="!smartphone")
             template(slot-scope="scope")
               span {{ entity_name_by_id(scope.row.venue) }}
+          el-table-column(label="Time", v-if="!smartphone")
+            template(slot-scope="scope")
+              span {{ elapsed_time(scope.row.created) }}
       section(v-else)
         p Evaluation Sheets for {{ target_round.name }} are not available.
 </template>
@@ -29,6 +32,7 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { smartphone } from 'assets/js/media-query.js'
 import loading_container from 'components/loading-container'
+import math from 'assets/js/math.js'
 
 export default {
   components: {
@@ -43,7 +47,19 @@ export default {
       } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter !== 'adjudicator') {
         evs = evs.filter(es => !es.is_adjudicator)
       }
-      return evs
+      let evs_done = evs.filter(ev => ev.done)
+      let evs_undone = evs.filter(ev => !ev.done)
+      evs_done.sort((e1, e2) => e1.created.getTime() > e2.created.getTime() ? 1 : -1)
+      return evs_undone.concat(evs_done)
+    },
+    fastest_time () {
+      let sheets_done = this.evaluation_sheets.filter(e => e.done)
+      if (sheets_done.length === 0) {
+        return null
+      } else {
+        let fastest = sheets_done.sort((es1, es2) => es1.created.getTime() > es2.created.getTime() ? 1 : -1)[0].created
+        return fastest
+      }
     },
     ...mapState([
       'loading'
@@ -68,6 +84,10 @@ export default {
     }
   },
   methods: {
+    elapsed_time (created) {
+      if (created === null) { return '' }
+      return math.elapsed_string(created, this.fastest_time)
+    },
     ...mapActions([
       'init_one'
     ]),

@@ -147,12 +147,15 @@ export default {
         let allocation = draw.allocation
         let r = draw.r
         let score_sheets = []
-        let adjudicators_submitted = Array.from(new Set(getters.raw_team_results_by_r(r).map(res => res.from_id)))
+        let raw_team_results = getters.raw_team_results_by_r(r)
+        let adjudicators_submitted = Array.from(new Set(raw_team_results.map(res => res.from_id)))
         for (let square of allocation) {
             for (let from_id of [].concat(square.chairs).concat(square.panels)) {
+                let sent_result = raw_team_results.find(r => r.from_id === from_id)
                 let score_sheet = {
                     r,
                     done: adjudicators_submitted.includes(from_id),
+                    created: sent_result !== undefined ? new Date(sent_result.created) : null,
                     teams: square.teams,
                     from_id,
                     venue: square.venue,
@@ -174,7 +177,8 @@ export default {
         let allocation = draw.allocation
         let r = draw.r
         let evaluation_sheets = []
-        let submitted = Array.from(new Set(getters.raw_adjudicator_results_by_r(r).map(res => res.from_id)))
+        let raw_adjudicator_results = getters.raw_adjudicator_results_by_r(r)
+        let submitted = Array.from(new Set(raw_adjudicator_results.map(res => res.from_id)))
         for (let square of allocation) {
             let evaluators = []
             if (round.evaluator_in_team === 'team') {
@@ -183,9 +187,11 @@ export default {
                 evaluators = [].concat(...Object.values(square.teams).map(getters.entity_by_id).map(t => getters.details_1(t, r).speakers))
             }
             for (let from_id of evaluators) {
+                let sent_result = raw_adjudicator_results.find(r => r.from_id === from_id)
                 let evaluation_sheet = {
                     r,
                     done: submitted.includes(from_id),
+                    created: sent_result !== undefined ? new Date(sent_result.created) : null,
                     adjudicators: square.chairs.concat(square.panels),
                     teams: square.teams,
                     from_id,
