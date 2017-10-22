@@ -3,16 +3,16 @@
     section(v-if="!loading").page-header
       h1 {{ target_round.name }}
     section(v-if="!loading && team_allocation_opened && sorted_rows.length > 0")
-      el-table(stripe, :data="sorted_rows")
+      el-table.draw(stripe, :data="sorted_rows")
         el-table-column(label="Venue")
           template(slot-scope="scope")
-            span {{ entity_name_by_id(scope.row.venue) }}
+            .venue {{ entity_name_by_id(scope.row.venue) }}
         el-table-column(:label="style.side_labels_short['gov']")
           template(slot-scope="scope")
-            span {{ entity_name_by_id(scope.row.teams.gov) }}
+            .team-gov {{ entity_name_by_id(scope.row.teams.gov) }}
         el-table-column(:label="style.side_labels_short['opp']")
           template(slot-scope="scope")
-            span {{ entity_name_by_id(scope.row.teams.opp) }}
+            .team-opp {{ entity_name_by_id(scope.row.teams.opp) }}
         el-table-column.adjudicator-container(label="Chair", v-if="adjudicator_allocation_opened")
           template(slot-scope="scope")
             .adjudicator(v-for="id in scope.row.chairs") {{ entity_name_by_id(id) }}
@@ -96,10 +96,22 @@ export default {
 </style>
 
 <style lang="stylus" scoped>
-  .adjudicator-container
-    display flex
-    flex-flow column wrap
+  //.draw
+  //  font-size 1rem
 
-  .adjudicator
-    flex 1
+    .venue
+      align center
+
+    .team-gov
+      align right
+
+    .team-opp
+      align left
+
+    .adjudicator-container
+      display flex
+      flex-flow column wrap
+
+    .adjudicator
+      flex 1
 </style>
