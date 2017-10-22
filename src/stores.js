@@ -477,7 +477,7 @@ export default {
             .then(() => commit('add_raw_results', payload))
       },
       send_update_entity ({state, commit, dispatch}, payload) {
-          console.log("preparing")
+        console.log("preparing")
         return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label])
             .then(() => commit('update_entity', payload))
       },
@@ -522,21 +522,19 @@ export default {
                 })
     },
     init_draws ({ state, commit, dispatch }, payload) {
-        return Promise.all(state.tournaments.map(t =>
-            fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/draws')
+        let t = find_tournament(state, payload)
+        return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/draws')
                 .then(data => {
                     const draws = []
                     for (let draw_fetched of data) {
-                        let draw = Object.assign({}, draw_fetched)
-                        draws.push(draw)
+                        draws.push(draw_fetched)
                     }
                     commit('draws', { tournament: t, draws })
                 })
-        ))
     },
     init_rounds ({ state, commit, dispatch }, payload) {
-        return Promise.all(state.tournaments.map(t =>
-            fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/rounds')
+        let t = find_tournament(state, payload)
+        return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/rounds')
                 .then(data => {
                     const rounds = []
                     for (let round_fetched of data) {
@@ -546,52 +544,65 @@ export default {
                     }
                     commit('rounds', { tournament: t, rounds })
                 })
-            ))
     },
     init_raw_results ({ state, commit, dispatch }, payload) {
+        let t = find_tournament(state, payload)
         let labels = ['teams', 'speakers', 'adjudicators']
         let labels_singular = ['team', 'speaker', 'adjudicator']
         let ps = []
-        for (let t of state.tournaments) {
-            for (let index of math.range(labels.length)) {
-                let label = labels[index]
-                let label_singular = labels_singular[index]
-                ps.push(fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/results/raw/'+label)
-                    .then(data => {
-                        let raw_results = data
-                        commit('raw_results', { tournament: t, raw_results, label_singular })
-                    }))
-            }
+        for (let index of math.range(labels.length)) {
+            let label = labels[index]
+            let label_singular = labels_singular[index]
+            ps.push(fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/results/raw/'+label)
+                .then(data => {
+                    let raw_results = data
+                    commit('raw_results', { tournament: t, raw_results, label_singular })
+                }))
         }
         return Promise.all(ps)
     },
     init_entities ({ state, commit, dispatch }, payload) {
+        let t = find_tournament(state, payload)
         let labels = ['teams', 'adjudicators', 'speakers', 'venues', 'institutions']
         let ps = []
-        for (let tournament of state.tournaments) {
-            for (let index of math.range(5)) {
-                let label = labels[index]
-                ps.push(fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+tournament.id+'/'+labels[index])
-                    .then(data => {
-                        let entities = data
-                        let new_payload = { tournament }
-                        new_payload[label] = entities
-                        new_payload.label = label
-                        commit('entities', new_payload)
-                    }))
-            }
+        for (let index of math.range(5)) {
+            let label = labels[index]
+            ps.push(fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/'+labels[index])
+                .then(data => {
+                    let entities = data
+                    let new_payload = { tournament: t }
+                    new_payload[label] = entities
+                    new_payload.label = label
+                    commit('entities', new_payload)
+                }))
         }
         return Promise.all(ps)
     },
+    init_one ({ state, commit, dispatch }, payload) {
+        let tournament = find_tournament(state, payload)
+        return new Promise(async (resolve, reject) => {
+            await dispatch('init_rounds', { tournament })
+            await dispatch('init_draws', { tournament })
+            await dispatch('init_raw_results', { tournament })
+            await dispatch('init_entities', { tournament })
+            resolve(true)
+        })
+    },
+    /*
+    WARNING: DO NOT CALL init_all IN LOADING CONTAINER
+    IT WILL CHANGE THE STATUS TO `LOADING`, WHICH CALLS MOUNTED, CALLING init_all AGAIN.
+    */
     init_all ({ state, commit, dispatch }, payload) {
         return new Promise(async (resolve, reject) => {
             commit('start_loading')
             await dispatch('init_styles')
             await dispatch('init_tournaments')
-            await dispatch('init_rounds')
-            await dispatch('init_draws')
-            await dispatch('init_raw_results')
-            await dispatch('init_entities')
+            for (let tournament of state.tournaments) {
+                await dispatch('init_rounds', { tournament })
+                await dispatch('init_draws', { tournament })
+                await dispatch('init_raw_results', { tournament })
+                await dispatch('init_entities', { tournament })
+            }
             commit('finish_loading')
             resolve(true)
         })

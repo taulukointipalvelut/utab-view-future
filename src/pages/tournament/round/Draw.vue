@@ -58,16 +58,18 @@ export default {
       'entity_name_by_id',
       'target_round',
       'target_draw',
-      'style'
+      'style',
+      'target_tournament'
     ])
   },
   methods: {
     ...mapActions([
-      'init_draws'
+      'init_one'
     ])
   },
   mounted () {
-    this.init_draws()
+    //this.init_draws({ tournament: this.target_tournament })
+    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

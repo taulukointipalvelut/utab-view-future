@@ -7,7 +7,7 @@
         legend(slot="legend") Audience
         router-link(to="draw")
           link-list-item Draw &amp; Allocation
-      //link-list
+      link-list
         legend(slot="legend") Debaters
         router-link(to="evaluation")
           link-list-item Judge Evaluation Sheet
@@ -27,9 +27,6 @@ export default {
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item
-  },
-  data () {
-    return {}
   },
   computed: {
     ...mapState([

@@ -56,9 +56,6 @@ export default {
     ...mapMutations('ballot', [
       'init_result'
     ]),
-    ...mapActions([
-      'init_teams'
-    ]),
   },
   mounted () {
     let gov_roles = this.style.roles.gov

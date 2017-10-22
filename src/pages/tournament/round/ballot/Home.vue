@@ -64,8 +64,7 @@ export default {
   },
   methods: {
     ...mapActions([
-      'init_draws',
-      'init_raw_results'
+      'init_one'
     ]),
     on_select (selected) {
       if (!selected.done) {
@@ -81,8 +80,7 @@ export default {
     }
   },
   mounted () {
-    this.init_draws()
-    this.init_raw_results()
+    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

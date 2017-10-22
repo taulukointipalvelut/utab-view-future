@@ -10,9 +10,6 @@ export default {
   computed: {
     ...mapState([
       'auth'
-    ]),
-    ...mapGetters([
-      'target_tournament'
     ])
   }
 }

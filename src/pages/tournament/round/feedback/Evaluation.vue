@@ -112,7 +112,7 @@ export default {
   methods: {
     ...mapActions([
       'send_raw_results',
-      'init_raw_results'
+      'init_one'
     ]),
     on_prev () {
       this.$router.push('../feedback')
@@ -124,7 +124,7 @@ export default {
         raw_results: this.converted_results,
         label: 'adjudicators',
         label_singular: 'adjudicator'
-      }).then(this.init_raw_results)
+      }).then(() => { return this.init_one({ tournament: this.target_tournament }) })
         .then(() => {
           this.dialog.check.sending = false
           this.dialog.check.visible = false

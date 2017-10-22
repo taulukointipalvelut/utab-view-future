@@ -112,7 +112,7 @@ export default {
       'send_result'
     ]),
     ...mapActions([
-      'init_all'
+      'init_one'
     ]),
     on_home () {
       this.$router.push('/home')
@@ -127,7 +127,7 @@ export default {
       let winner = this.result.winner
       let side = this.score_sheet.teams.gov === winner ? 'gov' : 'opp'
       this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
-        .then(this.init_all)
+        .then(() => { return this.init_one({ tournament: this.target_tournament }) })
         .then(() => {
           //this.reset_state()
           this.sending = false

@@ -180,7 +180,7 @@ export default {
     ...mapActions([
       'send_update_result',
       'send_delete_result',
-      'init_raw_results'
+      'init_one'
     ]),
     adjudicator_result_sender (from_id) {
       return this.entity_name_by_id(from_id)
@@ -297,7 +297,7 @@ export default {
     range: math.range
   },
   mounted () {
-    this.init_raw_results()
+    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

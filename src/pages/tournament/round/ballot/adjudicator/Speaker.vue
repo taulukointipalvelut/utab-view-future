@@ -27,7 +27,7 @@ export default {
   props: ['score_sheet'],
   computed: {
     proceedable () {
-      return true//Object.values(this.result.gov.speakers).every(id => id !== null) && Object.values(this.result.opp.speakers).every(id => id !== null)
+      return Object.values(this.result.gov.speakers).every(id => id !== null) && Object.values(this.result.opp.speakers).every(id => id !== null)
     },
     ...mapState([
       'auth',

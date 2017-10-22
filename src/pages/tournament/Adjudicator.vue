@@ -43,11 +43,11 @@ export default {
       return `${ round.href.path }/${ targets.join('/') }`+'?filter=adjudicator'
     },
     ...mapActions([
-      'init_draws'
+      'init_one'
     ])
   },
   mounted () {
-    this.init_draws()
+    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

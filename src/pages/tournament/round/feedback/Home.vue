@@ -49,8 +49,8 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'target_tournament',
       'target_round',
+      'target_tournament',
       'entity_name_by_id',
       'target_evaluation_sheets'
     ]),
@@ -68,8 +68,13 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      'init_one'
+    ]),
     on_select (selected) {
-      this.$router.push(selected.href.to)
+      if (!selected.done) {
+        this.$router.push(selected.href.to)
+      }
     },
     row_class_name (row, index): string {
       let class_name = 'row'
@@ -78,6 +83,9 @@ export default {
       }
       return class_name
     }
+  },
+  mounted () {
+    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

@@ -120,6 +120,9 @@ export default {
       'loading',
       'tournaments',
       'styles'
+    ]),
+    ...mapGetters([
+      'target_tournament'
     ])
   },
   methods: {
@@ -163,7 +166,7 @@ export default {
       const ans = await this.$confirm('Are you sure?')
       if (ans === 'confirm') {
         this.send_delete_tournament({ tournament: selected })
-          .then(this.init_all)
+          .then(() => { return this.init_one({ tournament: this.target_tournament }) })
           .then(() => {
             this.$router.push('/admin')
           })
@@ -184,7 +187,7 @@ export default {
     ...mapActions([
       'send_create_tournament',
       'send_delete_tournament',
-      'init_all'
+      'init_one'
     ])
   }
 }

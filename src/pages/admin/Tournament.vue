@@ -386,7 +386,7 @@ export default {
       'send_update_entity',
       'send_update_round',
       'request_compiled_results',
-      'init_all',
+      'init_one',
       'next_round'
     ]),
     range: math.range,
@@ -599,7 +599,7 @@ export default {
     }
   },
   mounted () {
-    this.init_all()
+    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

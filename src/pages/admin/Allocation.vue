@@ -267,7 +267,7 @@ export default {
       'request_draw',
       'submit_draw',
       'update_draw',
-      'init_all',
+      'init_one',
       'send_delete_draw',
       'request_compiled_results'
     ]),
@@ -663,7 +663,7 @@ export default {
     }
   },
   mounted () {
-    this.init_all().then(() => {
+    this.init_one({ tournament: this.target_tournament }).then(() => {
       this.new_draw = this.target_draw === undefined ? true : false
       this.init_allocation()
     })

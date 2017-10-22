@@ -16,8 +16,7 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'is_auth',
-      'target_tournament'
+      'is_auth'
     ])
   },
   mounted () {

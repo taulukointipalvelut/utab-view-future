@@ -33,7 +33,10 @@ export default {
         message: err.message,
         duration: 0
       }))
-    }
+    }/*,
+    '$route': function () {
+      console.log("route changed")
+    }*/
   }
 }
 </script>
