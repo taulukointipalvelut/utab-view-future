@@ -26,7 +26,7 @@
 <script>
 import math from 'assets/js/math'
 
-const timestep = 500
+const timestep = 400
 
 export default {
   props: [
@@ -40,11 +40,13 @@ export default {
       paragraph_num: 0,
       current_slide: [[]],
       slide_class: '',
-      paragraph_classes: []
+      paragraph_classes: [],
+      pagination_locked: false
     }
   },
   methods: {
     on_next () {
+      if (this.pagination_locked) { return }
       if (this.paragraphs_list[this.slide_num].length > this.paragraph_num + 1) {
         this.paragraph_num += 1
         this.$emit('paragraph', 1)
@@ -62,6 +64,7 @@ export default {
       }
     },
     on_previous () {
+      if (this.pagination_locked) { return }
       if (this.paragraph_num > 0) {
         this.paragraph_num -= 1
         this.$emit('paragraph', -1)
@@ -102,10 +105,13 @@ export default {
   mounted () {
     this.paragraph_classes = Array(this.paragraphs_list[0].length).fill('undisplayed')
     this.$set(this.paragraph_classes, 0, 'slide-up-fade-in')
+    this.pagination_locked = true
+    this.current_slide = this.paragraphs_list[0]
     setTimeout(() => {
       this.$set(this.paragraph_classes, 0, 'base')
+      this.pagination_locked = false
     }, timestep)
-    this.current_slide = this.paragraphs_list[0]
+
     this.$message({
       message: 'Press Enter key for the next slide',
       duration: 3000,
@@ -128,6 +134,7 @@ export default {
 
     this.$on('slide', function (step) {
       if (step === 1) {
+        this.pagination_locked = true
         this.slide_class = 'slide-up-fade-out'
         setTimeout(() => {
           this.slide_class = 'base'
@@ -137,11 +144,14 @@ export default {
         }, timestep)
         setTimeout(() => {
           this.$set(this.paragraph_classes, 0, 'base')
+          this.pagination_locked = false
         }, 2*timestep)
       } else if (step === -1) {
+        this.pagination_locked = true
         //this.slide_class = 'fade-in'
         this.paragraph_classes = Array(this.paragraphs_list[this.slide_num].length).fill('base')
         this.current_slide = this.paragraphs_list[this.slide_num]
+        this.pagination_locked = false
         //setTimeout(() => {
         //  this.slide_class = 'base'
         //  this.paragraph_classes.fill('base')
@@ -150,15 +160,19 @@ export default {
     })
     this.$on('paragraph', function (step) {
       if (step === 1) {
+        this.pagination_locked = true
         setTimeout(() => {
           this.$set(this.paragraph_classes, this.paragraph_num, 'fade-in')
         }, timestep)
         setTimeout(() => {
+          this.pagination_locked = false
           this.$set(this.paragraph_classes, this.paragraph_num, 'base')
         }, 2*timestep)
       } else if (step === -1) {
+        this.pagination_locked = true
         this.$set(this.paragraph_classes, this.paragraph_num+1, 'fade-out')
         setTimeout(() => {
+          this.pagination_locked = false
           this.$set(this.paragraph_classes, this.paragraph_num+1, 'undisplayed')
         }, timestep)
       }
@@ -171,7 +185,7 @@ export default {
 </script>
 
 <style lang="stylus">
-  timestep = 0.5s
+  timestep = 0.4s
 
   .undisplayed
     opacity 0
@@ -222,82 +236,87 @@ export default {
       }
   }
 
-  .context
+  .screen
     background white
     height 70vh
+    width 100%
     color #555
     margin-top 0%
     text-shadow 0.1rem 0.1rem 0.05rem rgba(#999999, 0.15)
 
-    .title
-      position relative
-      font-size 1.5rem
-      margin-left 1.5rem
-      height 10%
-      & h1
-        margin-top 1rem
-        padding-right 0.3rem
-        display inline-block
-        font-weight normal
-        font-family serif
+    .context
+      height 100%
+      width 100%
 
-    .content
-      margin-top 9%
-      height 70%
-      position relative
-      display flex
-      flex-direction column
-      justify-content center
-      align-items center
-      text-align center
-      font-family Times, 'Times New Roman'
-
-      & h1
-        font-size 4rem
-        font-weight normal
-      & h2
-        font-size 3rem
-        font-weight normal
-      & h3
-        font-size 2.5rem
-        font-weight normal
-      & h4
-        font-size 2rem
-        font-weight normal
-      & h5
+      .title
+        position relative
         font-size 1.5rem
-        font-weight normal
-      & p
-        font-size 2rem
+        margin-left 1.5rem
+        height 5%
+        & h1
+          margin-top 1rem
+          padding-right 0.3rem
+          display inline-block
+          font-weight normal
+          font-family serif
 
-      .text
-        margin 0
+      .content
+        margin-top 9%
+        height 75%
+        position relative
+        display flex
+        flex-direction column
+        justify-content center
+        align-items center
+        text-align center
+        font-family Times, 'Times New Roman'
+
+        & h1
+          font-size 4rem
+          font-weight normal
+        & h2
+          font-size 3rem
+          font-weight normal
+        & h3
+          font-size 2.5rem
+          font-weight normal
+        & h4
+          font-size 2rem
+          font-weight normal
+        & h5
+          font-size 1.5rem
+          font-weight normal
+        & p
+          font-size 2rem
+
+        .text
+          margin 0
+          padding 0
+
+      .footer
+        height 20%
         padding 0
 
-    .footer
-      height 3%
-      padding 0
+        .credit
+          width 40%
+          text-align right
+          margin-right 1rem
+          float right
 
-      .credit
-        width 40%
-        text-align right
-        margin-right 1rem
-        float right
+        .pagination
+          width 40%
+          text-align left
+          margin-left 1rem
+          color #a4a4a4
+          float left
+          font-size 1rem
 
-      .pagination
-        width 40%
-        text-align left
-        margin-left 1rem
-        color #a4a4a4
-        float left
-        font-size 1rem
-
-      .control
-        width 20%
-        float center
-        margin-left auto
-        margin-right auto
-        text-align center
-        opacity 0.4
-        transform scale(0.8, 0.8)
+        .control
+          width 20%
+          float center
+          margin-left auto
+          margin-right auto
+          text-align center
+          opacity 0.4
+          transform scale(0.8, 0.8)
 </style>
