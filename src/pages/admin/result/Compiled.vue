@@ -271,7 +271,7 @@ export default {
         result.name = this.entity_name_by_id(result.id)
         //result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
       }
-      this.download_results_as_csv('speaker_results.csv', organized_results, ['ranking', 'name', 'average', 'sd'], ['Ranking', 'Name', 'Average', 'StDev'])
+      this.download_results_as_csv('adjudicator_results.csv', organized_results, ['ranking', 'name', 'average', 'sd'], ['Ranking', 'Name', 'Average', 'StDev'])
     },
     on_download_sub_prize_results (sub_prize, head) {
       let results = this.compiled_sub_prize_results(sub_prize)
