@@ -117,10 +117,10 @@
                   el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.force")
                 el-form-item(label="Teaming algorithm", v-if="label === 'all' || label === 'teams'")
                   el-select(v-model="dialog.draw.form.model.team_allocation_algorithm")
-                    el-option(v-for="algorithm in ['standard', 'traditional']", :key="algorithm", :value="algorithm", :label="algorithm")
+                    el-option(v-for="algorithm in ['standard', 'strict']", :key="algorithm", :value="algorithm", :label="algorithm")
                 el-form-item(label="Allocation algorithm", v-if="label === 'all' || label === 'adjudicators'")
                   el-select(v-model="dialog.draw.form.model.adjudicator_allocation_algorithm")
-                    el-option(v-for="algorithm in ['standard', 'strict']", :key="algorithm", :value="algorithm", :label="algorithm")
+                    el-option(v-for="algorithm in ['standard', 'traditional']", :key="algorithm", :value="algorithm", :label="algorithm")
                 el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
                   el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
                 el-form-item(label="Considering Rounds")
@@ -159,13 +159,14 @@ export default {
               team_allocation_algorithm: 'standard',
               team_allocation_algorithm_options: {
                 avoid_conflict: false,
-                method: 'custom',
-                weights: [1, 0, 1, 0, 0, 0, 0],
+                method: 'original',
+                //weights: [1, 0, 1, 0],
                 filters: ['by_strength', 'by_side', 'by_past_opponent', 'by_institution']
               },
               adjudicator_allocation_algorithm: 'standard',
               adjudicator_allocation_algorithm_options: {
-                assign: 'high_to_slight'
+                assign: 'high_to_slight',
+                //filters: ['']
               },
               numbers_of_adjudicators: {
                 chairs: 1,
