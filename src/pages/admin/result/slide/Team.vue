@@ -4,7 +4,7 @@
       h1 {{ target_tournament.name }}
     div(:class="{ cover: started }")
     .projection
-      slides-wrapper(title="Team Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="teams", label_singular="team", sub_label="institutions", sub_label_singular="institution")
+      slides-wrapper(title="Team Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="teams", sub_label="institutions", :type="type")
 </template>
 
 <script>
@@ -28,6 +28,9 @@ export default {
     },
     credit () {
       return this.$route.query.credit
+    },
+    type () {
+      return this.$route.query.type
     },
     organized_results () {
       let organized_results = []

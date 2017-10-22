@@ -4,7 +4,7 @@
       h1 {{ target_tournament.name }}
     div(:class="{ cover: started }")
     .projection
-      slides-wrapper(title="POI Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="speakers", sub_label="teams", :type="type")
+      slides-wrapper(title="Adjudicator Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="adjudicators", :type="type")
 </template>
 
 <script>
@@ -34,20 +34,19 @@ export default {
     },
     organized_results () {
       let organized_results = []
-      for (let compiled_result of this.compiled_sub_prize_results('poi')) {
-        let speaker = this.entity_by_id(compiled_result.id)
+      for (let compiled_result of this.target_tournament.compiled_adjudicator_results) {
+        let adjudicator = this.entity_by_id(compiled_result.id)
         let result = Object.assign({}, compiled_result)
-        result.name = speaker.name
-        result.teams = this.teams_by_speaker_id(speaker.id).map(t => t.name)
+        result.name = adjudicator.name
+        //result.teams = this.teams_by_adjudicator_id(adjudicator.id).map(t => t.name)
         organized_results.push(result)
       }
       return organized_results
     },
     ...mapGetters([
       'target_tournament',
-      'compiled_sub_prize_results',
-      'teams_by_speaker_id',
-      'entity_by_id'
+      'entity_by_id',
+      'teams_by_adjudicator_id'
     ])
   },
   mounted () {

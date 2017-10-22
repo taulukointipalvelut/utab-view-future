@@ -1,5 +1,6 @@
 import Team from './Team'
 import Speaker from './Speaker'
+import Adjudicator from './Adjudicator'
 import Poi from './Poi'
 import Best from './Best'
 export default [
@@ -11,6 +12,10 @@ export default [
         path: 'speaker',
         props: true,
         component: Speaker
+    }, {
+        path: 'adjudicator',
+        props: true,
+        component: Adjudicator
     }, {
         path: 'poi',
         props: true,

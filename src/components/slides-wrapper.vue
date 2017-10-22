@@ -1,5 +1,5 @@
 <template lang="pug">
-  slides(:divided_results="divided_results", :title="title", :credit="credit")
+  slides(:paragraphs_list="paragraphs_list", :title="title", :credit="credit")
 </template>
 
 <script>
@@ -16,11 +16,10 @@ export default {
     'max_ranking_rewarded',
     'credit',
     'label',
-    'label_singular',
     'sub_label',
-    'sub_label_singular',
     'title',
-    'organized_results'
+    'organized_results',
+    'type'
   ],
   data () {
     return {
@@ -30,23 +29,61 @@ export default {
     }
   },
   computed: {
-    divided_results () {
-      let texts_list = []
-      let sorted_results = this.sorted_results
-      let divided_results = []
-      let num_div = 3
-      let c = 0
-      if (true) {
-        for (let result of sorted_results) {
+    paragraphs_list () {
+      let paragraphs_list = []
+      if (this.type === 'listed') {
+        let num_div = 4
+        let c = 0
+
+        for (let result of this.sorted_results.slice().reverse()) {
           if (c % num_div === 0) {
-            divided_results.push([result])
-          } else {
-            divided_results[divided_results.length - 1].push(result)
+            let blank_paragraph = [{
+              tag: 'p',
+              text: ''
+            }]
+            blank_paragraph.num = 0
+            paragraphs_list.push([blank_paragraph])
           }
+          let content_paragraph = [{
+            tag: 'h3',
+            text: result.tie ? result.place+'(Tie) '+result.name : result.place+' '+result.name,
+          }, {
+            tag: 'p',
+            text: result.sub_names.join(','),
+          }]
+          content_paragraph.num = c % num_div + 1
+          paragraphs_list[paragraphs_list.length - 1].push(content_paragraph)
           ++c
         }
+        paragraphs_list = paragraphs_list.map(paragraphs => paragraphs.reverse())
+      } else if (this.type === 'pretty') {
+        let ranking = null
+        for (let result of this.sorted_results.slice().reverse()) {
+          if (ranking !== result.ranking) {
+            let place_paragraph = [{
+              tag: 'h1',
+              text: result.tie ? result.place + ' Place (Tie)' : result.place + ' Place'
+            }]
+            place_paragraph.num = 0
+            paragraphs_list.push([place_paragraph])
+            ranking = result.ranking
+          }
+          let content_paragraph = [{
+            tag: 'h2',
+            text: result.tie ? result.place+' Place (Tie)' : result.place+' Place'
+          }, {
+            tag: 'h1',
+            text: result.name
+          }, {
+            tag: 'p',
+            text: result.sub_names.join(',')
+          }]
+          content_paragraph.num = 0
+          paragraphs_list.push([content_paragraph])
+        }
+        paragraphs_list = paragraphs_list.map(paragraphs => paragraphs.reverse())
       }
-      return divided_results
+      return paragraphs_list
     },
     sorted_results () {
         let sorted_results = []
@@ -62,8 +99,9 @@ export default {
           for (let result of results.filter(r => r.ranking === ranking)) {
             sorted_results.push({
                 name: result.name,
+                ranking: result.ranking,
                 place: this.place(ranking),
-                sub_names: result[this.sub_label],
+                sub_names: this.sub_label ? result[this.sub_label] : [],
                 tie: tie_rankings.includes(ranking)
             })
           }
@@ -83,7 +121,6 @@ export default {
         } else {
             place = ranking+"th"
         }
-        place += " Place"
         return place
     }
   }

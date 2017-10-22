@@ -72,8 +72,8 @@
             template(slot-scope="scope")
               span {{ scope.row.sd }}
         .operations
-          el-button(@click="on_download_speaker_results") Download Speaker Results
-          el-button(type="primary", @click="on_configure_slide('speaker')") #[el-icon(name="picture")] &nbsp;Slide Show
+          el-button(@click="on_download_adjudicator_results") Download Adjudicator Results
+          el-button(type="primary", @click="on_configure_slide('adjudicator')") #[el-icon(name="picture")] &nbsp;Slide Show
 
       el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Speaker Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize")
         el-table(:data="compiled_sub_prize_results(sub_prize)")
@@ -100,6 +100,10 @@
               el-input(v-model="dialog.team_slide.form.model.max_ranking_rewarded")
             el-form-item(label="Credit")
               el-input(v-model="dialog.team_slide.form.model.credit")
+            el-form-item(label="Type")
+              el-select(v-model="dialog.team_slide.form.model.type")
+                el-option(value="pretty")
+                el-option(value="listed")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.team_slide.visible = false") Cancel
           el-button(type="primary", @click="on_start_slide('teams', 'team')") Start
@@ -111,9 +115,28 @@
               el-input(v-model="dialog.speaker_slide.form.model.max_ranking_rewarded")
             el-form-item(label="Credit")
               el-input(v-model="dialog.speaker_slide.form.model.credit")
+            el-form-item(label="Type")
+              el-select(v-model="dialog.speaker_slide.form.model.type")
+                el-option(value="pretty")
+                el-option(value="listed")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.speaker_slide.visible = false") Cancel
           el-button(type="primary", @click="on_start_slide('speakers', 'speaker')") Start
+
+      el-dialog(title="Slide Show", :visible.sync="dialog.adjudicator_slide.visible", v-if="!loading")
+        .dialog-body
+          el-form(:model="dialog.adjudicator_slide.form.model")
+            el-form-item(label="Max Speaker Ranking Rewarded")
+              el-input(v-model="dialog.adjudicator_slide.form.model.max_ranking_rewarded")
+            el-form-item(label="Credit")
+              el-input(v-model="dialog.adjudicator_slide.form.model.credit")
+            el-form-item(label="Type")
+              el-select(v-model="dialog.adjudicator_slide.form.model.type")
+                el-option(value="pretty")
+                el-option(value="listed")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.adjudicator_slide.visible = false") Cancel
+          el-button(type="primary", @click="on_start_slide('adjudicators', 'adjudicator')") Start
 
       el-dialog(v-for="sub_prize in ['best', 'poi']", :key="sub_prize", title="Slide Show", :visible.sync="dialog[sub_prize+'_slide'].visible", v-if="!loading")
         .dialog-body
@@ -122,6 +145,10 @@
               el-input(v-model="dialog[sub_prize+'_slide'].form.model.max_ranking_rewarded")
             el-form-item(label="Credit")
               el-input(v-model="dialog[sub_prize+'_slide'].form.model.credit")
+            el-form-item(label="Type")
+              el-select(v-model="dialog[sub_prize+'_slide'].form.model.type")
+                el-option(value="pretty")
+                el-option(value="listed")
         .dialog-footer(slot="footer")
           el-button(@click="dialog[sub_prize+'_slide'].visible = false") Cancel
           el-button(type="primary", @click="on_start_slide(sub_prize, sub_prize)") Start
@@ -149,7 +176,8 @@ export default {
           form: {
             model: {
               max_ranking_rewarded: 3,
-              credit: ''
+              credit: '',
+              type: 'pretty',
             }
           }
         },
@@ -158,7 +186,18 @@ export default {
           form: {
             model: {
               max_ranking_rewarded: 3,
-              credit: ''
+              credit: '',
+              type: 'pretty',
+            }
+          }
+        },
+        adjudicator_slide: {
+          visible: false,
+          form: {
+            model: {
+              max_ranking_rewarded: 3,
+              credit: '',
+              type: 'pretty',
             }
           }
         },
@@ -167,7 +206,8 @@ export default {
           form: {
             model: {
               max_ranking_rewarded: 3,
-              credit: ''
+              credit: '',
+              type: 'pretty',
             }
           }
         },
@@ -176,7 +216,8 @@ export default {
           form: {
             model: {
               max_ranking_rewarded: 3,
-              credit: ''
+              credit: '',
+              type: 'pretty',
             }
           }
         }
@@ -222,6 +263,15 @@ export default {
         result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
       }
       this.download_results_as_csv('speaker_results.csv', organized_results, ['ranking', 'name', 'team_name', 'average', 'sum', 'sd'], ['Ranking', 'Name', 'Team', 'Average', 'Sum', 'StDev'])
+    },
+    on_download_adjudicator_results () {
+      let results = this.target_tournament.compiled_adjudicator_results
+      let organized_results = results.map(result => Object.assign({}, result))
+      for (let result of organized_results) {
+        result.name = this.entity_name_by_id(result.id)
+        //result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
+      }
+      this.download_results_as_csv('speaker_results.csv', organized_results, ['ranking', 'name', 'average', 'sd'], ['Ranking', 'Name', 'Average', 'StDev'])
     },
     on_download_sub_prize_results (sub_prize, head) {
       let results = this.compiled_sub_prize_results(sub_prize)
