@@ -226,7 +226,7 @@ export default {
 
   @keyframes slideupfadein {
       0% {
-          margin-top: 10%;
+          margin-top: 60%;
           opacity: 0;
       }
 
