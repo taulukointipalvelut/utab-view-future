@@ -124,8 +124,7 @@ export default {
         raw_results: this.converted_results,
         label: 'adjudicators',
         label_singular: 'adjudicator'
-      }).then(() => { return this.init_one({ tournament: this.target_tournament }) })
-        .then(() => {
+      }).then(() => {
           this.dialog.check.sending = false
           this.dialog.check.visible = false
           this.sent = true

@@ -475,7 +475,7 @@ export default {
       },
       send_raw_results ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/raw/'+payload.label, payload.raw_results)
-            .then(() => commit('add_raw_results', payload))
+            .then((raw_results) => commit('add_raw_results', { tournament: payload.tournament, raw_results, label_singular: payload.label_singular }))
       },
       send_update_entity ({state, commit, dispatch}, payload) {
         console.log("preparing")
