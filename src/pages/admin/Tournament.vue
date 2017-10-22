@@ -367,6 +367,15 @@ export default {
         }
       }
     },
+    unallocated_speakers () {
+        let tournament = this.target_tournament
+        let allocated_speakers = []
+        for (let team of tournament.teams) {
+            allocated_speakers = allocated_speakers.concat(this.details_1(team).speakers)
+        }
+        //allocated_speakers = allocated_speakers.concat
+        return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))
+    },
     ...mapState([
       'auth',
       'loading',
@@ -374,7 +383,7 @@ export default {
     ]),
     ...mapGetters([
       'target_tournament',
-      'unallocated_speakers'
+      'details_1'
     ])
   },
   methods: {

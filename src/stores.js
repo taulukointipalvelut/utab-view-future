@@ -252,14 +252,6 @@ export default {
             }
         }
     },
-    unallocated_speakers (state, getters) {
-        let tournament = getters.target_tournament
-        let allocated_speakers = []
-        for (let team of tournament.teams) {
-            allocated_speakers = allocated_speakers.concat(team.details[0].speakers)
-        }
-        return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))
-    },
     compiled_team_result_by_id: select_by_key_factory('compiled_team_results'),
     compiled_speaker_result_by_id: select_by_key_factory('compiled_speaker_results'),
     compiled_adjudicator_result_by_id: select_by_key_factory('compiled_adjudicator_results'),
