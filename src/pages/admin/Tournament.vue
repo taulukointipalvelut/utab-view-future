@@ -53,7 +53,7 @@ TODO: Edit dialog needs validation
                 el-checkbox(label="speakers", :checked="true", :disabled="dialog.compile.form.model.simple")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.compile.visible = false") Cancel
-          el-button(type="primary", @click="on_compile") Request
+          el-button(type="primary", @click="on_compile", :disabled="dialog.compile.entities.length === 0") Request
 
       el-dialog(title="Add New Round", :visible.sync="dialog.round.visible", v-if="!loading")
         .dialog-body
