@@ -610,15 +610,15 @@ export default {
       }
       return venues_in_draw
     },
-    init_allocation () {
+    async init_allocation () {
         let draw = {}
         let tournament = this.target_tournament
         let request = {
-          rs: math.range(parseInt(this.r_str-1, 10)).map(ind => ind+1),
+          rs: tournament.rounds.filter(round => round.r < parseInt(this.r_str, 10)).map(round => round.r),
           options: { force: true }
         }
-        this.request_compiled_results({ tournament, label_singular: 'team', label: 'teams', request })
-        this.request_compiled_results({ tournament, label_singular: 'adjudicator',label: 'adjudicators', request })
+        await this.request_compiled_results({ tournament, label_singular: 'team', label: 'teams', request })
+        await this.request_compiled_results({ tournament, label_singular: 'adjudicator',label: 'adjudicators', request })
         this.draw_adjusted.allocation = []
         let no_draw = true
 
