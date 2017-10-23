@@ -385,7 +385,7 @@ export default {
     },
     compiled_results (state, payload) {
         let tournament = find_tournament(state, payload)
-        tournament['compiled_'+payload.label_singular+'_results'] = tournament['compiled_'+payload.label_singular+'_results'].concat(payload.compiled_results)
+        tournament['compiled_'+payload.label_singular+'_results'] = payload.compiled_results
     },
     add_raw_results (state, payload) {
         let tournament = find_tournament(state, payload)
