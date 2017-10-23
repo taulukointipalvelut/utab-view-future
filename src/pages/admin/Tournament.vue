@@ -26,7 +26,7 @@ TODO: Edit dialog needs validation
       el-tabs(type="card", v-if="!loading")
         el-tab-pane(v-for="index in range(5)", :label="capitalize(entity.labels[index])", :key="index")
           loading-container(:loading="loading")
-            el-table(:data="target_tournament[entity.labels[index]].slice().sort((t1, t2) => Math.abs(t1.id) > Math.abs(t2.id) ? 1 : -1)", @row-click="on_select")
+            el-table(:data="target_tournament[entity.labels[index]].slice().sort((t1, t2) => t1.name.localeCompare(t2.name))", @row-click="on_select")
               el-table-column(prop="id", label="ID", show-overflow-tooltip, align="center", sortable)
               el-table-column(v-for="prop in entity.display_props[entity.labels[index]]", :label="capitalize(prop)", align="center", :key="prop", sortable)
                 template(slot-scope="scope")
