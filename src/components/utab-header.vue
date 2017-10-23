@@ -118,15 +118,18 @@
 
 <style lang="stylus">
   $primary-color = #20a0ff
-  $header_height = 5rem
+  //$primary-color = #69b241
+  $header_height = 4rem
   $line_height = $header_height - 2rem
 
   header
-    position fixed
-    z-index 3
+    //position fixed
+    //z-index 3
     background $primary-color
     margin 0
+    padding-bottom 0.5rem
     width 100%
+    box-shadow 0 1px 3px rgba(0, 0, 0, 0.3)
     box-sizing border-box
     display flex
     justify-content center
