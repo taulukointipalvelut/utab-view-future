@@ -29,9 +29,9 @@ export default {
     }
   },
   computed: {
-     current_step () {
-       return this.steps.findIndex(step => step === this.$route.name)
-     },
+    current_step () {
+      return this.steps.findIndex(step => step === this.$route.name)
+    },
     round () {
       return this.target_round
     },
@@ -78,6 +78,11 @@ export default {
       sub_prize_default
     }
     this.init_result(payload)
+  },
+  watch: {
+    '$route': function () {
+      window.scrollTo(0, 0)
+    }
   }
 }
 </script>
