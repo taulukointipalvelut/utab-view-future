@@ -14,8 +14,8 @@
               span {{ num_of_rounds(scope.row.current_round_num, scope.row.total_round_num) }}
           el-table-column(align="right")
             template(slot-scope="scope")
-              //el-button(size="small", @click="on_edit(scope.row)") #[el-icon(name="edit")] Edit
-              el-button(size="small", type="danger", @click="on_delete(scope.row)") #[el-icon(name="close")] Delete
+              el-button(size="small", @click="on_edit(scope.row)", :disabled="true") #[el-icon(name="edit")] Edit
+              el-button(size="small", type="danger", @click="on_delete(scope.row)", :disabled="auth.usertype !== 'superuser' && !auth.tournaments.includes(scope.row.id)") #[el-icon(name="close")] Delete
         span(v-if="!loading && !has_tournaments") No Tournaments Available
       .operations(v-if="!loading")
         el-button(type="primary", @click="on_new_tournament") #[el-icon(name="plus")] &nbsp;Create New Tournament
@@ -122,7 +122,8 @@ export default {
       'styles'
     ]),
     ...mapGetters([
-      'target_tournament'
+      'target_tournament',
+      'is_organizer'
     ])
   },
   methods: {
@@ -154,8 +155,14 @@ export default {
           tournament.style = this.styles.find(s => s.id === tournament.style_id)
           tournament.current_round_num = 1
           this.send_create_tournament({ tournament: tournament })
-          this.dialog.create.loading = false
-          this.dialog.create.visible = false
+              .then(() => {
+                  this.dialog.create.loading = false
+                  this.dialog.create.visible = false
+              })
+              .catch(() => {
+                  this.dialog.create.loading = false
+                  this.dialog.create.visible = false
+              })
         } else {
           this.dialog.create.loading = false
           return false
@@ -165,18 +172,20 @@ export default {
     async on_delete (selected) {
       const ans = await this.$confirm('Are you sure?')
       if (ans === 'confirm') {
-        this.send_delete_tournament({ tournament: selected })
-          .then(() => { return this.init_one({ tournament: this.target_tournament }) })
+        await this.send_delete_tournament({ tournament: selected })
+          .then(this.init_all)
           .then(() => {
             this.$router.push('/admin')
           })
       }
     },
     on_select_tournament (selected) {
-      const path = selected.href.path
-      let href = Object.assign({}, selected.href)
-      href.path = path.includes('/adimn') ? path : `/admin${ path }`
-      this.$router.push(href)
+      if (this.is_organizer(selected)) {
+        const path = selected.href.path
+        let href = Object.assign({}, selected.href)
+        href.path = path.includes('/adimn') ? path : `/admin${ path }`
+        this.$router.push(href)
+      }
     },
     on_edit (selected) {
       this.dialog.edit.loading = false
@@ -187,7 +196,7 @@ export default {
     ...mapActions([
       'send_create_tournament',
       'send_delete_tournament',
-      'init_one'
+      'init_all'
     ])
   }
 }

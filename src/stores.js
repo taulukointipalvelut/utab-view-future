@@ -18,7 +18,7 @@ function treat_reponse (promise, commit) {
         .then(response => {
             if (response.errors.length > 0) {
                 if (response.errors[0].name === 'InvalidSession') {
-                    commit('auth', { value: false })
+                    commit('auth', { username: '' })
                 } else {
                     commit('errors', response)
                 }
@@ -116,7 +116,9 @@ export default {
   state: {
     loading: true,
     auth: {
-      value: false,
+      username: '',
+      usertype: '',
+      tournaments: [],
       href: {
         login: { to: '/login' }
       }
@@ -127,7 +129,12 @@ export default {
     base_url: BASE_URL
   },
   getters: {
-    is_auth: state => true,//state.auth.value,//{ return (state.auth && state.auth.session !== '') ? true: false },
+    is_auth: state => state.auth.username !== '',
+    is_organizer (state, getters) {
+        return tournament => {
+            return state.auth.usertype === 'superuser' || state.auth.tournaments.includes(tournament.id)
+        }
+    },
     target_tournament (state) {
       return state.tournaments.find(t => t.name === state.route.params.tournament_name)
     },
@@ -316,7 +323,11 @@ export default {
   mutations: {
     /* auth.value */
     auth (state, payload) {
-      state.auth.value = payload.value
+        for (let key in payload) {
+            if (state.auth.hasOwnProperty(key)) {
+                state.auth[key] = payload[key]
+            }
+        }
     },
     /* tournaments */
     errors (state, payload) {
@@ -355,6 +366,7 @@ export default {
           compiled_adjudicator_results: []
         }
         state.tournaments.push(tournament)
+        state.auth.tournaments.push(tournament.id)
     },
     delete_tournament (state, payload) {
       state.tournaments = state.tournaments.filter(t => t.name !== payload.name)
@@ -637,20 +649,25 @@ export default {
     login ({ state, commit, dispatch }, payload) {
       return fetch_data(commit, 'POST', API_BASE_URL+'/login', payload)
             .then(function(data) {
-                setTimeout(() => {
-                    commit('auth', { value: false })
-                }, data)
-                commit('auth', { value: true })
+                commit('auth', data)
                 return true
             }).catch(function(err) {
                 return false
             })
     },
     logout ({ state, commit, dispatch }, payload) {
-        return fetch_data(commit, 'DELETE', API_BASE_URL+'/logout')
+        return fetch_data(commit, 'DELETE', API_BASE_URL+'/login')
               .then(function(data) {
-                  commit('auth', { value: false })
+                  commit('auth', { username: '' })
               })
+    },
+    signup ({ state, commit, dispatch }, payload) {
+      return fetch_data(commit, 'POST', API_BASE_URL+'/signup', payload)
+            .then(function(data) {
+                return true
+            }).catch(function(err) {
+                return false
+            })
     }
   },
   modules: {

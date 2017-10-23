@@ -1,5 +1,6 @@
 import Index from 'pages/Index'
 import Login from 'pages/Login'
+import Signup from 'pages/Signup'
 import Tournament from 'pages/tournament/Index'
 import tournament_routes from 'pages/tournament/routes'
 import Admin from 'pages/admin/Index'
@@ -12,6 +13,9 @@ export default [
   }, {
     path: '/login',
     component: Login
+  }, {
+    path: '/signup',
+    component: Signup
   }, {
     path: '/admin',
     component: Admin,

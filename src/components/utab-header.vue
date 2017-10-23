@@ -18,9 +18,11 @@
         li(v-if="is_auth")
           a(@click="on_logout") Logout #[el-icon(name="circle-cross")]
         li(v-if="is_auth")
-          router-link(:to="admin_href", @click.native="toggleDropdownMenu") Admin #[el-icon(name="setting")]
-        li(v-else)
+          router-link(:to="admin_href", @click.native="toggleDropdownMenu") {{ auth.username }} #[el-icon(name="setting")]
+        li(v-if="!is_auth")
           router-link(:to="login_href", @click.native="toggleDropdownMenu") Login
+        li(v-if="!is_auth")
+          router-link(:to="signup_href", @click.native="toggleDropdownMenu") Register
 </template>
 
 <script>
@@ -50,6 +52,9 @@
       login_href () {
         return { path: '/login', query: { next: this.nextLoginPath } }
       },
+      signup_href () {
+        return { path: '/signup', query: { next: this.nextLoginPath } }
+      },
       admin_href () {
         return { path: '/admin', query: { next: this.nextLogoutPath } }
       },
@@ -64,7 +69,8 @@
                this.$route.fullPath.includes('/admin/') ? '/' : this.$route.fullPath
       },
       ...mapState([
-        'loadng'
+        'loadng',
+        'auth'
       ]),
       ...mapGetters([
         'is_auth'
