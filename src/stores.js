@@ -457,7 +457,6 @@ export default {
       send_create_tournament ({state, commit, dispatch}, payload) {
          return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
             .then(function (data) {
-                console.log(data)
                 payload.tournament = data
                 commit('add_tournament', payload)
             })
