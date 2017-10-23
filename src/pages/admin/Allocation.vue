@@ -110,11 +110,11 @@
               h3(v-if="label === 'adjudicators' || label === 'venues'", style="text-align: center;") Request allocation of {{ capitalize(label) }} with existing draw
               el-form(:model="dialog.draw.form.model", :rules="dialog.draw.form.rules")
                 el-form-item(label="Shuffle Venue", v-if="label === 'all' || label === 'venues'")
-                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
+                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.shuffle")
                 el-form-item(label="Simple", prop="simple")
-                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.simple", :disabled="label === 'venues' && dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
+                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.simple", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
                 el-form-item(label="Force", prop="force")
-                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.force", :disabled="label === 'venues' && dialog.draw.form.model.venue_allocation_algorithm_options.shuffle")
+                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.force", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
                 el-form-item(label="Teaming algorithm", v-if="label === 'all' || label === 'teams'")
                   el-select(v-model="dialog.draw.form.model.team_allocation_algorithm")
                     el-option(v-for="algorithm in ['standard', 'strict']", :key="algorithm", :value="algorithm", :label="algorithm")
@@ -124,7 +124,7 @@
                 el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
                   el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
                 el-form-item(label="Considering Rounds")
-                  el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-model="dialog.draw.considering_rs[round.r]", :checked="round.r < parseInt(r_str, 10)", :disabled="label === 'venues' && dialog.draw.form.model.venue_allocation_algorithm_options.shuffle") {{ round.name }}
+                  el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-model="dialog.draw.considering_rs[round.r]", :checked="round.r < parseInt(r_str, 10)", :disabled="label === 'venues' && dialog.draw.form.model.shuffle") {{ round.name }}
         .dialog-footer(slot="footer")
           el-button(@click="dialog.draw.visible = false") Cancel
           el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
@@ -156,6 +156,7 @@ export default {
             model: {
               simple: false,
               force: false,
+              shuffle: false,
               team_allocation_algorithm: 'standard',
               team_allocation_algorithm_options: {
                 avoid_conflict: false,
@@ -174,7 +175,7 @@ export default {
                 trainees: 0
               },
               venue_allocation_algorithm_options: {
-                shuffle: false
+                //
               }
             },
             rules: {}
@@ -566,7 +567,7 @@ export default {
         options = {
           simple: model.simple,
           force: model.force,
-          shuffle: model.venue_allocation_algorithm_options.shuffle
+          shuffle: model.shuffle
         }
       }
       options.by = Object.keys(this.dialog.draw.considering_rs).filter(key => this.dialog.draw.considering_rs[key]).map(key => parseInt(key, 10))
@@ -644,7 +645,8 @@ export default {
                 })
             }
         } else {
-            for (let square of draw.allocation) {
+            let sorted_allocation = draw.allocation.slice().sort((s1, s2) => this.entity_name_by_id(s1.venue).localeCompare(this.entity_name_by_id(s2.venue)))
+            for (let square of sorted_allocation) {
                 this.draw_adjusted.allocation.push({
                     venues: square.venue === null ? [] : [square.venue],
                     teams: {
