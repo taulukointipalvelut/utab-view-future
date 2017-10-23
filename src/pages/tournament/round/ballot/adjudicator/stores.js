@@ -182,6 +182,7 @@ export default {
                     weight: 1,
                     scores: scores_converted[id],
                     user_defined_data: {
+                        r: score_sheet.r,
                         matters: matters_converted[id],
                         manners: manners_converted[id],
                         best: best_converted[id],

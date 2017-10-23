@@ -101,6 +101,7 @@ export default {
           score: result.matter + result.manner,
           comment: result.comment,
           user_defined_data: {
+            r: result.r,
             matter: result.matter,
             manner: result.manner
           }
