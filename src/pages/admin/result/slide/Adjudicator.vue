@@ -2,7 +2,7 @@
   .router-view-content(v-if="target_tournament")
     section.page-header
       h1 {{ target_tournament.name }}
-    slides-wrapper(title="Adjudicator Result", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="adjudicators", :type="type")
+    slides-wrapper(title="Adjudicator Results", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="adjudicators", :type="type")
 </template>
 
 <script>

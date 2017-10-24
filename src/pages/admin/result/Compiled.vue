@@ -75,7 +75,7 @@
           el-button(@click="on_download_adjudicator_results") Download Adjudicator Results
           el-button(type="primary", @click="on_configure_slide('adjudicator')") #[el-icon(name="picture")] &nbsp;Slide Show
 
-      el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Speaker Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize")
+      el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize")
         el-table(:data="compiled_sub_prize_results(sub_prize)")
           el-table-column(prop="ranking", label="Ranking", align="center", sortable)
             template(slot-scope="scope")
