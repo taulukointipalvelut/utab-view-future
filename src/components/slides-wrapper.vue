@@ -34,36 +34,55 @@ export default {
       if (this.type === 'listed') {
         let num_div = 4
         let c = 0
+        let ranking = null
 
         for (let result of this.sorted_results.slice().reverse()) {
-          if (c % num_div === 0) {
-            let blank_paragraph = [{
-              tag: 'p',
-              text: ''
+          if (ranking !== result.ranking) {
+            c = 0
+            let place_paragraph = [{
+              tag: 'h1',
+              text: result.place + ' Place'
             }]
-            blank_paragraph.num = 0
-            paragraphs_list.push([blank_paragraph])
+            if (result.tie) {
+              place_paragraph.push({
+                tag: 'h3',
+                text: 'Tie '+this.sorted_results.filter(r => r.ranking === result.ranking).length+' '+math.capitalize(this.label)
+              })
+            }
+            place_paragraph.num = 0
+            paragraphs_list.push([place_paragraph])
+            paragraphs_list.push([])
+            ranking = result.ranking
+          } else if (c % num_div === 0) {
+            paragraphs_list.push([])
           }
           let content_paragraph = [{
             tag: 'h3',
-            text: result.tie ? result.place+'(Tie) '+result.name : result.place+' '+result.name,
+            text: result.place+' '+result.name,
           }, {
             tag: 'p',
             text: result.sub_names.join(','),
           }]
-          content_paragraph.num = c % num_div + 1
+          content_paragraph.num = c % num_div
           paragraphs_list[paragraphs_list.length - 1].push(content_paragraph)
           ++c
         }
         paragraphs_list = paragraphs_list.map(paragraphs => paragraphs.reverse())
       } else if (this.type === 'pretty') {
         let ranking = null
+
         for (let result of this.sorted_results.slice().reverse()) {
           if (ranking !== result.ranking) {
             let place_paragraph = [{
               tag: 'h1',
-              text: result.tie ? result.place + ' Place (Tie)' : result.place + ' Place'
+              text: result.place + ' Place'
             }]
+            if (result.tie) {
+              place_paragraph.push({
+                tag: 'h3',
+                text: 'Tie '+this.sorted_results.filter(r => r.ranking === result.ranking).length+' '+math.capitalize(this.label)
+              })
+            }
             place_paragraph.num = 0
             paragraphs_list.push([place_paragraph])
             ranking = result.ranking
@@ -88,10 +107,9 @@ export default {
     sorted_results () {
         let sorted_results = []
         let results = [].concat(this.organized_results).sort((r1, r2) => r1.ranking < r2.ranking ? 1 : -1)
-        let all_rankings = results.map(r => r.ranking).sort()
-        let rankings = Array.from(new Set(all_rankings)).sort()
+        let all_rankings = results.map(r => r.ranking).sort((a, b) => a > b ? 1 : -1)
+        let rankings = Array.from(new Set(all_rankings)).sort((a, b) => a > b ? 1 : -1)
         let tie_rankings = rankings.filter(r => all_rankings.filter(r2 => r2 === r).length > 1)
-
         for (let ranking of rankings) {
           if (ranking > this.max_ranking_rewarded) {
               continue

@@ -17,7 +17,7 @@
         .credit
           p {{ credit }}
         .pagination
-          p {{ paragraph_num+' / '+(paragraphs_list[slide_num].length-1) }}, {{ (slide_num+1)+' / '+paragraphs_list.length }}
+          p l{{ (1+paragraph_num)+' / '+(paragraphs_list[slide_num].length) }}, p{{ (slide_num+1)+' / '+paragraphs_list.length }}
         .control
           el-button(style="padding: 0; border: none; background: none;", @click="on_previous", :disabled="slide_num === 0 && paragraph_num === 0") #[el-icon(name="arrow-left")]
           el-button(style="padding: 0; border: none; background: none;", @click="on_next", :disabled="slide_num+1 === paragraphs_list.length && paragraph_num+1 === paragraphs_list[slide_num].length") #[el-icon(name="arrow-right")]
