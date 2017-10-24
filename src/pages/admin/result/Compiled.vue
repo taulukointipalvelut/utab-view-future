@@ -90,69 +90,24 @@
             template(slot-scope="scope")
               span {{ scope.row[sub_prize] }}
         .operations
-          el-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Speaker', poi: 'POI'}[sub_prize] }} Results
+          el-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Debater', poi: 'POI'}[sub_prize] }} Results
           el-button(type="primary", @click="on_configure_slide(sub_prize)") #[el-icon(name="picture")] &nbsp;Slide Show
 
-      el-dialog(title="Slide Show", :visible.sync="dialog.team_slide.visible", v-if="!loading")
+      el-dialog(v-for="label_singular in ['team', 'adjudicator', 'speaker', 'poi', 'best']", :key="label_singular", title="Slide Show", :visible.sync="dialog[label_singular+'_slide'].visible", v-if="!loading")
         .dialog-body
-          el-form(:model="dialog.team_slide.form.model")
-            el-form-item(label="Max Team Ranking Rewarded")
-              el-input(v-model="dialog.team_slide.form.model.max_ranking_rewarded")
+          el-form(:model="dialog[label_singular+'_slide'].form.model")
+            el-form-item(label="Max Ranking Rewarded")
+              el-input-number(:min="1", v-model="dialog[label_singular+'_slide'].form.model.max_ranking_rewarded")
             el-form-item(label="Credit")
-              el-input(v-model="dialog.team_slide.form.model.credit")
+              el-input(v-model="dialog[label_singular+'_slide'].form.model.credit")
             el-form-item(label="Type")
-              el-select(v-model="dialog.team_slide.form.model.type")
+              el-select(v-model="dialog[label_singular+'_slide'].form.model.type")
                 el-option(value="pretty")
                 el-option(value="listed")
         .dialog-footer(slot="footer")
-          el-button(@click="dialog.team_slide.visible = false") Cancel
-          el-button(type="primary", @click="on_start_slide('teams', 'team')") Start
-
-      el-dialog(title="Slide Show", :visible.sync="dialog.speaker_slide.visible", v-if="!loading")
-        .dialog-body
-          el-form(:model="dialog.speaker_slide.form.model")
-            el-form-item(label="Max Speaker Ranking Rewarded")
-              el-input(v-model="dialog.speaker_slide.form.model.max_ranking_rewarded")
-            el-form-item(label="Credit")
-              el-input(v-model="dialog.speaker_slide.form.model.credit")
-            el-form-item(label="Type")
-              el-select(v-model="dialog.speaker_slide.form.model.type")
-                el-option(value="pretty")
-                el-option(value="listed")
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog.speaker_slide.visible = false") Cancel
-          el-button(type="primary", @click="on_start_slide('speakers', 'speaker')") Start
-
-      el-dialog(title="Slide Show", :visible.sync="dialog.adjudicator_slide.visible", v-if="!loading")
-        .dialog-body
-          el-form(:model="dialog.adjudicator_slide.form.model")
-            el-form-item(label="Max Speaker Ranking Rewarded")
-              el-input(v-model="dialog.adjudicator_slide.form.model.max_ranking_rewarded")
-            el-form-item(label="Credit")
-              el-input(v-model="dialog.adjudicator_slide.form.model.credit")
-            el-form-item(label="Type")
-              el-select(v-model="dialog.adjudicator_slide.form.model.type")
-                el-option(value="pretty")
-                el-option(value="listed")
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog.adjudicator_slide.visible = false") Cancel
-          el-button(type="primary", @click="on_start_slide('adjudicators', 'adjudicator')") Start
-
-      el-dialog(v-for="sub_prize in ['best', 'poi']", :key="sub_prize", title="Slide Show", :visible.sync="dialog[sub_prize+'_slide'].visible", v-if="!loading")
-        .dialog-body
-          el-form(:model="dialog[sub_prize+'_slide'].form.model")
-            el-form-item(label="Max Speaker Ranking Rewarded")
-              el-input(v-model="dialog[sub_prize+'_slide'].form.model.max_ranking_rewarded")
-            el-form-item(label="Credit")
-              el-input(v-model="dialog[sub_prize+'_slide'].form.model.credit")
-            el-form-item(label="Type")
-              el-select(v-model="dialog[sub_prize+'_slide'].form.model.type")
-                el-option(value="pretty")
-                el-option(value="listed")
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog[sub_prize+'_slide'].visible = false") Cancel
-          el-button(type="primary", @click="on_start_slide(sub_prize, sub_prize)") Start
-</template>-->
+          el-button(@click="dialog[label_singular+'_slide'].visible = false") Cancel
+          el-button(type="primary", @click="on_start_slide({team: 'teams', adjudicator: 'adjudicators', speaker: 'speakers', poi: 'poi', best: 'best'}[label_singular], label_singular)") Start
+</template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
