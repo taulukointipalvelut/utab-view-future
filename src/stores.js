@@ -260,7 +260,7 @@ export default {
     },
     entity_name_by_id (state, getters) {
         return function (id) {
-            let entity = getters.entity_by_id(id)
+            let entity = getters.entity_by_id(parseInt(id, 10))
             if (entity === undefined) {
                 return 'Undefined'
             } else {
@@ -369,7 +369,7 @@ export default {
         state.auth.tournaments.push(tournament.id)
     },
     delete_tournament (state, payload) {
-      state.tournaments = state.tournaments.filter(t => t.name !== payload.name)
+      state.tournaments = state.tournaments.filter(t => t.name !== payload.tournament.name)
     },
     /* tournaments */
     change_draw (state, payload) {
