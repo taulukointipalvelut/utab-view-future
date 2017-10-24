@@ -3,7 +3,7 @@
     .card-container(v-if="!loading")
       el-card
         h2 Thank you! Your ballot was successfully sent.
-        h2 You voted for {{ entity_name_by_id(winner) }} ({{ capitalize(side) }}).
+        h2.voted-for You voted for {{ entity_name_by_id(winner) }} ({{ capitalize(side) }}).
 
     section.buttons(v-if="!loading")
       el-button(@click="on_home") #[i.fa.fa-home] Home
@@ -55,6 +55,10 @@ export default {
   .el-card
     width 100%
     margin-bottom 2rem
+
+  h2.voted-for
+    color red
+
 </style>
 <style lang="stylus">
   @import "./ballot"
