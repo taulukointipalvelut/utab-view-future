@@ -23,20 +23,55 @@ TODO: Edit dialog needs validation
             el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='dialog.compile.visible=true') Compile Results
             el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
+      legend(v-if="!loading") Check-in
       el-tabs(type="card", v-if="!loading")
-        el-tab-pane(v-for="index in range(5)", :label="capitalize(entity.labels[index])", :key="index")
+        el-tab-pane(label="Teams")
           loading-container(:loading="loading")
-            el-table(:data="target_tournament[entity.labels[index]].slice().sort((t1, t2) => t1.name.localeCompare(t2.name))", @row-click="on_select")
-              el-table-column(prop="id", label="ID", show-overflow-tooltip, align="center", sortable)
-              el-table-column(v-for="prop in entity.display_props[entity.labels[index]]", :label="capitalize(prop)", align="center", :key="prop", sortable)
-                template(slot-scope="scope")
-                  span {{ show(scope.row, prop) }}
-              el-table-column(align="right")
-                template(slot-scope="scope")
-                  el-button(size="small", @click="on_edit(entity.labels[index], scope.row)", disabled) #[el-icon(name="edit")] Edit
-                  el-button(size="small", type="danger", @click="on_delete(entity.labels[index], entity.labels_singular[index], scope.row)") #[el-icon(name="close")] Delete
+            el-collapse.outer-collapse(accordion, @change="r => outer_team_collapse = r")
+              el-collapse-item(v-for="team in target_tournament.teams.slice().sort((t1, t2) => t1.name.localeCompare(t2.name))", :key="team.id", :name="team.id")
+                template(slot="title")
+                  div(style="float: left;")
+                    span {{ entity_name_by_id(team.id) }}
+                  div(style="float: right; margin-right: 1rem;")
+                    el-button(size="small", type="danger", @click="on_delete('teams', 'team', team)") #[el-icon(name="close")]
+                el-collapse.inner-collapse(accordion, @change="r => on_collapse_team(team, r)", v-if="parseInt(outer_team_collapse, 10) === parseInt(team.id, 10)")
+                  el-collapse-item.inner-collapse-item(v-for="detail in team.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
+                    template(slot="title")
+                      span {{ round_name_by_r(detail.r) }}
+                    el-table.inner-table(:data="[entity.team.detail]", v-if="entity.team.detail.id !== null", :border="true")
+                      el-table-column(label="Available", align="center")
+                        template(slot-scope="scope")
+                          el-switch(v-model="entity.team.detail.available", on-text="", off-text="")
+                      el-table-column(label="Speakers", align="center")
+                        template(slot-scope="scope")
+                          el-select(v-for="index in range(entity.team.detail.speakers.length)", size="small", :key="entity.team.detail.speakers[index]", :value="entity_name_by_id(entity.team.detail.speakers[index])", @input="input_value('team', 'speakers', index, $event)")
+                            el-option(v-for="speaker in target_tournament.speakers", :label="entity_name_by_id(speaker.id)", :value="speaker.id", :key="speaker.id")
+                      el-table-column(label="Institutions", align="center")
+                        template(slot-scope="scope")
+                          el-select(v-for="index in range(entity.team.detail.institutions.length)", size="small", :key="entity.team.detail.institutions[index]", :value="entity_name_by_id(entity.team.detail.institutions[index])", @input="input_value('team', 'institutions', index, $event)")
+                            el-option(v-for="institution in target_tournament.institutions", :label="entity_name_by_id(institution.id)", :value="institution.id", :key="institution.id")
+                      el-table-column(label="", align="center")
+                        template(slot-scope="scope")
+                          el-button(type="primary", size="small") Save
+                      el-button(size="small", @click="on_edit('teams', scope.row)", :disabled="true") #[el-icon(name="plus")] Add
+                      el-button(size="small", @click="on_edit('teams', scope.row)", :disabled="true") Save
             .operations
-              el-button(type="primary", @click="dialog[entity.labels[index]].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(entity.labels_singular[index]) }}
+              el-button(type="primary", @click="dialog[entity.labels[index]].visible = true") #[el-icon(name="plus")] &nbsp;Add New Teams
+
+        el-tab-pane(v-for="label in entity.labels", :label="capitalize(label)", :key="label")
+          loading-container(:loading="loading")
+            //el-table(:data="target_tournament[label].slice().sort((t1, t2) => t1.name.localeCompare(t2.name))", @row-click="on_select")
+            el-collapse(accordion)
+              el-collapse-item(v-for="entity in target_tournament[label].slice().sort((t1, t2) => t1.name.localeCompare(t2.name))", :key="entity.id")
+                template(slot="title")
+                  div(style="float: left;")
+                    span {{ entity_name_by_id(entity.id) }}
+                  div(style="float: right; margin-right: 2rem;")
+                    el-button(size="small", @click="on_edit(label, scope.row)", disabled) #[el-icon(name="edit")] Edit
+                    el-button(size="small", type="danger", @click="on_delete(label, entity.labels_singular[label], scope.row)") #[el-icon(name="close")] Delete
+                span {{ entity.id }}
+            .operations
+              el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(entity.labels_singular[label]) }}
 
       el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
         .dialog-body
@@ -60,7 +95,7 @@ TODO: Edit dialog needs validation
         .dialog-body
           el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
             el-form-item(label="Round No.", prop="r")
-              el-input-number(v-model="dialog.round.form.model.r", :min="1")
+              el-input-number(v-model="dialog.round.form.model.r", :min="1", :max="100")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.form.model.name", :placeholder="'Round '+dialog.round.form.model.r")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
@@ -95,8 +130,7 @@ TODO: Edit dialog needs validation
         .dialog-footer(slot="footer")
           el-button(@click="dialog.round.edit_visible = false") Cancel
           el-button(type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
-
-      el-dialog(v-for="index in range(5)", :title="'Add New '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].visible", :key="index", v-if="!loading")
+      //el-dialog(v-for="index in range(5)", :title="'Add New '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].visible", :key="index", v-if="!loading")
         .dialog-body
           el-form(:model="dialog[entity.labels[index]].form.model", :rules="dialog[entity.labels[index]].form.rules")
             el-form-item(v-for="prop_data in entity.dialog_props_editable.input[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
@@ -111,8 +145,7 @@ TODO: Edit dialog needs validation
         .dialog-footer(slot="footer")
           el-button(@click="dialog[entity.labels[index]].visible = false") Cancel
           el-button(type="primary", :loading="dialog[entity.labels[index]].loading", @click="on_create(entity.labels[index])") #[el-icon(name="plus", v-if="!dialog[entity.labels[index]].loading")] Create
-
-      el-dialog(v-for="index in range(5)", :title="'Edit '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].edit_visible", :key="index", v-if="!loading")
+      //el-dialog(v-for="index in range(5)", :title="'Edit '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].edit_visible", :key="index", v-if="!loading")
         .dialog-body
           el-form(:model="dialog[entity.labels[index]].edit_form.model", :rules="dialog[entity.labels[index]].form.rules")
             h3(align="center", v-for="prop_data in entity.dialog_props_unchangeable.input[entity.labels[index]]", :key="prop_data.prop") {{ prop_data.prop }}: {{ dialog[entity.labels[index]].editing ? dialog[entity.labels[index]].editing[prop_data.prop] : '' }}
@@ -145,24 +178,25 @@ export default {
   },
   data () {
     let output = {
+      outer_team_collapse: null,
       entity: {
-        labels: ['teams', 'adjudicators', 'speakers', 'institutions', 'venues'],
-        labels_singular: ['team', 'adjudicator', 'speaker', 'institution', 'venue'],
-        display_props: {
-          teams: ['name', 'available'],
-          adjudicators: ['name', 'available'],
-          speakers: ['name'],
-          institutions: ['name'],
-          venues: ['name']
+        team: {
+          detail: {
+            r: null,
+            id: null,
+            available: false,
+            speakers: [],
+            institutions: []
+          }
+        },
+        labels: ['speakers', 'institutions', 'venues'],
+        labels_singular: {
+          speakers: 'speaker',
+          institutions: 'institution',
+          venues: 'venue'
         },
         dialog_props_editable: {
           input: {
-            teams: [{
-              prop: 'name'
-            }],
-            adjudicators: [{
-              prop: 'name'
-            }],
             speakers: [{
               prop: 'name'
             }],
@@ -174,36 +208,11 @@ export default {
             }]
           },
           boolean: {
-            teams: [{
-              prop: 'available'
-            }],
-            adjudicators: [{
-              prop: 'available'
-            }],
             speakers: [],
             institutions: [],
             venues: []
           },
           selection: {
-            teams: [{
-              prop: 'speakers',
-              default_length: 2,
-              extendable: true
-            }, {
-              prop: 'institutions',
-              default_length: 1,
-              extendable: true
-            }],
-            adjudicators: [{
-              prop: 'institutions',
-              default_length: 1,
-              extendable: true
-            }, {
-              label: 'conflicts',
-              prop: 'teams',
-              default_length: 1,
-              extendable: true
-            }],
             speakers: [],
             institutions: [],
             venues: []
@@ -211,8 +220,6 @@ export default {
         },
         dialog_props_unchangeable: {
           input: {
-            teams: [],
-            adjudicators: [],
             speakers: [],
             institutions: [],
             venues: []
@@ -220,12 +227,6 @@ export default {
         },
         dialog_props_changeable: {
           input: {
-            teams: [{
-              prop: 'name'
-            }],
-            adjudicators: [{
-              prop: 'name'
-            }],
             speakers: [{
               prop: 'name'
             }],
@@ -237,26 +238,11 @@ export default {
             }]
           },
           boolean: {
-            teams: [{
-              prop: 'available'
-            }],
-            adjudicators: [{
-              prop: 'available'
-            }],
             speakers: [],
             institutions: [],
             venues: []
           },
           selection: {
-            teams: [{
-              prop: 'speakers',
-              default_length: 4,
-              extendable: true
-            }, {
-              prop: 'institutions',
-              default_length: 2,
-              extendable: true
-            }],
             adjudicators: [{
               prop: 'institutions',
               default_length: 2,
@@ -386,7 +372,10 @@ export default {
     ]),
     ...mapGetters([
       'target_tournament',
-      'details_1'
+      'details_1',
+      'entity_name_by_id',
+      'entity_by_id',
+      'round_name_by_r'
     ])
   },
   methods: {
@@ -405,12 +394,22 @@ export default {
     capitalize (p) {
       return p.charAt(0).toUpperCase() + p.slice(1)
     },
-    show (entity, prop) {
-      if (entity.hasOwnProperty(prop)) {
-        return entity[prop]
+    on_collapse_team (team, r) {
+      if (r === '') {
+        this.entity.team.detail.id = null
       } else {
-        return entity.details[0][prop]
+        this.entity.team.detail.id = team.id
+        this.entity.team.detail.r = parseInt(r, 10)
+        this.entity.team.detail.available = this.details_1(team, r).available
+        this.entity.team.detail.speakers = this.details_1(team, r).speakers
+        this.entity.team.detail.institutions = this.details_1(team, r).institutions
       }
+        if (r === '') {
+        } else {
+        }
+    },
+    input_value (label_singular, sub_label, index, evt) {
+      this.$set(this.entity[label_singular].detail[sub_label], index, evt)
     },
     on_allocation_round (selected) {
       this.$router.push({
@@ -576,7 +575,7 @@ export default {
     convert_temp_details (entity, label) {
         let tournament = this.target_tournament
         if (label === 'teams') {
-          entity.details = this.range(tournament.total_round_num).map(num => {
+          entity.details = this.range(100).map(num => {
             return {
               r: num+1,
               speakers: entity.speakers.filter(id => id !== null),
@@ -588,7 +587,7 @@ export default {
           delete entity.institutions
           delete entity.available
         } else if (label === 'adjudicators') {
-          entity.details = this.range(tournament.total_round_num).map(num => {
+          entity.details = this.range(100).map(num => {
             return {
               r: num+1,
               conflicts: entity.teams.filter(id => id !== null),
@@ -600,7 +599,7 @@ export default {
           delete entity.institutions
           delete entity.available
         } else if (label === 'venues') {
-          entity.details = this.range(tournament.total_round_num).map(num => {
+          entity.details = this.range(100).map(num => {
             return {
               r: num+1,
               available: entity.available
@@ -625,6 +624,28 @@ export default {
 
 <style lang="stylus">
   @import "../../common"
+
+  div.el-collapse-item__content
+    padding 0
+    border none
+    box-shadow none
+    background-color white
+  div.el-collapse-item__wrap
+    border none
+
+  .inner-table
+    border none
+    background-color white
+
+  .outer-collapse
+
+  .inner-collapse
+    border none
+    border-bottom 1px solid #dfe6ec
+
+  .inner-collapse-item
+    margin-left 2rem
+    border-left solid 1px #dfe6ec
 
   body
     background-color #f5f5f5
