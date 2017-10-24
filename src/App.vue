@@ -8,8 +8,10 @@ import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
 export default {
   name: 'app',
-  mounted () {
-    this.init_all()
+  async mounted () {
+    await this.start_loading()
+    await this.init_tournaments()
+    await this.finish_loading()
   },
   computed: {
     ...mapState([
@@ -18,10 +20,11 @@ export default {
   },
   methods: {
     ...mapActions([
-      'init_all'
+      'init_tournaments'
     ]),
     ...mapMutations([
-      'finish_loading'
+      'finish_loading',
+      'start_loading'
     ])
   },
   watch: {

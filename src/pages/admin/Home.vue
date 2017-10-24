@@ -173,7 +173,7 @@ export default {
       const ans = await this.$confirm('Are you sure?')
       if (ans === 'confirm') {
         await this.send_delete_tournament({ tournament: selected })
-          .then(this.init_all)
+          //.then(this.init_tournaments)
           .then(() => {
             this.$router.push('/admin')
           })
@@ -196,7 +196,7 @@ export default {
     ...mapActions([
       'send_create_tournament',
       'send_delete_tournament',
-      'init_all'
+      'init_tournaments'
     ])
   }
 }

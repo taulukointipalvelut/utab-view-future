@@ -85,15 +85,16 @@
         'finish_loading'
       ]),
       ...mapActions([
-        'init_all',
+        'init_tournaments',
+        'init_one',
         'logout'
       ]),
-      on_logout () {
+      async on_logout () {
+        await this.logout()
+        this.$router.push('/')
         this.start_loading()
-        this.logout().then(() => {
-          this.init_all()
-          this.$router.push('/')
-        })
+        await this.init_tournaments()
+        this.finish_loading()
       },
       on_select (index, indexPath) {
         this.nav_opened = false
@@ -110,7 +111,14 @@
       },
       reload () {
         this.nav_opened = false
-        this.init_all()
+        let tournament = this.target_tournament
+        this.start_loading()
+        if (tournament !== undefined) {
+          this.init_one({ tournament })
+        } else {
+          this.init_tournaments()
+        }
+        this.finish_loading()
       }
     }
   }

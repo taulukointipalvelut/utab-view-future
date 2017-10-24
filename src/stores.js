@@ -501,7 +501,7 @@ export default {
         return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/'+payload.label, payload.request)
             .then((compiled_results) => commit('compiled_results', { tournament: payload.tournament, compiled_results, label_singular: payload.label_singular }))
       },
-      init_tournaments ({ commit }) {
+      load_tournaments ({ commit }) {
         return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments')
             .then(function (data) {
                 let tournaments = []
@@ -526,14 +526,14 @@ export default {
                 commit('tournaments', { tournaments })
             })
     },
-    init_styles ({ state, commit, dispatch }, payload) {
+    load_styles ({ state, commit, dispatch }, payload) {
         return fetch_data(commit, 'GET', API_BASE_URL+'/styles')
                 .then(data => {
                     const styles = data
                     commit('styles', { styles })
                 })
     },
-    init_draws ({ state, commit, dispatch }, payload) {
+    load_draws ({ state, commit, dispatch }, payload) {
         let t = find_tournament(state, payload)
         return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/draws')
                 .then(data => {
@@ -544,7 +544,7 @@ export default {
                     commit('draws', { tournament: t, draws })
                 })
     },
-    init_rounds ({ state, commit, dispatch }, payload) {
+    load_rounds ({ state, commit, dispatch }, payload) {
         let t = find_tournament(state, payload)
         return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/rounds')
                 .then(data => {
@@ -557,7 +557,7 @@ export default {
                     commit('rounds', { tournament: t, rounds })
                 })
     },
-    init_raw_results ({ state, commit, dispatch }, payload) {
+    load_raw_results ({ state, commit, dispatch }, payload) {
         let t = find_tournament(state, payload)
         let labels = ['teams', 'speakers', 'adjudicators']
         let labels_singular = ['team', 'speaker', 'adjudicator']
@@ -573,7 +573,7 @@ export default {
         }
         return Promise.all(ps)
     },
-    init_entities ({ state, commit, dispatch }, payload) {
+    load_entities ({ state, commit, dispatch }, payload) {
         let t = find_tournament(state, payload)
         let labels = ['teams', 'adjudicators', 'speakers', 'venues', 'institutions']
         let ps = []
@@ -590,13 +590,30 @@ export default {
         }
         return Promise.all(ps)
     },
+    load_login_status ({ state, commit, dispatch }, payload) {
+      return fetch_data(commit, 'GET', API_BASE_URL+'/login', payload)
+            .then(function(data) {
+                commit('auth', data)
+            })
+    },
+    init_tournaments ({ state, commit, dispatch }, payload) {
+        console.log("init_tournaments called")
+        return new Promise(async (resolve, reject) => {
+            await dispatch('load_login_status')
+            await dispatch('load_styles')
+            await dispatch('load_tournaments')
+            resolve(true)
+        })
+    },
     init_one ({ state, commit, dispatch }, payload) {
+        console.log("init_one called")
         let tournament = find_tournament(state, payload)
         return new Promise(async (resolve, reject) => {
-            await dispatch('init_rounds', { tournament })
-            await dispatch('init_draws', { tournament })
-            await dispatch('init_raw_results', { tournament })
-            await dispatch('init_entities', { tournament })
+            await dispatch('load_login_status')
+            await dispatch('load_rounds', { tournament })
+            await dispatch('load_draws', { tournament })
+            await dispatch('load_raw_results', { tournament })
+            await dispatch('load_entities', { tournament })
             resolve(true)
         })
     },
@@ -604,9 +621,10 @@ export default {
     WARNING: DO NOT CALL init_all IN LOADING CONTAINER
     IT WILL CHANGE THE STATUS TO `LOADING`, WHICH CALLS MOUNTED, CALLING init_all AGAIN.
     */
-    init_all ({ state, commit, dispatch }, payload) {
+    /*init_all ({ state, commit, dispatch }, payload) {
         return new Promise(async (resolve, reject) => {
             commit('start_loading')
+            await dispatch('init_login_status')
             await dispatch('init_styles')
             await dispatch('init_tournaments')
             for (let tournament of state.tournaments) {
@@ -618,7 +636,7 @@ export default {
             commit('finish_loading')
             resolve(true)
         })
-    },
+    },*/
     request_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
         let suffix = ''
