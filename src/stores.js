@@ -268,6 +268,17 @@ export default {
             }
         }
     },
+    round_name_by_r (state, getters) {
+        return function (r) {
+            let round = getters.round_by_r(parseInt(r, 10))
+            if (round === undefined) {
+                return 'Undefined'
+            } else {
+                return round.name
+            }
+        }
+    },
+    round_by_r: select_by_key_factory('rounds', 'r'),
     compiled_team_result_by_id: select_by_key_factory('compiled_team_results'),
     compiled_speaker_result_by_id: select_by_key_factory('compiled_speaker_results'),
     compiled_adjudicator_result_by_id: select_by_key_factory('compiled_adjudicator_results'),
