@@ -3,7 +3,7 @@
     .card-container(v-if="!loading")
       el-card
         h2 Thank you! Your ballot was successfully sent.
-        h2.voted-for You voted for {{ target_tournament.style.side_labels[side] }} ({{ entity_name_by_id(winner) }}).
+        h2 You voted for #[span.voted-for {{ entity_name_by_id(winner) }} ({{ side_label }})].
 
     section.buttons(v-if="!loading")
       el-button(@click="on_home") #[i.fa.fa-home] Home
@@ -26,6 +26,9 @@ export default {
     },
     side () {
       return this.$route.query.side
+    },
+    side_label () {
+      return this.target_tournament.style.side_labels[this.side]
     },
     ...mapState([
       'auth',
@@ -57,7 +60,7 @@ export default {
     width 100%
     margin-bottom 2rem
 
-  h2.voted-for
+  span.voted-for
     color red
 
 </style>
