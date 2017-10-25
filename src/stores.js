@@ -432,7 +432,7 @@ export default {
         state.auth.tournaments.push(tournament.id)
     },
     delete_tournament (state, payload) {
-      state.tournaments = state.tournaments.filter(t => t.name !== payload.tournament.name)
+      state.tournaments = state.tournaments.filter(t => t.id !== payload.tournament.id)
     },
     /* tournaments */
     draws: replace_factory('draws'),
