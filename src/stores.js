@@ -269,13 +269,16 @@ export default {
         }
     },
     unallocated_speakers (state, getters) {
-        return function (r, exceptions=[]) {
+        return function (except_team=null, r=null) {
             let tournament = getters.target_tournament
             let allocated_speakers = []
             for (let team of tournament.teams) {
-                allocated_speakers = allocated_speakers.concat(this.details_1(team, r).speakers)
+                allocated_speakers = allocated_speakers.concat(getters.access_detail(team, r).speakers)
             }
-            allocated_speakers = allocated_speakers.filter(id => !exceptions.includes(id))
+            if (except_team !== null) {
+                let team = getters.entity_by_id(except_team)
+                allocated_speakers = allocated_speakers.filter(id => !getters.access_detail(team, r).speakers.includes(id))
+            }
             return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))
         }
     },
@@ -297,8 +300,26 @@ export default {
     raw_speaker_results_by_r: results_factory('raw_speaker_results'),
     raw_adjudicator_results_by_r: results_factory('raw_adjudicator_results'),
     details_1 (state, getters) {
-        return function (entity, r_str=1) {
-            return Object.assign(entity, entity.details.find(d => d.r === parseInt(r_str, 10)))
+        return function (entity, r_str=null) {
+            if (r_str === null) {
+                let new_detail = {}
+                for (let key in entity.details[0]) {
+                    if (Array.isArray(entity.details[0][key])) {
+                        new_detail[key] = []
+                    }
+                }
+                for (let key in new_detail) {
+                    for (let detail of entity.details) {
+                        new_detail[key] = new_detail[key].concat(detail[key])
+                    }
+                }
+                for (let key in new_detail) {
+                    new_detail[key] = Array.from(new Set(new_detail[key]))
+                }
+                return new_detail
+            } else {
+                return entity.details.find(d => d.r === parseInt(r_str, 10))
+            }
         }
     },
     style (state, getters) {
