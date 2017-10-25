@@ -22,7 +22,8 @@
 
       legend(v-if="!loading") Check-in
       el-tabs(v-if="!loading")
-        el-tab-pane(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :key="label", :label="capitalize(label)")
+        el-tab-pane(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :key="label")
+          span(slot="label") {{ capitalize(label) }} #[el-badge(type="mark", :value="target_tournament[label].length")]
           loading-container(:loading="loading")
             span(v-if="target_tournament[label].length === 0") No {{ capitalize(label) }} are registered.
             el-collapse.outer-collapse(v-else, accordion, @change="outer_collapse[labels_singular[label]] = $event")
@@ -603,6 +604,13 @@ export default {
 
 <style lang="stylus">
   @import "../../common"
+
+  .el-badge__content
+    font-size 0.7rem
+    background-color gray
+    padding 0 4px
+    height 0.9rem
+    line-height 0.9rem
 
   .inner-table
     border none
