@@ -258,11 +258,10 @@ export default {
           tournament: this.target_tournament,
           draw: this.target_draw
         }
-        this.send_delete_draw(payload).then(() => {
-          this.draw_temp = null
-          this.new_draw = true
-          this.init_allocation()
-        })
+        await this.send_delete_draw(payload)
+        this.draw_temp = null
+        this.new_draw = true
+        this.init_allocation()
       }
     },
     capitalize: math.capitalize,

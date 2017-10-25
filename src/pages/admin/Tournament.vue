@@ -70,7 +70,7 @@
                 el-checkbox(label="speakers", :checked="true", :disabled="dialog.compile.form.model.simple")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.compile.visible = false") Cancel
-          el-button(type="primary", @click="on_compile", :disabled="dialog.compile.entities.length === 0") Request
+          el-button(type="primary", @click="on_compile", :disabled="dialog.compile.entities.length === 0 || dialog.compile.form.model.rs.length === 0") Request
 
       el-dialog(title="Add New Round", :visible.sync="dialog.round.visible", v-if="!loading")
         .dialog-body
@@ -125,7 +125,7 @@
           el-form(:model="dialog[label].form.model", :rules="dialog[label].form.rules")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog[label].form.model.name")
-            h3(style="text-align: center;") Values below are set default for all rounds.
+            h3(style="text-align: center;", v-if="['teams', 'adjudicators', 'venues'].includes(label)") Values below are set default for all rounds.
             el-form-item(label="Available", prop="available", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[label].form.model.available")
             el-form-item(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", :prop="sub_label", :key="sub_label", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
@@ -593,7 +593,8 @@ export default {
         }
     }
   },
-  mounted () {
+  async mounted () {
+    await this.init_one({ tournament: this.target_tournament })
     let qr = new qrious({
       element: document.getElementById('qr'),
       value: this.view_config.base_url + '/' + this.target_tournament.name,
@@ -601,7 +602,6 @@ export default {
       level: 'L',
       size: 90
     })
-    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

@@ -406,9 +406,6 @@ export default {
     styles (state, payload) {
       state.styles = payload.styles
     },
-    /*add_tournaments (state, payload) {
-      state.tournaments += payload.tournaments
-    },*/
     add_tournament (state, payload) {
         let tournament = {
           id: payload.tournament.id,
@@ -655,7 +652,7 @@ export default {
             })
     },
     init_tournaments ({ state, commit, dispatch }, payload) {
-        console.log("init_tournaments called")
+        console.log("init_tournaments called @"+state.route.path)
         return new Promise(async (resolve, reject) => {
             await dispatch('load_login_status')
             await dispatch('load_styles')
@@ -664,7 +661,7 @@ export default {
         })
     },
     init_one ({ state, commit, dispatch }, payload) {
-        console.log("init_one called")
+        console.log("init_one called @"+state.route.path)
         let tournament = find_tournament(state, payload)
         return new Promise(async (resolve, reject) => {
             await dispatch('load_login_status')

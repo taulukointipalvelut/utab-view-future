@@ -5,7 +5,7 @@
     loading-container(:loading="loading")
       section
         legend Tournaments
-        el-table(:data="tournaments", @current-change="on_select_tournament", :row-class-name="row_class_name", v-if="!loading && has_tournaments")
+        el-table(:data="tournaments", @row-dblclick="on_select_tournament", :row-class-name="row_class_name", v-if="!loading && has_tournaments")
           el-table-column(prop="id", label="ID", align="center")
           el-table-column(prop="name", label="Name", show-overflow-tooltip, align="center")
           el-table-column(prop="style.name", label="Style", align="center")
@@ -14,7 +14,7 @@
               span {{ num_of_rounds(scope.row.current_round_num, scope.row.total_round_num) }}
           el-table-column(align="right")
             template(slot-scope="scope")
-              el-button(size="small", @click="on_edit(scope.row)", :disabled="true") #[el-icon(name="edit")] Edit
+              el-button(size="small", @click="on_edit(scope.row)", :disabled="auth.usertype !== 'superuser' && !auth.tournaments.includes(scope.row.id)") #[el-icon(name="edit")] Edit
               el-button(size="small", type="danger", @click="on_delete(scope.row)", :disabled="auth.usertype !== 'superuser' && !auth.tournaments.includes(scope.row.id)") #[el-icon(name="close")] Delete
         span(v-if="!loading && !has_tournaments") No Tournaments Available
       .operations(v-if="!loading")
@@ -79,10 +79,11 @@ export default {
         edit: {
           loading: false,
           visible: false,
+          id: null,
           form: {
             model: {
               name: '',
-              style_id: ''
+              style_id: null
             },
             rules: {
               name: [
@@ -139,12 +140,8 @@ export default {
         if (valid) {
           const tournament = Object.assign({}, this.dialog.create.form.model)
           tournament.style = this.styles.find(s => s.id === tournament.style_id)
-          this.send_create_tournament({ tournament: tournament })
+          this.send_create_tournament({ tournament })
               .then(() => {
-                  this.dialog.create.loading = false
-                  this.dialog.create.visible = false
-              })
-              .catch(() => {
                   this.dialog.create.loading = false
                   this.dialog.create.visible = false
               })
@@ -211,10 +208,10 @@ export default {
 </style>
 
 <style lang="stylus" scoped>
-  .operations
-    display flex
-    justify-content flex-end
-    margin-top 1rem
+  button.el-button
+    margin-right 1rem
+    margin-left 0
+
   legend
     color rgba(0,0,0,.54)
     font-size 90%
