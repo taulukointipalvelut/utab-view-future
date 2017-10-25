@@ -243,8 +243,10 @@ export default {
         }
     },
     draw_time (state, getters) {
-      let date = new Date(getters.target_draw.updated)
-      if (date.version === 0) {
+      let draw = getters.target_draw
+      if (draw === undefined) { return { updated: false, text: '' } }
+      let date = new Date(draw.updated)
+      if (draw.version === 0) {
           return {
               updated: false,
               text: ''

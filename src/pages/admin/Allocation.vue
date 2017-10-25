@@ -2,7 +2,7 @@
   .router-view-content
     section.page-header
       h1 Draw &amp; Allocation
-      h3(v-if="!loading") {{ target_round.name }} #[span(v-if="draw_time.updated") , {{ draw_time.text }}]
+      h3(v-if="!loading") {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
     section(v-if="style")
       loading-container(:loading="loading")
         el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border)

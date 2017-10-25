@@ -2,7 +2,7 @@
   .router-view-content
     section.page-header
       h1 Judge Evaluation Sheet
-      h3 {{ target_round.name }} #[span(v-if="draw_time.updated")] , {{ draw_time.text }}
+      h3 {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated")] , {{ draw_time.text }}
     loading-container(:loading="loading")
       section(v-if="!loading")
         el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
