@@ -346,28 +346,6 @@ export default {
     return output
   },
   computed: {
-    data_to_select () {
-      return prop => {
-        if (prop === 'speakers') {
-          return this.unallocated_speakers
-        } else if (prop === 'institutions') {
-          return this.target_tournament.institutions
-        } else if (prop === 'teams') {
-          return this.target_tournament.teams
-        } else {
-        return []
-        }
-      }
-    },
-    unallocated_speakers () {
-        let tournament = this.target_tournament
-        let allocated_speakers = []
-        for (let team of tournament.teams) {
-            allocated_speakers = allocated_speakers.concat(this.details_1(team).speakers)
-        }
-        //allocated_speakers = allocated_speakers.concat
-        return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))
-    },
     ...mapState([
       'auth',
       'loading',
@@ -399,6 +377,18 @@ export default {
       return p.charAt(0).toUpperCase() + p.slice(1)
     },
     on_collapse_team (team, r) {
+    data_to_select (sub_label, except_team=null, r=null) {
+      let data_to_select = []
+      if (sub_label === 'speakers') {
+        data_to_select = this.unallocated_speakers(except_team, r)
+      } else if (sub_label === 'institutions') {
+        data_to_select = this.target_tournament.institutions
+      } else if (sub_label === 'conflicts') {
+        data_to_select = this.target_tournament.teams
+      }
+
+      return data_to_select.slice().sort((e1, e2) => e1.name.localeCompare(e2.name))
+    },
       if (r === '') {
         this.entity.team.detail.id = null
       } else {
@@ -412,8 +402,21 @@ export default {
         } else {
         }
     },
-    input_value (label_singular, sub_label, index, evt) {
-      this.$set(this.entity[label_singular].detail[sub_label], index, evt)
+    warn_entity_detail (label_singular, detail) {
+      let warnings = []
+      let sub_labels = []
+      if (label_singular === 'team') {
+        sub_labels = ['speakers', 'institutions']
+      } else if (label_singular === 'adjudicator') {
+        sub_labels = ['conflicts', 'institutions']
+      }
+      for (let sub_label of sub_labels) {
+        if (detail[sub_label].some(id => math.count(detail[sub_label], id) > 1)) {
+          warnings.push('Dup'+math.capitalize(sub_label))
+        }
+      }
+
+      return warnings
     },
     on_allocation_round (selected) {
       this.$router.push({
@@ -465,6 +468,18 @@ export default {
         this.dialog.round.edit_visible = false
       })
     },
+    async on_save_detail (label, label_singular) {
+      this.collapsed[label_singular].loading = true
+      let detail = this.collapsed[label_singular].detail
+      let id = this.collapsed[label_singular].id
+      let entity = this.entity_by_id(id)
+      let details = entity.details.filter(d => d.r !== detail.r)
+      details.push(detail)
+      let payload = { tournament: this.target_tournament, label_singular, label }
+      payload[label_singular] = { id, details }
+      await this.send_update_entity(payload)
+      this.collapsed[label_singular].loading = false
+    },
     on_compile () {
       let tournament = this.target_tournament
       let model = this.dialog.compile.form.model
@@ -509,10 +524,6 @@ export default {
     on_next(step) {
       this.next_round({ step })
     },
-    on_select (selected, ev, col) {
-      console.log("preparing")
-      //this.$router.push(selected.href)
-    },
     on_create (label) {
       this.dialog[label].loading = true
 
@@ -530,31 +541,24 @@ export default {
       this.dialog[label].loading = false
       this.dialog[label].visible = false
     },
-    on_edit (label, selected) {
-      this.dialog[label].editing = selected
-      this.transfer(this.dialog[label].edit_form.model, selected)
-      this.dialog[label].edit_visible = true
-    },
-    on_update (label, label_singular) {
-      this.dialog[label].edit_loading = true
-      let tournament = this.target_tournament
-      let model = this.dialog[label].edit_form.model
-      let entity = Object.assign(this.dialog[label].editing, model)
-      this.convert_temp_details(entity, label)
-      let payload = {
-        tournament,
-        label,
-        label_singular
-      }
-      payload[label_singular] = entity
-      this.send_update_entity(payload)
-      this.dialog[label].edit_loading = false
-      this.dialog[label].edit_visible = false
-    },
     async on_delete (label, label_singular, selected) {
-      const ans = await this.$confirm('Are you sure?')
-      const tournament = this.target_tournament
+      let warnings = {
+        teams: ' Selected team will also be removed from adjudicator conflicts.',
+        speakers: ' Selected speaker will also be removed from teams.',
+        institutions: ' Selected institution will also be removed from adjudicator/team institutions.',
+        venues: '',
+        adjudicators: ''
+      }
+      let parent_list = {
+        teams: [{ label: 'adjudicators', label_singular: 'adjudicator', child_label: 'conflicts' }],
+        speakers: [{ label: 'teams', label_singular: 'team', child_label: 'speakers' }],
+        institutions: [{ label: 'adjudicators', label_singular: 'adjudicator', child_label: 'institutions' }, { label: 'teams', label_singular: 'team', child_label: 'institutions' }],
+        venues: [],
+        adjudicators: []
+      }
+      const ans = await this.$confirm('Are you sure?'+warnings[label])
       if (ans === 'confirm') {
+        const tournament = this.target_tournament
         let payload = {
           tournament,
           label,
@@ -564,12 +568,28 @@ export default {
           id: selected.id
         }
         this.send_delete_entity(payload)
+        for (let parent of parent_list[label]) {
+          for (let entity of tournament[parent.label]) {
+            let changed = false
+            let details = []
+            for (let detail of entity.details) {
+              if (detail[parent.child_label].includes(selected.id)) {
+                changed = true
+              }
+              let new_detail = Object.assign({}, detail)
+              new_detail[parent.child_label] = new_detail[parent.child_label].filter(id => id !== selected.id)
+              details.push(new_detail)
+            }
+            if (changed) {
+              payload = { tournament, label: parent.label, label_singular: parent.label_singular }
+              payload[parent.label_singular] = { id: entity.id, details }
+              this.send_update_entity(payload)
+            }
+          }
+        }
       }
     },
     transfer (to, from) {
-      if (from.hasOwnProperty('details')) {
-        this.transfer(to, from.details[0])
-      }
       for (let key in to) {
         if (from.hasOwnProperty(key)) {
           to[key] = from[key]
@@ -629,27 +649,27 @@ export default {
 <style lang="stylus">
   @import "../../common"
 
-  div.el-collapse-item__content
-    padding 0
-    border none
-    box-shadow none
-    background-color white
-  div.el-collapse-item__wrap
-    border none
-
   .inner-table
     border none
-    background-color white
-
-  .outer-collapse
 
   .inner-collapse
     border none
-    border-bottom 1px solid #dfe6ec
+    background #dfe6ec
+
+  .outer-collapse-item
+    div.el-collapse-item__content
+      padding 0
+
+  .collapse-row-warned
+    color red
 
   .inner-collapse-item
-    margin-left 2rem
+    margin-left 1rem
     border-left solid 1px #dfe6ec
+    div.el-collapse-item__wrap
+      border none
+    div.el-collapse-item__content
+      padding 0
 
   body
     background-color #f5f5f5
