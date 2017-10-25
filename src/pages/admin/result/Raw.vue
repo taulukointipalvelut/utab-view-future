@@ -74,7 +74,7 @@
             h3(align="center", v-if="dialog.team_result.form.model.id !== null") Team: {{ entity_name_by_id(dialog.team_result.form.model.id) }}
             h3(align="center", v-if="dialog.team_result.form.model.from_id !== null") Adjudicator: {{ entity_name_by_id(dialog.team_result.form.model.from_id) }}
             el-form-item(label="Win", prop="win")
-              el-input(v-model="dialog.team_result.form.model.win")
+              el-input-number(:min="0", :max="1", v-model="dialog.team_result.form.model.win")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.team_result.visible = false") Cancel
           el-button(type="primary", :loading="dialog.team_result.loading", @click="on_update('teams', 'team')") #[el-icon(name="plus", v-if="!dialog.team_result.loading")] OK
