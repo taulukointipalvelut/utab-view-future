@@ -2,7 +2,7 @@
   .router-view-content(v-if="target_tournament")
     section.page-header
       h1 {{ target_tournament.name }}
-    slides-wrapper(title="Team Results", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="teams", sub_label="institutions", :type="type")
+    slides-wrapper.slides(title="Team Results", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="teams", sub_label="institutions", :type="type")
 </template>
 
 <script>
@@ -55,5 +55,6 @@ export default {
 </script>
 
 <style lang="stylus">
-
+  .slides
+    border solid 1px lightgray
 </style>
