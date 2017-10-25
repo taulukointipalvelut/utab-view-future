@@ -83,6 +83,8 @@
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.adjudicator_allocation_opened")
             el-form-item(label="Adjudicators Evaluate Each Other", prop="evaluate_each_other")
               el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round.form.model.evaluate_each_other")
+            el-form-item(label="Allow Chair Roll", prop="allow_chair_roll")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.allow_chair_roll")
             el-form-item(label="Evaluator in Team", prop="evaluator_in_team")
               el-select(v-model="dialog.round.form.model.evaluator_in_team")
                 el-option(v-for="index in range(3)", :key="index", :value="['team', 'speaker', null][index]", :label="['Team', 'Speaker', 'None'][index]")
@@ -105,6 +107,8 @@
               el-switch(on-text="", off-text="", v-model="dialog.round.edit_form.model.adjudicator_allocation_opened")
             el-form-item(label="Adjudicators Evaluate Each Other", prop="evaluate_each_other")
               el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round.edit_form.model.evaluate_each_other")
+            el-form-item(label="Allow Chair Roll", prop="allow_chair_roll")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.edit_form.model.allow_chair_roll")
             el-form-item(label="Evaluator in Team", prop="evaluator_in_team")
               el-select(v-model="dialog.round.edit_form.model.evaluator_in_team")
                 el-option(v-for="index in range(3)", :key="index", :value="['team', 'speaker', null][index]", :label="['Team', 'Speaker', 'None'][index]")
@@ -205,6 +209,7 @@ export default {
               team_allocation_opened: true,
               adjudicator_allocation_opened: true,
               evaluate_each_other: true,
+              allow_chair_roll: true,
               evaluator_in_team: 'team'
             }
           },
@@ -216,6 +221,7 @@ export default {
               team_allocation_opened: true,
               adjudicator_allocation_opened: true,
               evaluate_each_other: true,
+              allow_chair_roll: true,
               evaluator_in_team: 'team'
             }
           },

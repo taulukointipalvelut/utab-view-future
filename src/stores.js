@@ -201,8 +201,8 @@ export default {
                 let evaluation_sheet = {
                     r,
                     done: submitted.includes(from_id),
-                    adjudicators: square.chairs.concat(square.panels),
                     created: (sent_result !== undefined) ? new Date(sent_result.created) : null,
+                    adjudicators: round.allow_chair_roll ? square.chairs.concat(square.panels) : square.chairs,
                     teams: square.teams,
                     from_id,
                     is_adjudicator: false,
