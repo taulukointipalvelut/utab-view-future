@@ -100,6 +100,12 @@ function delete_factory(label, label_singular, keys=['id']) {
     }
 }
 
+function available_entities_factory(label) {
+    return function (state, getters) {
+        return function (r_str) {
+            let tournament = getters.target_tournament
+            let entities = tournament[label]
+            return entities.filter(e => getters.access_detail(e, r_str).available)
         }
     }
 }
@@ -310,6 +316,9 @@ export default {
     raw_team_results_by_r: results_factory('raw_team_results'),
     raw_speaker_results_by_r: results_factory('raw_speaker_results'),
     raw_adjudicator_results_by_r: results_factory('raw_adjudicator_results'),
+    //available_speakers: available_entities_factory('speakers'),
+    //available_teams: available_entities_factory('teams'),
+    //available_venues: available_entities_factory('venues'),
     access_detail (state, getters) {
         return function (entity, r_str=null) {
             if (r_str === null) {
