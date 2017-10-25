@@ -29,7 +29,7 @@
             el-select(placeholder="Select style", v-model="dialog.create.form.model.style_id")
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
           el-form-item(label="Number of Rounds", prop="total_round_num")
-            el-input(type="number", :value="dialog.create.form.model.total_round_num", @input="value => dialog.create.form.model.total_round_num = parseInt(value, 10)")
+            el-input-number(:min="1", v-model="dialog.create.form.model.total_round_num")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
