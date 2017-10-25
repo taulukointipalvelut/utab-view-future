@@ -2,6 +2,7 @@
   .router-view-content(v-if="!loading")
     section(v-if="!loading").page-header
       h1 {{ target_round.name }}
+      h3(v-if="draw_time.updated") {{ draw_time.text }}
     section(v-if="!loading && team_allocation_opened && sorted_rows.length > 0")
       el-table.draw(stripe, :data="sorted_rows")
         el-table-column(label="Venue")
@@ -59,6 +60,7 @@ export default {
       'entity_name_by_id',
       'target_round',
       'target_draw',
+      'draw_time',
       'style',
       'target_tournament',
       'entity_name_by_id'

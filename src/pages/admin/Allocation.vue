@@ -2,7 +2,7 @@
   .router-view-content
     section.page-header
       h1 Draw &amp; Allocation
-      h3(v-if="!loading") {{ target_round.name }}
+      h3(v-if="!loading") {{ target_round.name }} #[span(v-if="draw_time.updated") , {{ draw_time.text }}]
     section(v-if="style")
       loading-container(:loading="loading")
         el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border)
@@ -240,6 +240,7 @@ export default {
       'entity_name_by_id',
       'target_round',
       'target_draw',
+      'draw_time',
       'access_detail',
       'compiled_team_result_by_id',
       'compiled_adjudicator_result_by_id'

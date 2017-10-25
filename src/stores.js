@@ -244,6 +244,20 @@ export default {
             return getters.target_evaluation_sheets.find(es => es.from_id === parseInt(from_id, 10))
         }
     },
+    draw_time (state, getters) {
+      let date = new Date(getters.target_draw.updated)
+      if (date.version === 0) {
+          return {
+              updated: false,
+              text: ''
+          }
+      } else {
+          return {
+              updated: true,
+              text: 'Draw Updated at '+date.toLocaleTimeString()
+          }
+      }
+    },
     teams_by_speaker_id (state, getters) {
         return function (id) {
             let teams = getters.target_tournament.teams
