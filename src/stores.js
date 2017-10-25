@@ -201,8 +201,8 @@ export default {
                 let evaluation_sheet = {
                     r,
                     done: submitted.includes(from_id),
-                    created: sent_result !== undefined ? new Date(sent_result.created) : null,
                     adjudicators: square.chairs.concat(square.panels),
+                    created: (sent_result !== undefined) ? new Date(sent_result.created) : null,
                     teams: square.teams,
                     from_id,
                     is_adjudicator: false,
@@ -215,9 +215,11 @@ export default {
                 for (let from_id of square.chairs.concat(square.panels).concat(square.trainees)) {
                     let adjudicators = square.chairs.concat(square.panels).concat(square.trainees).filter(id => id !== from_id)
                     if (adjudicators.length === 0) { break }
+                    let sent_result = raw_adjudicator_results.find(r => r.from_id === from_id)
                     let evaluation_sheet = {
                         r,
                         done: submitted.includes(from_id),
+                        created: (sent_result !== undefined) ? new Date(sent_result.created) : null,
                         adjudicators,
                         teams: square.teams,
                         from_id,

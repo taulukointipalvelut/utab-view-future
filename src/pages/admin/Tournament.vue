@@ -1,6 +1,3 @@
-<!--
-TODO: Edit dialog needs validation
--->
 <template lang="pug">
   .router-view-content
     div
@@ -27,7 +24,8 @@ TODO: Edit dialog needs validation
       el-tabs(v-if="!loading")
         el-tab-pane(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :key="label", :label="capitalize(label)")
           loading-container(:loading="loading")
-            el-collapse.outer-collapse(accordion, @change="outer_collapse[labels_singular[label]] = $event")
+            span(v-if="target_tournament[label].length === 0") No {{ capitalize(label) }} are registered.
+            el-collapse.outer-collapse(v-else, accordion, @change="outer_collapse[labels_singular[label]] = $event")
               el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
                 template(slot="title")
                   div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
@@ -49,7 +47,7 @@ TODO: Edit dialog needs validation
                         template(slot-scope="scope")
                           el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
           .operations
-            el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New Teams
+            el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(label) }}
 
       el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
         .dialog-body
@@ -481,7 +479,7 @@ export default {
       const tournament = this.target_tournament
       let model = this.dialog[label].form.model
       let entity = Object.assign({}, model)
-      this.convert_temp_details(entity, label)
+      this.convert_with_details(entity, label)
       let payload = {
         tournament,
         label
@@ -547,7 +545,7 @@ export default {
         }
       }
     },
-    convert_temp_details (entity, label) {
+    convert_with_details (entity, label) {
         let tournament = this.target_tournament
         if (label === 'teams') {
           entity.details = this.range(this.view_config.max_rounds).map(num => {
@@ -565,12 +563,12 @@ export default {
           entity.details = this.range(this.view_config.max_rounds).map(num => {
             return {
               r: num+1,
-              conflicts: entity.teams.filter(id => id !== null),
-              institutions: entity.institutions.filter(id => id !== null),
+              conflicts: entity.conflicts,
+              institutions: entity.institutions,
               available: entity.available
             }
           })
-          delete entity.teams
+          delete entity.conflicts
           delete entity.institutions
           delete entity.available
         } else if (label === 'venues') {
