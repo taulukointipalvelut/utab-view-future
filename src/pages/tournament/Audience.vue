@@ -4,7 +4,7 @@
       h1 Debaters
     section
       loading-container(:loading="loading", no_item_text="No Round Available")
-        link-list(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-if="!loading && round.round_opened")
+        link-list(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-if="!loading && round.user_defined_data.round_opened")
           legend(slot="legend") {{ round.name }}
           router-link(:to="url(round, 'draw')")
             link-list-item Draw &amp; Allocation

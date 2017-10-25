@@ -46,11 +46,11 @@ export default {
     },
     team_allocation_opened () {
       let round = this.target_round
-      return round ? round.team_allocation_opened : false
+      return round ? round.user_defined_data.team_allocation_opened : false
     },
     adjudicator_allocation_opened () {
       let round = this.target_round
-      return round ? round.adjudicator_allocation_opened : false
+      return round ? round.user_defined_data.adjudicator_allocation_opened : false
     },
     ...mapState([
       'auth',

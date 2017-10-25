@@ -6,7 +6,7 @@
     loading-container(:loading="loading")
       section(v-if="!loading")
         el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
-      section(v-if="!loading && target_round.team_allocation_opened && target_round.adjudicator_allocation_opened")
+      section(v-if="!loading && target_round.user_defined_data.team_allocation_opened && target_round.user_defined_data.adjudicator_allocation_opened")
         el-table(:data="evaluation_sheets", @current-change="on_select", :row-class-name="row_class_name")
           el-table-column(prop="done", label="", width="40", align="center")
             template(slot-scope="scope")
