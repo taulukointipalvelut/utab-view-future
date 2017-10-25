@@ -131,6 +131,8 @@
             el-form-item(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", :prop="sub_label", :key="sub_label", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
               el-select(multiple, v-model="dialog[label].form.model[sub_label]")
                 el-option(v-for="sub_entity in data_to_select(sub_label)", :key="sub_entity.id", :label="sub_entity.name", :value="sub_entity.id")
+            el-form-item(label="Force", prop="force")
+              el-switch(:default="false", on-text="", off-text="", v-model="dialog[label].force")
         .dialog-footer(slot="footer")
           el-button(@click="dialog[label].visible = false") Cancel
           el-button(type="primary", :loading="dialog[label].loading", @click="on_create(label)") #[el-icon(name="plus", v-if="!dialog[label].loading")] Create
@@ -481,10 +483,7 @@ export default {
           })
       })
     },
-    on_next(step) {
-      this.next_round({ step })
-    },
-    on_create (label) {
+    async on_create (label) {
       this.dialog[label].loading = true
 
       const tournament = this.target_tournament
@@ -493,13 +492,36 @@ export default {
       this.convert_with_details(entity, label)
       let payload = {
         tournament,
-        label
+        label,
+        force: this.dialog[label].force
       }
       payload[label] = [entity]
       //team.href = { path: `/${ tournament.name }/${ team.name }` }
-      this.send_create_entities(payload)
+      await this.send_create_entities(payload)
+      this.dialog = dialog_generator()
       this.dialog[label].loading = false
       this.dialog[label].visible = false
+    },
+    on_edit (label, entity) {
+      Object.assign(this.dialog[label].edit_form.model, entity)
+      this.dialog[label].edit_visible = true
+    },
+    async on_update (label, label_singular) {
+      this.dialog[label].edit_loading = true
+
+      const tournament = this.target_tournament
+      let model = this.dialog[label].edit_form.model
+      let entity = { id: model.id, name: model.name }
+      let payload = {
+        tournament,
+        label,
+        label_singular
+      }
+      payload[label_singular] = entity
+      await this.send_update_entity(payload)
+      this.dialog = dialog_generator()
+      this.dialog[label].edit_loading = false
+      this.dialog[label].edit_visible = false
     },
     async on_delete (label, label_singular, selected) {
       let warnings = {
