@@ -48,15 +48,15 @@
                 el-popover(placement="right", width="200", trigger="click")
                   el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
                   p {{ warning.message }}
-                  p teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
+                  p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
           el-table-column(label="Warnings(Alloc)")
             template(slot-scope="scope")
               div(v-for="warning in warn_square_adjudicators(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
                 el-popover(placement="right", width="200", trigger="click")
                   el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
                   p {{ warning.message }}
-                  p teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
-                  p adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
+                  p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
+                  p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
         .operations
           el-button(@click="on_reset_draw") Reset
           el-button(@click="dialog.draw.visible = true") Request
@@ -275,6 +275,7 @@ export default {
     ]),
     warn_item_team (id, side) {
         let warn_item_team = {
+          'unavailable': false,
           'selected': id === this.selected_team || (this.selected_warning !== null && this.selected_warning.teams.includes(id)),
           'same-institution': false,
           'different-win': false,
@@ -312,10 +313,12 @@ export default {
         if (result !== undefined) {
           warn_item_team['sided-border'] = this.check_sided(result, side)
         }
+        warn_item_team['unavailable'] = !this.details_1(this.entity_by_id(id), this.r_str).available
         return warn_item_team
     },
     warn_item_adjudicator (id) {
         let warn_item_adjudicator = {
+          'unavailable': false,
           'selected': id === this.selected_adjudicator || (this.selected_warning !== null && this.selected_warning.adjudicators.includes(id)),
           'conflicts': false,
           'personal-conflicts': false,
@@ -341,13 +344,16 @@ export default {
 
           warn_item_adjudicator['same-institution'] = this.check_institutions(adjudicator0, adjudicator1)
         }
+        warn_item_adjudicator['unavailable'] = !this.details_1(this.entity_by_id(id), this.r_str).available
         return warn_item_adjudicator
     },
     warn_item_venue (id) {
         let warn_item_venue = {
+          'unavailable': false,
           'selected': id === this.selected_venue
         }
 
+        warn_item_venue['unavailable'] = !this.details_1(this.entity_by_id(id), this.r_str).available
         return warn_item_venue
     },
     on_team (selected) {
@@ -384,9 +390,13 @@ export default {
       }
     },
     square_sendable (square) {
+      let square_adjudicators = square.chairs.concat(square.panels).concat(square.trainees)
+      let sub_entities = square.teams.opp.concat(square.teams.gov).concat(square.venues).concat(square_adjudicators)
       if (square.teams.gov.length !== 1 || square.teams.opp.length !== 1) {
         return false
       } else if (square.venues.length > 1) {
+        return false
+      } else if (sub_entities.some(id => !this.details_1(this.entity_by_id(id), this.r_str).available)) {
         return false
       } else {
         return true
@@ -495,6 +505,21 @@ export default {
             })
           }
         }
+      }
+      if (adjudicators.length === 0) {
+        warnings.push({
+          name: "NoAdj",
+          message: "No adjudicators are allocated",
+          teams: [],
+          adjudicators: []
+        })
+      } else if (adjudicators.length % 2 === 0) {
+        warnings.push({
+          name: "EvenAdjs",
+          message: "Even number of adjudicators are allocated",
+          teams: [],
+          adjudicators: []
+        })
       }
       return warnings
     },
@@ -678,23 +703,25 @@ export default {
   @import "../../common"
 
   .draggable-item
-    border 2px solid #999
-    background white
+    //border 2px solid #999
+    background rgba(172, 240, 255, 0.35)
     border-radius 5px
     padding 3px 10px
     margin-top .5rem
     cursor pointer
 
+  .unavailable
+    color white
+    background gray
+
   .draggable-content
     width 120%
     height 140%
 
-  //.page-footer
+  .page-footer
   //  position fixed
-  //  bottom 1rem
-  //  left 4rem
-  //  right 4rem
-  //  background rgba(0, 0, 0, 0.03)
+    padding 1rem
+  //  background rgb(240, 240, 240)
 
   .operations
     display flex
@@ -791,10 +818,10 @@ export default {
 
   .adj-list-container
     width calc(100% - .5rem)
-    background rgba(0, 0, 0, .05)
+    background white
     padding-left .5rem
     padding-bottom .5rem
-    min-height 50px
+    min-height 40px
 
     .adj-list.src
       display flex
