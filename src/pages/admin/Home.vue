@@ -6,10 +6,10 @@
       section
         legend Tournaments
         el-table(:data="tournaments", @current-change="on_select_tournament", :row-class-name="row_class_name", v-if="!loading && has_tournaments")
-          el-table-column(prop="id", label="ID", width="60", align="center")
-          el-table-column(prop="name", label="Name", show-overflow-tooltip)
-          el-table-column(prop="style.name", label="Style")
-          el-table-column(label="Rounds", width="100", align="right")
+          el-table-column(prop="id", label="ID", align="center")
+          el-table-column(prop="name", label="Name", show-overflow-tooltip, align="center")
+          el-table-column(prop="style.name", label="Style", align="center")
+          //el-table-column(label="Rounds", width="100", align="right")
             template(slot-scope="scope")
               span {{ num_of_rounds(scope.row.current_round_num, scope.row.total_round_num) }}
           el-table-column(align="right")
@@ -28,8 +28,6 @@
           el-form-item(label="Style", prop="style_id")
             el-select(placeholder="Select style", v-model="dialog.create.form.model.style_id")
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
-          el-form-item(label="Number of Rounds", prop="total_round_num")
-            el-input-number(:min="1", v-model="dialog.create.form.model.total_round_num")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
@@ -43,8 +41,6 @@
           el-form-item(label="Style", prop="style")
             el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_id", disabled)
               el-option(label="PDA", value="PDA")
-          el-form-item(label="Number of Rounds", prop="total_round_num")
-            el-input(type="number", v-model="dialog.edit.form.model.total_round_num")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.edit.visible = false") Cancel
         el-button(type="primary", :loading="dialog.edit.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
@@ -68,8 +64,7 @@ export default {
           form: {
             model: {
               name: '',
-              style_id: null,
-              total_round_num: ''
+              style_id: null
             },
             rules: {
               name: [
@@ -77,10 +72,6 @@ export default {
               ],
               style_id: [
                 { required: true, message: 'Please select Tournamrnt\'s Style' }
-              ],
-              total_round_num: [
-                { required: true, message: 'Please input Number of Rounds' },
-                { type: 'integer', min: 0, message: 'Number of Rounds must be a positive integer' }
               ]
             }
           }
@@ -91,8 +82,7 @@ export default {
           form: {
             model: {
               name: '',
-              style_id: '',
-              total_round_num: ''
+              style_id: ''
             },
             rules: {
               name: [
@@ -100,10 +90,6 @@ export default {
               ],
               style_id: [
                 { required: true, message: 'Please select Tournamrnt\'s Style' }
-              ],
-              total_round_num: [
-                { required: true, message: 'Please input Number of Rounds' },
-                { type: 'integer', min: 0, message: 'Number of Rounds must be a positive integer' }
               ]
             }
           }
@@ -134,7 +120,7 @@ export default {
       }
       return class_name
     },
-    num_of_rounds (current, total) {
+    /*num_of_rounds (current, total) {
       if (!total) {
         return ''
       } else if (!current) {
@@ -142,7 +128,7 @@ export default {
       } else {
         return `${ current } / ${ total }`
       }
-    },
+    },*/
     on_new_tournament () {
       this.dialog.create.loading = false
       this.dialog.create.visible = true
@@ -153,7 +139,6 @@ export default {
         if (valid) {
           const tournament = Object.assign({}, this.dialog.create.form.model)
           tournament.style = this.styles.find(s => s.id === tournament.style_id)
-          tournament.current_round_num = 1
           this.send_create_tournament({ tournament: tournament })
               .then(() => {
                   this.dialog.create.loading = false

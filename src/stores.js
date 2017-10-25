@@ -397,8 +397,6 @@ export default {
           id: payload.tournament.id,
           name: payload.tournament.name,
           href: { path: '/'+payload.tournament.name },
-          current_round_num: payload.tournament.current_round_num,
-          total_round_num: payload.tournament.total_round_num,
           style: payload.tournament.style,
           rounds: [],
           teams: [],
