@@ -122,6 +122,7 @@
           el-form(:model="dialog[label].form.model", :rules="dialog[label].form.rules")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog[label].form.model.name")
+            h3(style="text-align: center;") Values below are set default for all rounds.
             el-form-item(label="Available", prop="available", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[label].form.model.available")
             el-form-item(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", :prop="sub_label", :key="sub_label", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
