@@ -136,6 +136,15 @@
         .dialog-footer(slot="footer")
           el-button(@click="dialog[label].visible = false") Cancel
           el-button(type="primary", :loading="dialog[label].loading", @click="on_create(label)") #[el-icon(name="plus", v-if="!dialog[label].loading")] Create
+
+      el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'Edit '+capitalize(labels_singular[label])", :visible.sync="dialog[label].edit_visible", :key="label", v-if="!loading")
+        .dialog-body
+          el-form(:model="dialog[label].edit_form.model")
+            el-form-item(label="Name", prop="name")
+              el-input(v-model="dialog[label].edit_form.model.name")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog[label].edit_visible = false") Cancel
+          el-button(type="primary", :loading="dialog[label].edit_loading", @click="on_update(label, labels_singular[label])") #[el-icon(name="plus", v-if="!dialog[label].edit_loading")] OK
 </template>
 
 <script>
@@ -146,6 +155,133 @@ import Lazy from 'assets/js/lazy'
 import math from 'assets/js/math'
 import { validators, not, is_integer, is_nonzero, is_positive, exists } from 'assets/js/form-validator'
 import qrious from 'qrious'
+
+function dialog_generator () {
+  return {
+    round: {
+      loading: false,
+      edit_loading: false,
+      visible: false,
+      edit_visible: false,
+      form: {
+        model: {
+          name: '',
+          r: '',
+          user_defined_data: {
+            round_opened: true,
+            team_allocation_opened: true,
+            adjudicator_allocation_opened: true,
+            evaluate_each_other: true,
+            chairs_always_evaluated: false,
+            evaluator_in_team: 'team'
+          }
+        }
+      },
+      edit_form: {
+        model: {
+          name: '',
+          r: '',
+          user_defined_data: {
+            round_opened: true,
+            team_allocation_opened: true,
+            adjudicator_allocation_opened: true,
+            evaluate_each_other: true,
+            chairs_always_evaluated: false,
+            evaluator_in_team: 'team'
+          }
+        }
+      },
+    },
+    teams: {
+      loading: false,
+      visible: false,
+      edit_loading: false,
+      edit_visible: false,
+      force: false,
+      edit_form: { model: { id: null, name: '' } },
+      form: {
+        model: {
+          name: '',
+          available: true,
+          institutions: [],
+          speakers: []
+        },
+        rules: {}
+      }
+    },
+    adjudicators: {
+      loading: false,
+      visible: false,
+      edit_loading: false,
+      edit_visible: false,
+      force: false,
+      edit_form: { model: { id: null, name: '' } },
+      form: {
+        model: {
+          name: '',
+          available: true,
+          institutions: [],
+          conflicts: []
+        },
+        rules: {}
+      }
+    },
+    venues: {
+      loading: false,
+      visible: false,
+      edit_loading: false,
+      edit_visible: false,
+      force: false,
+      edit_form: { model: { id: null, name: '' } },
+      form: {
+        model: {
+          name: '',
+          available: true
+        },
+        rules: {}
+      }
+    },
+    speakers: {
+      loading: false,
+      visible: false,
+      edit_loading: false,
+      edit_visible: false,
+      force: false,
+      edit_form: { model: { id: null, name: '' } },
+      form: {
+        model: {
+          name: ''
+        },
+        rules: {}
+      }
+    },
+    institutions: {
+      loading: false,
+      visible: false,
+      edit_loading: false,
+      edit_visible: false,
+      force: false,
+      edit_form: { model: { id: null, name: '' } },
+      form: {
+        model: {
+          name: ''
+        },
+        rules: {}
+      }
+    },
+    compile: {
+      entities: [],
+      visible: false,
+      form: {
+        model: {
+          rs: [],
+          force: false,
+          simple: false
+        }
+      }
+    }
+  }
+}
 
 export default {
   components: {
@@ -202,106 +338,7 @@ export default {
       },
       team_selected: undefined,
       adjudicator_selected: undefined,
-      dialog: {
-        round: {
-          loading: false,
-          edit_loading: false,
-          visible: false,
-          edit_visible: false,
-          form: {
-            model: {
-              name: '',
-              r: '',
-              round_opened: true,
-              team_allocation_opened: true,
-              adjudicator_allocation_opened: true,
-              evaluate_each_other: true,
-              allow_chair_roll: true,
-              evaluator_in_team: 'team'
-            }
-          },
-          edit_form: {
-            model: {
-              name: '',
-              r: '',
-              round_opened: true,
-              team_allocation_opened: true,
-              adjudicator_allocation_opened: true,
-              evaluate_each_other: true,
-              allow_chair_roll: true,
-              evaluator_in_team: 'team'
-            }
-          },
-        },
-        teams: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              name: '',
-              available: true,
-              institutions: [],
-              speakers: []
-            },
-            rules: {}
-          }
-        },
-        adjudicators: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              name: '',
-              available: true,
-              institutions: [],
-              conflicts: []
-            },
-            rules: {}
-          }
-        },
-        venues: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              name: '',
-              available: true
-            },
-            rules: {}
-          }
-        },
-        speakers: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              name: ''
-            },
-            rules: {}
-          }
-        },
-        institutions: {
-          loading: false,
-          visible: false,
-          form: {
-            model: {
-              name: ''
-            },
-            rules: {}
-          }
-        },
-        compile: {
-          entities: [],
-          visible: false,
-          form: {
-            model: {
-              rs: [],
-              force: false,
-              simple: false
-            }
-          }
-        }
-      }
+      dialog: dialog_generator()
     }
   },
   computed: {
