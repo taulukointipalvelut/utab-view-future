@@ -268,6 +268,17 @@ export default {
             }
         }
     },
+    unallocated_speakers (state, getters) {
+        return function (r, exceptions=[]) {
+            let tournament = getters.target_tournament
+            let allocated_speakers = []
+            for (let team of tournament.teams) {
+                allocated_speakers = allocated_speakers.concat(this.details_1(team, r).speakers)
+            }
+            allocated_speakers = allocated_speakers.filter(id => !exceptions.includes(id))
+            return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))
+        }
+    },
     round_name_by_r (state, getters) {
         return function (r) {
             let round = getters.round_by_r(parseInt(r, 10))
