@@ -55,7 +55,8 @@ TODO: Edit dialog needs validation
         .dialog-body
           el-form(:model="dialog.round.form.model", :rules="dialog.compile.form.rules")
             el-form-item(label="Rounds")
-              el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-model="dialog.compile.form.model.rs[round.r]", :checked="round.r <= target_tournament.current_round_num") {{ round.name }}
+              el-select(v-model="dialog.compile.form.model.rs", multiple)
+                el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
             el-form-item(label="Force")
               el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.force")
             el-form-item(label="Simple")
@@ -73,7 +74,7 @@ TODO: Edit dialog needs validation
         .dialog-body
           el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
             el-form-item(label="Round No.", prop="r")
-              el-input-number(v-model="dialog.round.form.model.r", :min="1", :max="100")
+              el-input-number(v-model="dialog.round.form.model.r", :min="1", :max="view_config.max_rounds")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.form.model.name", :placeholder="'Round '+dialog.round.form.model.r")
             el-form-item(label="Round Opened", prop="round_opened")
@@ -283,7 +284,7 @@ export default {
           visible: false,
           form: {
             model: {
-              rs: Array(100).fill(false),
+              rs: [],
               force: false,
               simple: false
             }
@@ -297,7 +298,7 @@ export default {
       'auth',
       'loading',
       'adjudicators',
-      'base_url'
+      'view_config'
     ]),
     ...mapGetters([
       'unallocated_speakers',
@@ -436,7 +437,7 @@ export default {
       let _payload = {
         tournament,
         request: {
-          rs: Object.keys(model.rs).filter(index => model.rs[index]).map(v => parseInt(v, 10)),
+          rs: model.rs,
           options: {
             simple: model.simple,
             force: model.force
@@ -549,11 +550,11 @@ export default {
     convert_temp_details (entity, label) {
         let tournament = this.target_tournament
         if (label === 'teams') {
-          entity.details = this.range(100).map(num => {
+          entity.details = this.range(this.view_config.max_rounds).map(num => {
             return {
               r: num+1,
-              speakers: entity.speakers.filter(id => id !== null),
-              institutions: entity.institutions.filter(id => id !== null),
+              speakers: entity.speakers,
+              institutions: entity.institutions,
               available: entity.available
             }
           })
@@ -561,7 +562,7 @@ export default {
           delete entity.institutions
           delete entity.available
         } else if (label === 'adjudicators') {
-          entity.details = this.range(100).map(num => {
+          entity.details = this.range(this.view_config.max_rounds).map(num => {
             return {
               r: num+1,
               conflicts: entity.teams.filter(id => id !== null),
@@ -573,7 +574,7 @@ export default {
           delete entity.institutions
           delete entity.available
         } else if (label === 'venues') {
-          entity.details = this.range(100).map(num => {
+          entity.details = this.range(this.view_config.max_rounds).map(num => {
             return {
               r: num+1,
               available: entity.available
@@ -586,7 +587,7 @@ export default {
   mounted () {
     let qr = new qrious({
       element: document.getElementById('qr'),
-      value: this.base_url + '/' + this.target_tournament.name,
+      value: this.view_config.base_url + '/' + this.target_tournament.name,
       backgroundAlpha: 0,
       level: 'L',
       size: 90

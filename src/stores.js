@@ -126,7 +126,10 @@ export default {
     styles: [],
     tournaments: [],
     errors: [],
-    base_url: BASE_URL
+    view_config: {
+        base_url: BASE_URL,
+        max_rounds: 25
+    }
   },
   getters: {
     is_auth: state => state.auth.username !== '',
