@@ -100,15 +100,7 @@ function delete_factory(label, label_singular, keys=['id']) {
     }
 }
 
-function update_factory(label, label_singular, keys=['id']) {
-    return function (state, payload) {
-        let tournament = find_tournament(state, payload)
-        let fit = tournament[label]
-        for (let key of keys) {
-            fit = fit.filter(e => e[key] !== payload[label_singular][key])
         }
-        tournament[label] = fit
-        tournament[label].push(payload[label_singular])
     }
 }
 
@@ -432,11 +424,6 @@ export default {
       state.tournaments = state.tournaments.filter(t => t.name !== payload.tournament.name)
     },
     /* tournaments */
-    change_draw (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament.draws = tournament.draws.filter(draw => draw.r !== payload.draw.r)
-        tournament.draws.push(payload.draw)
-    },
     draws: replace_factory('draws'),
     rounds: replace_factory('rounds'),
     raw_results (state, payload) {
@@ -455,13 +442,7 @@ export default {
         let tournament = find_tournament(state, payload)
         tournament['raw_'+payload.label_singular+'_results'].push(payload.raw_result)
     },
-    update_result (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament['raw_'+payload.label_singular+'_results'] = tournament['raw_'+payload.label_singular+'_results']
-            .filter(res => res.id !== payload.raw_result.id || res.r !== payload.raw_result.r || res.from_id !== payload.raw_result.from_id)
-        tournament['raw_'+payload.label_singular+'_results'].push(payload.raw_result)
-    },
-    delete_result (state, payload) {
+    delete_raw_result (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament['raw_'+payload.label_singular+'_results'] = tournament['raw_'+payload.label_singular+'_results']
             .filter(res => res.id !== payload.raw_result.id || res.r !== payload.raw_result.r || res.from_id !== payload.raw_result.from_id)
@@ -478,14 +459,9 @@ export default {
         let tournament = find_tournament(state, payload)
         tournament[payload.label] = tournament[payload.label].filter(e => e.id !== payload[payload.label_singular].id)
     },
-    update_entity (state, payload) {
-        let tournament = find_tournament(state, payload)
-        tournament[payload.label] = tournament[payload.label].filter(e => e.id !== payload[payload.label_singular].id)
-        tournament[payload.label].push(payload[payload.label_singular])
-    },
     add_round: add_one_factory('rounds', 'round'),
     delete_round: delete_factory('rounds', 'round', ['r']),
-    update_round: update_factory('rounds', 'round', ['r']),
+    add_draw: add_one_factory('draws', 'draw', ['r']),
     delete_draw: delete_factory('draws', 'draw', ['r']),
     finish_loading (state) {
         state.loading = false
@@ -495,8 +471,22 @@ export default {
     }
   },
   actions: {
-      next_round (state, payload) {
-          console.log("preparing")
+      send_create_tournament ({state, commit, dispatch}, payload) {
+         return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
+            .then(tournament => {
+                commit('add_tournament', { tournament })
+            })
+      },
+      send_delete_tournament ({state, commit, dispatch}, payload) {
+         return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id)
+            .then(tournament => commit('delete_tournament', { tournament }))
+      },
+      send_update_tournament ({state, commit, dispatch}, payload) {
+         return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id, payload.tournament)
+            .then(tournament => {
+                commit('delete_tournament', { tournament })
+                commit('add_tournament', { tournament })
+            })
       },
       send_create_round ({state, commit, dispatch}, payload) {
           return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds', payload.round)
@@ -504,7 +494,11 @@ export default {
       },
       send_update_round ({state, commit, dispatch}, payload) {
           return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r, payload.round)
-             .then(() => commit('update_round', payload))
+             .then(round => {
+                 payload.round = round
+                 commit('delete_round', payload)
+                 commit('add_round', payload)
+             })
       },
       send_delete_round ({state, commit, dispatch}, payload) {
           return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.round.r)
@@ -514,19 +508,8 @@ export default {
           return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws')
               .then(() => commit('delete_draw', payload))
       },
-      send_create_tournament ({state, commit, dispatch}, payload) {
-         return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
-            .then(function (data) {
-                payload.tournament = data
-                commit('add_tournament', payload)
-            })
-      },
-      send_delete_tournament ({state, commit, dispatch}, payload) {
-         return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id)
-            .then(() => commit('delete_tournament', payload))
-      },
       send_create_entities ({state, commit, dispatch}, payload) {
-        return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label, payload[payload.label])
+        return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'?force='+payload.force, payload[payload.label])
             .then(function (data) {
                 payload[payload.label] = data
                 commit('add_entities', payload)
@@ -536,7 +519,9 @@ export default {
         return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/'+payload.label+'/'+payload[payload.label_singular].id, payload[payload.label_singular])
             .then(entity => {
                 payload[payload.label_singular] = entity
-                commit('update_entity', payload)
+                payload[payload.label] = [entity]
+                commit('delete_entity', payload)
+                commit('add_entities', payload)
             })
       },
       send_delete_entity ({state, commit, dispatch}, payload) {
@@ -545,11 +530,15 @@ export default {
       },
       send_update_result ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.raw_result.r+'/results/raw/'+payload.label+'/'+payload.raw_result.id+'/'+payload.raw_result.from_id,  payload.raw_result)
-            .then(() => commit('update_result', payload))
+            .then(raw_result => {
+                payload.raw_result = raw_result
+                commit('delete_raw_result', payload)
+                commit('add_raw_result', payload)
+            })
       },
       send_delete_result ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.raw_result.r+'/results/raw/'+payload.label+'/'+payload.raw_result.id+'/'+payload.raw_result.from_id,  payload.raw_result)
-            .then(() => commit('delete_result', payload))
+            .then(() => commit('delete_raw_result', payload))
       },
       send_raw_results ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/raw/'+payload.label, payload.raw_results)
@@ -709,17 +698,21 @@ export default {
     },
     submit_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
-        return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw).then(data => {
-            let draw = data
-            commit('change_draw', { tournament, draw })
-        })
+        return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw)
+            .then(data => {
+                payload.draw = data
+                commit('delete_draw', payload)
+                commit('add_draw', payload)
+            })
     },
     update_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
-        return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw).then(data => {
-            let draw = data
-            commit('change_draw', { tournament, draw })
-        })
+        return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.draw.r+'/draws', payload.draw)
+            .then(data => {
+                payload.draw = data
+                commit('delete_draw', payload)
+                commit('add_draw', payload)
+            })
     },
     login ({ state, commit, dispatch }, payload) {
       return fetch_data(commit, 'POST', API_BASE_URL+'/login', payload)
