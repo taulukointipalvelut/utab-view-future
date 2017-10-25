@@ -31,19 +31,18 @@
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
-    //el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
+    el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
       .dialog-body
         el-form(ref="dialog_edit_form", :model="dialog.edit.form.model", :rules="dialog.edit.form.rules")
-          el-form-item(label="ID", prop="id")
-            el-input(type="number", v-model="dialog.edit.form.model.id")
+          h3 Warning: Changing tournament name can make users unable to access the tournament.
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.edit.form.model.name")
-          el-form-item(label="Style", prop="style")
-            el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_id", disabled)
-              el-option(label="PDA", value="PDA")
+          el-form-item(label="Style", prop="style_id")
+            el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_id")
+              el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.edit.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.edit.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
+        el-button(type="primary", :loading="dialog.edit.loading", @click="on_update") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
 </template>
 
 <script>
@@ -151,6 +150,19 @@ export default {
         }
       })
     },
+    on_update () {
+      this.dialog.edit.loading = true
+      const tournament = {
+        id: this.dialog.edit.id,
+        name: this.dialog.edit.form.model.name
+      }
+      tournament.style = this.styles.find(s => s.id === tournament.style_id)
+      this.send_update_tournament({ tournament })
+          .then(() => {
+              this.dialog.edit.loading = false
+              this.dialog.edit.visible = false
+          })
+    },
     async on_delete (selected) {
       const ans = await this.$confirm('Are you sure?')
       if (ans === 'confirm') {
@@ -170,6 +182,9 @@ export default {
       }
     },
     on_edit (selected) {
+      this.dialog.edit.id = selected.id
+      this.dialog.edit.form.model.name = selected.name
+      this.dialog.edit.form.model.style_id = selected.style.id
       this.dialog.edit.loading = false
       this.dialog.edit.visible = true
     },
@@ -178,6 +193,7 @@ export default {
     ...mapActions([
       'send_create_tournament',
       'send_delete_tournament',
+      'send_update_tournament',
       'init_tournaments'
     ])
   }
