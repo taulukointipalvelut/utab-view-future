@@ -10,10 +10,11 @@
             el-table-column(prop="name", label="Name", show-overflow-tooltip)
             el-table-column
               template(slot-scope="scope")
-                el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")] Edit
-                el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")] Delete
-                el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
-                el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+                div(style="width: 90%; display: inline-flex; justify-content: flex-end; align-items: center;")
+                  el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
+                  el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+                  el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
+                  el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")]
                 //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
                 //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
           .operations
@@ -31,7 +32,9 @@
                 template(slot="title")
                   div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
                     span {{ entity_name_by_id(entity.id) }}
-                    el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
+                    div
+                      el-button(size="small", @click="on_edit(label, entity)") #[el-icon(name="edit")]
+                      el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
                 el-collapse.inner-collapse(accordion, @change="on_collapse(labels_singular[label], entity, $event)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
                   el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
                     template(slot="title")
