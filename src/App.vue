@@ -11,16 +11,24 @@ export default {
   async mounted () {
     await this.start_loading()
     await this.init_tournaments()
+    let tournament = this.target_tournament
+    if (tournament !== undefined) {
+      await this.init_one({ tournament })
+    }
     await this.finish_loading()
   },
   computed: {
     ...mapState([
       'errors'
+    ]),
+    ...mapGetters([
+      'target_tournament'
     ])
   },
   methods: {
     ...mapActions([
-      'init_tournaments'
+      'init_tournaments',
+      'init_one'
     ]),
     ...mapMutations([
       'finish_loading',
