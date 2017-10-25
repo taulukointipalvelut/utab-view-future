@@ -3,7 +3,7 @@
     .card-container(v-if="!loading")
       el-card
         h2 Thank you! Your ballot was successfully sent.
-        h2.voted-for You voted for {{ entity_name_by_id(winner) }} ({{ capitalize(side) }}).
+        h2.voted-for You voted for {{ target_tournament.style.side_labels[side] }} ({{ entity_name_by_id(winner) }}).
 
     section.buttons(v-if="!loading")
       el-button(@click="on_home") #[i.fa.fa-home] Home
@@ -32,7 +32,8 @@ export default {
       'loading'
     ]),
     ...mapGetters([
-      'entity_name_by_id'
+      'entity_name_by_id',
+      'target_tournament'
     ]),
     ...mapGetters('ballot', [
       'next',
