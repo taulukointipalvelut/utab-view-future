@@ -8,6 +8,7 @@ export default [
   {
     path: 'speaker',
     name: 'speaker',
+    props: true,
     component: Speaker
   },
   {

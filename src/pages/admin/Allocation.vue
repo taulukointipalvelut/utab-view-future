@@ -240,7 +240,7 @@ export default {
       'entity_name_by_id',
       'target_round',
       'target_draw',
-      'details_1',
+      'access_detail',
       'compiled_team_result_by_id',
       'compiled_adjudicator_result_by_id'
     ])
@@ -313,7 +313,7 @@ export default {
         if (result !== undefined) {
           warn_item_team['sided-border'] = this.check_sided(result, side)
         }
-        warn_item_team['unavailable'] = !this.details_1(this.entity_by_id(id), this.r_str).available
+        warn_item_team['unavailable'] = !this.access_detail(this.entity_by_id(id), this.r_str).available
         return warn_item_team
     },
     warn_item_adjudicator (id) {
@@ -344,7 +344,7 @@ export default {
 
           warn_item_adjudicator['same-institution'] = this.check_institutions(adjudicator0, adjudicator1)
         }
-        warn_item_adjudicator['unavailable'] = !this.details_1(this.entity_by_id(id), this.r_str).available
+        warn_item_adjudicator['unavailable'] = !this.access_detail(this.entity_by_id(id), this.r_str).available
         return warn_item_adjudicator
     },
     warn_item_venue (id) {
@@ -353,7 +353,7 @@ export default {
           'selected': id === this.selected_venue
         }
 
-        warn_item_venue['unavailable'] = !this.details_1(this.entity_by_id(id), this.r_str).available
+        warn_item_venue['unavailable'] = !this.access_detail(this.entity_by_id(id), this.r_str).available
         return warn_item_venue
     },
     on_team (selected) {
@@ -367,19 +367,19 @@ export default {
       this.selected_adjudicator = null
     },
     speaker_names_by_team_id (id) {
-      return this.details_1(this.entity_by_id(id), this.r_str)
+      return this.access_detail(this.entity_by_id(id), this.r_str)
         .speakers.map(this.entity_name_by_id).join(', ')
     },
     institution_names_by_team_id (id) {
-      return this.details_1(this.entity_by_id(id), this.r_str).institutions
+      return this.access_detail(this.entity_by_id(id), this.r_str).institutions
         .map(this.entity_name_by_id).join(', ')
     },
     institution_names_by_adjudicator_id (id) {
-      return this.details_1(this.entity_by_id(id), this.r_str).institutions
+      return this.access_detail(this.entity_by_id(id), this.r_str).institutions
         .map(this.entity_name_by_id).join(', ')
     },
     conflict_names_by_adjudicator_id (id) {
-      return this.details_1(this.entity_by_id(id), this.r_str).conflicts
+      return this.access_detail(this.entity_by_id(id), this.r_str).conflicts
         .map(this.entity_name_by_id).join(', ')
     },
     row_class(row, index) {
@@ -396,7 +396,7 @@ export default {
         return false
       } else if (square.venues.length > 1) {
         return false
-      } else if (sub_entities.some(id => !this.details_1(this.entity_by_id(id), this.r_str).available)) {
+      } else if (sub_entities.some(id => !this.access_detail(this.entity_by_id(id), this.r_str).available)) {
         return false
       } else {
         return true
@@ -527,7 +527,7 @@ export default {
       return Math.abs(math.count(result.past_sides.concat([side]), 'gov') - math.count(result.past_sides.concat([side]), 'opp')) > 1
     },
     check_institutions (team0, team1) {
-      return !math.disjoint(this.details_1(team0, this.r_str).institutions, this.details_1(team1, this.r_str).institutions) && team0.id !== team1.id
+      return !math.disjoint(this.access_detail(team0, this.r_str).institutions, this.access_detail(team1, this.r_str).institutions) && team0.id !== team1.id
     },
     check_wins (team0, team1, result0, result1) {
       return result0.win !== result1.win
@@ -536,10 +536,10 @@ export default {
       return adj_result.judged_teams.includes(team.id)
     },
     check_personal_conflicts (team, adj) {
-      return this.details_1(adj, this.r_str).conflicts.includes(team.id)
+      return this.access_detail(adj, this.r_str).conflicts.includes(team.id)
     },
     check_conflicts (team, adj) {
-      return !math.disjoint(this.details_1(team, this.r_str).institutions, this.details_1(adj, this.r_str).institutions)
+      return !math.disjoint(this.access_detail(team, this.r_str).institutions, this.access_detail(adj, this.r_str).institutions)
     },
     convert_to_draw () {
       let draw = {

@@ -36,7 +36,7 @@ export default {
         let team = this.entity_by_id(compiled_result.id)
         let result = Object.assign({}, compiled_result)
         result.name = team.name
-        result.institutions = this.details_1(team).institutions.map(this.entity_name_by_id)
+        result.institutions = this.access_detail(team).institutions.map(this.entity_name_by_id)
         organized_results.push(result)
       }
       return organized_results
@@ -45,7 +45,7 @@ export default {
       'target_tournament',
       'entity_by_id',
       'entity_name_by_id',
-      'details_1'
+      'access_detail'
     ])
   },
   mounted () {

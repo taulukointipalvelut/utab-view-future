@@ -8,7 +8,7 @@
         el-form
           el-form-item(v-for="role in style.roles[side].slice().sort((r1, r2) => r1.order > r2.order ? 1 : -1)", :key="role.abbr", :label="role.abbr", required, :error='"Select "+role.abbr+"\'s Name"')
             el-select(:value="value(side, 'speakers', role.order)", @input="on_speaker_name(side, role.order, $event)", :placeholder="'Select '+role.abbr")
-              el-option(v-for="id in details_1(entity_by_id(score_sheet.teams[side])).speakers", :key="id", :label="entity_name_by_id(id)", :value="id")
+              el-option(v-for="id in access_detail(entity_by_id(score_sheet.teams[side]), r_str).speakers", :key="id", :label="entity_name_by_id(id)", :value="id")
     section.buttons(v-if="!loading")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
@@ -24,7 +24,7 @@ export default {
   components: {
     'loading-container': loading_container
   },
-  props: ['score_sheet'],
+  props: ['score_sheet', 'r_str'],
   computed: {
     proceedable () {
       return this.result.gov.speakers.every(s => s.value !== null) && this.result.opp.speakers.every(s => s.value !== null)
@@ -39,7 +39,7 @@ export default {
     ...mapGetters([
       'entity_by_id',
       'entity_name_by_id',
-      'details_1',
+      'access_detail',
       'style'
     ]),
     ...mapGetters('ballot', [

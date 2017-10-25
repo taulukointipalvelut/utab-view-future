@@ -24,54 +24,32 @@ TODO: Edit dialog needs validation
             el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
       legend(v-if="!loading") Check-in
-      el-tabs(type="card", v-if="!loading")
-        el-tab-pane(label="Teams")
+      el-tabs(v-if="!loading")
+        el-tab-pane(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :key="label", :label="capitalize(label)")
           loading-container(:loading="loading")
-            el-collapse.outer-collapse(accordion, @change="r => outer_team_collapse = r")
-              el-collapse-item(v-for="team in target_tournament.teams.slice().sort((t1, t2) => t1.name.localeCompare(t2.name))", :key="team.id", :name="team.id")
+            el-collapse.outer-collapse(accordion, @change="outer_collapse[labels_singular[label]] = $event")
+              el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
                 template(slot="title")
-                  div(style="float: left;")
-                    span {{ entity_name_by_id(team.id) }}
-                  div(style="float: right; margin-right: 1rem;")
-                    el-button(size="small", type="danger", @click="on_delete('teams', 'team', team)") #[el-icon(name="close")]
-                el-collapse.inner-collapse(accordion, @change="r => on_collapse_team(team, r)", v-if="parseInt(outer_team_collapse, 10) === parseInt(team.id, 10)")
-                  el-collapse-item.inner-collapse-item(v-for="detail in team.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
+                  div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
+                    span {{ entity_name_by_id(entity.id) }}
+                    el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
+                el-collapse.inner-collapse(accordion, @change="r => on_collapse(labels_singular[label], entity, r)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
+                  el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
                     template(slot="title")
-                      span {{ round_name_by_r(detail.r) }}
-                    el-table.inner-table(:data="[entity.team.detail]", v-if="entity.team.detail.id !== null", :border="true")
+                      span(:style="detail.available ? '' : 'color: red;'") {{ round_name_by_r(detail.r) }} #[el-icon(name="warning", v-if="warn_entity_detail(detail).length > 0")] {{ warn_entity_detail(labels_singular[label], detail).join(',') }}
+                    el-table.inner-table(:data="[collapsed[labels_singular[label]].detail]", v-if="collapsed[labels_singular[label]].id !== null", :border="true")
                       el-table-column(label="Available", align="center")
                         template(slot-scope="scope")
-                          el-switch(v-model="entity.team.detail.available", on-text="", off-text="")
-                      el-table-column(label="Speakers", align="center")
+                          el-switch(v-model="collapsed[labels_singular[label]].detail.available", on-text="", off-text="")
+                      el-table-column(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", align="center", :key="sub_label")
                         template(slot-scope="scope")
-                          el-select(v-for="index in range(entity.team.detail.speakers.length)", size="small", :key="entity.team.detail.speakers[index]", :value="entity_name_by_id(entity.team.detail.speakers[index])", @input="input_value('team', 'speakers', index, $event)")
-                            el-option(v-for="speaker in target_tournament.speakers", :label="entity_name_by_id(speaker.id)", :value="speaker.id", :key="speaker.id")
-                      el-table-column(label="Institutions", align="center")
-                        template(slot-scope="scope")
-                          el-select(v-for="index in range(entity.team.detail.institutions.length)", size="small", :key="entity.team.detail.institutions[index]", :value="entity_name_by_id(entity.team.detail.institutions[index])", @input="input_value('team', 'institutions', index, $event)")
-                            el-option(v-for="institution in target_tournament.institutions", :label="entity_name_by_id(institution.id)", :value="institution.id", :key="institution.id")
+                          el-select(multiple, v-model="collapsed[labels_singular[label]].detail[sub_label]")
+                            el-option(v-for="sub_entity in data_to_select(sub_label, collapsed[labels_singular[label]].id, detail.r)", :label="sub_entity.name", :value="sub_entity.id", :key="sub_entity.id")
                       el-table-column(label="", align="center")
                         template(slot-scope="scope")
-                          el-button(type="primary", size="small") Save
-                      el-button(size="small", @click="on_edit('teams', scope.row)", :disabled="true") #[el-icon(name="plus")] Add
-                      el-button(size="small", @click="on_edit('teams', scope.row)", :disabled="true") Save
-            .operations
-              el-button(type="primary", @click="dialog[entity.labels[index]].visible = true") #[el-icon(name="plus")] &nbsp;Add New Teams
-
-        el-tab-pane(v-for="label in entity.labels", :label="capitalize(label)", :key="label")
-          loading-container(:loading="loading")
-            //el-table(:data="target_tournament[label].slice().sort((t1, t2) => t1.name.localeCompare(t2.name))", @row-click="on_select")
-            el-collapse(accordion)
-              el-collapse-item(v-for="entity in target_tournament[label].slice().sort((t1, t2) => t1.name.localeCompare(t2.name))", :key="entity.id")
-                template(slot="title")
-                  div(style="float: left;")
-                    span {{ entity_name_by_id(entity.id) }}
-                  div(style="float: right; margin-right: 2rem;")
-                    el-button(size="small", @click="on_edit(label, scope.row)", disabled) #[el-icon(name="edit")] Edit
-                    el-button(size="small", type="danger", @click="on_delete(label, entity.labels_singular[label], scope.row)") #[el-icon(name="close")] Delete
-                span {{ entity.id }}
-            .operations
-              el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(entity.labels_singular[label]) }}
+                          el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
+          .operations
+            el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New Teams
 
       el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
         .dialog-body
@@ -134,37 +112,20 @@ TODO: Edit dialog needs validation
         .dialog-footer(slot="footer")
           el-button(@click="dialog.round.edit_visible = false") Cancel
           el-button(type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
-      //el-dialog(v-for="index in range(5)", :title="'Add New '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].visible", :key="index", v-if="!loading")
+
+      el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'Add New '+capitalize(labels_singular[label])", :visible.sync="dialog[label].visible", :key="label", v-if="!loading")
         .dialog-body
-          el-form(:model="dialog[entity.labels[index]].form.model", :rules="dialog[entity.labels[index]].form.rules")
-            el-form-item(v-for="prop_data in entity.dialog_props_editable.input[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
-              el-input-number(v-model.number="dialog[entity.labels[index]].form.model[prop_data.prop]", v-if="prop_data.type === Number")
-              el-input(v-model="dialog[entity.labels[index]].form.model[prop_data.prop]", v-if="prop_data.type !== Number")
-            el-form-item(v-for="prop_data in entity.dialog_props_editable.boolean[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog[entity.labels[index]].form.model[prop_data.prop]")
-            el-form-item(v-for="prop_data in entity.dialog_props_editable.selection[entity.labels[index]]", :label="capitalize(prop_data.label ? prop_data.label : prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
-              el-select(v-for="sub_index in range(prop_data.default_length)", v-model="dialog[entity.labels[index]].form.model[prop_data.prop][sub_index]", :key="sub_index")
-                el-option(v-for="sub_entity in data_to_select(prop_data.prop).slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
-              el-button(size="mini", @click="prop_data.default_length++", v-if="prop_data.extendable") #[el-icon(name="plus")]
+          el-form(:model="dialog[label].form.model", :rules="dialog[label].form.rules")
+            el-form-item(label="Name", prop="name")
+              el-input(v-model="dialog[label].form.model.name")
+            el-form-item(label="Available", prop="available", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog[label].form.model.available")
+            el-form-item(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", :prop="sub_label", :key="sub_label", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
+              el-select(multiple, v-model="dialog[label].form.model[sub_label]")
+                el-option(v-for="sub_entity in data_to_select(sub_label)", :key="sub_entity.id", :label="sub_entity.name", :value="sub_entity.id")
         .dialog-footer(slot="footer")
-          el-button(@click="dialog[entity.labels[index]].visible = false") Cancel
-          el-button(type="primary", :loading="dialog[entity.labels[index]].loading", @click="on_create(entity.labels[index])") #[el-icon(name="plus", v-if="!dialog[entity.labels[index]].loading")] Create
-      //el-dialog(v-for="index in range(5)", :title="'Edit '+capitalize(entity.labels_singular[index])", :visible.sync="dialog[entity.labels[index]].edit_visible", :key="index", v-if="!loading")
-        .dialog-body
-          el-form(:model="dialog[entity.labels[index]].edit_form.model", :rules="dialog[entity.labels[index]].form.rules")
-            h3(align="center", v-for="prop_data in entity.dialog_props_unchangeable.input[entity.labels[index]]", :key="prop_data.prop") {{ prop_data.prop }}: {{ dialog[entity.labels[index]].editing ? dialog[entity.labels[index]].editing[prop_data.prop] : '' }}
-            el-form-item(v-for="prop_data in entity.dialog_props_changeable.input[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
-              el-input(type="number", v-model.number="dialog[entity.labels[index]].edit_form.model[prop_data.prop]", v-if="prop_data.type === Number")
-              el-input(v-model="dialog[entity.labels[index]].edit_form.model[prop_data.prop]", v-if="prop_data.type !== Number")
-            el-form-item(v-for="prop_data in entity.dialog_props_changeable.boolean[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog[entity.labels[index]].edit_form.model[prop_data.prop]")
-            el-form-item(v-for="prop_data in entity.dialog_props_changeable.selection[entity.labels[index]]", :label="capitalize(prop_data.prop)", :prop="prop_data.prop", :key="prop_data.prop")
-              el-select(v-for="sub_index in range(prop_data.default_length)", v-model="dialog[entity.labels[index]].edit_form.model[prop_data.prop][sub_index]", :key="sub_index")
-                el-option(v-for="sub_entity in data_to_select(prop_data.prop).slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="sub_entity.id", :value="sub_entity.id", :label="sub_entity.name")
-              el-button(size="mini", @click="prop_data.default_length++", v-if="prop_data.extendable") #[el-icon(name="plus")]
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog[entity.labels[index]].edit_visible = false") Cancel
-          el-button(type="primary", :loading="dialog[entity.labels[index]].edit_loading", @click="on_update(entity.labels[index], entity.labels_singular[index])")  OK
+          el-button(@click="dialog[label].visible = false") Cancel
+          el-button(type="primary", :loading="dialog[label].loading", @click="on_create(label)") #[el-icon(name="plus", v-if="!dialog[label].loading")] Create
 </template>
 
 <script>
@@ -181,169 +142,155 @@ export default {
     'loading-container': loading_container
   },
   data () {
-    let output = {
-      outer_team_collapse: null,
-      entity: {
+    return {
+      labels_singular: {
+        teams: 'team',
+        adjudicators: 'adjudicator',
+        speakers: 'speaker',
+        institutions: 'institution',
+        venues: 'venue'
+      },
+      sub_labels_list: {
+        teams: ['institutions', 'speakers'],
+        adjudicators: ['institutions', 'conflicts'],
+        venues: []
+      },
+      outer_collapse: {
+        team: null,
+        adjudicator: null,
+        venue: null,
+      },
+      collapsed: {
         team: {
+          loading: false,
+          id: null,
           detail: {
             r: null,
-            id: null,
             available: false,
             speakers: [],
             institutions: []
           }
         },
-        labels: ['speakers', 'institutions', 'venues'],
-        labels_singular: {
-          speakers: 'speaker',
-          institutions: 'institution',
-          venues: 'venue'
-        },
-        dialog_props_editable: {
-          input: {
-            speakers: [{
-              prop: 'name'
-            }],
-            institutions: [{
-              prop: 'name'
-            }],
-            venues: [{
-              prop: 'name'
-            }]
-          },
-          boolean: {
-            speakers: [],
-            institutions: [],
-            venues: []
-          },
-          selection: {
-            speakers: [],
-            institutions: [],
-            venues: []
+        adjudicator: {
+          loading: false,
+          id: null,
+          detail: {
+            r: null,
+            available: false,
+            conflicts: [],
+            institutions: []
           }
         },
-        dialog_props_unchangeable: {
-          input: {
-            speakers: [],
-            institutions: [],
-            venues: []
-          }
-        },
-        dialog_props_changeable: {
-          input: {
-            speakers: [{
-              prop: 'name'
-            }],
-            institutions: [{
-              prop: 'name'
-            }],
-            venues: [{
-              prop: 'name'
-            }]
-          },
-          boolean: {
-            speakers: [],
-            institutions: [],
-            venues: []
-          },
-          selection: {
-            adjudicators: [{
-              prop: 'institutions',
-              default_length: 2,
-              extendable: true
-            }],
-            speakers: [],
-            institutions: [],
-            venues: []
+        venue: {
+          loading: false,
+          id: null,
+          detail: {
+            r: null,
+            available: false
           }
         }
       },
       team_selected: undefined,
-      adjudicator_selected: undefined
-    }
-
-    output.dialog = {
-      round: {
-        loading: false,
-        edit_loading: false,
-        visible: false,
-        edit_visible: false,
-        form: {
-          model: {
-            name: '',
-            r: '',
-            team_allocation_opened: true,
-            adjudicator_allocation_opened: true,
-            evaluate_each_other: true,
-            evaluator_in_team: 'team'
+      adjudicator_selected: undefined,
+      dialog: {
+        round: {
+          loading: false,
+          edit_loading: false,
+          visible: false,
+          edit_visible: false,
+          form: {
+            model: {
+              name: '',
+              r: '',
+              round_opened: true,
+              team_allocation_opened: true,
+              adjudicator_allocation_opened: true,
+              evaluate_each_other: true,
+              evaluator_in_team: 'team'
+            }
+          },
+          edit_form: {
+            model: {
+              name: '',
+              r: '',
+              round_opened: true,
+              team_allocation_opened: true,
+              adjudicator_allocation_opened: true,
+              evaluate_each_other: true,
+              evaluator_in_team: 'team'
+            }
+          },
+        },
+        teams: {
+          loading: false,
+          visible: false,
+          form: {
+            model: {
+              name: '',
+              available: true,
+              institutions: [],
+              speakers: []
+            },
+            rules: {}
           }
         },
-        edit_form: {
-          model: {
-            name: '',
-            r: '',
-            team_allocation_opened: true,
-            adjudicator_allocation_opened: true,
-            evaluate_each_other: true,
-            evaluator_in_team: 'team'
+        adjudicators: {
+          loading: false,
+          visible: false,
+          form: {
+            model: {
+              name: '',
+              available: true,
+              institutions: [],
+              conflicts: []
+            },
+            rules: {}
           }
-        }
-      },
-      compile: {
-        entities: [],
-        visible: false,
-        form: {
-          model: {
-            rs: Array(100).fill(false),
-            force: false,
-            simple: false
+        },
+        venues: {
+          loading: false,
+          visible: false,
+          form: {
+            model: {
+              name: '',
+              available: true
+            },
+            rules: {}
+          }
+        },
+        speakers: {
+          loading: false,
+          visible: false,
+          form: {
+            model: {
+              name: ''
+            },
+            rules: {}
+          }
+        },
+        institutions: {
+          loading: false,
+          visible: false,
+          form: {
+            model: {
+              name: ''
+            },
+            rules: {}
+          }
+        },
+        compile: {
+          entities: [],
+          visible: false,
+          form: {
+            model: {
+              rs: Array(100).fill(false),
+              force: false,
+              simple: false
+            }
           }
         }
       }
     }
-    for (let label of output.entity.labels) {
-      let form = {
-        model: {},
-        rules: {}
-      }
-
-      let edit_form = {
-        model: {},
-        rules: {}
-      }
-
-      for (let prop_data of output.entity.dialog_props_editable.input[label]) {
-        form.model[prop_data.prop] = ''
-      }
-      for (let prop_data of output.entity.dialog_props_editable.boolean[label]) {
-        form.model[prop_data.prop] = true
-      }
-      for (let prop_data of output.entity.dialog_props_editable.selection[label]) {
-        form.model[prop_data.prop] = Array(100).fill(null)
-      }
-
-      for (let prop_data of output.entity.dialog_props_changeable.input[label]) {
-        edit_form.model[prop_data.prop] = ''
-      }
-      for (let prop_data of output.entity.dialog_props_changeable.boolean[label]) {
-        edit_form.model[prop_data.prop] = true
-      }
-      for (let prop_data of output.entity.dialog_props_changeable.selection[label]) {
-        edit_form.model[prop_data.prop] = Array(100).fill(null)
-      }
-
-      output.dialog[label] = {
-        loading: false,
-        edit_loading: false,
-        visible: false,
-        edit_visible: false,
-        form,
-        edit_form,
-        editing: null
-      }
-    }
-
-    return output
   },
   computed: {
     ...mapState([
@@ -353,8 +300,9 @@ export default {
       'base_url'
     ]),
     ...mapGetters([
+      'unallocated_speakers',
       'target_tournament',
-      'details_1',
+      'access_detail',
       'entity_name_by_id',
       'entity_by_id',
       'round_name_by_r'
@@ -376,7 +324,6 @@ export default {
     capitalize (p) {
       return p.charAt(0).toUpperCase() + p.slice(1)
     },
-    on_collapse_team (team, r) {
     data_to_select (sub_label, except_team=null, r=null) {
       let data_to_select = []
       if (sub_label === 'speakers') {
@@ -389,18 +336,21 @@ export default {
 
       return data_to_select.slice().sort((e1, e2) => e1.name.localeCompare(e2.name))
     },
+    on_collapse (label_singular, entity, r) {
       if (r === '') {
-        this.entity.team.detail.id = null
+        this.collapsed[label_singular].id = null
       } else {
-        this.entity.team.detail.id = team.id
-        this.entity.team.detail.r = parseInt(r, 10)
-        this.entity.team.detail.available = this.details_1(team, r).available
-        this.entity.team.detail.speakers = this.details_1(team, r).speakers
-        this.entity.team.detail.institutions = this.details_1(team, r).institutions
-      }
-        if (r === '') {
-        } else {
+        this.collapsed[label_singular].id = entity.id
+        this.collapsed[label_singular].detail.r = parseInt(r, 10)
+        this.collapsed[label_singular].detail.available = this.access_detail(entity, r).available
+        if (label_singular === 'team') {
+          this.collapsed[label_singular].detail.speakers = this.access_detail(entity, r).speakers
+          this.collapsed[label_singular].detail.institutions = this.access_detail(entity, r).institutions
+        } else if (label_singular === 'adjudicator') {
+          this.collapsed[label_singular].detail.institutions = this.access_detail(entity, r).institutions
+          this.collapsed[label_singular].detail.conflicts = this.access_detail(entity, r).conflicts
         }
+      }
     },
     warn_entity_detail (label_singular, detail) {
       let warnings = []

@@ -8,7 +8,7 @@
         el-form
           el-form-item(label="Speaker", required, error="Select Speaker's Name")
             el-select(:value="value(side_name, 'speakers', role_order)", @input="on_input_result('speakers', $event)", placeholder="Select Speaker")
-              el-option(v-for="id in details_1(entity_by_id(score_sheet.teams[side_name])).speakers", :key="id", :label="entity_by_id(id).name", :value="id")
+              el-option(v-for="id in access_detail(entity_by_id(score_sheet.teams[side_name]), r_str).speakers", :key="id", :label="entity_by_id(id).name", :value="id")
           el-form-item(label="Matter", required)
             number-box(:value="value(side_name, 'matters', role_order)", @input="on_input_result('matters', $event)", :min="role_range.from", :max="role_range.to", :step="role_range.unit")
           el-form-item(label="Manner", required)
@@ -33,7 +33,7 @@ import input_label from 'components/input-label'
 import loading_container from 'components/loading-container'
 
 export default {
-  props: ['sequence_name', 'score_sheet'],
+  props: ['sequence_name', 'score_sheet', 'r_str'],
   components: {
     'loading-container': loading_container,
     'number-box': number_box,
@@ -70,7 +70,7 @@ export default {
     },
     ...mapGetters([
       'entity_by_id',
-      'details_1',
+      'access_detail',
       'style'
     ]),
     ...mapGetters('ballot', [
