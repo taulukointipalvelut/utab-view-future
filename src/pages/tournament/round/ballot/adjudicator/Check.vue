@@ -52,7 +52,7 @@
     section.buttons(v-if="!loading && !path_valid")
       el-button(@click="on_home") #[i.fa.fa-home] Home
 
-    el-dialog(title="Confirmation", :visible.sync="dialog.check.visible", size="large")
+    el-dialog(title="Confirmation", :visible.sync="dialog.check.visible")
       .dialog-body
         .outer-table-tr.check__label
           p I declare the result is correct.
