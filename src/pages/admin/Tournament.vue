@@ -660,17 +660,25 @@ export default {
           })
           delete entity.available
         }
+    },
+    initialize_qr () {
+      let qr = new qrious({
+        element: document.getElementById('qr'),
+        value: this.view_config.base_url + '/' + this.target_tournament.name,
+        backgroundAlpha: 0,
+        level: 'L',
+        size: 90
+      })
     }
   },
   async mounted () {
     await this.init_one({ tournament: this.target_tournament })
-    let qr = new qrious({
-      element: document.getElementById('qr'),
-      value: this.view_config.base_url + '/' + this.target_tournament.name,
-      backgroundAlpha: 0,
-      level: 'L',
-      size: 90
-    })
+    this.initialize_qr()
+  },
+  watch: {
+    '$route': function () {
+      this.initialize_qr()
+    }
   }
 }
 </script>
