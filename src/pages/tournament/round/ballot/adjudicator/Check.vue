@@ -136,7 +136,7 @@ export default {
         })
     },
     total (side) {
-      return Object.values(this.result[side].matters).reduce((a, b) => a + b, 0) + Object.values(this.result[side].manners).reduce((a, b) => a + b, 0)
+      return this.result[side].matters.reduce((a, b) => a + b.value, 0) + this.result[side].manners.reduce((a, b) => a + b.value, 0)
     }
   },
   filters: {

@@ -57,7 +57,7 @@ export default {
       this.$router.push('check')
     },
     total (side) {
-      return Object.values(this.score_sheet.input_result[side].matters).reduce((a, b) => a + b, 0) + Object.values(this.score_sheet.input_result[side].manners).reduce((a, b) => a + b, 0)
+      return this.result[side].matters.reduce((a, b) => a + b.value, 0) + this.result[side].manners.reduce((a, b) => a + b.value, 0)
     }
   }
 }
