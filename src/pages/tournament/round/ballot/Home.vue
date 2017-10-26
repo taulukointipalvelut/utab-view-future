@@ -8,7 +8,7 @@
         section(v-if="!loading")
           el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
         section(v-if="!loading")
-          el-table(:data="score_sheets", @current-change="on_select", :row-class-name="row_class_name")
+          el-table(:data="score_sheets", @current-change="on_select", :row-class-name="row_class_name", empty-text="No score sheets are available")
             el-table-column(prop="done", label="", width="40", align="center")
               template(slot-scope="scope")
                 span.icon-ok(v-if="scope.row.done")
