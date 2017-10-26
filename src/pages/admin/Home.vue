@@ -139,10 +139,14 @@ export default {
         if (valid) {
           const tournament = Object.assign({}, this.dialog.create.form.model)
           tournament.style = this.styles.find(s => s.id === tournament.style_id)
+          delete tournament.style_id
           this.send_create_tournament({ tournament })
-              .then(() => {
-                  this.dialog.create.loading = false
-                  this.dialog.create.visible = false
+              .then(t => {
+                  this.init_one({ tournament: t })
+                      .then(() => {
+                          this.dialog.create.loading = false
+                          this.dialog.create.visible = false
+                      })
               })
         } else {
           this.dialog.create.loading = false
@@ -194,7 +198,8 @@ export default {
       'send_create_tournament',
       'send_delete_tournament',
       'send_update_tournament',
-      'init_tournaments'
+      'init_tournaments',
+      'init_one'
     ])
   }
 }
