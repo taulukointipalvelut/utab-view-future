@@ -54,4 +54,6 @@ export default {
 
 <style lang="stylus">
   @import "./common"
+  #app
+    -webkit-font-smoothing antialiased
 </style>
