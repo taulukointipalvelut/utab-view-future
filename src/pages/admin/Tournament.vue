@@ -359,6 +359,7 @@ export default {
     async on_update_tournament_name (name) {
       let payload = { tournament: { name, id: this.target_tournament.id } }
       await this.send_update_tournament(payload)
+      this.initialize_qr()
       //this.$router.push({
       //  path: '/admin/'+name
       //})
@@ -654,11 +655,6 @@ export default {
   async mounted () {
     await this.init_one({ tournament: this.target_tournament })
     this.initialize_qr()
-  },
-  watch: {
-    '$route': function () {
-      this.initialize_qr()
-    }
   }
 }
 </script>
