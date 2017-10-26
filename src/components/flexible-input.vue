@@ -1,5 +1,5 @@
 <template lang="pug">
-  div(@click="editing=true").flexible-wrapper
+  div(@click="on_click").flexible-wrapper
     span.flexible-span(v-show="!editing") {{ inner_text }}
     input.flexible-input(ref="input", v-show="editing", v-model="inner_text", @keyup.esc="restore_default", @keydown.enter="update", @blur="restore_default", spellcheck="false")
     el-icon.edit-icon(name="edit", v-show="!editing && !loading")
@@ -30,6 +30,11 @@
       this.inner_text = this.text
     },
     methods: {
+      on_click () {
+        if (!this.loading) {
+          this.editing=true
+        }
+      },
       update () {
         if (this.editing && this.inner_text.length !== 0) {
           this.editing = false
