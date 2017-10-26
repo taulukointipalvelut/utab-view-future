@@ -661,7 +661,7 @@ export default {
         })
     },
     init_one ({ state, commit, dispatch }, payload) {
-        if (payload.tournament === undefined) { return new Promise(() => {}) }
+        if (payload.tournament === undefined) { return new Promise(resolve => resolve()) }
         console.log("init_one called @"+state.route.path)
         let tournament = find_tournament(state, payload)
         return new Promise(async (resolve, reject) => {
