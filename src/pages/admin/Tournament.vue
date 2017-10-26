@@ -4,29 +4,29 @@
       h1(v-if="!loading") #[flexible-input(:text="target_tournament.name", @text-update="on_update_tournament_name")] #[canvas(id='qr', style="float: right; ")]
     loading-container(:loading="loading")
       legend(v-if="!loading") Rounds
-        loading-container(:loading="loading")
-          el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
-            el-table-column(prop="r", label="No.", width="60", align="center")
-            el-table-column(prop="name", label="Name", show-overflow-tooltip)
-              template(slot-scope="scope")
-                flexible-input(:text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)")
-            el-table-column
-              template(slot-scope="scope")
-                div(style="width: 90%; display: inline-flex; justify-content: flex-end; align-items: center;")
-                  el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
-                  el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
-                  el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
-                  el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")]
-                //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
-                //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
-          .operations
-            el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='dialog.compile.visible=true') Compile Results
-            el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+      loading-container(:loading="loading")
+        el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
+          el-table-column(prop="r", label="No.", align="center")
+          el-table-column(prop="name", label="Name")
+            template(slot-scope="scope")
+              flexible-input(:text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)")
+          el-table-column
+            template(slot-scope="scope")
+              div(style="display: inline-flex; justify-content: flex-end; align-items: center;")
+                el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
+                el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+                el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
+                el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")]
+              //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
+              //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
+        .operations
+          el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='dialog.compile.visible=true') Compile Results
+          el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
       legend(v-if="!loading") Check-in
       el-tabs(v-if="!loading")
         el-tab-pane(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :key="label")
-          span(slot="label") {{ capitalize(label) }} #[el-badge(type="mark", :value="target_tournament[label].length")]
+          span.tab-label(slot="label") {{ capitalize(label) }} #[el-badge(type="mark", :value="target_tournament[label].length")]
           loading-container(:loading="loading")
             span(v-if="target_tournament[label].length === 0") No {{ capitalize(label) }} are registered.
             el-collapse.outer-collapse(v-else, accordion, @change="outer_collapse[labels_singular[label]] = $event")
@@ -661,6 +661,9 @@ export default {
 
 <style lang="stylus">
   @import "../../common"
+
+  span.tab-label
+    color rgb(80, 80, 80)
 
   .el-badge__content
     font-size 0.7rem
