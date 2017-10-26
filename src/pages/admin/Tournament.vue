@@ -376,9 +376,9 @@ export default {
     async on_update_tournament_name (name) {
       let payload = { tournament: { name, id: this.target_tournament.id } }
       await this.send_update_tournament(payload)
-      this.$router.push({
-        path: '/admin/'+name
-      })
+      //this.$router.push({
+      //  path: '/admin/'+name
+      //})
     },
     capitalize (p) {
       return p.charAt(0).toUpperCase() + p.slice(1)
@@ -446,7 +446,7 @@ export default {
       let tournament = this.target_tournament
       let model = this.dialog.round.form.model
       let round = Object.assign({}, model)
-      round.href = { path: `/${ tournament.name }/rounds/${ round.r }` }
+      round.href = { path: `/${ tournament.id }/rounds/${ round.r }` }
       if (model.name === '') {
         round.name = 'Round '+round.r
       }
@@ -471,7 +471,7 @@ export default {
       this.dialog.round.edit_loading = true
       const tournament = this.target_tournament
       const round = Object.assign({}, this.dialog.round.edit_form.model)
-      round.href = { path: `/${ tournament.name }/rounds/${ round.r }` }
+      round.href = { path: `/${ tournament.id }/rounds/${ round.r }` }
       this.send_update_round({ tournament, round }).then(() => {
         this.dialog.round.edit_loading = false
         this.dialog.round.edit_visible = false
@@ -543,7 +543,7 @@ export default {
         force: this.dialog[label].force
       }
       payload[label] = [entity]
-      //team.href = { path: `/${ tournament.name }/${ team.name }` }
+      //team.href = { path: `/${ tournament.id }/${ team.name }` }
       await this.send_create_entities(payload)
       this.dialog = dialog_generator()
       this.dialog[label].loading = false

@@ -5,7 +5,7 @@
     loading-container(:loading="loading")
       section
         legend Tournaments
-        el-table(:data="tournaments", @row-dblclick="on_select_tournament", :row-class-name="row_class_name", v-if="!loading && has_tournaments")
+        el-table(:data="tournaments", @row-click="on_select_tournament", :row-class-name="row_class_name", v-if="!loading && has_tournaments")
           el-table-column(prop="id", label="ID", align="center")
           el-table-column(prop="name", label="Name", show-overflow-tooltip, align="center")
           el-table-column(prop="style.name", label="Style", align="center")
@@ -14,8 +14,8 @@
               span {{ num_of_rounds(scope.row.current_round_num, scope.row.total_round_num) }}
           el-table-column(align="right")
             template(slot-scope="scope")
-              el-button(size="small", @click="on_edit(scope.row)", :disabled="auth.usertype !== 'superuser' && !auth.tournaments.includes(scope.row.id)") #[el-icon(name="edit")] Edit
-              el-button(size="small", type="danger", @click="on_delete(scope.row)", :disabled="auth.usertype !== 'superuser' && !auth.tournaments.includes(scope.row.id)") #[el-icon(name="close")] Delete
+              //el-button(size="small", @click="on_edit(scope.row)", :disabled="auth.usertype !== 'superuser' && !auth.tournaments.includes(scope.row.id)") #[el-icon(name="edit")] Edit
+              el-button(size="small", type="danger", @click="on_delete(scope.row)", :disabled="auth.usertype !== 'superuser' && !auth.tournaments.includes(scope.row.id)") #[el-icon(name="close")]
         span(v-if="!loading && !has_tournaments") No Tournaments Available
       .operations(v-if="!loading")
         el-button(type="primary", @click="on_new_tournament") #[el-icon(name="plus")] &nbsp;Create New Tournament
@@ -31,7 +31,7 @@
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
-    el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
+    //el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
       .dialog-body
         el-form(ref="dialog_edit_form", :model="dialog.edit.form.model", :rules="dialog.edit.form.rules")
           h3 Warning: Changing tournament name can make users unable to access the tournament.
@@ -177,7 +177,7 @@ export default {
       if (this.is_organizer(selected)) {
         const path = selected.href.path
         let href = Object.assign({}, selected.href)
-        href.path = path.includes('/adimn') ? path : `/admin${ path }`
+        href.path = path.includes('/admin') ? path : `/admin${ path }`
         this.$router.push(href)
       }
     },

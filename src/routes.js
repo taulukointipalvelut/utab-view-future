@@ -25,7 +25,7 @@ export default [
     },
     children: admin_routes
   }, {
-    path: '/:tournament_name',
+    path: '/:tournament_id',
     component: Tournament,
     props: true,
     children: tournament_routes

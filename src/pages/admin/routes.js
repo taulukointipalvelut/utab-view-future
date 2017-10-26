@@ -8,18 +8,18 @@ export default [{
     path: 'home',
     component: Home
   }, {
-    path: ':tournament_name/home',
+    path: ':tournament_id/home',
     props: true,
     component: Tournament
   }, {
-    path: ':tournament_name',
-    redirect: ':tournament_name/home'
+    path: ':tournament_id',
+    redirect: ':tournament_id/home'
   }, {
-    path: ':tournament_name/rounds/:r_str/allocation',
+    path: ':tournament_id/rounds/:r_str/allocation',
     props: true,
     component: Allocation
   }, {
-    path: ':tournament_name/result',
+    path: ':tournament_id/result',
     props: true,
     component: Result,
     children: result_routes

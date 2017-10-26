@@ -137,7 +137,7 @@ export default {
         }
     },
     target_tournament (state) {
-      return state.tournaments.find(t => t.name === state.route.params.tournament_name)
+      return state.tournaments.find(t => t.id === parseInt(state.route.params.tournament_id, 10))
     },
     target_draw (state, getters) {
         return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str, 10))
@@ -410,7 +410,7 @@ export default {
         let tournament = {
           id: payload.tournament.id,
           name: payload.tournament.name,
-          href: { path: '/'+payload.tournament.name },
+          href: { path: '/'+payload.tournament.id },
           style: payload.tournament.style,
           rounds: [],
           teams: [],
@@ -562,7 +562,7 @@ export default {
                 let tournaments = []
                 for (let t of data) {
                     let tournament = Object.assign({}, t)
-                    tournament.href = { path: '/'+tournament.name }
+                    tournament.href = { path: '/'+tournament.id }
                     tournament.rounds = []
                     tournament.teams = []
                     tournament.adjudicators = []
@@ -606,7 +606,7 @@ export default {
                     const rounds = []
                     for (let round_fetched of data) {
                         let round = Object.assign({}, round_fetched)
-                        round.href = { path: '/'+t.name+'/rounds/'+round_fetched.r }
+                        round.href = { path: '/'+t.id+'/rounds/'+round_fetched.r }
                         rounds.push(round)
                     }
                     commit('rounds', { tournament: t, rounds })
