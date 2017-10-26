@@ -1,13 +1,15 @@
 <template lang="pug">
   .router-view-content
     div
-      h1(v-if="!loading") #[flexible-input(:original_text="target_tournament.name", @text-update="on_update_tournament_name")] #[canvas(id='qr', style="float: right; ")]
+      h1(v-if="!loading") #[flexible-input(:text="target_tournament.name", @text-update="on_update_tournament_name")] #[canvas(id='qr', style="float: right; ")]
     loading-container(:loading="loading")
       legend(v-if="!loading") Rounds
         loading-container(:loading="loading")
           el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
             el-table-column(prop="r", label="No.", width="60", align="center")
             el-table-column(prop="name", label="Name", show-overflow-tooltip)
+              template(slot-scope="scope")
+                flexible-input(:text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)")
             el-table-column
               template(slot-scope="scope")
                 div(style="width: 90%; display: inline-flex; justify-content: flex-end; align-items: center;")
@@ -31,9 +33,8 @@
               el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
                 template(slot="title")
                   div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
-                    span {{ entity_name_by_id(entity.id) }}
+                    span #[flexible-input(:text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, $event)")]
                     div
-                      el-button(size="small", @click="on_edit(label, entity)") #[el-icon(name="edit")]
                       el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
                 el-collapse.inner-collapse(accordion, @change="on_collapse(labels_singular[label], entity, $event)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
                   el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
@@ -100,9 +101,7 @@
         .dialog-body
           el-form(:model="dialog.round.edit_form.model")
             el-form-item(label="Round No.")
-              el-input(:readonly="true", :value="dialog.round.edit_form.model.r")
-            el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.round.edit_form.model.name")
+              span {{ dialog.round.edit_form.model.r }}
             el-form-item(label="Round Opened", prop="round_opened")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.round_opened")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
@@ -136,15 +135,6 @@
         .dialog-footer(slot="footer")
           el-button(@click="dialog[label].visible = false") Cancel
           el-button(type="primary", :loading="dialog[label].loading", @click="on_create(label)") #[el-icon(name="plus", v-if="!dialog[label].loading")] Create
-
-      el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'Edit '+capitalize(labels_singular[label])", :visible.sync="dialog[label].edit_visible", :key="label", v-if="!loading")
-        .dialog-body
-          el-form(:model="dialog[label].edit_form.model")
-            el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog[label].edit_form.model.name")
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog[label].edit_visible = false") Cancel
-          el-button(type="primary", :loading="dialog[label].edit_loading", @click="on_update(label, labels_singular[label])") #[el-icon(name="plus", v-if="!dialog[label].edit_loading")] OK
 </template>
 
 <script>
@@ -180,7 +170,6 @@ function dialog_generator () {
       },
       edit_form: {
         model: {
-          name: '',
           r: '',
           user_defined_data: {
             round_opened: true,
@@ -196,10 +185,7 @@ function dialog_generator () {
     teams: {
       loading: false,
       visible: false,
-      edit_loading: false,
-      edit_visible: false,
       force: false,
-      edit_form: { model: { id: null, name: '' } },
       form: {
         model: {
           name: '',
@@ -213,10 +199,7 @@ function dialog_generator () {
     adjudicators: {
       loading: false,
       visible: false,
-      edit_loading: false,
-      edit_visible: false,
       force: false,
-      edit_form: { model: { id: null, name: '' } },
       form: {
         model: {
           name: '',
@@ -230,10 +213,7 @@ function dialog_generator () {
     venues: {
       loading: false,
       visible: false,
-      edit_loading: false,
-      edit_visible: false,
       force: false,
-      edit_form: { model: { id: null, name: '' } },
       form: {
         model: {
           name: '',
@@ -245,10 +225,7 @@ function dialog_generator () {
     speakers: {
       loading: false,
       visible: false,
-      edit_loading: false,
-      edit_visible: false,
       force: false,
-      edit_form: { model: { id: null, name: '' } },
       form: {
         model: {
           name: ''
@@ -259,10 +236,7 @@ function dialog_generator () {
     institutions: {
       loading: false,
       visible: false,
-      edit_loading: false,
-      edit_visible: false,
       force: false,
-      edit_form: { model: { id: null, name: '' } },
       form: {
         model: {
           name: ''
@@ -471,11 +445,18 @@ export default {
       this.dialog.round.edit_loading = true
       const tournament = this.target_tournament
       const round = Object.assign({}, this.dialog.round.edit_form.model)
-      round.href = { path: `/${ tournament.id }/rounds/${ round.r }` }
       this.send_update_round({ tournament, round }).then(() => {
         this.dialog.round.edit_loading = false
         this.dialog.round.edit_visible = false
       })
+    },
+    on_update_round_name (round, name) {
+      const tournament = this.target_tournament
+      const dict = {
+        r: round.r,
+        name
+      }
+      this.send_update_round({ tournament, round: dict })
     },
     async on_save_detail (label, label_singular) {
       this.collapsed[label_singular].loading = true
@@ -549,26 +530,16 @@ export default {
       this.dialog[label].loading = false
       this.dialog[label].visible = false
     },
-    on_edit (label, entity) {
-      Object.assign(this.dialog[label].edit_form.model, entity)
-      this.dialog[label].edit_visible = true
-    },
-    async on_update (label, label_singular) {
-      this.dialog[label].edit_loading = true
-
+    async on_update (label, label_singular, entity, name) {
       const tournament = this.target_tournament
-      let model = this.dialog[label].edit_form.model
-      let entity = { id: model.id, name: model.name }
+      let dict = { id: entity.id, name }
       let payload = {
         tournament,
         label,
         label_singular
       }
-      payload[label_singular] = entity
+      payload[label_singular] = dict
       await this.send_update_entity(payload)
-      this.dialog = dialog_generator()
-      this.dialog[label].edit_loading = false
-      this.dialog[label].edit_visible = false
     },
     async on_delete (label, label_singular, selected) {
       let warnings = {
@@ -585,7 +556,7 @@ export default {
         venues: [],
         adjudicators: []
       }
-      const ans = await this.$confirm('Are you sure?'+warnings[label])
+      const ans = await this.$confirm('Are you sure? You can NOT undo this operation. '+warnings[label])
       if (ans === 'confirm') {
         const tournament = this.target_tournament
         let payload = {
