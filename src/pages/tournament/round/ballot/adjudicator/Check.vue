@@ -46,7 +46,7 @@
 
     section.buttons(v-if="!loading && path_valid")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="dialog.check.visible = true") OK
+      el-button(type="primary" @click="dialog.check.visible = true", :disabled="!proceedable") {{ proceedable ? 'OK' : 'Low-Win/Tie-Win' }}
 
     p(v-if="!loading && !path_valid", style="text-align: center;") Sorry, you seem to have reloaded this page. Please try again.
     section.buttons(v-if="!loading && !path_valid")
@@ -87,6 +87,14 @@ export default {
     }
   },
   computed: {
+    is_low_tie_win () {
+      let win_side = this.score_sheet.teams.gov === this.result.winner ? 'gov' : 'opp'
+      let lose_side = win_side === 'gov' ? 'opp' : 'gov'
+      return this.total(win_side) - this.total(lose_side) <= 0
+    },
+    proceedable () {
+      return this.target_round.user_defined_data.allow_low_tie_win || !this.is_low_tie_win
+    },
     ...mapState([
       'auth',
       'loading'
@@ -94,6 +102,7 @@ export default {
     ...mapGetters([
       'entity_name_by_id',
       'target_tournament',
+      'target_round',
       'style'
     ]),
     ...mapGetters('ballot', [

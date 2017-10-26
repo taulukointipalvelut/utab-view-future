@@ -90,6 +90,8 @@
               el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round.form.model.user_defined_data.evaluate_each_other")
             el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.chairs_always_evaluated")
+            el-form-item(label="Allow Low-Win/Tie-Win", prop="allow_low_tie_win")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.allow_low_tie_win")
             el-form-item(label="Evaluator in Team", prop="evaluator_in_team")
               el-select(v-model="dialog.round.form.model.user_defined_data.evaluator_in_team")
                 el-option(v-for="index in range(3)", :key="index", :value="['team', 'speaker', null][index]", :label="['One', 'All', 'None'][index]")
@@ -114,6 +116,8 @@
               el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round.edit_form.model.user_defined_data.evaluate_each_other")
             el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.chairs_always_evaluated")
+            el-form-item(label="Allow Low Win/Tie Win", prop="allow_low_tie_win")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.allow_low_tie_win")
             el-form-item(label="Evaluator in Team", prop="evaluator_in_team")
               el-select(v-model="dialog.round.edit_form.model.user_defined_data.evaluator_in_team")
                 el-option(v-for="index in range(3)", :key="index", :value="['team', 'speaker', null][index]", :label="['One', 'All', 'None'][index]")
@@ -166,6 +170,7 @@ function dialog_generator () {
             adjudicator_allocation_opened: true,
             evaluate_each_other: true,
             chairs_always_evaluated: false,
+            allow_low_tie_win: true,
             evaluator_in_team: 'team'
           }
         }
@@ -180,6 +185,7 @@ function dialog_generator () {
             adjudicator_allocation_opened: true,
             evaluate_each_other: true,
             chairs_always_evaluated: false,
+            allow_low_tie_win: true,
             evaluator_in_team: 'team'
           }
         }
