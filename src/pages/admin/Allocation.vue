@@ -5,7 +5,7 @@
       h3(v-if="!loading") {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
     section(v-if="style")
       loading-container(:loading="loading")
-        el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border)
+        el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border, empty-text="Need More Teams")
           el-table-column(label="Venue")
             template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row.venues", :options="venue_options")
@@ -238,6 +238,7 @@ export default {
       'target_tournament',
       'entity_by_id',
       'entity_name_by_id',
+      'available_teams',
       'target_round',
       'target_draw',
       'draw_time',
@@ -657,7 +658,7 @@ export default {
         }
 
         if (no_draw) {
-            for (let square of Array(Math.floor(tournament.teams.length/2))) {
+            for (let square of Array(Math.floor(this.available_teams(this.r_str).length/2))) {
                 this.draw_adjusted.allocation.push({
                     venues: [],
                     teams: {
