@@ -1,15 +1,15 @@
 <template lang="pug">
   .router-view-content
     div
-      h1(v-if="!loading") #[flexible-input(:text="target_tournament.name", @text-update="on_update_tournament_name")] #[canvas(id='qr', style="float: right; ")]
+      h1(v-if="!loading") #[flexible-input(:loading="input_loading(target_tournament.id)", :text="target_tournament.name", @text-update="on_update_tournament_name", @start="flexible_input.identity=target_tournament.id")] #[canvas(id='qr', style="float: right; ")]
     loading-container(:loading="loading")
       legend(v-if="!loading") Rounds
       loading-container(:loading="loading")
-        el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", @row-click="on_select_round")
+        el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)")
           el-table-column(prop="r", label="No.", align="center")
           el-table-column(prop="name", label="Name")
             template(slot-scope="scope")
-              flexible-input(:text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)")
+              flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r")
           el-table-column
             template(slot-scope="scope")
               div(style="display: inline-flex; justify-content: flex-end; align-items: center;")
@@ -33,7 +33,7 @@
               el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
                 template(slot="title")
                   div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
-                    span #[flexible-input(:text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, $event)")]
+                    span #[flexible-input(:loading="input_loading(entity.id)", :text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, $event)", @start="flexible_input.identity=entity.id")]
                     div
                       el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
                 el-collapse.inner-collapse(accordion, @change="on_collapse(labels_singular[label], entity, $event)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
@@ -274,6 +274,10 @@ export default {
   },
   data () {
     return {
+      flexible_input: {
+        identity: null,
+        loading: false
+      },
       labels_singular: {
         teams: 'team',
         adjudicators: 'adjudicator',
@@ -356,10 +360,15 @@ export default {
       'next_round'
     ]),
     range: math.range,
+    input_loading (identity) {
+      return this.flexible_input.identity === identity ? this.flexible_input.loading : false
+    },
     async on_update_tournament_name (name) {
       let payload = { tournament: { name, id: this.target_tournament.id } }
+      this.flexible_input.loading = true
       await this.send_update_tournament(payload)
       this.initialize_qr()
+      this.flexible_input.loading = false
       //this.$router.push({
       //  path: '/admin/'+name
       //})
@@ -421,10 +430,6 @@ export default {
         path: 'result/raw/'+selected.r
       })
     },
-    on_select_round (selected, ev, col) {
-      console.log("preparing")
-      //this.$router.push(selected.href)
-    },
     on_create_round () {
       this.dialog.round.loading = true
       let tournament = this.target_tournament
@@ -455,10 +460,11 @@ export default {
       this.dialog.round.edit_loading = true
       const tournament = this.target_tournament
       const round = Object.assign({}, this.dialog.round.edit_form.model)
-      this.send_update_round({ tournament, round }).then(() => {
-        this.dialog.round.edit_loading = false
-        this.dialog.round.edit_visible = false
-      })
+      this.send_update_round({ tournament, round })
+          .then(() => {
+              this.dialog.round.edit_loading = false
+              this.dialog.round.edit_visible = false
+          })
     },
     on_update_round_name (round, name) {
       const tournament = this.target_tournament
@@ -466,7 +472,11 @@ export default {
         r: round.r,
         name
       }
+      this.flexible_input.loading = true
       this.send_update_round({ tournament, round: dict })
+          .then(() => {
+              this.flexible_input.loading = false
+          })
     },
     async on_save_detail (label, label_singular) {
       this.collapsed[label_singular].loading = true
@@ -549,7 +559,9 @@ export default {
         label_singular
       }
       payload[label_singular] = dict
+      this.flexible_input.loading = true
       await this.send_update_entity(payload)
+      this.flexible_input.loading = false
     },
     async on_delete (label, label_singular, selected) {
       let warnings = {
