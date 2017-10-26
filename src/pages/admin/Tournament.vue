@@ -559,7 +559,7 @@ export default {
         venues: [],
         adjudicators: []
       }
-      const ans = await this.$confirm('Are you sure? You can NOT undo this operation. '+warnings[label])
+      const ans = await this.$confirm('Are you sure? You can NOT undo this operation. '+warnings[label]+'\nWarning: Removal after draw creation may cause a severe crash.')
       if (ans === 'confirm') {
         const tournament = this.target_tournament
         let payload = {

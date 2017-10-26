@@ -483,6 +483,7 @@ export default {
          return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
             .then(tournament => {
                 commit('add_tournament', { tournament })
+                return tournament
             })
       },
       send_delete_tournament ({state, commit, dispatch}, payload) {
