@@ -431,6 +431,12 @@ export default {
     delete_tournament (state, payload) {
       state.tournaments = state.tournaments.filter(t => t.id !== payload.tournament.id)
     },
+    update_tournament (state, payload) {
+      let tournament = find_tournament(state, payload)
+      for (let key in payload.tournament) {
+          tournament[key] = payload.tournament[key]
+      }
+    },
     /* tournaments */
     draws: replace_factory('draws'),
     rounds: replace_factory('rounds'),
@@ -492,10 +498,7 @@ export default {
       },
       send_update_tournament ({state, commit, dispatch}, payload) {
          return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id, payload.tournament)
-            .then(tournament => {
-                commit('delete_tournament', { tournament })
-                commit('add_tournament', { tournament })
-            })
+            .then(() => commit('update_tournament', payload))
       },
       send_create_round ({state, commit, dispatch}, payload) {
           return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds', payload.round)
