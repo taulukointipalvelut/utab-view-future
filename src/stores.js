@@ -254,7 +254,7 @@ export default {
       } else {
           return {
               updated: true,
-              text: 'Draw Updated at '+date.toLocaleTimeString()
+              text: 'Updated at '+date.toLocaleTimeString('en-US', { hour12: false })
           }
       }
     },
