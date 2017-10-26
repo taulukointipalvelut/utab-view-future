@@ -763,7 +763,7 @@ export default {
     transition-timing-function ease
     transition all 0.4s
     //border 2px solid #F7B82A
-    background-color gray
+    background-color lightgray
 
   .sided
     transition-timing-function ease
