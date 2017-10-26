@@ -75,6 +75,9 @@
             h3(align="center", v-if="dialog.team_result.form.model.from_id !== null") Adjudicator: {{ entity_name_by_id(dialog.team_result.form.model.from_id) }}
             el-form-item(label="Win", prop="win")
               el-input-number(:min="0", :max="1", v-model="dialog.team_result.form.model.win")
+            el-form-item(label="Side", prop="side")
+              el-select(v-model="dialog.team_result.form.model.side")
+                el-option(v-for="side in ['gov', 'opp']", :value="side", :label="capitalize(side)", :key="side")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.team_result.visible = false") Cancel
           el-button(type="primary", :loading="dialog.team_result.loading", @click="on_update('teams', 'team')") #[el-icon(name="plus", v-if="!dialog.team_result.loading")] OK
@@ -84,11 +87,23 @@
           el-form(:model="dialog.speaker_result.form.model")
             h3(align="center", v-if="dialog.speaker_result.form.model.id !== null") Speaker: {{ entity_name_by_id(dialog.speaker_result.form.model.id) }}
             h3(align="center", v-if="dialog.speaker_result.form.model.from_id !== null") Adjudicator: {{ entity_name_by_id(dialog.speaker_result.form.model.from_id) }}
-            //el-form-item(label="Scores", prop="scores")
-              el-input(v-for="index in range(dialog.speaker_result.form.model.scores.length)", :key="index", v-model="dialog.speaker_result.form.model.scores[index]", style="width: 3rem")
+            el-form-item(v-for="score in dialog.speaker_result.form.model.scores", :key="score.order", :label="ordinal(score.order)")
+              el-input-number(:value="score.value", @change="input_score(dialog.speaker_result.form.model.scores, score.order, $event)")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.speaker_result.visible = false") Cancel
           el-button(type="primary", :loading="dialog.speaker_result.loading", @click="on_update('speakers', 'speaker')") #[el-icon(name="plus", v-if="!dialog.speaker_result.loading")] OK
+
+
+      el-dialog(title="Edit Result", :visible.sync="dialog.adjudicator_result.visible", v-if="!loading")
+        .dialog-body
+          el-form(:model="dialog.adjudicator_result.form.model")
+            h3(align="center", v-if="dialog.adjudicator_result.form.model.id !== null") Team: {{ entity_name_by_id(dialog.adjudicator_result.form.model.id) }}
+            h3(align="center", v-if="dialog.adjudicator_result.form.model.from_id !== null") Adjudicator: {{ entity_name_by_id(dialog.adjudicator_result.form.model.from_id) }}
+            el-form-item(label="Score", prop="score")
+              el-input-number(v-model="dialog.adjudicator_result.form.model.score")
+        .dialog-footer(slot="footer")
+          el-button(@click="dialog.adjudicator_result.visible = false") Cancel
+          el-button(type="primary", :loading="dialog.adjudicator_result.loading", @click="on_update('adjudicators', 'adjudicator')") #[el-icon(name="plus", v-if="!dialog.adjudicator_result.loading")] OK
 </template>
 
 <script>
@@ -113,8 +128,7 @@ export default {
             model: {
               r: null,
               id: null,
-              weight: null,
-              side: null,
+              side: '',
               opponents: [],
               win: null,
               from_id: null
@@ -129,7 +143,18 @@ export default {
               r: null,
               id: null,
               scores: [],
-              weight: null,
+              from_id: null
+            }
+          },
+          loading: false,
+          visible: false
+        },
+        adjudicator_result: {
+          form: {
+            model: {
+              r: null,
+              id: null,
+              score: null,
               from_id: null
             }
           },
@@ -182,6 +207,13 @@ export default {
       'send_delete_result',
       'init_one'
     ]),
+    capitalize: math.capitalize,
+    input_score(scores, order, value) {
+      let index = scores.findIndex(s => s.order === order)
+      let score = Object.assign({}, scores[index])
+      score.value = value
+      this.$set(scores, index, score)
+    },
     adjudicator_result_sender (from_id) {
       return this.entity_name_by_id(from_id)
     },
@@ -280,7 +312,11 @@ export default {
     transfer (to, from) {
       for (let key in to) {
         if (from.hasOwnProperty(key)) {
-          to[key] = from[key]
+          if (Array.isArray(from[key])) {
+            to[key] = from[key].slice()
+          } else {
+            to[key] = from[key]
+          }
         }
       }
     },
