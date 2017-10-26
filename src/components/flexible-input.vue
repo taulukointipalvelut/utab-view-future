@@ -42,6 +42,9 @@
             this.$refs.input.focus()
           })
         }
+      },
+      text (val) {
+        this.inner_text = val
       }
     }
   }
