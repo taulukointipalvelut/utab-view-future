@@ -102,6 +102,8 @@
           el-form(:model="dialog.round.edit_form.model")
             el-form-item(label="Round No.")
               span {{ dialog.round.edit_form.model.r }}
+            el-form-item(label="Name", prop="name")
+              el-input(v-model="dialog.round.edit_form.model.name", :placeholder="'Round '+dialog.round.edit_form.model.r")
             el-form-item(label="Round Opened", prop="round_opened")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.round_opened")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
@@ -171,6 +173,7 @@ function dialog_generator () {
       edit_form: {
         model: {
           r: '',
+          name: '',
           user_defined_data: {
             round_opened: true,
             team_allocation_opened: true,
