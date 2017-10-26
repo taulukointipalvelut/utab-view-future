@@ -63,8 +63,8 @@ export default {
       opp: this.style.roles.opp.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => r.abbr),
     }
     let score_default = {
-      gov: this.style.range.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => r.default),
-      opp: this.style.range.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => r.range.default)
+      gov: this.style.range.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => r.value.default),
+      opp: this.style.range.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => r.value.default)
     }
     let sub_prize_default = {
       gov: this.style.roles.gov.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => false),
