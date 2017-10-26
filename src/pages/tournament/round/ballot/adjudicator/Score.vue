@@ -57,7 +57,7 @@ export default {
       return parseInt(this.sequence_name.split('-')[1].toLocaleLowerCase(), 10)
     },
     role_range () {
-      return this.style.roles[this.side_name].find(r => r.order === this.role_order).range
+      return this.style.range.find(r => r.order === this.role_order)
     },
     role_name () {
       return this.style.roles[this.side_name].find(r => r.order === this.role_order).abbr

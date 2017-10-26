@@ -58,19 +58,17 @@ export default {
     ]),
   },
   mounted () {
-    let gov_roles = this.style.roles.gov
-    let opp_roles = this.style.roles.opp
     let role_names = {
-      gov: gov_roles.map(r => r.abbr),
-      opp: opp_roles.map(r => r.abbr),
+      gov: this.style.roles.gov.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => r.abbr),
+      opp: this.style.roles.opp.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => r.abbr),
     }
     let score_default = {
-      gov: this.style.roles.gov.map(r => r.range.default),
-      opp: this.style.roles.opp.map(r => r.range.default)
+      gov: this.style.range.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => r.default),
+      opp: this.style.range.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => r.range.default)
     }
     let sub_prize_default = {
-      gov: this.style.roles.gov.map(r => false),
-      opp: this.style.roles.opp.map(r => false)
+      gov: this.style.roles.gov.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => false),
+      opp: this.style.roles.opp.slice().sort((a, b) => a.order > b.order ? 1 : -1).map(r => false)
     }
     let payload = {
       len: this.style.score_weights.length,
