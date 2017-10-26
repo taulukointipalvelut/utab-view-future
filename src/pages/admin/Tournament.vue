@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content
     div
-      h1(v-if="!loading") {{ target_tournament.name }} #[canvas(id='qr', style="float: right; ")]
+      h1(v-if="!loading") #[flexible-input(:original_text="target_tournament.name", @text-update="on_update_tournament_name")] #[canvas(id='qr', style="float: right; ")]
     loading-container(:loading="loading")
       legend(v-if="!loading") Rounds
         loading-container(:loading="loading")
@@ -39,7 +39,7 @@
                   el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
                     template(slot="title")
                       span(:style="detail.available ? '' : 'color: red;'") {{ round_name_by_r(detail.r) }} #[el-icon(name="warning", v-if="warn_entity_detail(detail).length > 0")] {{ warn_entity_detail(labels_singular[label], detail).join(',') }}
-                    el-table.inner-table(:data="[collapsed[labels_singular[label]].detail]", v-if="collapsed[labels_singular[label]].id !== null", :border="true")
+                    el-table.inner-table(:data="[collapsed[labels_singular[label]].detail]", v-if="collapsed[labels_singular[label]].id !== null")
                       el-table-column(label="Available", align="center")
                         template(slot-scope="scope")
                           el-switch(v-model="collapsed[labels_singular[label]].detail.available", on-text="", off-text="")
@@ -151,6 +151,7 @@
 /* @flow */
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
+import flexible_input from 'components/flexible-input'
 import Lazy from 'assets/js/lazy'
 import math from 'assets/js/math'
 import { validators, not, is_integer, is_nonzero, is_positive, exists } from 'assets/js/form-validator'
@@ -285,7 +286,8 @@ function dialog_generator () {
 
 export default {
   components: {
-    'loading-container': loading_container
+    'loading-container': loading_container,
+    'flexible-input': flexible_input
   },
   data () {
     return {
@@ -359,6 +361,7 @@ export default {
   },
   methods: {
     ...mapActions([
+      'send_update_tournament',
       'send_create_round',
       'send_delete_round',
       'send_create_entities',
@@ -370,6 +373,13 @@ export default {
       'next_round'
     ]),
     range: math.range,
+    async on_update_tournament_name (name) {
+      let payload = { tournament: { name, id: this.target_tournament.id } }
+      await this.send_update_tournament(payload)
+      this.$router.push({
+        path: '/admin/'+name
+      })
+    },
     capitalize (p) {
       return p.charAt(0).toUpperCase() + p.slice(1)
     },
