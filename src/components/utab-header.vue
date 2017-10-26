@@ -1,5 +1,5 @@
 <template lang="pug">
-  header(:data-nav-opened="nav_opened")
+  header(:data-nav-opened="nav_opened").header-wrapper
     .header-container
       #title
         span.nav-icon
@@ -130,9 +130,9 @@
   $header_height = 4rem
   $line_height = $header_height - 2rem
 
-  header
-    //position fixed
-    //z-index 3
+  header.header-wrapper
+    position fixed
+    z-index 3
     background $primary-color
     margin 0
     padding-bottom 0.5rem
@@ -231,7 +231,8 @@
     $line_height = $header_height - 3.5rem
     $caret_size = 8px
 
-    header
+    header.header-wrapper
+      position fixed
       justify-content space-between
       height $header_height
 
@@ -282,7 +283,7 @@
       & nav
         display none
         width 100%
-        min-height 100vh
+        //min-height 100vh
         flex-basis 100%
         text-align left
         background $primary-color
