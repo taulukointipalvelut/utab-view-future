@@ -81,7 +81,7 @@ export default {
     value (state) {
         return function (side, label, order) {
             let target = state.result[side][label].find(r => r.order === order)
-            return target.value
+            return target === undefined ? null : target.value
         }
     }
   },

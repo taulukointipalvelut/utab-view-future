@@ -6,7 +6,7 @@ const BASE_URL = 'http://localhost'
 const API_BASE_URL = BASE_URL + '/api'
 
 function find_tournament (state, payload) {
-    return state.tournaments.find(t => t.name === payload.tournament.name)
+    return state.tournaments.find(t => t.id === payload.tournament.id)
 }
 
 function treat_reponse (promise, commit) {
@@ -394,13 +394,9 @@ export default {
             }
         }
     },
-    /* tournaments */
+    /* errors */
     errors (state, payload) {
       state.errors = payload.errors
-    },
-    /* tournaments */
-    tournaments (state, payload) {
-      state.tournaments = payload.tournaments
     },
     /* styles */
     styles (state, payload) {
@@ -417,6 +413,7 @@ export default {
           adjudicators: [],
           speakers: [],
           venues: [],
+          institutions: [],
           draws: [],
           raw_team_results: [],
           raw_speaker_results: [],
@@ -580,9 +577,8 @@ export default {
                     tournament.compiled_speaker_results = []
                     tournament.compiled_team_results = []
                     tournament.compiled_adjudicator_results = []
-                    tournaments.push(tournament)
+                    commit('add_tournament', { tournament })
                 }
-                commit('tournaments', { tournaments })
             })
     },
     load_styles ({ state, commit, dispatch }, payload) {
@@ -665,6 +661,7 @@ export default {
         })
     },
     init_one ({ state, commit, dispatch }, payload) {
+        if (payload.tournament === undefined) { return new Promise(() => {}) }
         console.log("init_one called @"+state.route.path)
         let tournament = find_tournament(state, payload)
         return new Promise(async (resolve, reject) => {
