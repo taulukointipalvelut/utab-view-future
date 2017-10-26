@@ -118,7 +118,7 @@ export default {
             sorted_results.push({
                 name: result.name,
                 ranking: result.ranking,
-                place: math.place(ranking),
+                place: math.ordinal(ranking),
                 sub_names: this.sub_label ? result[this.sub_label] : [],
                 tie: tie_rankings.includes(ranking)
             })

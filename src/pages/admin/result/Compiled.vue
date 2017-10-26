@@ -207,7 +207,7 @@ export default {
       let organized_results = results.map(result => Object.assign({}, result))
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
-        result.place = math.place(result.ranking)
+        result.place = math.ordinal(result.ranking)
       }
       this.download_results_as_csv('team_results.csv', organized_results, ['ranking', 'place', 'name', 'win', 'sum', 'margin', 'vote', 'sd'], ['Ranking', 'Place', 'Name', 'Win', 'Sum', 'Margin', 'Vote', 'StDev'])
     },
@@ -217,7 +217,7 @@ export default {
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
         result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
-        result.place = math.place(result.ranking)
+        result.place = math.ordinal(result.ranking)
       }
       this.download_results_as_csv('speaker_results.csv', organized_results, ['ranking', 'place', 'name', 'team_name', 'average', 'sum', 'sd'], ['Ranking', 'Place', 'Name', 'Team', 'Average', 'Sum', 'StDev'])
     },
@@ -226,7 +226,7 @@ export default {
       let organized_results = results.map(result => Object.assign({}, result))
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
-        result.place = math.place(result.ranking)
+        result.place = math.ordinal(result.ranking)
         //result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
       }
       this.download_results_as_csv('adjudicator_results.csv', organized_results, ['ranking', 'place', 'name', 'average', 'sd'], ['Ranking', 'Place', 'Name', 'Average', 'StDev'])
@@ -237,7 +237,7 @@ export default {
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
         result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
-        result.place = math.place(result.ranking)
+        result.place = math.ordinal(result.ranking)
       }
       this.download_results_as_csv({poi: "poi", best: "best_speaker"}[sub_prize]+'_results.csv', organized_results, ['ranking', 'place', 'name', 'team_name', sub_prize], ['Ranking', 'Place', 'Name', 'Team', head])
     },

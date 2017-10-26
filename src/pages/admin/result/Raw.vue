@@ -185,17 +185,7 @@ export default {
     adjudicator_result_sender (from_id) {
       return this.entity_name_by_id(from_id)
     },
-    ordinal (order) {
-      if (order === 1) {
-        return '1st'
-      } else if (order === 2) {
-        return '2nd'
-      } else if (order === 3) {
-        return '3rd'
-      } else {
-        return order + 'th'
-      }
-    },
+    ordinal: math.ordinal,
     score (scores, order) {
       return scores.find(sc => sc.order === order).value
     },

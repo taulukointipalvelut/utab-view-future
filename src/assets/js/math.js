@@ -80,18 +80,18 @@ function common (list1, list2) {
 }
 
 
-function place (ranking) {
-    let place = ""
-    if (ranking === 1) {
-        place = "1st"
-    } else if (ranking === 2) {
-        place = "2nd"
-    } else if (ranking === 3){
-        place = "3rd"
+function ordinal (order) {
+    let ordinal = ""
+    if (order === 1) {
+        ordinal = "1st"
+    } else if (order === 2) {
+        ordinal = "2nd"
+    } else if (order === 3){
+        ordinal = "3rd"
     } else {
-        place = ranking+"th"
+        ordinal = order+"th"
     }
-    return place
+    return ordinal
 }
 
 
@@ -106,5 +106,5 @@ exports.capitalize = capitalize
 exports.query_from_obj = query_from_obj
 exports.count = count
 exports.pairs = pairs
-exports.place = place
+exports.ordinal = ordinal
 exports.elapsed_string = elapsed_string
