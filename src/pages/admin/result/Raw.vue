@@ -6,65 +6,77 @@
       p(v-if="!loading && adjudicators_ss_unsubmitted.length > 0") These adjudicators have not sent the score sheets: #[font(size="4", color="red") {{ adjudicators_ss_unsubmitted.map(entity_name_by_id).join(", ") }}]
       p(v-if="!loading && entities_es_unsubmitted.length > 0") These adjudicators/teams have not sent the evaluation sheets: #[font(size="4", color="red") {{ entities_es_unsubmitted.map(entity_name_by_id).join(", ") }}]
       //p(v-if="!loading && adjudicators_ss_unsubmitted.length === adjudicators_ss_watching.length && adjudicators_ss_watching.length !== 0") Score sheets are not collected yet.
-      el-tabs(type="card")
+      el-tabs
         el-tab-pane(label="Collected raw Team results")
           section(v-if="!loading")
-            el-table(:data="raw_team_results_by_r(r_str)")
-              el-table-column(prop="id", label="Name", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ entity_name_by_id(scope.row.id) }}
-              el-table-column(prop="win", label="Win", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.win }}
-              el-table-column(prop="side", label="Side", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.side }}
-              el-table-column(prop="from_id", label="From", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ entity_name_by_id(scope.row.from_id) }}
-              el-table-column(align="right")
-                template(slot-scope="scope")
-                  el-button.edit(size="small", @click="on_edit('team', scope.row)") #[el-icon(name="edit")]
-                  el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', scope.row)") #[el-icon(name="close")]
+            span(v-if="raw_team_results_by_r(r_str).length === 0") No team results are collected.
+            el-collapse(v-else, accordion)
+              el-collapse-item.collapse-item(v-for="results in divided_results('team')", :key="results[0].from_id", :name="results[0].from_id")
+                template(slot="title")
+                  span {{ entity_name_by_id(results[0].from_id) }}
+                el-table.inner-table(:data="results")
+                  el-table-column(prop="id", label="Name", align="center", sortable)
+                    template(slot-scope="scope")
+                      span {{ entity_name_by_id(scope.row.id) }}
+                  el-table-column(prop="win", label="Win", align="center", sortable)
+                    template(slot-scope="scope")
+                      span {{ scope.row.win }}
+                  el-table-column(prop="side", label="Side", align="center", sortable)
+                    template(slot-scope="scope")
+                      span {{ scope.row.side }}
+                  el-table-column(align="right")
+                    template(slot-scope="scope")
+                      el-button.edit(size="small", @click="on_edit('team', scope.row)") #[el-icon(name="edit")]
+                      el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', scope.row)") #[el-icon(name="close")]
           .operations
             el-button(@click="on_download_raw_team_results") Download Raw Team Results
 
         el-tab-pane(label="Collected raw Speaker results")
           section(v-if="!loading")
-            el-table(:data="raw_speaker_results_by_r(r_str)")
-              el-table-column(prop="id", label="Name", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ entity_name_by_id(scope.row.id) }}
-              el-table-column(label="scores", align="center")
-                el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
-                  template(slot-scope="scope")
-                    span {{ score(scope.row.scores, index+1) === 0 ? '' : score(scope.row.scores, index+1) }}
-              el-table-column(prop="from_id", label="From", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ entity_name_by_id(scope.row.from_id) }}
-              el-table-column(align="right")
-                template(slot-scope="scope")
-                  el-button.edit(size="small", @click="on_edit('speaker', scope.row)") #[el-icon(name="edit")]
-                  el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', scope.row)") #[el-icon(name="close")]
+            span(v-if="raw_speaker_results_by_r(r_str).length === 0") No speaker results are collected.
+            el-collapse(v-else, accordion)
+              el-collapse-item.collapse-item(v-for="results in divided_results('speaker')", :key="results[0].from_id", :name="results[0].from_id")
+                template(slot="title")
+                  span {{ entity_name_by_id(results[0].from_id) }}
+                el-table.inner-table(:data="raw_speaker_results_by_r(r_str)")
+                  el-table-column(prop="id", label="Name", align="center", sortable)
+                    template(slot-scope="scope")
+                      span {{ entity_name_by_id(scope.row.id) }}
+                  el-table-column(label="scores", align="center")
+                    el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
+                      template(slot-scope="scope")
+                        span {{ score(scope.row.scores, index+1) === 0 ? '' : score(scope.row.scores, index+1) }}
+                  el-table-column(prop="from_id", label="From", align="center", sortable)
+                    template(slot-scope="scope")
+                      span {{ entity_name_by_id(scope.row.from_id) }}
+                  el-table-column(align="right")
+                    template(slot-scope="scope")
+                      el-button.edit(size="small", @click="on_edit('speaker', scope.row)") #[el-icon(name="edit")]
+                      el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', scope.row)") #[el-icon(name="close")]
           .operations
             el-button(@click="on_download_raw_speaker_results") Download Raw Speaker Results
 
         el-tab-pane(label="Collected raw Adjudicator results")
           section(v-if="!loading")
-            el-table(:data="raw_adjudicator_results_by_r(r_str)")
-              el-table-column(prop="id", label="Name", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ entity_name_by_id(scope.row.id) }}
-              el-table-column(label="Score", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.score }}
-              el-table-column(prop="from_id", label="From", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ adjudicator_result_sender(scope.row.from_id) }}
-              el-table-column(align="right")
-                template(slot-scope="scope")
-                  el-button.edit(size="small", @click="on_edit('adjudicator', scope.row)") #[el-icon(name="edit")]
-                  el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', scope.row)") #[el-icon(name="close")]
+            span(v-if="raw_adjudicator_results_by_r(r_str).length === 0") No adjudicator results are collected.
+            el-collapse(v-else, accordion)
+              el-collapse-item.collapse-item(v-for="results in divided_results('adjudicator')", :key="results[0].from_id", :name="results[0].from_id")
+                template(slot="title")
+                  span {{ entity_name_by_id(results[0].from_id) }}
+                el-table.inner-table(:data="raw_adjudicator_results_by_r(r_str)")
+                  el-table-column(prop="id", label="Name", align="center", sortable)
+                    template(slot-scope="scope")
+                      span {{ entity_name_by_id(scope.row.id) }}
+                  el-table-column(label="Score", align="center", sortable)
+                    template(slot-scope="scope")
+                      span {{ scope.row.score }}
+                  el-table-column(prop="from_id", label="From", align="center", sortable)
+                    template(slot-scope="scope")
+                      span {{ adjudicator_result_sender(scope.row.from_id) }}
+                  el-table-column(align="right")
+                    template(slot-scope="scope")
+                      el-button.edit(size="small", @click="on_edit('adjudicator', scope.row)") #[el-icon(name="edit")]
+                      el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', scope.row)") #[el-icon(name="close")]
           .operations
             el-button(@click="on_download_raw_adjudicator_results") Download Raw Adjudicator Results
 
@@ -165,6 +177,17 @@ export default {
     }
   },
   computed: {
+    divided_results () {
+      return label_singular => {
+        let results = this['raw_'+label_singular+'_results_by_r'](this.r_str)
+        let froms = Array.from(new Set(results.map(r => r.from_id)))
+        let divided_results = []
+        for (let from_id of froms) {
+          divided_results.push(results.filter(r => r.from_id === from_id))
+        }
+        return divided_results
+      }
+    },
     ...mapState([
       'auth',
       'loading'
@@ -341,6 +364,15 @@ export default {
     color inherit
   main
     padding 5%
+
+  .inner-table
+    border none
+
+  .collapse-item
+    div.el-collapse-item__content
+      padding 0
+    div.el-collapse-item__wrap
+      border 0
 
   .operations
     display flex
