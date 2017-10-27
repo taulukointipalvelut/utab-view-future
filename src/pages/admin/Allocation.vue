@@ -65,7 +65,7 @@
     .page-footer
       legend Waiting Adjudicators
       loading-container(:loading="loading")
-        section.adj-list-container
+        .adj-list-container
           draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options")
             .draggable-item(v-for="id in adjudicators", :class="warn_item_adjudicator(id)")
               .draggable-content(@mouseover="selected_adjudicator = id", @mouseout="selected_adjudicator = null") {{ entity_name_by_id(id) }}
@@ -79,7 +79,7 @@
                   p id: {{ id }}
       legend Waiting Teams
       loading-container(:loading="loading")
-        section.adj-list-container
+        .adj-list-container
           draggable.adj-list.src(v-model="teams", :options="team_options")
             .draggable-item(v-for="id in teams", :class="warn_item_team(id, '')")
               .draggable-content(@mouseover="selected_team = id", @mouseout="selected_team = null") {{ entity_name_by_id(id) }}
@@ -95,7 +95,7 @@
                   p id: {{ id }}
       legend Waiting Venues
       loading-container(:loading="loading")
-        section.adj-list-container
+        .adj-list-container
           draggable.adj-list.src(v-model="venues", :options="venue_options")
             .draggable-item(v-for="id in venues", :class="warn_item_venue(id)")
               .draggable-content(@mouseover="selected_venue = id", @mouseout="selected_venue = null") {{ entity_name_by_id(id) }}
@@ -124,7 +124,8 @@
                 el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
                   el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
                 el-form-item(label="Considering Rounds")
-                  el-checkbox(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-model="dialog.draw.considering_rs[round.r]", :checked="round.r < parseInt(r_str, 10)", :disabled="label === 'venues' && dialog.draw.form.model.shuffle") {{ round.name }}
+                  el-select(v-model="dialog.draw.considering_rs", multiple, :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
+                    el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.draw.visible = false") Cancel
           el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
@@ -151,7 +152,7 @@ export default {
           allocation_type: 'all',
           visible: false,
           loading: false,
-          considering_rs: Array(parseInt(this.r_str, 10)).fill(false),
+          considering_rs: [],
           form: {
             model: {
               simple: false,
@@ -596,7 +597,7 @@ export default {
           shuffle: model.shuffle
         }
       }
-      options.by = Object.keys(this.dialog.draw.considering_rs).filter(key => this.dialog.draw.considering_rs[key]).map(key => parseInt(key, 10))
+      options.by = this.dialog.draw.considering_rs
       return this.request_draw({ tournament, r_str: this.r_str, options, draw, allocation_type }).then((data) => {
         this.draw_temp = data
         this.init_allocation()
@@ -710,6 +711,7 @@ export default {
     padding 3px 10px
     margin-top .5rem
     cursor pointer
+    min-width 70px
 
   .unavailable
     color white
@@ -717,12 +719,26 @@ export default {
 
   .draggable-content
     width 120%
+    font-size 14px
     height 140%
 
+  .router-view-content
+    position relative
+    padding-bottom 100vh
+    height 30vh
+
   .page-footer
-  //  position fixed
-    padding 1rem
-  //  background rgb(240, 240, 240)
+    bottom 0
+    left 0
+    right 0
+    z-index 2
+    position fixed
+    padding-bottom 2vh
+    border-top solid 2px gray
+    padding-left 5%
+    padding-right 5%
+    padding-top 1%
+    background rgb(240, 240, 240)
 
   .operations
     display flex
@@ -814,7 +830,7 @@ export default {
 
   .adj-list
     margin 5px
-    min-height 30px
+    min-height 36px
     min-width 20%
 
   .adj-list-container
@@ -822,7 +838,7 @@ export default {
     background white
     padding-left .5rem
     padding-bottom .5rem
-    min-height 40px
+    //min-height 40px
 
     .adj-list.src
       display flex
