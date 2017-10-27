@@ -33,12 +33,13 @@ export default {
       'auth'
     ]),
     ...mapGetters([
-      'target_tournament'
+      'target_tournament',
+      'round_href'
     ])
   },
   methods: {
     url (round, ...targets) {
-      return `${ round.href.path }/${ targets.join('/') }`+'?filter=team'
+      return `${ this.round_href(round).path }/${ targets.join('/') }`+'?filter=team'
     },
     ...mapActions([
       'init_one'

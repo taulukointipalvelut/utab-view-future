@@ -343,7 +343,8 @@ export default {
       'access_detail',
       'entity_name_by_id',
       'entity_by_id',
-      'round_name_by_r'
+      'round_name_by_r',
+      'round_href'
     ])
   },
   methods: {
@@ -369,9 +370,6 @@ export default {
       await this.send_update_tournament(payload)
       this.initialize_qr()
       this.flexible_input.loading = false
-      //this.$router.push({
-      //  path: '/admin/'+name
-      //})
     },
     capitalize (p) {
       return p.charAt(0).toUpperCase() + p.slice(1)
@@ -422,7 +420,7 @@ export default {
     },
     on_allocation_round (selected) {
       this.$router.push({
-        path: 'rounds/'+selected.r+'/allocation'
+        path: '/admin'+this.round_href(selected).path+'/allocation'
       })
     },
     on_raw_result (selected) {
@@ -435,7 +433,6 @@ export default {
       let tournament = this.target_tournament
       let model = this.dialog.round.form.model
       let round = Object.assign({}, model)
-      round.href = { path: `/${ tournament.id }/rounds/${ round.r }` }
       if (model.name === '') {
         round.name = 'Round '+round.r
       }
@@ -544,7 +541,6 @@ export default {
         force: this.dialog[label].force
       }
       payload[label] = [entity]
-      //team.href = { path: `/${ tournament.id }/${ team.name }` }
       await this.send_create_entities(payload)
       this.dialog = dialog_generator()
       this.dialog[label].loading = false

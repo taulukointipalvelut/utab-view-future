@@ -21,14 +21,15 @@ export default {
       return this.rounds && this.rounds.length > 0
     },
     icon_href () {
-      return this.target_tournament ? this.target_tournament.href : { to: '/home' }
+      return this.target_tournament ? this.tournament_href(this.target_tournament) : { to: '/home' }
     },
     ...mapState([
       'auth',
       'rounds'
     ]),
     ...mapGetters([
-      'target_tournament'
+      'target_tournament',
+      'tournament_href'
     ])
   },
   methods: {

@@ -109,7 +109,8 @@ export default {
     ]),
     ...mapGetters([
       'target_tournament',
-      'is_organizer'
+      'is_organizer',
+      'tournament_href'
     ])
   },
   methods: {
@@ -179,10 +180,7 @@ export default {
     },
     on_select_tournament (selected) {
       if (this.is_organizer(selected)) {
-        const path = selected.href.path
-        let href = Object.assign({}, selected.href)
-        href.path = path.includes('/admin') ? path : `/admin${ path }`
-        this.$router.push(href)
+        this.$router.push({ path: `/admin${ this.tournament_href(selected).path }` })
       }
     },
     on_edit (selected) {

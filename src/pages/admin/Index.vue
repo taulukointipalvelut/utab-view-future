@@ -1,5 +1,5 @@
 <template lang="pug">
-  #app-content(v-loading.fillscreen.lock="loading_tournaments", element-loading-text="Loading...")
+  #app-content(v-loading.fillscreen.lock="loading", element-loading-text="Loading...")
     utab-header
     main
       router-view
@@ -14,18 +14,14 @@ export default {
     'utab-header': utab_header
   },
   computed: {
-    loading_tournaments () {
-      return !this.tournaments
-    },
-    icon_href () {
-      return this.tournament ? this.tournament.href : { to: '/home' }
-    },
     ...mapState([
       'auth',
-      'tournaments'
+      'loading'
     ]),
     ...mapGetters([
-      'is_auth'
+      'is_auth',
+      'tournament_href',
+      'target_tournament'
     ])
   },
   mounted () {
@@ -61,5 +57,4 @@ export default {
     main
       max-width 600px
       margin 0 auto
-
 </style>

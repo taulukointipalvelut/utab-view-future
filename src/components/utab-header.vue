@@ -11,7 +11,7 @@
       nav: ul
         li.spacer
         li(v-if="target_tournament")
-          router-link(v-if="target_tournament.href", :to="target_tournament.href") {{ target_tournament.name }}
+          router-link(v-if="tournament_href(target_tournament)", :to="tournament_href(target_tournament)") {{ target_tournament.name }}
         li
           a(@click="reload", v-if="!reloading") Reload
           a(v-if="reloading") #[el-icon(name="loading")]
@@ -76,7 +76,8 @@
         'is_auth'
       ]),
       ...mapGetters([
-        'target_tournament'
+        'target_tournament',
+        'tournament_href'
       ])
     },
     methods: {

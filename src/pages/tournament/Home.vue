@@ -10,10 +10,6 @@
           link-list-item Debaters
         router-link(to="adjudicator")
           link-list-item Judges
-      //link-list(:loading="loading", no_item_text="No Round Available")
-        legend(slot="legend") Rounds
-        router-link(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :to="round.href", v-if="!loading")
-          link-list-item {{ round.name }}
 </template>
 
 <script>

@@ -126,7 +126,9 @@ export default {
     errors: [],
     view_config: {
         base_url: BASE_URL,
-        max_rounds: 25
+        max_rounds: 25,
+        round_url: '/:tournament_id/rounds/:r',
+        tournament_url: '/:tournament_id'
     }
   },
   getters: {
@@ -134,6 +136,26 @@ export default {
     is_organizer (state, getters) {
         return tournament => {
             return state.auth.usertype === 'superuser' || state.auth.tournaments.includes(tournament.id)
+        }
+    },
+    round_href (state, getters) {
+        return round => {
+            let r = round.r
+            let tournament_id = getters.target_tournament.id
+            let round_url = state.view_config.round_url
+            let href = {
+                path: round_url.replace(':tournament_id', tournament_id).replace(':r', r)
+            }
+            return href
+        }
+    },
+    tournament_href (state, getters) {
+        return tournament => {
+            if (tournament === undefined) {
+                return { path: '/' }
+            } else {
+                return { path: state.view_config.tournament_url.replace(':tournament_id', tournament.id) }
+            }
         }
     },
     target_tournament (state) {
@@ -409,7 +431,6 @@ export default {
         let tournament = {
           id: payload.tournament.id,
           name: payload.tournament.name,
-          href: { path: '/'+payload.tournament.id },
           style: payload.tournament.style,
           rounds: [],
           teams: [],
@@ -588,13 +609,7 @@ export default {
     load_rounds ({ state, commit, dispatch }, payload) {
         let t = find_tournament(state, payload)
         return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/rounds')
-                .then(data => {
-                    const rounds = []
-                    for (let round_fetched of data) {
-                        let round = Object.assign({}, round_fetched)
-                        round.href = { path: '/'+t.id+'/rounds/'+round_fetched.r }
-                        rounds.push(round)
-                    }
+                .then(rounds => {
                     commit('rounds', { tournament: t, rounds })
                 })
     },
