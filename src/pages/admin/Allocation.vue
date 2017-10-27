@@ -103,32 +103,32 @@
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                   p id: {{ id }}
 
-      el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
-        el-tabs(v-model="dialog.draw.allocation_type")
-          el-tab-pane(v-for="label in (draw_temp !== null ? ['all', 'teams', 'adjudicators', 'venues'] : ['all', 'teams'])", :label="capitalize(label)", :key="label", :name="label")
-            .dialog-body
-              h3(v-if="label === 'adjudicators' || label === 'venues'", style="text-align: center;") Request allocation of {{ capitalize(label) }} with existing draw
-              el-form(:model="dialog.draw.form.model", :rules="dialog.draw.form.rules")
-                el-form-item(label="Shuffle Venue", v-if="label === 'all' || label === 'venues'")
-                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.shuffle")
-                el-form-item(label="Simple", prop="simple")
-                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.simple", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
-                el-form-item(label="Force", prop="force")
-                  el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.force", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
-                el-form-item(label="Teaming algorithm", v-if="label === 'all' || label === 'teams'")
-                  el-select(v-model="dialog.draw.form.model.team_allocation_algorithm")
-                    el-option(v-for="algorithm in ['standard', 'strict']", :key="algorithm", :value="algorithm", :label="algorithm")
-                el-form-item(label="Allocation algorithm", v-if="label === 'all' || label === 'adjudicators'")
-                  el-select(v-model="dialog.draw.form.model.adjudicator_allocation_algorithm")
-                    el-option(v-for="algorithm in ['standard', 'traditional']", :key="algorithm", :value="algorithm", :label="algorithm")
-                el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
-                  el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
-                el-form-item(label="Considering Rounds")
-                  el-select(v-model="dialog.draw.considering_rs", multiple, :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
-                    el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog.draw.visible = false") Cancel
-          el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
+    el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
+      el-tabs(v-model="dialog.draw.allocation_type")
+        el-tab-pane(v-for="label in (draw_temp !== null ? ['all', 'teams', 'adjudicators', 'venues'] : ['all', 'teams'])", :label="capitalize(label)", :key="label", :name="label")
+          .dialog-body
+            h3(v-if="label === 'adjudicators' || label === 'venues'", style="text-align: center;") Request allocation of {{ capitalize(label) }} with existing draw
+            el-form(:model="dialog.draw.form.model", :rules="dialog.draw.form.rules")
+              el-form-item(label="Shuffle Venue", v-if="label === 'all' || label === 'venues'")
+                el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.shuffle")
+              el-form-item(label="Simple", prop="simple")
+                el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.simple", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
+              el-form-item(label="Force", prop="force")
+                el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.force", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
+              el-form-item(label="Teaming algorithm", v-if="label === 'all' || label === 'teams'")
+                el-select(v-model="dialog.draw.form.model.team_allocation_algorithm")
+                  el-option(v-for="algorithm in ['standard', 'strict']", :key="algorithm", :value="algorithm", :label="algorithm")
+              el-form-item(label="Allocation algorithm", v-if="label === 'all' || label === 'adjudicators'")
+                el-select(v-model="dialog.draw.form.model.adjudicator_allocation_algorithm")
+                  el-option(v-for="algorithm in ['standard', 'traditional']", :key="algorithm", :value="algorithm", :label="algorithm")
+              el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
+                el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
+              el-form-item(label="Considering Rounds")
+                el-select(v-model="dialog.draw.considering_rs", multiple, :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
+                  el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
+      .dialog-footer(slot="footer")
+        el-button(@click="dialog.draw.visible = false") Cancel
+        el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
 </template>
 
 <script>
@@ -731,7 +731,7 @@ export default {
     bottom 0
     left 0
     right 0
-    z-index 2
+    z-index 1
     position fixed
     padding-bottom 2vh
     border-top solid 2px gray
@@ -839,6 +839,8 @@ export default {
     padding-left .5rem
     padding-bottom .5rem
     //min-height 40px
+    border-radius 2px
+    box-shadow 1px 1px 0 rgba(0, 0, 0, 0.1)
 
     .adj-list.src
       display flex
