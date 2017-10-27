@@ -402,6 +402,9 @@ export default {
     styles (state, payload) {
       state.styles = payload.styles
     },
+    clear_tournaments (state, payload) {
+      state.tournaments = []
+    },
     add_tournament (state, payload) {
         let tournament = {
           id: payload.tournament.id,
@@ -559,26 +562,9 @@ export default {
       },
       load_tournaments ({ commit }) {
         return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments')
-            .then(function (data) {
-                let tournaments = []
-                for (let t of data) {
-                    let tournament = Object.assign({}, t)
-                    tournament.href = { path: '/'+tournament.id }
-                    tournament.rounds = []
-                    tournament.teams = []
-                    tournament.adjudicators = []
-                    tournament.draws = []
-                    tournament.speakers= []
-                    tournament.institutions = []
-                    tournament.venues = []
-                    tournament.raw_speaker_results = []
-                    tournament.raw_team_results = []
-                    tournament.raw_adjudicator_results = []
-                    tournament.compiled_speaker_results = []
-                    tournament.compiled_team_results = []
-                    tournament.compiled_adjudicator_results = []
-                    commit('add_tournament', { tournament })
-                }
+            .then(function (tournaments) {
+                commit('clear_tournaments')
+                tournaments.map(t => commit('add_tournament', { tournament: t }))
             })
     },
     load_styles ({ state, commit, dispatch }, payload) {
