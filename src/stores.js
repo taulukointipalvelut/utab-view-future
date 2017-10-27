@@ -162,7 +162,12 @@ export default {
       return state.tournaments.find(t => t.id === parseInt(state.route.params.tournament_id, 10))
     },
     target_draw (state, getters) {
-        return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str, 10))
+        let tournament = getters.target_tournament
+        if (tournament !== undefined) {
+            return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str, 10))
+        } else {
+            return undefined
+        }
     },
     target_round (state, getters) {
         return getters.target_tournament.rounds.find(d => d.r === parseInt(state.route.params.r_str, 10))
