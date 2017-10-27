@@ -1,5 +1,5 @@
 <template lang="pug">
-  .router-view-content
+  .router-view-content.allocation-content
     section.page-header
       h1 Draw &amp; Allocation
       h3(v-if="!loading && this.target_round !== undefined") {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
@@ -722,7 +722,7 @@ export default {
     font-size 14px
     height 140%
 
-  .router-view-content
+  .router-view-content.allocation-content
     position relative
     padding-bottom 100vh
     height 30vh
