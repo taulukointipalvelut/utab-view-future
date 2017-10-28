@@ -29,7 +29,7 @@
           span.tab-label(slot="label") {{ capitalize(label) }} #[el-badge(type="mark", :value="target_tournament[label].length")]
           loading-container(:loading="loading")
             span(v-if="target_tournament[label].length === 0") No {{ capitalize(label) }} are registered.
-            el-collapse.outer-collapse(v-else, accordion, @change="outer_collapse[labels_singular[label]] = $event")
+            el-collapse.outer-collapse(v-else, accordion, @change="outer_collapse[labels_singular[label]] = $event", :class="{ 'no-detail-entity': label==='speakers' || label==='institutions' }")
               el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
                 template(slot="title")
                   div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
@@ -692,6 +692,13 @@ export default {
   .round-unopened
     color rgb(160, 160, 160)
     //text-decoration line-through
+
+  .no-detail-entity
+    i.el-collapse-item__header__arrow.el-icon-arrow-right
+      display none
+    div.el-collapse-item__wrap
+      border-bottom 0
+
   .el-badge__content
     font-size 0.7rem
     background-color gray
