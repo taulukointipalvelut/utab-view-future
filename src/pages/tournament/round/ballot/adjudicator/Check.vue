@@ -55,11 +55,10 @@
     el-dialog(title="Confirmation", :visible.sync="dialog.check.visible")
       .dialog-body
         .outer-table-tr.check__label
-          p I declare the result is correct.
-          el-checkbox(v-model="dialog.check.checked") Yes
+          p.declaration If this is correct, press Send button.
       .dialog-footer(slot="footer")
         el-button(@click="dialog.check.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.check.sending", @click="on_send", :disabled="!dialog.check.checked") #[i.fa.fa-paper-plane] Send
+        el-button(type="primary", :loading="dialog.check.sending", @click="on_send") #[i.fa.fa-paper-plane] Send
 </template>
 
 <script>
@@ -80,8 +79,7 @@ export default {
       dialog: {
         check: {
           sending: false,
-          visible: false,
-          checked: false
+          visible: false
         }
       }
     }
@@ -132,7 +130,6 @@ export default {
     },
     on_send () {
       this.sending = true
-      this.dialog.check.checked = false
       let winner = this.result.winner
       let side = this.score_sheet.teams.gov === winner ? 'gov' : 'opp'
       this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
@@ -242,6 +239,10 @@ export default {
 
   .sign .outer-table-td
     width 100%
+
+  p.declaration
+    font-size 1.3rem
+    text-align center
 
   input.sign__input
     width 100%

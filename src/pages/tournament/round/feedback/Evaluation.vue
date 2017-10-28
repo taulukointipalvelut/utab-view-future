@@ -18,7 +18,7 @@
                 number-box(v-model="result.matter", :min="1", :max="10", :step="1")
               el-form-item(label="Manner", required)
                 number-box(v-model="result.manner", :min="1", :max="10", :step="1")
-              el-form-item(label="Total Score")
+              el-form-item(label="Total")
                 input-label(:value="result.matter+result.manner")
               el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment on '+entity_name_by_id(result.id)+', if any'")
         section.buttons
@@ -26,17 +26,27 @@
           el-button(type="primary" @click="dialog.check.visible = true", :disabled="loading || adjudicators_to_evaluate.length === 0") Send #[i.fa.fa-paper-plane]
       section(v-if="sent && !loading")
         h2 Thank you! Your evaluation sheet was successfully sent.
-        .buttons
-          el-button(@click="on_home") #[i.fa.fa-home] Home
+        el-button.home-button(@click="on_home") #[i.fa.fa-home] Home
 
       el-dialog(title="Confirmation", :visible.sync="dialog.check.visible")
         .dialog-body
           .outer-table-tr.check__label
-            p I declare the result is correct.
-            el-checkbox(v-model="dialog.check.checked") Yes
+            p.declaration If this is correct, press Send button.
+            el-card.check-card(v-for="result in results", :key="result.id")
+              div(slot="header")
+                h3.adjudicator-name {{ entity_name_by_id(result.id) }}
+              el-form.card-body
+                el-form-item(label="Matter")
+                  span {{ result.matter }}
+                el-form-item(label="Manner")
+                  span {{ result.manner }}
+                el-form-item(label="Total")
+                  span {{ result.manner + result.matter }}
+                el-form-item(label="Comment")
+                  span {{ result.comment }}
         .dialog-footer(slot="footer")
           el-button(@click="dialog.check.visible = false") Cancel
-          el-button(type="primary", :loading="dialog.check.sending", @click="on_send", :disabled="!dialog.check.checked") #[i.fa.fa-paper-plane] Send
+          el-button(type="primary", :loading="dialog.check.sending", @click="on_send") #[i.fa.fa-paper-plane] Send
 </template>
 
 <script>
@@ -63,7 +73,6 @@ export default {
       dialog: {
         check: {
           visible: false,
-          checked: false,
           sending: false
         }
       }
@@ -156,7 +165,26 @@ export default {
 </script>
 
 <style lang="stylus">
+  .check-card
+    width 90%
+    margin auto
+    margin-top 2rem
+    .el-card__header
+      background-color rgba(59, 193, 215, 1)
+
+  h3.adjudicator-name
+    font-color white
+    font-weight unset
+    text-align center
+
+  p.declaration
+    font-size 1.3rem
+    text-align center
+
   .judge-selection
     text-align center
   @import "./evaluation"
+
+  .home-button
+    width 100%
 </style>
