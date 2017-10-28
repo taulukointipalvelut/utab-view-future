@@ -4,18 +4,21 @@
 
     loading-container(:loading="loading")
       section
-        legend Tournaments
-        el-table(:data="tournaments", @row-click="on_select_tournament", :row-class-name="row_class_name", v-if="!loading && has_tournaments")
-          el-table-column(prop="id", label="ID", align="center")
-          el-table-column(prop="name", label="Name", show-overflow-tooltip, align="center")
-          el-table-column(prop="style.name", label="Style", align="center")
-          //el-table-column(label="Rounds", width="100", align="right")
+        legend Your Tournaments
+        el-table(:data="tournaments", @row-click="on_select_tournament", v-if="!loading && has_tournaments")
+          el-table-column(label="ID", align="center")
             template(slot-scope="scope")
-              span {{ num_of_rounds(scope.row.current_round_num, scope.row.total_round_num) }}
+              span(v-if="is_admin(scope.row.id)") {{ scope.row.id }}
+          el-table-column(label="Name", show-overflow-tooltip, align="center")
+            template(slot-scope="scope")
+              span(v-if="is_admin(scope.row.id)") {{ scope.row.name }}
+          el-table-column(label="Style", align="center")
+            template(slot-scope="scope")
+              span(v-if="is_admin(scope.row.id)") {{ scope.row.style.name }}
           el-table-column(align="right")
             template(slot-scope="scope")
-              //el-button(size="small", @click="on_edit(scope.row)", :disabled="auth.usertype !== 'superuser' && !auth.tournaments.includes(scope.row.id)") #[el-icon(name="edit")] Edit
-              el-button(size="small", type="danger", @click="on_delete(scope.row)", :disabled="auth.usertype !== 'superuser' && !auth.tournaments.includes(scope.row.id)") #[el-icon(name="close")]
+              el-button(size="small", @click="on_edit(scope.row)") #[el-icon(name="edit")]
+              el-button(size="small", type="danger", @click="on_delete(scope.row)") #[el-icon(name="close")]
         span(v-if="!loading && !has_tournaments") No Tournaments Available
       .operations(v-if="!loading")
         el-button(type="primary", @click="on_new_tournament") #[el-icon(name="plus")] &nbsp;Create New Tournament
@@ -28,18 +31,21 @@
           el-form-item(label="Style", prop="style_id")
             el-select(placeholder="Select style", v-model="dialog.create.form.model.style_id")
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
+          el-form-item(label="Hidden")
+            el-switch(v-model="dialog.create.form.model.user_defined_data.hidden", on-text="", off-text="", :default="false")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
-    //el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
+    el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
       .dialog-body
         el-form(ref="dialog_edit_form", :model="dialog.edit.form.model", :rules="dialog.edit.form.rules")
-          h3 Warning: Changing tournament name can make users unable to access the tournament.
           el-form-item(label="Name", prop="name")
             el-input(v-model="dialog.edit.form.model.name")
           el-form-item(label="Style", prop="style_id")
             el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_id")
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
+          el-form-item(label="Hidden")
+            el-switch(v-model="dialog.edit.form.model.user_defined_data.hidden", on-text="", off-text="", :default="false")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.edit.visible = false") Cancel
         el-button(type="primary", :loading="dialog.edit.loading", @click="on_update") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
@@ -62,6 +68,7 @@ export default {
           visible: false,
           form: {
             model: {
+              user_defined_data: { hidden: false },
               name: '',
               style_id: null
             },
@@ -78,9 +85,10 @@ export default {
         edit: {
           loading: false,
           visible: false,
-          id: null,
           form: {
             model: {
+              id: null,
+              user_defined_data: { hidden: false },
               name: '',
               style_id: null
             },
@@ -114,22 +122,9 @@ export default {
     ])
   },
   methods: {
-    row_class_name (row, index): string {
-      let class_name = 'row'
-      if (row.done) {
-        class_name += ' done'
-      }
-      return class_name
+    is_admin (id) {
+      return this.auth.tournaments.includes(id)
     },
-    /*num_of_rounds (current, total) {
-      if (!total) {
-        return ''
-      } else if (!current) {
-        return total
-      } else {
-        return `${ current } / ${ total }`
-      }
-    },*/
     on_new_tournament () {
       this.dialog.create.loading = false
       this.dialog.create.visible = true
@@ -157,11 +152,9 @@ export default {
     },
     on_update () {
       this.dialog.edit.loading = true
-      const tournament = {
-        id: this.dialog.edit.id,
-        name: this.dialog.edit.form.model.name
-      }
+      const tournament = Object.assign({}, this.dialog.edit.form.model)
       tournament.style = this.styles.find(s => s.id === tournament.style_id)
+      this.dialog.edit.loading = true
       this.send_update_tournament({ tournament })
           .then(() => {
               this.dialog.edit.loading = false
@@ -178,16 +171,14 @@ export default {
           })
       }
     },
-    on_select_tournament (selected) {
-      if (this.is_organizer(selected)) {
+    on_select_tournament (selected, _, column) {
+      if (column.label !== undefined && this.is_organizer(selected)) {
         this.$router.push({ path: `/admin${ this.tournament_href(selected).path }` })
       }
     },
     on_edit (selected) {
-      this.dialog.edit.id = selected.id
-      this.dialog.edit.form.model.name = selected.name
+      Object.assign(this.dialog.edit.form.model, selected)
       this.dialog.edit.form.model.style_id = selected.style.id
-      this.dialog.edit.loading = false
       this.dialog.edit.visible = true
     },
     ...mapMutations([

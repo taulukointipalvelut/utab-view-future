@@ -5,7 +5,7 @@
       h1 Welcome!
       link-list(:loading="loading", no_item_text="No Tournament Available")
         legend(slot="legend") Tournaments
-        router-link(v-for="tournament in tournaments", :to="tournament_href(tournament)", :key="tournament.id", v-if="!loading")
+        router-link(v-for="tournament in available_tournaments", :to="tournament_href(tournament)", :key="tournament.id", v-if="!loading")
           link-list-item {{ tournament.name }}
 </template>
 
@@ -26,6 +26,9 @@ export default {
     has_tournaments () {
       return this.tournaments && this.tournaments.length > 0
     },
+    available_tournaments () {
+      return this.tournaments.filter(t => !t.user_defined_data.hidden)
+    },
     ...mapState([
       'auth',
       'tournaments',
@@ -34,6 +37,14 @@ export default {
     ...mapGetters([
       'tournament_href'
     ])
+  },
+  methods: {
+    ...mapActions([
+      'init_tournaments'
+    ])
+  },
+  mounted () {
+    this.init_tournaments()
   }
 }
 </script>

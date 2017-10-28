@@ -454,7 +454,8 @@ export default {
           raw_adjudicator_results: [],
           compiled_team_results: [],
           compiled_speaker_results: [],
-          compiled_adjudicator_results: []
+          compiled_adjudicator_results: [],
+          user_defined_data: payload.tournament.user_defined_data
         }
         state.tournaments.push(tournament)
         state.auth.tournaments.push(tournament.id)
