@@ -9,7 +9,7 @@
           el-table-column(prop="r", label="No.", align="center", :min-width="80")
           el-table-column(prop="name", label="Name", :min-width="200")
             template(slot-scope="scope")
-              flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r")
+              flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r", :class="{ 'round-unopened': !scope.row.user_defined_data.round_opened }")
           el-table-column(:min-width="270")
             template(slot-scope="scope")
               .round-operations
@@ -688,6 +688,10 @@ export default {
     justify-content flex-end
     align-items center
     margin-right 0.4rem
+
+  .round-unopened
+    color rgb(160, 160, 160)
+    //text-decoration line-through
   .el-badge__content
     font-size 0.7rem
     background-color gray
