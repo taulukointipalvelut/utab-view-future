@@ -6,13 +6,13 @@
       legend(v-if="!loading") Rounds
       loading-container(:loading="loading")
         el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)")
-          el-table-column(prop="r", label="No.", align="center")
-          el-table-column(prop="name", label="Name")
+          el-table-column(prop="r", label="No.", align="center", :min-width="80")
+          el-table-column(prop="name", label="Name", :min-width="200")
             template(slot-scope="scope")
               flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r")
-          el-table-column
+          el-table-column(:min-width="270")
             template(slot-scope="scope")
-              div(style="display: inline-flex; justify-content: flex-end; align-items: center;")
+              .round-operations
                 el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
                 el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
                 el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
@@ -51,8 +51,8 @@
                       el-table-column(label="", align="center")
                         template(slot-scope="scope")
                           el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
-          .operations
-            el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(label) }}
+            .operations
+              el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(label) }}
 
       el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
         .dialog-body
@@ -683,6 +683,11 @@ export default {
   span.tab-label
     color rgb(80, 80, 80)
 
+  .round-operations
+    display flex
+    justify-content flex-end
+    align-items center
+    margin-right 0.4rem
   .el-badge__content
     font-size 0.7rem
     background-color gray
@@ -728,19 +733,20 @@ export default {
   .compiled
     margin-right 0.5rem
 
+  .operations
+    width 100%
+    display flex
+    flex-wrap wrap
+    align-content space-between
+    justify-content flex-end
+
+  legend
+    color rgba(0,0,0,.54)
+    font-size 90%
+
   @media (min-width: 600px)
     main
       max-width 600px
       margin 0 auto
 
-</style>
-
-<style lang="stylus" scoped>
-  .operations
-    display flex
-    justify-content flex-end
-    margin-top 1rem
-  legend
-    color rgba(0,0,0,.54)
-    font-size 90%
 </style>
