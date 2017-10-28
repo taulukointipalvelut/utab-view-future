@@ -8,10 +8,10 @@
         el-table-column(label="Venue")
           template(slot-scope="scope")
             .venue {{ entity_name_by_id(scope.row.venue) }}
-        el-table-column(:label="style.side_labels['gov']")
+        el-table-column(:label="smartphone ? style.side_labels_short['gov'] : style.side_labels['gov']")
           template(slot-scope="scope")
             .team-gov {{ entity_name_by_id(scope.row.teams.gov) }}
-        el-table-column(:label="style.side_labels['opp']")
+        el-table-column(:label="smartphone ? style.side_labels_short['opp'] : style.side_labels['opp']")
           template(slot-scope="scope")
             .team-opp {{ entity_name_by_id(scope.row.teams.opp) }}
         el-table-column.adjudicator-container(label="Chair", v-if="adjudicator_allocation_opened")
@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import { smartphone } from 'assets/js/media-query.js'
 import { mapState, mapGetters, mapActions } from 'vuex'
 import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
@@ -44,6 +45,7 @@ export default {
       return draw ? draw.allocation.slice()
         .sort((a, b) => this.entity_name_by_id(a.venue).localeCompare(this.entity_name_by_id(b.venue))) : []
     },
+    smartphone: smartphone,
     team_allocation_opened () {
       let round = this.target_round
       return round ? round.user_defined_data.team_allocation_opened : false
