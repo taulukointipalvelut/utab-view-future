@@ -293,8 +293,9 @@ export default {
         result.score = result.score
         result.matter = result.user_defined_data.matter
         result.manner = result.user_defined_data.manner
+        result.comment = result.comment
       }
-      this.download_results_as_csv('raw_adjudicator_results_in_round_'+this.r_str+'.csv', organized_results, ['name', 'teams', 'score', 'matter', 'manner', 'from_name'], ['Name', 'Judged Teams', 'Score', 'Matter', 'Manner', 'From'])
+      this.download_results_as_csv('raw_adjudicator_results_in_round_'+this.r_str+'.csv', organized_results, ['name', 'teams', 'score', 'matter', 'manner', 'comment', 'from_name'], ['Name', 'Judged Teams', 'Score', 'Matter', 'Manner', 'Comment', 'From'])
     },
     on_download_raw_speaker_results () {
       let results = this.raw_speaker_results_by_r(this.r_str)
