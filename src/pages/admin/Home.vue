@@ -5,21 +5,14 @@
     loading-container(:loading="loading")
       section
         legend Your Tournaments
-        el-table(:data="tournaments", @row-click="on_select_tournament", v-if="!loading && has_tournaments")
-          el-table-column(label="ID", align="center")
-            template(slot-scope="scope")
-              span(v-if="is_admin(scope.row.id)") {{ scope.row.id }}
-          el-table-column(label="Name", show-overflow-tooltip, align="center")
-            template(slot-scope="scope")
-              span(v-if="is_admin(scope.row.id)") {{ scope.row.name }}
-          el-table-column(label="Style", align="center")
-            template(slot-scope="scope")
-              span(v-if="is_admin(scope.row.id)") {{ scope.row.style.name }}
-          el-table-column(align="right")
+        el-table(:data="available_tournaments", @row-click="on_select_tournament", v-if="!loading", empty-text="No Tournaments Available")
+          el-table-column(prop="id", label="ID", align="center", :min-width="150")
+          el-table-column(prop="name", label="Name", show-overflow-tooltip, align="center")
+          el-table-column(prop="style.name", label="Style", align="center", :min-width="100")
+          el-table-column(align="right", :min-width="150")
             template(slot-scope="scope")
               el-button(size="small", @click="on_edit(scope.row)") #[el-icon(name="edit")]
               el-button(size="small", type="danger", @click="on_delete(scope.row)") #[el-icon(name="close")]
-        span(v-if="!loading && !has_tournaments") No Tournaments Available
       .operations(v-if="!loading")
         el-button(type="primary", @click="on_new_tournament") #[el-icon(name="plus")] &nbsp;Create New Tournament
 
@@ -106,8 +99,8 @@ export default {
     }
   },
   computed: {
-    has_tournaments () {
-      return this.tournaments && this.tournaments.length > 0
+    available_tournaments () {
+      return this.tournaments.filter(t => this.auth.tournaments.includes(t.id))
     },
     ...mapState([
       'auth',
@@ -122,9 +115,6 @@ export default {
     ])
   },
   methods: {
-    is_admin (id) {
-      return this.auth.tournaments.includes(id)
-    },
     on_new_tournament () {
       this.dialog.create.loading = false
       this.dialog.create.visible = true

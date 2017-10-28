@@ -426,6 +426,9 @@ export default {
             }
         }
     },
+    add_auth_tournaments (state, payload) {
+        state.auth.tournaments.push(payload.tournament.id)
+    },
     /* errors */
     errors (state, payload) {
       state.errors = payload.errors
@@ -458,7 +461,6 @@ export default {
           user_defined_data: payload.tournament.user_defined_data
         }
         state.tournaments.push(tournament)
-        state.auth.tournaments.push(tournament.id)
     },
     delete_tournament (state, payload) {
       state.tournaments = state.tournaments.filter(t => t.id !== payload.tournament.id)
@@ -525,6 +527,7 @@ export default {
       send_create_tournament ({state, commit, dispatch}, payload) {
          return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
             .then(tournament => {
+                commit('add_auth_tournaments', { tournament })
                 commit('add_tournament', { tournament })
                 return tournament
             })
