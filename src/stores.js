@@ -492,6 +492,11 @@ export default {
         tournament['raw_'+payload.label_singular+'_results'] = tournament['raw_'+payload.label_singular+'_results']
             .filter(res => res.id !== payload.raw_result.id || res.r !== payload.raw_result.r || res.from_id !== payload.raw_result.from_id)
     },
+    delete_raw_results (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament['raw_'+payload.label_singular+'_results'] = tournament['raw_'+payload.label_singular+'_results']
+            .filter(res => res.r !== payload.round.r)
+    },
     entities (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament[payload.label] = payload[payload.label]
@@ -582,6 +587,10 @@ export default {
       send_delete_result ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds/'+payload.raw_result.r+'/results/raw/'+payload.label+'/'+payload.raw_result.id+'/'+payload.raw_result.from_id,  payload.raw_result)
             .then(() => commit('delete_raw_result', payload))
+      },
+      send_delete_results ({state, commit, dispatch}, payload) {
+        return fetch_data(commit, 'DELETE', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/raw/'+payload.label, payload.round)
+            .then(() => commit('delete_raw_results', payload))
       },
       send_raw_results ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/raw/'+payload.label, payload.raw_results)

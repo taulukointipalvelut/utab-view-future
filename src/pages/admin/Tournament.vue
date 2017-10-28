@@ -338,6 +338,7 @@ export default {
       'view_config'
     ]),
     ...mapGetters([
+      'draw_by_r',
       'unallocated_speakers',
       'target_tournament',
       'access_detail',
@@ -352,6 +353,8 @@ export default {
       'send_update_tournament',
       'send_create_round',
       'send_delete_round',
+      'send_delete_draw',
+      'send_delete_results',
       'send_create_entities',
       'send_delete_entity',
       'send_update_entity',
@@ -442,10 +445,17 @@ export default {
       this.dialog.round.visible = false
     },
     async on_send_delete_round (selected) {
-      const ans = await this.$confirm('Are you sure?')
+      const ans = await this.$confirm('Are you sure? All the results and the allocation in '+selected.name+' will be deleted.')
       const tournament = this.target_tournament
       if (ans === 'confirm') {
-        this.send_delete_round({ tournament, round: selected })
+        await this.send_delete_round({ tournament, round: selected })
+        for (let label of ['teams', 'speakers', 'adjudicators']) {
+          await this.send_delete_results({ tournament, round: selected, label, label_singular: this.labels_singular[label] })
+        }
+        let draw = this.draw_by_r(selected.r)
+        if (draw !== undefined) {
+          await this.send_delete_draw({ tournament, draw })
+        }
       }
     },
     on_edit_round (selected) {
