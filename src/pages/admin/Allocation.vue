@@ -384,8 +384,8 @@ export default {
       return this.access_detail(this.entity_by_id(id), this.r_str).conflicts
         .map(this.entity_name_by_id).join(', ')
     },
-    row_class(row, index) {
-      if (this.square_sendable(row)) {
+    row_class(data, index) {
+      if (this.square_sendable(data)) {
         return 'sendable'
       } else {
         return 'unsendable'

@@ -125,7 +125,7 @@ export default {
       'init_one'
     ]),
     on_prev () {
-      this.$router.push('../feedback')
+      this.$router.back()
     },
     on_send () {
       this.dialog.check.sending = true

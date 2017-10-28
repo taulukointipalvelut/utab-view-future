@@ -293,7 +293,7 @@ export default {
     teams_by_speaker_id (state, getters) {
         return function (id) {
             let teams = getters.target_tournament.teams
-            return teams.filter(team => getters.access_detail(team).speakers.includes(id))
+            return teams.filter(team => getters.access_detail(team).speakers.includes(parseInt(id, 10)))
         }
     },
     entity_by_id (state, getters) {

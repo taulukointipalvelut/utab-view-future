@@ -400,11 +400,11 @@ export default {
         this.collapsed[label_singular].detail.r = parseInt(r, 10)
         this.collapsed[label_singular].detail.available = this.access_detail(entity, r).available
         if (label_singular === 'team') {
-          this.collapsed[label_singular].detail.speakers = this.access_detail(entity, r).speakers
-          this.collapsed[label_singular].detail.institutions = this.access_detail(entity, r).institutions
+          this.collapsed[label_singular].detail.speakers = this.access_detail(entity, r).speakers.slice()
+          this.collapsed[label_singular].detail.institutions = this.access_detail(entity, r).institutions.slice()
         } else if (label_singular === 'adjudicator') {
-          this.collapsed[label_singular].detail.institutions = this.access_detail(entity, r).institutions
-          this.collapsed[label_singular].detail.conflicts = this.access_detail(entity, r).conflicts
+          this.collapsed[label_singular].detail.institutions = this.access_detail(entity, r).institutions.slice()
+          this.collapsed[label_singular].detail.conflicts = this.access_detail(entity, r).conflicts.slice()
         }
       }
     },
