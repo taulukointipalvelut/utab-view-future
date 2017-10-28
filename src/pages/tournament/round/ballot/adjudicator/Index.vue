@@ -9,7 +9,6 @@
         el-step(title="Score")
         el-step(title="Winner")
         el-step(title="Check")
-        el-step(title="Done")
     router-view(v-if="round && adjudicator && score_sheet", :score_sheet="score_sheet")
 </template>
 
