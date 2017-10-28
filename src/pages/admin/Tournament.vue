@@ -9,7 +9,7 @@
           el-table-column(prop="r", label="No.", align="center", :min-width="80")
           el-table-column(prop="name", label="Name", :min-width="200")
             template(slot-scope="scope")
-              flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r", :class="{ 'round-unopened': !scope.row.user_defined_data.round_opened }")
+              flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r", :class="{ 'round-hidden': scope.row.user_defined_data.hidden }")
           el-table-column(:min-width="270")
             template(slot-scope="scope")
               .round-operations
@@ -80,8 +80,8 @@
               el-input-number(v-model="dialog.round.form.model.r", :min="1", :max="view_config.max_rounds")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.form.model.name", :placeholder="'Round '+dialog.round.form.model.r")
-            el-form-item(label="Round Opened", prop="round_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.round_opened")
+            el-form-item(label="Round Hidden", prop="hidden")
+              el-switch(:default="false", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.hidden")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.team_allocation_opened")
             el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
@@ -106,8 +106,8 @@
               span {{ dialog.round.edit_form.model.r }}
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog.round.edit_form.model.name", :placeholder="'Round '+dialog.round.edit_form.model.r")
-            el-form-item(label="Round Opened", prop="round_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.round_opened")
+            el-form-item(label="Round Hidden", prop="hidden")
+              el-switch(:default="false", on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.hidden")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
               el-switch(on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.team_allocation_opened")
             el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
@@ -165,7 +165,7 @@ function dialog_generator () {
           name: '',
           r: '',
           user_defined_data: {
-            round_opened: true,
+            hidden: false,
             team_allocation_opened: true,
             adjudicator_allocation_opened: true,
             evaluate_each_other: true,
@@ -180,7 +180,7 @@ function dialog_generator () {
           r: '',
           name: '',
           user_defined_data: {
-            round_opened: true,
+            hidden: false,
             team_allocation_opened: true,
             adjudicator_allocation_opened: true,
             evaluate_each_other: true,
@@ -692,7 +692,7 @@ export default {
     align-items center
     margin-right 0.4rem
 
-  .round-unopened
+  .round-hidden
     color rgb(160, 160, 160)
     //text-decoration line-through
 
