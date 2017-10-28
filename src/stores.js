@@ -162,12 +162,7 @@ export default {
       return state.tournaments.find(t => t.id === parseInt(state.route.params.tournament_id, 10))
     },
     target_draw (state, getters) {
-        let tournament = getters.target_tournament
-        if (tournament !== undefined) {
-            return getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str, 10))
-        } else {
-            return undefined
-        }
+        return getters.draw_by_r(state.route.params.r_str)
     },
     target_round (state, getters) {
         return getters.target_tournament.rounds.find(d => d.r === parseInt(state.route.params.r_str, 10))
@@ -284,6 +279,16 @@ export default {
               text: 'Updated at '+date.toLocaleTimeString('en-US', { hour12: false })
           }
       }
+    },
+    draw_by_r (state, getters) {
+        return function (r_str) {
+            let tournament = getters.target_tournament
+            if (tournament !== undefined) {
+                return tournament.draws.find(d => d.r === parseInt(r_str, 10))
+            } else {
+                return undefined
+            }
+        }
     },
     teams_by_speaker_id (state, getters) {
         return function (id) {
