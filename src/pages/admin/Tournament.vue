@@ -40,14 +40,14 @@
                   el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
                     template(slot="title")
                       span(:style="detail.available ? '' : 'color: red;'") {{ round_name_by_r(detail.r) }} #[el-icon(name="warning", v-if="warn_entity_detail(detail).length > 0")] {{ warn_entity_detail(labels_singular[label], detail).join(',') }}
-                    el-table.inner-table(:data="[collapsed[labels_singular[label]].detail]", v-if="collapsed[labels_singular[label]].id !== null")
+                    el-table.inner-table(:data="[specified(label).detail]", v-if="specified(label).id !== null")
                       el-table-column(label="Available", align="center")
                         template(slot-scope="scope")
-                          el-switch(v-model="collapsed[labels_singular[label]].detail.available", on-text="", off-text="")
+                          el-switch(v-model="specified(label).detail.available", on-text="", off-text="")
                       el-table-column(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", align="center", :key="sub_label")
                         template(slot-scope="scope")
-                          el-select(multiple, v-model="collapsed[labels_singular[label]].detail[sub_label]")
-                            el-option(v-for="sub_entity in data_to_select(sub_label, collapsed[labels_singular[label]].id, detail.r)", :label="sub_entity.name", :value="sub_entity.id", :key="sub_entity.id")
+                          el-select(multiple, v-model="specified(label).detail[sub_label]")
+                            el-option(v-for="sub_entity in data_to_select(sub_label, specified(label).id, detail.r)", :label="sub_entity.name", :value="sub_entity.id", :key="sub_entity.id")
                       el-table-column(label="", align="center")
                         template(slot-scope="scope")
                           el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
@@ -363,6 +363,9 @@ export default {
       'init_one',
       'next_round'
     ]),
+    specified (label) {
+      return this.collapsed[this.labels_singular[label]]
+    },
     range: math.range,
     input_loading (identity) {
       return this.flexible_input.identity === identity ? this.flexible_input.loading : false
@@ -703,7 +706,7 @@ export default {
     font-size 0.7rem
     background-color gray
     padding 0 4px
-    height 0.9rem
+    height 0.85rem
     line-height 0.9rem
 
   .inner-table

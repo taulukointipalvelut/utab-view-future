@@ -23,8 +23,21 @@
     & h1
       margin 0 0 2rem 0
 
+  .el-tabs__item
+    outline 0
+
+  .el-collapse-item__header
+    outline 0
+
+  //.el-tag
+  //  background-color #93d5eacf
+
   .el-input__inner
     line-height unset
+
+  //.el-switch__button
+  //    top 0.16em
+  //    left 0.05em
 
   .el-step__head.is-text.is-process
     background $primary-color
@@ -60,6 +73,9 @@
     margin-bottom 2rem
 
   @media (min-width: 600px)
+    .el-dialog
+        width 550px
+
     main
       margin 0 auto
     .page-header
@@ -70,5 +86,5 @@
         text-align right
 
   @media (max-width: 600px)
-    .el-dialog.el-dialog--small
+    .el-dialog
       width 90%
