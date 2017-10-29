@@ -21,7 +21,7 @@
               //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
         .operations
           el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='dialog.compile.visible=true') Compile Results
-          el-button(type="primary", @click="dialog.round.visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+          el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
       legend(v-if="!loading") Check-in
       el-tabs(v-if="!loading")
@@ -56,7 +56,7 @@
 
       el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
         .dialog-body
-          el-form(:model="dialog.round.form.model", :rules="dialog.compile.form.rules")
+          el-form(:model="dialog.compile.form.model", :rules="dialog.compile.form.rules")
             el-form-item(label="Rounds")
               el-select(v-model="dialog.compile.form.model.rs", multiple)
                 el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
@@ -73,57 +73,35 @@
           el-button(@click="dialog.compile.visible = false") Cancel
           el-button(type="primary", @click="on_compile", :disabled="dialog.compile.entities.length === 0 || dialog.compile.form.model.rs.length === 0") Request
 
-      el-dialog(title="Add New Round", :visible.sync="dialog.round.visible", v-if="!loading")
+      el-dialog(v-for="type in ['create', 'edit']", :key="type", :title="capitalize(type)+' New Round'", :visible.sync="dialog.round[type+'_visible']", v-if="!loading")
         .dialog-body
-          el-form(ref="dialog_round", :model="dialog.round.form.model", :rules="dialog.round.form.rules")
+          el-form(ref="dialog_round", :model="dialog.round[type+'_form'].model", :rules="dialog.round[type+'_form'].rules")
             el-form-item(label="Round No.", prop="r")
-              el-input-number(v-model="dialog.round.form.model.r", :min="1", :max="view_config.max_rounds")
+              el-input-number(v-if="type === 'create'", v-model="dialog.round[type+'_form'].model.r", :min="1", :max="view_config.max_rounds")
+              span(v-if="type === 'edit'") {{ dialog.round.edit_form.model.r }}
             el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.round.form.model.name", :placeholder="'Round '+dialog.round.form.model.r")
+              el-input(v-model="dialog.round[type+'_form'].model.name", :placeholder="'Round '+dialog.round[type+'_form'].model.r")
             el-form-item(label="Round Hidden", prop="hidden")
-              el-switch(:default="false", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.hidden")
+              el-switch(:default="false", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.hidden")
             el-form-item(label="Draw Opened", prop="team_allocation_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.team_allocation_opened")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.team_allocation_opened")
             el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.adjudicator_allocation_opened")
-            el-form-item(label="Adjudicators Evaluate Each Other", prop="evaluate_each_other")
-              el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round.form.model.user_defined_data.evaluate_each_other")
-            el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.chairs_always_evaluated")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.adjudicator_allocation_opened")
+            el-form-item(label="Judge evaluation from Judges", prop="evaluate_from_adjudicators")
+              el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_adjudicators")
+            el-form-item(label="Judge evaluation from Teams", prop="evaluate_from_team")
+              el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
+            el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.chairs_always_evaluated")
             el-form-item(label="Allow Low-Win/Tie-Win", prop="allow_low_tie_win")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.form.model.user_defined_data.allow_low_tie_win")
-            el-form-item(label="Evaluator in Team", prop="evaluator_in_team")
-              el-select(v-model="dialog.round.form.model.user_defined_data.evaluator_in_team")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.allow_low_tie_win")
+            el-form-item(label="Evaluator in Team", prop="evaluator_in_team", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
+              el-select(v-model="dialog.round[type+'_form'].model.user_defined_data.evaluator_in_team")
                 el-option(v-for="index in range(3)", :key="index", :value="['team', 'speaker', null][index]", :label="['One', 'All', 'None'][index]")
         .dialog-footer(slot="footer")
-          el-button(@click="dialog.round.visible = false") Cancel
-          el-button(type="primary", :loading="dialog.round.loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
-
-      el-dialog(title="Edit Round", :visible.sync="dialog.round.edit_visible")
-        .dialog-body
-          el-form(:model="dialog.round.edit_form.model")
-            el-form-item(label="Round No.")
-              span {{ dialog.round.edit_form.model.r }}
-            el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.round.edit_form.model.name", :placeholder="'Round '+dialog.round.edit_form.model.r")
-            el-form-item(label="Round Hidden", prop="hidden")
-              el-switch(:default="false", on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.hidden")
-            el-form-item(label="Draw Opened", prop="team_allocation_opened")
-              el-switch(on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.team_allocation_opened")
-            el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened")
-              el-switch(on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.adjudicator_allocation_opened")
-            el-form-item(label="Adjudicators Evaluate Each Other", prop="evaluate_each_other")
-              el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round.edit_form.model.user_defined_data.evaluate_each_other")
-            el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.chairs_always_evaluated")
-            el-form-item(label="Allow Low Win/Tie Win", prop="allow_low_tie_win")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round.edit_form.model.user_defined_data.allow_low_tie_win")
-            el-form-item(label="Evaluator in Team", prop="evaluator_in_team")
-              el-select(v-model="dialog.round.edit_form.model.user_defined_data.evaluator_in_team")
-                el-option(v-for="index in range(3)", :key="index", :value="['team', 'speaker', null][index]", :label="['One', 'All', 'None'][index]")
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog.round.edit_visible = false") Cancel
-          el-button(type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
+          el-button(@click="dialog.round[type+'_visible'] = false") Cancel
+          el-button(v-if="type==='create'", type="primary", :loading="dialog.round.create_loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
+          el-button(v-if="type==='edit'", type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
 
       el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'Add New '+capitalize(labels_singular[label])", :visible.sync="dialog[label].visible", :key="label", v-if="!loading")
         .dialog-body
@@ -156,11 +134,11 @@ import qrious from 'qrious'
 function dialog_generator () {
   return {
     round: {
-      loading: false,
+      create_loading: false,
       edit_loading: false,
-      visible: false,
+      create_visible: false,
       edit_visible: false,
-      form: {
+      create_form: {
         model: {
           name: '',
           r: '',
@@ -168,7 +146,8 @@ function dialog_generator () {
             hidden: false,
             team_allocation_opened: true,
             adjudicator_allocation_opened: true,
-            evaluate_each_other: true,
+            evaluate_from_adjudicators: true,
+            evaluate_from_team: true,
             chairs_always_evaluated: false,
             allow_low_tie_win: true,
             evaluator_in_team: 'team'
@@ -183,7 +162,8 @@ function dialog_generator () {
             hidden: false,
             team_allocation_opened: true,
             adjudicator_allocation_opened: true,
-            evaluate_each_other: true,
+            evaluate_from_adjudicators: true,
+            evaluate_from_team: true,
             chairs_always_evaluated: false,
             allow_low_tie_win: true,
             evaluator_in_team: 'team'
@@ -437,15 +417,15 @@ export default {
     on_create_round () {
       this.dialog.round.loading = true
       let tournament = this.target_tournament
-      let model = this.dialog.round.form.model
+      let model = this.dialog.round.create_form.model
       let round = Object.assign({}, model)
       if (model.name === '') {
         round.name = 'Round '+round.r
       }
       let payload = { tournament, round }
       this.send_create_round(payload)
-      this.dialog.round.loading = false
-      this.dialog.round.visible = false
+      this.dialog.round.create_loading = false
+      this.dialog.round.create_visible = false
     },
     async on_send_delete_round (selected) {
       const ans = await this.$confirm('Are you sure? All the results and the allocation in '+selected.name+' will be deleted.')
