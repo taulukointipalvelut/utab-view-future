@@ -60,10 +60,7 @@ export default {
     capitalize: math.capitalize,
     url (round, target) {
       return 'rounds/'+round.r+'/'+target+'?filter='+this.filter
-    },
-    ...mapActions([
-      'init_one'
-    ])
+    }
   }
 }
 </script>

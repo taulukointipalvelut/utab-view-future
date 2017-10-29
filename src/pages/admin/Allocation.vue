@@ -564,7 +564,6 @@ export default {
       return draw
     },
     on_request_draw () {
-      this.dialog.draw.visible = false
       this.dialog.draw.loading = true
       let tournament = this.target_tournament
       let model = this.dialog.draw.form.model
@@ -602,8 +601,10 @@ export default {
         this.draw_temp = data
         this.init_allocation()
         this.dialog.draw.loading = false
+        this.dialog.draw.visible = false
       }).catch(() => {
         this.dialog.draw.loading = false
+        this.dialog.draw.visible = false
       })
     },
     on_send_allocation () {

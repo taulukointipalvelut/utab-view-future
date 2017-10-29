@@ -415,7 +415,7 @@ export default {
       })
     },
     on_create_round () {
-      this.dialog.round.loading = true
+      this.dialog.round.create_loading = true
       let tournament = this.target_tournament
       let model = this.dialog.round.create_form.model
       let round = Object.assign({}, model)

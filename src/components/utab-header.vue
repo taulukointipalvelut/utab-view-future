@@ -13,8 +13,7 @@
         li(v-if="target_tournament")
           router-link(v-if="tournament_href(target_tournament)", :to="tournament_href(target_tournament)") {{ target_tournament.name }}
         li
-          a(@click="reload", v-if="!reloading") Reload
-          a(v-if="reloading") #[el-icon(name="loading")]
+          a(@click="reload") Reload #[el-icon(v-if="loading", name="loading")]
         li(v-if="is_auth")
           a(@click="on_logout") Logout #[el-icon(name="circle-cross")]
         li(v-if="is_auth")
@@ -86,7 +85,7 @@
                this.$route.fullPath
       },
       ...mapState([
-        'loadng',
+        'loading',
         'auth'
       ]),
       ...mapGetters([

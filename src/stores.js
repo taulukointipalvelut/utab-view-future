@@ -616,8 +616,7 @@ export default {
     },
     load_styles ({ state, commit, dispatch }, payload) {
         return fetch_data(commit, 'GET', API_BASE_URL+'/styles')
-                .then(data => {
-                    const styles = data
+                .then(styles => {
                     commit('styles', { styles })
                 })
     },

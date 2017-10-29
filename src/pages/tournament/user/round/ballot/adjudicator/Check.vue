@@ -129,15 +129,14 @@ export default {
       this.$router.push('winner')
     },
     on_send () {
-      this.sending = true
+      this.dialog.check.sending = true
       let winner = this.result.winner
       let side = this.score_sheet.teams.gov === winner ? 'gov' : 'opp'
       this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(() => { return this.init_one({ tournament: this.target_tournament }) })
         .then(() => {
-          //this.reset_state()
-          this.sending = false
           this.dialog.check.visible = false
+          this.dialog.check.sending = false
           this.$router.push('done?winner='+winner+'&side='+side)
         })
     },

@@ -53,21 +53,17 @@
         this.loading = true
         this.$refs.ruleForm.validate(async (valid) => {
           if (valid) {
-            this.signup({ username: this.ruleForm.username, password: this.ruleForm.password })
-                .then(success => {
-                    if (success) {
-                      this.login({ username: this.ruleForm.username, password: this.ruleForm.password })
-                          .then(() => {
-                              const next = this.$route.query.next
-                              this.$router.push(next ? next : '/')
-                          })
-                    } else {
-                      this.signup_failed = true
-                      this.error = 'Unable to signup'
-                    }
-                })
+            let success = await this.signup({ username: this.ruleForm.username, password: this.ruleForm.password })
+            if (success) {
+              await this.login({ username: this.ruleForm.username, password: this.ruleForm.password })
+              const next = this.$route.query.next
+              this.$router.push(next ? next : '/')
+            } else {
+              this.signup_failed = true
+              this.error = 'Unable to signup'
+            }
+            this.loading = false
           }
-          this.loading = false
         })
       },
       ...mapActions([
