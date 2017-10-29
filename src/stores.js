@@ -210,40 +210,33 @@ export default {
         let raw_adjudicator_results = getters.raw_adjudicator_results_by_r(r)
         let submitted = Array.from(new Set(raw_adjudicator_results.map(res => res.from_id)))
         for (let square of allocation) {
-            let evaluators = []
-            if (round.user_defined_data.evaluator_in_team === 'team') {
-                evaluators = Object.values(square.teams)
-            } else if (round.user_defined_data.evaluator_in_team === 'speaker') {
-                evaluators = [].concat(...Object.values(square.teams).map(getters.entity_by_id).map(t => getters.access_detail(t, r).speakers))
-            }
-            for (let from_id of evaluators) {
-                let sent_result = raw_adjudicator_results.find(r => r.from_id === from_id)
-                let evaluation_sheet = {
-                    r,
-                    done: submitted.includes(from_id),
-                    created: (sent_result !== undefined) ? new Date(sent_result.created) : null,
-                    adjudicators: round.user_defined_data.chairs_always_evaluated ? square.chairs : square.chairs.concat(square.panels),
-                    teams: square.teams,
-                    from_id,
-                    is_adjudicator: false,
-                    venue: square.venue,
-                    href: { to: String(from_id) }
+            let team_evaluators = []
+            if (round.user_defined_data.evaluate_from_team) {
+                if (round.user_defined_data.evaluator_in_team === 'team') {
+                    team_evaluators = Object.values(square.teams)
+                } else if (round.user_defined_data.evaluator_in_team === 'speaker') {
+                    team_evaluators = [].concat(...Object.values(square.teams).map(getters.entity_by_id).map(t => getters.access_detail(t, r).speakers))
                 }
-                evaluation_sheets.push(evaluation_sheet)
             }
-            if (round.user_defined_data.evaluate_each_other) {
-                for (let from_id of square.chairs.concat(square.panels).concat(square.trainees)) {
-                    let adjudicators = square.chairs.concat(square.panels).concat(square.trainees).filter(id => id !== from_id)
-                    if (adjudicators.length === 0) { break }
+            let adj_evaluators = round.user_defined_data.evaluate_from_adjudicators ? square.chairs.concat(square.panels).concat(square.trainees) : []
+            for (let ind of [0, 1]) {
+                let evaluators = [team_evaluators, adj_evaluators][ind]
+                for (let from_id of evaluators) {
                     let sent_result = raw_adjudicator_results.find(r => r.from_id === from_id)
+                    let adjudicators = []
+                    if (ind === 0) {
+                        adjudicators = round.user_defined_data.chairs_always_evaluated ? square.chairs : square.chairs.concat(square.panels)
+                    } else {
+                        adjudicators = square.chairs.concat(square.panels).concat(square.trainees).filter(id => id !== from_id)
+                    }
                     let evaluation_sheet = {
                         r,
                         done: submitted.includes(from_id),
-                        created: (sent_result !== undefined) ? new Date(sent_result.created) : null,
+                        created: sent_result !== undefined ? new Date(sent_result.created) : null,
                         adjudicators,
                         teams: square.teams,
                         from_id,
-                        is_adjudicator: true,
+                        is_adjudicator: ind === 1,
                         venue: square.venue,
                         href: { to: String(from_id) }
                     }
