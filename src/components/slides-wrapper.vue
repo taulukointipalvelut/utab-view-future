@@ -52,15 +52,21 @@ export default {
             place_paragraph.num = 0
             paragraphs_list.push([place_paragraph])
             paragraphs_list.push([])
+            /*let tiny_place_paragraph = [{
+              tag: 'h3',
+              text: result.place + ' Place'
+            }]
+            tiny_place_paragraph.num = 1
+            paragraphs_list[paragraphs_list.length-1].push(tiny_place_paragraph)*/
             ranking = result.ranking
           } else if (c % num_div === 0) {
             paragraphs_list.push([])
           }
           let content_paragraph = [{
-            tag: 'h3',
-            text: result.place+' '+result.name,
+            tag: 'h2',
+            text: result.name,
           }, {
-            tag: 'p',
+            tag: 'h4',
             text: result.sub_names.join(','),
           }]
           content_paragraph.num = c % num_div
