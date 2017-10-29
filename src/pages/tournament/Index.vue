@@ -33,9 +33,12 @@ export default {
     ])
   },
   methods: {
-    url (...targets) {
-      return `${ this.target_tournament.name }/${ targets.join('/') }`
-    }
+    ...mapActions([
+      'init_one'
+    ])
+  },
+  mounted () {
+    this.init_one({ tournament: this.target_tournament }).catch(() => {})
   }
 }
 </script>

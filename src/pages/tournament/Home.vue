@@ -6,7 +6,7 @@
       link-list
         router-link(to="audience")
           link-list-item Audience
-        router-link(to="debater")
+        router-link(to="speaker")
           link-list-item Debaters
         router-link(to="adjudicator")
           link-list-item Judges

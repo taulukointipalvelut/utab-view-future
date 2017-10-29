@@ -26,9 +26,15 @@
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
           el-form-item(label="Hidden")
             el-switch(v-model="dialog.create.form.model.user_defined_data.hidden", on-text="", off-text="", :default="false")
+          //div(v-for="label_singular in ['speaker', 'audience', 'adjudicator']", :key="label_singular")
+            el-form-item(:label="capitalize(label_singular)+' Login Required'")
+              el-switch(v-model="dialog.create.form.model.auth[label_singular].required", on-text="", off-text="", :default="false")
+            el-form-item(:label="capitalize(label_singular)+' Login Key'", v-if="dialog.create.form.model.auth[label_singular].required")
+              el-input(v-model="dialog.create.form.model.auth[label_singular].key", placeholder="Input Key")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.create.visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
+
     el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
       .dialog-body
         el-form(ref="dialog_edit_form", :model="dialog.edit.form.model", :rules="dialog.edit.form.rules")
@@ -39,6 +45,11 @@
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
           el-form-item(label="Hidden")
             el-switch(v-model="dialog.edit.form.model.user_defined_data.hidden", on-text="", off-text="", :default="false")
+          //div(v-for="label_singular in ['speaker', 'audience', 'adjudicator']", :key="label_singular")
+            el-form-item(:label="capitalize(label_singular)+' Login Required'")
+              el-switch(v-model="dialog.edit.form.model.auth[label_singular].required", on-text="", off-text="", :default="false")
+            el-form-item(:label="capitalize(label_singular)+' Login Key'", v-if="dialog.edit.form.model.auth[label_singular].required")
+              el-input(v-model="dialog.edit.form.model.auth[label_singular].key", placeholder="Input Key")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.edit.visible = false") Cancel
         el-button(type="primary", :loading="dialog.edit.loading", @click="on_update") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
@@ -48,6 +59,7 @@
 /* @flow */
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
+import math from 'assets/js/math'
 
 export default {
   components: {
@@ -63,7 +75,21 @@ export default {
             model: {
               user_defined_data: { hidden: false },
               name: '',
-              style_id: null
+              style_id: null,
+              auth: {
+                adjudicator: {
+                  key: '',
+                  required: false
+                },
+                speaker: {
+                  key: '',
+                  required: false
+                },
+                audience: {
+                  key: '',
+                  required: false
+                }
+              }
             },
             rules: {
               name: [
@@ -83,7 +109,21 @@ export default {
               id: null,
               user_defined_data: { hidden: false },
               name: '',
-              style_id: null
+              style_id: null,
+              auth: {
+                adjudicator: {
+                  key: '',
+                  required: false
+                },
+                speaker: {
+                  key: '',
+                  required: false
+                },
+                audience: {
+                  key: '',
+                  required: false
+                }
+              }
             },
             rules: {
               name: [
@@ -115,6 +155,7 @@ export default {
     ])
   },
   methods: {
+    capitalize: math.capitalize,
     on_new_tournament () {
       this.dialog.create.loading = false
       this.dialog.create.visible = true

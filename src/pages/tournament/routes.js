@@ -1,23 +1,23 @@
 import Home from './Home'
 import Round from './round/Index'
 import round_routes from './round/routes'
-import Adjudicator from './Adjudicator'
-import Debater from './Debater'
-import Audience from './Audience'
+import Participant from './Participant'
+import Login from './Login'
 
 export default [
     {
-        path: 'adjudicator',
-        component: Adjudicator
-    }, {
-        path: 'debater',
-        component: Debater
+        path: ':participant(\\adjudicator|speaker|audience)',
+        props: true,
+        component: Participant
     }, {
         path: 'home',
         component: Home
     }, {
         path: 'audience',
-        component: Audience
+        component: Participant
+    }, {
+        path: 'login',
+        component: Login
     }, {
         path: 'rounds/:r_str',
         props: true,

@@ -458,6 +458,7 @@ export default {
           compiled_team_results: [],
           compiled_speaker_results: [],
           compiled_adjudicator_results: [],
+          auth: payload.tournament.auth,
           user_defined_data: payload.tournament.user_defined_data
         }
         state.tournaments.push(tournament)
@@ -688,6 +689,7 @@ export default {
         if (payload.tournament === undefined) { return new Promise(resolve => resolve()) }
         console.log("init_one called @"+state.route.path)
         let tournament = find_tournament(state, payload)
+        let usertype = state.auth.usertype
         return new Promise(async (resolve, reject) => {
             await dispatch('load_login_status')
             await dispatch('load_rounds', { tournament })
@@ -756,10 +758,19 @@ export default {
                 return false
             })
     },
+    participant_login ({ state, commit, dispatch }, payload) {
+      return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/login', payload)
+            .then(function(data) {
+                commit('auth', data)
+                return true
+            }).catch(function(err) {
+                return false
+            })
+    },
     logout ({ state, commit, dispatch }, payload) {
         return fetch_data(commit, 'DELETE', API_BASE_URL+'/login')
               .then(function(data) {
-                  commit('auth', { username: '' })
+                  commit('auth', { username: '', usertype: '', tournaments: [] })
               })
     },
     signup ({ state, commit, dispatch }, payload) {
