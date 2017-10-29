@@ -16,43 +16,25 @@
       .operations(v-if="!loading")
         el-button(type="primary", @click="on_new_tournament") #[el-icon(name="plus")] &nbsp;Create New Tournament
 
-    el-dialog(title="Create New Tournament", :visible.sync="dialog.create.visible")
+    el-dialog(v-for="type in ['create', 'edit']", :key="type", :title="capitalize(type)+' New Tournament'", :visible.sync="dialog[type].visible")
       .dialog-body
-        el-form(ref="dialog_create_form", :model="dialog.create.form.model", :rules="dialog.create.form.rules")
+        el-form(:model="dialog[type].form.model", :rules="dialog[type].form.rules")
           el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.create.form.model.name")
+            el-input(v-model="dialog[type].form.model.name")
           el-form-item(label="Style", prop="style_id")
-            el-select(placeholder="Select style", v-model="dialog.create.form.model.style_id")
+            el-select(placeholder="Select style", v-model="dialog[type].form.model.style_id")
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
           el-form-item(label="Hidden")
-            el-switch(v-model="dialog.create.form.model.user_defined_data.hidden", on-text="", off-text="", :default="false")
-          div(v-for="label_singular in ['speaker', 'audience', 'adjudicator']", :key="label_singular")
+            el-switch(v-model="dialog[type].form.model.user_defined_data.hidden", on-text="", off-text="", :default="false")
+          div(v-for="label_singular in ['audience', 'speaker', 'adjudicator']", :key="label_singular")
             el-form-item(:label="capitalize(label_singular)+' Login Required'")
-              el-switch(v-model="dialog.create.form.model.auth[label_singular].required", on-text="", off-text="", :default="false")
-            el-form-item(:label="capitalize(label_singular)+' Login Key'", v-if="dialog.create.form.model.auth[label_singular].required")
-              el-input(v-model="dialog.create.form.model.auth[label_singular].key", placeholder="Input Key")
+              el-switch(v-model="dialog[type].form.model.auth[label_singular].required", on-text="", off-text="", :default="false")
+            el-form-item(:label="capitalize(label_singular)+' Login Key'", v-if="dialog[type].form.model.auth[label_singular].required")
+              el-input(v-model="dialog[type].form.model.auth[label_singular].key", placeholder="Input Key")
       .dialog-footer(slot="footer")
-        el-button(@click="dialog.create.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.create.loading", @click="on_create") #[el-icon(name="plus", v-if="!dialog.create.loading")] Create
-
-    el-dialog(title="Edit Tournament", :visible.sync="dialog.edit.visible")
-      .dialog-body
-        el-form(ref="dialog_edit_form", :model="dialog.edit.form.model", :rules="dialog.edit.form.rules")
-          el-form-item(label="Name", prop="name")
-            el-input(v-model="dialog.edit.form.model.name")
-          el-form-item(label="Style", prop="style_id")
-            el-select(placeholder="Select style", v-model="dialog.edit.form.model.style_id")
-              el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
-          el-form-item(label="Hidden")
-            el-switch(v-model="dialog.edit.form.model.user_defined_data.hidden", on-text="", off-text="", :default="false")
-          div(v-for="label_singular in ['speaker', 'audience', 'adjudicator']", :key="label_singular")
-            el-form-item(:label="capitalize(label_singular)+' Login Required'")
-              el-switch(v-model="dialog.edit.form.model.auth[label_singular].required", on-text="", off-text="", :default="false")
-            el-form-item(:label="capitalize(label_singular)+' Login Key'", v-if="dialog.edit.form.model.auth[label_singular].required")
-              el-input(v-model="dialog.edit.form.model.auth[label_singular].key", placeholder="Input Key")
-      .dialog-footer(slot="footer")
-        el-button(@click="dialog.edit.visible = false") Cancel
-        el-button(type="primary", :loading="dialog.edit.loading", @click="on_update") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
+        el-button(@click="dialog[type].visible = false") Cancel
+        el-button(type="primary", :loading="dialog.create.loading", @click="on_create", v-if="type === 'create'") #[el-icon(name="plus", v-if="!dialog[type].loading")] Create
+        el-button(type="primary", :loading="dialog.edit.loading", @click="on_update", v-if="type === 'update'") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
 </template>
 
 <script>
@@ -170,8 +152,8 @@ export default {
     },
     async on_create () {
       this.dialog.create.loading = true
-      this.$refs.dialog_create_form.validate(async (valid) => {
-        if (valid) {
+      //this.$refs.dialog_create_form.validate(async (valid) => {
+      //  if (valid) {
           const tournament = Object.assign({}, this.dialog.create.form.model)
           tournament.style = this.styles.find(s => s.id === tournament.style_id)
           delete tournament.style_id
@@ -186,11 +168,11 @@ export default {
           await this.init_one({ tournament: t })
           this.dialog.create.loading = false
           this.dialog.create.visible = false
-        } else {
-          this.dialog.create.loading = false
-          return false
-        }
-      })
+      //  } else {
+      //    this.dialog.create.loading = false
+      //    return false
+      //  }
+      //})
     },
     async on_update () {
       this.dialog.edit.loading = true
