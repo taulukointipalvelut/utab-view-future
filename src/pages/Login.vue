@@ -43,8 +43,20 @@
       }
     },
     computed: {
+      ...mapState([
+        'tournaments'
+      ]),
       usertypes () {
-        return this.$route.query.tournament_id !== undefined ? ['speaker', 'adjudicator', 'audience', 'organizer'] : ['organizer']
+        let tournament = this.tournaments.find(t => t.id === parseInt(this.$route.query.tournament_id, 10))
+        let usertypes = ['organizer']
+        if (tournament !== undefined) {
+          for (let usertype of ['speaker', 'audience', 'adjudicator']) {
+            if (tournament.auth[usertype].required) {
+              usertypes.push(usertype)
+            }
+          }
+        }
+        return usertypes
       },
       message () {
         return this.$route.query.message
