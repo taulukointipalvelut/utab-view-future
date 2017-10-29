@@ -2,7 +2,7 @@
   el-card(class="signup-card")
     div(slot="header")
       img.logo-img(:src="logo")
-      span.logo-text Sign Up
+      span.logo-text Sign Up As Tournament Organizer
     el-form.signup(:rules="rules", ref="ruleForm", :model="ruleForm", label-width="100px")
       el-form-item(label="User Name", prop="username")
         el-input(:minlength="8", placeholder="Please enter User Name", v-model="ruleForm.username", type="text", autofocus)
