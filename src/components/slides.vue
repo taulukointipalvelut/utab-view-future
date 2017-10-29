@@ -7,12 +7,12 @@
         div(:class="slide_class")
           section(v-for="paragraph in current_slide", :class="paragraph_classes[paragraph.num]")
             div(v-for="phrase in paragraph")
-              h1.text(v-if="phrase.tag === 'h1'") {{ phrase.text }}
-              h2.text(v-if="phrase.tag === 'h2'") {{ phrase.text }}
-              h3.text(v-if="phrase.tag === 'h3'") {{ phrase.text }}
-              h4.text(v-if="phrase.tag === 'h4'") {{ phrase.text }}
-              h5.text(v-if="phrase.tag === 'h5'") {{ phrase.text }}
-              p.text(v-if="phrase.tag === 'p'") {{ phrase.text }}
+              h1.text(v-show="phrase.tag === 'h1'") {{ phrase.text }}
+              h2.text(v-show="phrase.tag === 'h2'") {{ phrase.text }}
+              h3.text(v-show="phrase.tag === 'h3'") {{ phrase.text }}
+              h4.text(v-show="phrase.tag === 'h4'") {{ phrase.text }}
+              h5.text(v-show="phrase.tag === 'h5'") {{ phrase.text }}
+              p.text(v-show="phrase.tag === 'p'") {{ phrase.text }}
       .footer
         .credit
           p {{ credit }}
