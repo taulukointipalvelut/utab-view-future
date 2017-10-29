@@ -42,7 +42,7 @@ export default {
       if (!new_value) {
         this.$router.replace({
           path: this.auth.href.login.to,
-          query: { next: this.$route.fullPath, tournament_id: tournament.id }
+          query: { next: this.$route.fullPath, tournament_id: this.target_tournament.id }
         })
       }
     }
