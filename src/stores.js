@@ -229,6 +229,7 @@ export default {
                     } else {
                         adjudicators = square.chairs.concat(square.panels).concat(square.trainees).filter(id => id !== from_id)
                     }
+                    if (adjudicators.length === 0) { continue }
                     let evaluation_sheet = {
                         r,
                         done: submitted.includes(from_id),

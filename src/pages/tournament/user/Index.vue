@@ -41,7 +41,7 @@ export default {
     is_auth (new_value) {
       if (!new_value) {
         this.$router.replace({
-          path: this.auth.href.login.to+message,
+          path: this.auth.href.login.to,
           query: { next: this.$route.fullPath, tournament_id: tournament.id }
         })
       }
