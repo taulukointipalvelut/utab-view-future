@@ -1,7 +1,7 @@
 <template lang="pug">
   .router-view-content(v-if="target_tournament")
     section.page-header
-      h1 {{ capitalize(participant) }}
+      h1 {{ { speaker: 'Debaters', adjudicator: 'Judges', audience: 'Audience' }[participant] }}
     section
       loading-container(:loading="loading", no_item_text="No Round Available")
         link-list(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-if="!loading && !round.user_defined_data.hidden")
@@ -10,7 +10,7 @@
             link-list-item Draw &amp; Allocation
           router-link(:to="url(round, 'ballot')", v-if="participant === 'adjudicator'")
             link-list-item Score Sheet
-          router-link(:to="url(round, 'feedback')", v-if="(participant === 'speaker') || (participant === 'adjudicator' && round.user_defined_data.evaluate_each_other)")
+          router-link(:to="url(round, 'feedback')", v-if="(participant === 'speaker' && round.user_defined_data.evaluate_from_team) || (participant === 'adjudicator' && round.user_defined_data.evaluate_from_adjudicators)")
             link-list-item Judge Evaluation Sheet
 </template>
 
@@ -44,7 +44,7 @@ export default {
   methods: {
     capitalize: math.capitalize,
     url (round, ...targets) {
-      return `${ this.round_href(round).path }/${ targets.join('/') }`+'?filter=adjudicator'
+      return `${ this.round_href(round).path }/${ targets.join('/') }`+'?filter='+{ speaker: 'team', adjudicator: 'adjudicator' }[this.participant]
     },
     ...mapActions([
       'init_one'
