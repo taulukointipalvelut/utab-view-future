@@ -179,7 +179,9 @@ export default {
           for (let usertype of ['speaker', 'adjudicator', 'audience']) {
             let username = t.id + usertype
             let password = this.dialog.create.form.model.auth[usertype].key
-            this.send_create_user({ tournament: t, username, password, usertype })
+            if (this.dialog.create.form.model.auth[usertype].required) {
+              this.send_create_user({ tournament: { id: t.id }, username, password, usertype })
+            }
           }
           await this.init_one({ tournament: t })
           this.dialog.create.loading = false
@@ -198,7 +200,7 @@ export default {
       for (let usertype of ['speaker', 'adjudicator', 'audience']) {
         let username = tournament.id + usertype
         let password = this.dialog.edit.form.model.auth[usertype].key
-        this.send_update_user({ tournament, username, password, usertype })
+        this.send_create_user({ tournament: { id: tournament.id }, username, password, usertype })
       }
       this.dialog.edit.loading = false
       this.dialog.edit.visible = false
@@ -230,7 +232,6 @@ export default {
       'send_delete_tournament',
       'send_update_tournament',
       'send_create_user',
-      'send_update_user',
       'init_tournaments',
       'init_one'
     ])
