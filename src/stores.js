@@ -1,4 +1,4 @@
-import ballot from 'pages/tournament/round/ballot/adjudicator/stores'
+import ballot from 'pages/tournament/user/round/ballot/adjudicator/stores'
 import math from 'assets/js/math.js'
 
 const BASE_URL = 'http://localhost'
