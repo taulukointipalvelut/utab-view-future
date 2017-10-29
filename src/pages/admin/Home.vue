@@ -73,7 +73,9 @@ export default {
           visible: false,
           form: {
             model: {
-              user_defined_data: { hidden: false },
+              user_defined_data: {
+                hidden: false
+              },
               name: '',
               style_id: null,
               auth: {
@@ -107,7 +109,9 @@ export default {
           form: {
             model: {
               id: null,
-              user_defined_data: { hidden: false },
+              user_defined_data: {
+                hidden: false
+              },
               name: '',
               style_id: null,
               auth: {
@@ -140,7 +144,11 @@ export default {
   },
   computed: {
     available_tournaments () {
-      return this.tournaments.filter(t => this.auth.tournaments.includes(t.id))
+      if (this.auth.usertype === 'superuser') {
+        return this.tournaments
+      } else {
+        return this.tournaments.filter(t => this.auth.tournaments.includes(t.id))
+      }
     },
     ...mapState([
       'auth',
