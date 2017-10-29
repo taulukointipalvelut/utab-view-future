@@ -594,6 +594,22 @@ export default {
         return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/raw/'+payload.label, payload.raw_results)
             .then((raw_results) => commit('add_raw_results', { tournament: payload.tournament, raw_results, label_singular: payload.label_singular }))
       },
+      send_create_user ({ state, commit, dispatch }, payload) {
+        return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/users', payload)
+              .then(function(data) {
+                  return true
+              }).catch(function(err) {
+                  return false
+              })
+      },
+      send_update_user ({ state, commit, dispatch }, payload) {
+        return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/users', payload)
+              .then(function(data) {
+                  return true
+              }).catch(function(err) {
+                  return false
+              })
+      },
       request_compiled_results ({state, commit, dispatch}, payload) {
         return fetch_data(commit, 'PATCH', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/results/'+payload.label, payload.request)
             .then((compiled_results) => commit('compiled_results', { tournament: payload.tournament, compiled_results, label_singular: payload.label_singular }))

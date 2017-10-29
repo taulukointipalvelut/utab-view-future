@@ -23,9 +23,6 @@ export default {
     'link-list-item': link_list_item
   },
   computed: {
-    has_rounds () {
-      return this.target_tournament.rounds && this.target_tournament.rounds.length > 0
-    },
     ...mapState([
       'auth',
       'loading'

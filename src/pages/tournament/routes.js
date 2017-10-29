@@ -1,28 +1,16 @@
 import Home from './Home'
-import Round from './round/Index'
-import round_routes from './round/routes'
-import Participant from './Participant'
-import Login from './Login'
+import User from './user/Index'
+import user_routes from './user/routes'
 
 export default [
     {
         path: ':participant(\\adjudicator|speaker|audience)',
         props: true,
-        component: Participant
+        component: User,
+        children: user_routes
     }, {
         path: 'home',
         component: Home
-    }, {
-        path: 'audience',
-        component: Participant
-    }, {
-        path: 'login',
-        component: Login
-    }, {
-        path: 'rounds/:r_str',
-        props: true,
-        component: Round,
-        children: round_routes
     }, {
         path: '',
         redirect: 'home'

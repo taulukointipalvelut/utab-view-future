@@ -8,9 +8,9 @@
           legend(slot="legend") {{ round.name }}
           router-link(:to="url(round, 'draw')")
             link-list-item Draw &amp; Allocation
-          router-link(:to="url(round, 'ballot')", v-if="participant === 'adjudicator'")
+          router-link(:to="url(round, 'ballot')", v-if="is_adjudicator")
             link-list-item Score Sheet
-          router-link(:to="url(round, 'feedback')", v-if="(participant === 'speaker' && round.user_defined_data.evaluate_from_team) || (participant === 'adjudicator' && round.user_defined_data.evaluate_from_adjudicators)")
+          router-link(:to="url(round, 'feedback')", v-if="(is_speaker && round.user_defined_data.evaluate_from_team) || (is_adjudicator && round.user_defined_data.evaluate_from_adjudicators)")
             link-list-item Judge Evaluation Sheet
 </template>
 
@@ -29,8 +29,23 @@ export default {
     'loading-container': loading_container
   },
   computed: {
-    has_rounds () {
-      return this.target_tournament.rounds && this.target_tournament.rounds.length > 0
+    is_adjudicator () {
+      return this.participant === 'adjudicator'
+    },
+    is_speaker () {
+      return this.participant === 'speaker'
+    },
+    is_audience () {
+      return this.participant === 'audience'
+    },
+    filter () {
+      if (this.is_adjudicator) {
+        return 'adjudicator'
+      } else if (this.is_speaker) {
+        return 'team'
+      } else {
+        return ''
+      }
     },
     ...mapState([
       'auth'
@@ -43,40 +58,12 @@ export default {
   },
   methods: {
     capitalize: math.capitalize,
-    url (round, ...targets) {
-      return `${ this.round_href(round).path }/${ targets.join('/') }`+'?filter='+{ speaker: 'team', adjudicator: 'adjudicator' }[this.participant]
+    url (round, target) {
+      return 'rounds/'+round.r+'/'+target+'?filter='+this.filter
     },
     ...mapActions([
       'init_one'
-    ]),
-    login_pagination (usertype) {
-      return new Promise((resolve, reject) => {
-        let tournament = this.target_tournament
-        if (usertype === 'superuser') {//NO LOGIN REQUIRED
-          resolve(false)
-        } else if (['organizer', 'audience', 'adjudicator', 'speaker'].includes(usertype) && this.auth.tournaments.includes(tournament.id)) {////NO LOGIN REQUIRED WITH CONDITIONS
-          resolve(false)
-        } else if (['audience', 'adjudicator', 'speaker'].includes(this.participant) && !tournament.auth[this.participant].required) {
-          resolve(false)
-        } else {//LOGIN REQUIRED
-          this.$router.push(this.tournament_href(tournament).path+'/login?usertype='+this.participant)
-          resolve(true)
-        }
-      })
-    }
-  },
-  mounted () {
-    this.login_pagination(this.auth.usertype)
-        .then(page_change => {
-          if (!page_change) {
-            this.init_one({ tournament: this.target_tournament })
-          }
-        })
-  },
-  watch: {
-    'auth.usertype': function (usertype) {
-      this.login_pagination(usertype)
-    }
+    ])
   }
 }
 </script>

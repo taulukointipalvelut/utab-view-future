@@ -14,7 +14,6 @@ export default {
   },
   computed: {
     ...mapState([
-      'auth',
       'loading'
     ]),
     ...mapGetters([

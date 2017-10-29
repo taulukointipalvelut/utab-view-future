@@ -18,9 +18,12 @@
         li(v-if="is_auth")
           a(@click="on_logout") Logout #[el-icon(name="circle-cross")]
         li(v-if="is_auth")
-          router-link(:to="admin_href", @click.native="toggleDropdownMenu") {{ auth.username }} #[el-icon(name="setting")]
-        li(v-if="!is_auth")
-          router-link(:to="login_href", @click.native="toggleDropdownMenu") Login
+          router-link(v-if="!is_user", :to="admin_href", @click.native="toggleDropdownMenu") {{ username }} #[el-icon(name="setting")]
+          a(v-if="is_user") {{ username }}
+        li(v-if="!is_auth && target_tournament !== undefined")
+          router-link(:to="user_login_href", @click.native="toggleDropdownMenu") Login
+        li(v-if="!is_auth && target_tournament === undefined")
+          router-link(:to="login_href", @click.native="toggleDropdownMenu") Admin
         li(v-if="!is_auth")
           router-link(:to="signup_href", @click.native="toggleDropdownMenu") Register
 </template>
@@ -28,6 +31,7 @@
 <script>
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
   import { smartphone } from 'assets/js/media-query'
+  import math from 'assets/js/math'
   export default {
     props: {
       base_url: {
@@ -46,11 +50,24 @@
       }
     },
     computed: {
+      is_user () {
+        return ['speaker', 'adjudicator', 'audience'].includes(this.auth.usertype)
+      },
+      username () {
+        if (this.is_user) {
+          return math.capitalize(this.auth.usertype)
+        } else {
+          return this.auth.username
+        }
+      },
       el_menu_mode () {
         return smartphone ? 'vertical' : 'horizontal'
       },
       login_href () {
         return { path: '/login', query: { next: this.nextLoginPath } }
+      },
+      user_login_href () {
+        return { path: '/login', query: { next: this.nextLoginPath, tournament_id: this.target_tournament.id } }
       },
       signup_href () {
         return { path: '/signup', query: { next: this.nextLoginPath } }
@@ -61,12 +78,12 @@
       nextLoginPath () {
         return this.next ?
                this.next :
-               this.$route.fullPath.includes('/admin/') ? this.$route.fullPath : '/admin/'
+               this.$route.fullPath
       },
       nextLogoutPath () {
         return this.next ?
                this.next :
-               this.$route.fullPath.includes('/admin/') ? '/' : this.$route.fullPath
+               this.$route.fullPath
       },
       ...mapState([
         'loadng',

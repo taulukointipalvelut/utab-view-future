@@ -5,10 +5,13 @@
       span.logo-text utab admin interface
       span.message {{ message }}
     el-form.login(:rules="rules", ref="ruleForm", :model="ruleForm", label-width="100px")
-      el-form-item(label="User Name", prop="username")
-        el-input(placeholder="Please enter User Name", v-model="ruleForm.username", type="text", autofocus)
+      el-form-item(label="User Type", prop="usertype")
+        el-select(placeholder="Select User Type", v-model="ruleForm.usertype")
+          el-option(v-for="option in usertypes", :key="option", :value="option", :label="capitalize(option)")
+      el-form-item(label="User Name", prop="username", v-if="ruleForm.usertype === 'organizer'")
+        el-input(placeholder="Input User Name", v-model="ruleForm.username", type="text", autofocus)
       el-form-item(label="Password" prop="password")
-        el-input(placeholder="Please enter Password", v-model="ruleForm.password", type="password", @keyup.enter.native="onLogin")
+        el-input(placeholder="Input Password", v-model="ruleForm.password", type="password", @keyup.enter.native="onLogin")
         span.fail-text(v-if="login_failed") Incorrect Username or Password
       el-form-item
         el-button(type="primary", @click="onLogin", :loading="loading") {{ loading ? 'Loading...' : 'Login' }}
@@ -18,6 +21,7 @@
 <script>
   import { mapState, mapGetters, mapActions } from 'vuex'
   import logo from 'assets/img/logo.png'
+  import math from 'assets/js/math'
 
   export default {
     data () {
@@ -26,13 +30,11 @@
         loading: false,
         login_failed: false,
         ruleForm: {
+          usertype: '',
           username: '',
           password: ''
         },
         rules: {
-          username: [
-             { required: true, message: 'User Name required', trigger: 'blur' }
-          ],
           password: [
              { required: true, message: 'Password required', trigger: 'blur' }
           ]
@@ -41,11 +43,15 @@
       }
     },
     computed: {
+      usertypes () {
+        return this.$route.query.tournament_id !== undefined ? ['speaker', 'adjudicator', 'audience', 'organizer'] : ['organizer']
+      },
       message () {
         return this.$route.query.message
       }
     },
     methods: {
+      capitalize: math.capitalize,
       onHome () {
         this.$router.push('/')
       },
@@ -53,7 +59,8 @@
         this.loading = true
         this.$refs.ruleForm.validate(async (valid) => {
           if (valid) {
-            const is_auth = await this.login({ username: this.ruleForm.username, password: this.ruleForm.password })
+            let username = this.ruleForm.usertype === 'organizer' ? this.ruleForm.username : this.$route.query.tournament_id+this.ruleForm.usertype
+            const is_auth = await this.login({ username, password: this.ruleForm.password })
             if (is_auth) {
               const next = this.$route.query.next
               this.$router.push(next ? next : '/')

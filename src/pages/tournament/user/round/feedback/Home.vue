@@ -44,7 +44,7 @@ export default {
       let evs = this.target_evaluation_sheets
       if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'adjudicator') {
         evs = evs.filter(es => es.is_adjudicator)
-      } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter !== 'adjudicator') {
+      } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'team') {
         evs = evs.filter(es => !es.is_adjudicator)
       }
       let evs_done = evs.filter(ev => ev.done)

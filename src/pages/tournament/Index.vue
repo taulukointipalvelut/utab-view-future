@@ -17,28 +17,16 @@ export default {
     loading_tournament () {
       return !this.target_tournament
     },
-    has_rounds () {
-      return this.rounds && this.rounds.length > 0
-    },
     icon_href () {
       return this.target_tournament ? this.tournament_href(this.target_tournament) : { to: '/home' }
     },
     ...mapState([
-      'auth',
       'rounds'
     ]),
     ...mapGetters([
       'target_tournament',
       'tournament_href'
     ])
-  },
-  methods: {
-    ...mapActions([
-      'init_one'
-    ])
-  },
-  mounted () {
-    this.init_one({ tournament: this.target_tournament }).catch(() => {})
   }
 }
 </script>

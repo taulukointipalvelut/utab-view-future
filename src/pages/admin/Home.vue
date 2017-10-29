@@ -26,7 +26,7 @@
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
           el-form-item(label="Hidden")
             el-switch(v-model="dialog.create.form.model.user_defined_data.hidden", on-text="", off-text="", :default="false")
-          //div(v-for="label_singular in ['speaker', 'audience', 'adjudicator']", :key="label_singular")
+          div(v-for="label_singular in ['speaker', 'audience', 'adjudicator']", :key="label_singular")
             el-form-item(:label="capitalize(label_singular)+' Login Required'")
               el-switch(v-model="dialog.create.form.model.auth[label_singular].required", on-text="", off-text="", :default="false")
             el-form-item(:label="capitalize(label_singular)+' Login Key'", v-if="dialog.create.form.model.auth[label_singular].required")
@@ -45,7 +45,7 @@
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
           el-form-item(label="Hidden")
             el-switch(v-model="dialog.edit.form.model.user_defined_data.hidden", on-text="", off-text="", :default="false")
-          //div(v-for="label_singular in ['speaker', 'audience', 'adjudicator']", :key="label_singular")
+          div(v-for="label_singular in ['speaker', 'audience', 'adjudicator']", :key="label_singular")
             el-form-item(:label="capitalize(label_singular)+' Login Required'")
               el-switch(v-model="dialog.edit.form.model.auth[label_singular].required", on-text="", off-text="", :default="false")
             el-form-item(:label="capitalize(label_singular)+' Login Key'", v-if="dialog.edit.form.model.auth[label_singular].required")
@@ -168,37 +168,40 @@ export default {
       this.dialog.create.loading = false
       this.dialog.create.visible = true
     },
-    on_create () {
+    async on_create () {
       this.dialog.create.loading = true
-      this.$refs.dialog_create_form.validate((valid) => {
+      this.$refs.dialog_create_form.validate(async (valid) => {
         if (valid) {
           const tournament = Object.assign({}, this.dialog.create.form.model)
           tournament.style = this.styles.find(s => s.id === tournament.style_id)
           delete tournament.style_id
-          this.send_create_tournament({ tournament })
-              .then(t => {
-                  this.init_one({ tournament: t })
-                      .then(() => {
-                          this.dialog.create.loading = false
-                          this.dialog.create.visible = false
-                      })
-              })
+          let t = await this.send_create_tournament({ tournament })
+          for (let usertype of ['speaker', 'adjudicator', 'audience']) {
+            let username = t.id + usertype
+            let password = this.dialog.create.form.model.auth[usertype].key
+            this.send_create_user({ tournament: t, username, password, usertype })
+          }
+          await this.init_one({ tournament: t })
+          this.dialog.create.loading = false
+          this.dialog.create.visible = false
         } else {
           this.dialog.create.loading = false
           return false
         }
       })
     },
-    on_update () {
+    async on_update () {
       this.dialog.edit.loading = true
       const tournament = Object.assign({}, this.dialog.edit.form.model)
       tournament.style = this.styles.find(s => s.id === tournament.style_id)
-      this.dialog.edit.loading = true
-      this.send_update_tournament({ tournament })
-          .then(() => {
-              this.dialog.edit.loading = false
-              this.dialog.edit.visible = false
-          })
+      await this.send_update_tournament({ tournament })
+      for (let usertype of ['speaker', 'adjudicator', 'audience']) {
+        let username = tournament.id + usertype
+        let password = this.dialog.edit.form.model.auth[usertype].key
+        this.send_update_user({ tournament, username, password, usertype })
+      }
+      this.dialog.edit.loading = false
+      this.dialog.edit.visible = false
     },
     async on_delete (selected) {
       const ans = await this.$confirm('Are you sure?')
@@ -226,6 +229,8 @@ export default {
       'send_create_tournament',
       'send_delete_tournament',
       'send_update_tournament',
+      'send_create_user',
+      'send_update_user',
       'init_tournaments',
       'init_one'
     ])
