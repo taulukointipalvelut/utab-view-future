@@ -7,7 +7,9 @@
         legend Your Tournaments
         el-table(:data="available_tournaments", @row-click="on_select_tournament", v-if="!loading", empty-text="No Tournaments Available")
           el-table-column(prop="id", label="ID", align="center", :min-width="150")
-          el-table-column(prop="name", label="Name", show-overflow-tooltip, align="center")
+          el-table-column(label="Name", show-overflow-tooltip, align="center")
+            template(slot-scope="scope")
+              span(:class="{ 'tournament-hidden': scope.row.user_defined_data.hidden }") {{ scope.row.name }}
           el-table-column(prop="style.name", label="Style", align="center", :min-width="100")
           el-table-column(align="right", :min-width="150")
             template(slot-scope="scope")
@@ -152,27 +154,20 @@ export default {
     },
     async on_create () {
       this.dialog.create.loading = true
-      //this.$refs.dialog_create_form.validate(async (valid) => {
-      //  if (valid) {
-          const tournament = Object.assign({}, this.dialog.create.form.model)
-          tournament.style = this.styles.find(s => s.id === tournament.style_id)
-          delete tournament.style_id
-          let t = await this.send_create_tournament({ tournament })
-          for (let usertype of ['speaker', 'adjudicator', 'audience']) {
-            let username = t.id + usertype
-            let password = this.dialog.create.form.model.auth[usertype].key
-            if (this.dialog.create.form.model.auth[usertype].required) {
-              this.send_create_user({ tournament: { id: t.id }, username, password, usertype })
-            }
-          }
-          await this.init_one({ tournament: t })
-          this.dialog.create.loading = false
-          this.dialog.create.visible = false
-      //  } else {
-      //    this.dialog.create.loading = false
-      //    return false
-      //  }
-      //})
+      const tournament = Object.assign({}, this.dialog.create.form.model)
+      tournament.style = this.styles.find(s => s.id === tournament.style_id)
+      delete tournament.style_id
+      let t = await this.send_create_tournament({ tournament })
+      for (let usertype of ['speaker', 'adjudicator', 'audience']) {
+        let username = t.id + usertype
+        let password = this.dialog.create.form.model.auth[usertype].key
+        if (this.dialog.create.form.model.auth[usertype].required) {
+          this.send_create_user({ tournament: { id: t.id }, username, password, usertype })
+        }
+      }
+      await this.init_one({ tournament: t })
+      this.dialog.create.loading = false
+      this.dialog.create.visible = false
     },
     async on_update () {
       this.dialog.edit.loading = true
@@ -182,7 +177,9 @@ export default {
       for (let usertype of ['speaker', 'adjudicator', 'audience']) {
         let username = tournament.id + usertype
         let password = this.dialog.edit.form.model.auth[usertype].key
-        this.send_create_user({ tournament: { id: tournament.id }, username, password, usertype })
+        if (this.dialog.edit.form.model.auth[usertype].required) {
+          this.send_create_user({ tournament: { id: tournament.id }, username, password, usertype })
+        }
       }
       this.dialog.edit.loading = false
       this.dialog.edit.visible = false
@@ -223,6 +220,9 @@ export default {
 
 <style lang="stylus">
   @import "../../common"
+
+  .tournament-hidden
+    color rgb(160, 160, 160)
 
   body
     background-color #f5f5f5
