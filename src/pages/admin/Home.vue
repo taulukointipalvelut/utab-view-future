@@ -34,7 +34,7 @@
       .dialog-footer(slot="footer")
         el-button(@click="dialog[type].visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create", v-if="type === 'create'") #[el-icon(name="plus", v-if="!dialog[type].loading")] Create
-        el-button(type="primary", :loading="dialog.edit.loading", @click="on_update", v-if="type === 'update'") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
+        el-button(type="primary", :loading="dialog.edit.loading", @click="on_update", v-if="type === 'edit'") #[el-icon(name="plus", v-if="!dialog.edit.loading")] OK
 </template>
 
 <script>
