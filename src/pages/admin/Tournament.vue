@@ -578,9 +578,9 @@ export default {
     },
     async on_delete (label, label_singular, selected) {
       let warnings = {
-        teams: ' Selected team will also be removed from adjudicator conflicts.',
-        speakers: ' Selected speaker will also be removed from teams.',
-        institutions: ' Selected institution will also be removed from adjudicator/team institutions.',
+        teams: ' Selected team will also be removed from adjudicator conflicts if exists.',
+        speakers: ' Selected speaker will also be removed from teams if exists.',
+        institutions: ' Selected institution will also be removed from adjudicator/team institutions if exists.',
         venues: '',
         adjudicators: ''
       }

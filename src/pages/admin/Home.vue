@@ -188,7 +188,7 @@ export default {
       this.dialog.edit.visible = false
     },
     async on_delete (selected) {
-      const ans = await this.$confirm('Are you sure?')
+      const ans = await this.$confirm('Are you sure? You can NOT undo this operation. All data related to '+selected.name+' will be removed from database.')
       if (ans === 'confirm') {
         await this.send_delete_tournament({ tournament: selected })
           //.then(this.init_tournaments)
