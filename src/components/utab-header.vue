@@ -1,37 +1,52 @@
 <template lang="pug">
-  header(:data-nav-opened="nav_opened").header-wrapper
-    .header-container
-      #title
-        span.nav-icon
-          router-link(to="/"): i.fa.fa-home
-        h1: router-link(to="/") PDA
-        span.nav-collapse-arrow
-          button(@click="toggleDropdownMenu")
-            i.caret-collapse-toggle
-      nav: ul
-        li.spacer
-        li(v-if="target_tournament")
-          router-link(v-if="tournament_href(target_tournament)", :to="tournament_href(target_tournament)") {{ target_tournament.name }}
-        li
-          a(@click="reload") Reload #[el-icon(v-if="loading", name="loading")]
-        li(v-if="is_auth")
-          a(@click="on_logout") Logout #[el-icon(name="circle-cross")]
-        li(v-if="is_auth")
-          router-link(v-if="!is_user", :to="admin_href", @click.native="toggleDropdownMenu") {{ username }} #[el-icon(name="setting")]
-          a(v-if="is_user") {{ username }}
-        li(v-if="!is_auth && target_tournament !== undefined")
-          router-link(:to="user_login_href", @click.native="toggleDropdownMenu") Login
-        li(v-if="!is_auth && target_tournament === undefined")
-          router-link(:to="login_href", @click.native="toggleDropdownMenu") Admin
-        li(v-if="!is_auth")
-          router-link(:to="signup_href", @click.native="toggleDropdownMenu") Register
+  div
+    header(:data-nav-opened="nav_opened").header-wrapper
+      .header-container
+        #title
+          span.nav-icon
+            router-link(to="/"): i.fa.fa-home
+          h1: router-link(to="/") PDA
+          span.nav-collapse-arrow
+            button(@click="toggleDropdownMenu")
+              i.caret-collapse-toggle
+        nav: ul
+          li.spacer
+          li(v-if="target_tournament !== undefined && is_auth")
+            a(@click="on_edit_info") #[el-icon(name="message")]
+          li(v-if="target_tournament")
+            router-link(v-if="tournament_href(target_tournament)", :to="tournament_href(target_tournament)") {{ target_tournament.name }}
+          li
+            a(@click="reload") Reload #[el-icon(v-if="loading", name="loading")]
+          li(v-if="is_auth")
+            a(@click="on_logout") Logout #[el-icon(name="circle-cross")]
+          li(v-if="is_auth")
+            router-link(v-if="!is_user", :to="admin_href", @click.native="toggleDropdownMenu") {{ username }} #[el-icon(name="setting")]
+            a(v-if="is_user") {{ username }}
+          li(v-if="!is_auth && target_tournament !== undefined")
+            router-link(:to="user_login_href", @click.native="toggleDropdownMenu") Login
+          li(v-if="!is_auth && target_tournament === undefined")
+            router-link(:to="login_href", @click.native="toggleDropdownMenu") Admin
+          li(v-if="!is_auth")
+            router-link(:to="signup_href", @click.native="toggleDropdownMenu") Register
+
+    el-dialog.message-dialog(title="Tournament Information", :visible.sync="editor.visible", v-if="!loading")
+      span You can use Markdown here. For further information, press ? button below.
+      markdown-editor.tournament-info(v-model="editor.text", :configs="editor.configs")
+      .message-dialog-footer
+        el-button(@click="editor.visible=false") Cancel
+        el-button(type="primary", @click="on_send_info", :loading="editor.loading") Save
 </template>
 
 <script>
   import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
   import { smartphone } from 'assets/js/media-query'
   import math from 'assets/js/math'
+  import markdown_editor from 'vue-simplemde/src/markdown-editor'
+
   export default {
+    components: {
+      'markdown-editor': markdown_editor
+    },
     props: {
       base_url: {
         type: String,
@@ -44,6 +59,18 @@
     },
     data () {
       return {
+        editor: {
+          text: '',
+          visible: false,
+          loading: false,
+          configs: {
+            spellChecker: false,
+            autofocus: true,
+            placeholder: 'Write Tounament Information. This will be displayed to tournament participants.',
+            showIcons: ['bold'],
+            tabSize: 4
+          }
+        },
         nav_opened: false,
         reloading: false
       }
@@ -104,8 +131,24 @@
       ...mapActions([
         'init_tournaments',
         'init_one',
-        'logout'
+        'logout',
+        'send_update_tournament'
       ]),
+      on_edit_info () {
+        this.editor.text = this.target_tournament.user_defined_data.info.text
+        this.editor.visible = true
+      },
+      async on_send_info () {
+        this.editor.loading = true
+        let tournament = this.target_tournament
+        tournament.user_defined_data.info = {
+          text: this.editor.text,
+          time: Date.now()
+        }
+        await this.send_update_tournament({ tournament })
+        this.editor.loading = false
+        this.editor.visible = false
+      },
       async on_logout () {
         await this.logout()
         this.$router.push('/')
@@ -142,10 +185,32 @@
 </script>
 
 <style lang="stylus">
+  @import '~simplemde/dist/simplemde.min.css'
+
   $primary-color = #20a0ff
   //$primary-color = #69b241
   $header_height = 4rem
   $line_height = $header_height - 2rem
+
+  .message-dialog
+    div.el-dialog
+      font-family Times
+      .message-dialog-footer
+        display flex
+        justify-content flex-end
+        margin-right 1rem
+
+  .tournament-header-wrapper
+    display flex
+    justify-content space-between
+
+  .markdown-editor.tournament-info
+    margin-top 1rem
+
+  a.fa.fa-columns.no-disable.no-mobile
+    display none
+  a.fa.fa-arrows-alt.no-disable.no-mobile
+    display none
 
   header.header-wrapper
     position fixed

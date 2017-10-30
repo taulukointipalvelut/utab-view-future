@@ -1,7 +1,16 @@
 <template lang="pug">
   .router-view-content
-    div
-      h1(v-if="!loading") #[flexible-input(:loading="input_loading(target_tournament.id)", :text="target_tournament.name", @text-update="on_update_tournament_name", @start="flexible_input.identity=target_tournament.id")] #[canvas(id='qr', style="float: right; ")]
+    div.tournament-header-wrapper
+      h1(v-if="!loading") #[flexible-input(:loading="input_loading(target_tournament.id)", :text="target_tournament.name", @text-update="on_update_tournament_name", @start="flexible_input.identity=target_tournament.id")]
+      canvas(id='qr', style="float: right; ")
+    el-card(v-if="compiled_markdown !== ''").info-card.admin
+      div.info-card-header(slot="header")
+        h5(style="opacity: 0") {{ '----' }}
+        .title
+          h3 Important Notice
+        .time
+          h5 {{ info_time }}
+      div.info-card-body(v-html="compiled_markdown")
     loading-container(:loading="loading")
       legend(v-if="!loading") Rounds
       loading-container(:loading="loading")
@@ -130,6 +139,7 @@ import Lazy from 'assets/js/lazy'
 import math from 'assets/js/math'
 import { validators, not, is_integer, is_nonzero, is_positive, exists } from 'assets/js/form-validator'
 import qrious from 'qrious'
+import marked from 'marked'
 
 function dialog_generator () {
   return {
@@ -318,6 +328,7 @@ export default {
       'view_config'
     ]),
     ...mapGetters([
+      'target_tournament',
       'draw_by_r',
       'unallocated_speakers',
       'target_tournament',
@@ -326,7 +337,20 @@ export default {
       'entity_by_id',
       'round_name_by_r',
       'round_href'
-    ])
+    ]),
+    compiled_markdown () {
+      let info = this.target_tournament.user_defined_data.info.text
+      return marked(info ? info : '', { sanitize: true })
+    },
+    info_time () {
+      let time = this.target_tournament.user_defined_data.info.time
+      if (time !== undefined) {
+        let date = new Date(time)
+        return date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit' })
+      } else {
+        return ''
+      }
+    }
   },
   methods: {
     ...mapActions([
@@ -665,6 +689,9 @@ export default {
 
   span.tab-label
     color rgb(80, 80, 80)
+
+  div.info-card.admin
+    margin-top 2rem
 
   .round-operations
     display flex

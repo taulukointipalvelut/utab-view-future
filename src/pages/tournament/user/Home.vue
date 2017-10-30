@@ -2,6 +2,14 @@
   .router-view-content(v-if="target_tournament")
     section.page-header
       h1 {{ { speaker: 'Debaters', adjudicator: 'Judges', audience: 'Audience' }[participant] }}
+    el-card(v-if="compiled_markdown !== ''").info-card
+      div.info-card-header(slot="header")
+        h5(style="opacity: 0") {{ '----' }}
+        .title
+          h3 Important Notice
+        .time
+          h5 {{ info_time }}
+      div.info-card-body(v-html="compiled_markdown")
     section
       loading-container(:loading="loading", no_item_text="No Round Available")
         link-list(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-if="!loading && !round.user_defined_data.hidden")
@@ -20,6 +28,7 @@ import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
 import loading_container from 'components/loading-container'
 import math from 'assets/js/math'
+import marked from 'marked'
 
 export default {
   props: ['loading', 'participant'],
@@ -29,6 +38,19 @@ export default {
     'loading-container': loading_container
   },
   computed: {
+    compiled_markdown () {
+      let info = this.target_tournament.user_defined_data.info.text
+      return marked(info ? info : '', { sanitize: true })
+    },
+    info_time () {
+      let time = this.target_tournament.user_defined_data.info.time
+      if (time !== undefined) {
+        let date = new Date(time)
+        return date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit' })
+      } else {
+        return ''
+      }
+    },
     is_adjudicator () {
       return this.participant === 'adjudicator'
     },
@@ -68,6 +90,10 @@ export default {
 <style lang="stylus">
   body
     background-color #f5f5f5
+
+  .page-header
+    margin-bottom 1rem
+
   #app-content
     margin 0
     padding 0

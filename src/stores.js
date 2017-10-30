@@ -463,7 +463,9 @@ export default {
     update_tournament (state, payload) {
       let tournament = find_tournament(state, payload)
       for (let key in payload.tournament) {
-          tournament[key] = payload.tournament[key]
+          if (tournament.hasOwnProperty(key)) {
+              tournament[key] = payload.tournament[key]
+          }
       }
     },
     /* tournaments */
@@ -631,6 +633,13 @@ export default {
                     commit('draws', { tournament: t, draws })
                 })
     },
+    load_config ({ state, commit, dispatch }, payload) {
+        let t = find_tournament(state, payload)
+        return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id)
+                .then(config => {
+                    commit('update_tournament', { tournament: config })
+                })
+    },
     load_rounds ({ state, commit, dispatch }, payload) {
         let t = find_tournament(state, payload)
         return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id+'/rounds')
@@ -693,6 +702,7 @@ export default {
         let usertype = state.auth.usertype
         return new Promise(async (resolve, reject) => {
             await dispatch('load_login_status')
+            await dispatch('load_config', { tournament })
             await dispatch('load_rounds', { tournament })
             await dispatch('load_draws', { tournament })
             await dispatch('load_raw_results', { tournament })
@@ -700,26 +710,6 @@ export default {
             resolve(true)
         })
     },
-    /*
-    WARNING: DO NOT CALL init_all IN LOADING CONTAINER
-    IT WILL CHANGE THE STATUS TO `LOADING`, WHICH CALLS MOUNTED, CALLING init_all AGAIN.
-    */
-    /*init_all ({ state, commit, dispatch }, payload) {
-        return new Promise(async (resolve, reject) => {
-            commit('start_loading')
-            await dispatch('init_login_status')
-            await dispatch('init_styles')
-            await dispatch('init_tournaments')
-            for (let tournament of state.tournaments) {
-                await dispatch('init_rounds', { tournament })
-                await dispatch('init_draws', { tournament })
-                await dispatch('init_raw_results', { tournament })
-                await dispatch('init_entities', { tournament })
-            }
-            commit('finish_loading')
-            resolve(true)
-        })
-    },*/
     request_draw ({ state, commit, dispatch }, payload) {
         let tournament = find_tournament(state, payload)
         let suffix = ''

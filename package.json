@@ -11,9 +11,12 @@
     "axios": "^0.16.2",
     "element-ui": "^1.4.6",
     "log": "^1.4.0",
+    "marked": "^0.3.6",
     "qrious": "^4.0.2",
+    "simplemde": "^1.11.2",
     "vue": "^2.5.2",
     "vue-router": "^2.8.1",
+    "vue-simplemde": "^0.4.6",
     "vuedraggable": "^2.14.1"
   },
   "engines": {
