@@ -11,12 +11,12 @@
               i.caret-collapse-toggle
         nav: ul
           li.spacer
-          li(v-if="target_tournament !== undefined && is_auth")
-            a(@click="on_edit_info") #[el-icon(name="message")]
           li(v-if="target_tournament")
             router-link(v-if="tournament_href(target_tournament)", :to="tournament_href(target_tournament)") {{ target_tournament.name }}
+          li(v-if="target_tournament !== undefined && is_auth")
+            a(@click="on_edit_info") #[el-icon(name="message")]
           li
-            a(@click="reload") Reload #[el-icon(v-if="loading", name="loading")]
+            a(@click="reload") Reload #[el-icon(v-if="loading || reloading", name="loading")]
           li(v-if="is_auth")
             a(@click="on_logout") Logout #[el-icon(name="circle-cross")]
           li(v-if="is_auth")
@@ -169,16 +169,18 @@
         }
         return this.base_url + target
       },
-      reload () {
+      async reload () {
         this.nav_opened = false
         let tournament = this.target_tournament
+        this.reloading = true
         this.start_loading()
         if (tournament !== undefined) {
-          this.init_one({ tournament })
+          await this.init_one({ tournament })
         } else {
-          this.init_tournaments()
+          await this.init_tournaments()
         }
         this.finish_loading()
+        this.reloading = false
       }
     }
   }
