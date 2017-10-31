@@ -536,7 +536,7 @@ export default {
       },
       send_update_tournament ({state, commit, dispatch}, payload) {
          return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id, payload.tournament)
-            .then(() => commit('update_tournament', payload))
+            .then(tournament => commit('update_tournament', { tournament }))
       },
       send_create_round ({state, commit, dispatch}, payload) {
           return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds', payload.round)
