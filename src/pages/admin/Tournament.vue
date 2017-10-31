@@ -109,7 +109,7 @@
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.allow_low_tie_win")
             el-form-item(label="Evaluator in Team", prop="evaluator_in_team", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
               el-select(v-model="dialog.round[type+'_form'].model.user_defined_data.evaluator_in_team")
-                el-option(v-for="index in range(3)", :key="index", :value="['team', 'speaker', null][index]", :label="['One', 'All', 'None'][index]")
+                el-option(v-for="label in ['team', 'speaker']", :key="label", :value="label", :label="{ team: 'One', speaker: 'All' }[label]")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.round[type+'_visible'] = false") Cancel
           el-button(v-if="type==='create'", type="primary", :loading="dialog.round.create_loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
@@ -447,7 +447,7 @@ export default {
         path: 'result/raw/'+selected.r
       })
     },
-    on_create_round () {
+    async on_create_round () {
       this.dialog.round.create_loading = true
       let tournament = this.target_tournament
       let model = this.dialog.round.create_form.model
@@ -456,7 +456,7 @@ export default {
         round.name = 'Round '+round.r
       }
       let payload = { tournament, round }
-      this.send_create_round(payload)
+      await this.send_create_round(payload)
       this.dialog.round.create_loading = false
       this.dialog.round.create_visible = false
     },
