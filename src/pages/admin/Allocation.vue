@@ -730,7 +730,7 @@ export default {
     padding 3px 10px
     margin-top .5rem
     cursor pointer
-    min-width 70px
+    //min-width 70px
 
   .unavailable
     color white
@@ -809,11 +809,13 @@ export default {
   .sided-border
     transition-timing-function ease
     transition all 0.4s
+    box-sizing border-box
     border 2px solid #F7B82A
 
   .zero-judged-border
     transition-timing-function ease
     transition all 0.4s
+    box-sizing border-box
     border 2px solid #F7B82A
 
   .different-win
