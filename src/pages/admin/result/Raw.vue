@@ -191,7 +191,8 @@ export default {
         let groups = Array.from(new Set(results.map(r => r[key])))
         let divided_results = []
         for (let group of groups) {
-          divided_results.push(results.filter(r => r[key] === group))
+          let divided = results.filter(r => r[key] === group).sort((r1, r2) => this.entity_name_by_id(r1[key]).localeCompare(this.entity_name_by_id(r2[key])))
+          divided_results.push(divided)
         }
         return divided_results
       }
