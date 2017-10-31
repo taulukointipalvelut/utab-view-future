@@ -681,7 +681,7 @@ export default {
     initialize_qr () {
       let qr = new qrious({
         element: document.getElementById('qr'),
-        value: this.view_config.base_url + '/' + this.target_tournament.name,
+        value: this.view_config.base_url + '/' + this.target_tournament.id,
         backgroundAlpha: 0,
         level: 'L',
         size: 90
