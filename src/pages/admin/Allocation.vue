@@ -613,7 +613,7 @@ export default {
           shuffle: model.shuffle
         }
       }
-      options.by = this.dialog.draw.consider_all ? this.target_tournament.rounds.filter(round => round.r < this.target_draw.r).map(round => round.r)
+      options.by = this.dialog.draw.consider_all ? this.target_tournament.rounds.filter(round => round.r < this.target_round.r).map(round => round.r)
                                                  : this.dialog.draw.considering_rs
       return this.request_draw({ tournament, r_str: this.r_str, options, draw, allocation_type }).then((data) => {
         this.draw_temp = data
