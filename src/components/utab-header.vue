@@ -135,7 +135,8 @@
         'send_update_tournament'
       ]),
       on_edit_info () {
-        this.editor.text = this.target_tournament.user_defined_data.info.text
+        let tournament = this.target_tournament
+        this.editor.text = tournament.user_defined_data.info ? tournament.user_defined_data.info.text : ''
         this.editor.visible = true
       },
       async on_send_info () {
