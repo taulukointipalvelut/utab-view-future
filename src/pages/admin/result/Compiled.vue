@@ -4,7 +4,7 @@
       h1 {{ target_tournament.name }}
     loading-container(:loading="loading")
     p(v-if="target_tournament.compiled_team_results.length === 0 && target_tournament.compiled_speaker_results.length === 0 && target_tournament.compiled_adjudicator_results.length === 0") No results are collected or Please recompile results.
-    el-tabs(type="card", v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
+    el-tabs(v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
       el-tab-pane(label="Team Results")
         section(v-if="!loading")
           el-table(:data="target_tournament.compiled_team_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
@@ -71,6 +71,9 @@
           el-table-column(prop="sd", label="StDev", align="center", sortable)
             template(slot-scope="scope")
               span {{ scope.row.sd }}
+          el-table-column(prop="comments", label="Comments", align="center", sortable)
+            template(slot-scope="scope")
+              span {{ scope.row.comments.join(', ') }}
         .operations
           el-button(@click="on_download_adjudicator_results") Download Adjudicator Results
           el-button(type="primary", @click="on_configure_slide('adjudicator')") #[el-icon(name="picture")] &nbsp;Slide Show
