@@ -346,8 +346,8 @@ export default {
       'round_href'
     ]),
     compiled_markdown () {
-      let info = this.target_tournament.user_defined_data.info.text
-      return marked(info ? info : '', { sanitize: true })
+      let info = this.target_tournament.user_defined_data.info
+      return marked(info ? info.text : '', { sanitize: true })
     },
     info_time () {
       let time = this.target_tournament.user_defined_data.info.time
