@@ -131,7 +131,8 @@
               el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
                 el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
               el-form-item(label="Considering Rounds")
-                el-select(v-model="dialog.draw.considering_rs", multiple, :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
+                el-checkbox(v-model="dialog.draw.consider_all") All Rounds Before {{ target_round.name }}
+                el-select(v-if="!dialog.draw.consider_all", v-model="dialog.draw.considering_rs", multiple, :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
                   el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
       .dialog-footer(slot="footer")
         el-button(@click="dialog.draw.visible = false") Cancel
@@ -157,6 +158,7 @@ export default {
       dialog: {
         draw: {
           allocation_type: 'all',
+          consider_all: true,
           visible: false,
           loading: false,
           considering_rs: [],
@@ -611,7 +613,8 @@ export default {
           shuffle: model.shuffle
         }
       }
-      options.by = this.dialog.draw.considering_rs
+      options.by = this.dialog.draw.consider_all ? this.target_tournament.rounds.filter(round => round.r < this.target_draw.r).map(round => round.r)
+                                                 : this.dialog.draw.considering_rs
       return this.request_draw({ tournament, r_str: this.r_str, options, draw, allocation_type }).then((data) => {
         this.draw_temp = data
         this.init_allocation()
