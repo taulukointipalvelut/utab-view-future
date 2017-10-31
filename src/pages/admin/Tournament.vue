@@ -53,6 +53,9 @@
                       el-table-column(label="Available", align="center")
                         template(slot-scope="scope")
                           el-switch(v-model="specified(label).detail.available", on-text="", off-text="")
+                      el-table-column(label="Priority", v-if="label==='venues'", align="center")
+                        template(slot-scope="scope")
+                          el-input-number(:min="1", v-model="specified(label).detail.priority")
                       el-table-column(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", align="center", :key="sub_label")
                         template(slot-scope="scope")
                           el-select(multiple, v-model="specified(label).detail[sub_label]")
@@ -120,6 +123,8 @@
             h3(style="text-align: center;", v-if="['teams', 'adjudicators', 'venues'].includes(label)") Values below are set default for all rounds.
             el-form-item(label="Available", prop="available", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[label].form.model.available")
+            el-form-item(label="Priority", prop="priority", v-if="label==='venues'")
+              el-input-number(:min="1", v-model="dialog.venues.form.model.priority")
             el-form-item(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", :prop="sub_label", :key="sub_label", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
               el-select(multiple, v-model="dialog[label].form.model[sub_label]")
                 el-option(v-for="sub_entity in data_to_select(sub_label)", :key="sub_entity.id", :label="sub_entity.name", :value="sub_entity.id")
@@ -215,6 +220,7 @@ function dialog_generator () {
       force: false,
       form: {
         model: {
+          priority: null,
           name: '',
           available: true
         },
@@ -311,7 +317,8 @@ export default {
           id: null,
           detail: {
             r: null,
-            available: false
+            available: false,
+            priority: null
           }
         }
       },
@@ -409,6 +416,8 @@ export default {
         } else if (label_singular === 'adjudicator') {
           this.collapsed[label_singular].detail.institutions = this.access_detail(entity, r).institutions.slice()
           this.collapsed[label_singular].detail.conflicts = this.access_detail(entity, r).conflicts.slice()
+        } else if (label_singular === 'venue') {
+          this.collapsed[label_singular].detail.priority = this.access_detail(entity, r).priority
         }
       }
     },
@@ -661,10 +670,12 @@ export default {
           entity.details = this.range(this.view_config.max_rounds).map(num => {
             return {
               r: num+1,
-              available: entity.available
+              available: entity.available,
+              priority: entity.priority
             }
           })
           delete entity.available
+          delete entity.priority
         }
     },
     initialize_qr () {

@@ -14,6 +14,7 @@
                     el-popover(:open-delay="500", placement="right", trigger="click")
                       el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                       p id: {{ id }}
+                      p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
           el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels[side]", align="center")
             template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
@@ -107,6 +108,7 @@
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                   p id: {{ id }}
+                  p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
 
     el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
       el-tabs(v-model="dialog.draw.allocation_type")
