@@ -235,6 +235,7 @@ export default {
                         done: submitted.includes(from_id),
                         created: sent_result !== undefined ? new Date(sent_result.created) : null,
                         adjudicators,
+                        chairs: square.chairs,
                         teams: square.teams,
                         from_id,
                         is_adjudicator: ind === 1,

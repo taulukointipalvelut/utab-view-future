@@ -41,6 +41,8 @@
                       p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
                       p institutions: {{ institution_names_by_adjudicator_id(id) }}
                       p judged_teams: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') : '' }}
+                      p judged: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced : '' }}
+                      p judged as chair: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced_chair : '' }}
                       p id: {{ id }}
           el-table-column(label="Warnings(Draw)")
             template(slot-scope="scope")
@@ -76,6 +78,8 @@
                   p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
                   p institutions: {{ institution_names_by_adjudicator_id(id) }}
                   p judged_teams: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') : '' }}
+                  p judged: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced : '' }}
+                  p judged as chair: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced_chair : '' }}
                   p id: {{ id }}
       legend Waiting Teams
       loading-container(:loading="loading")
@@ -325,7 +329,8 @@ export default {
           'conflicts': false,
           'personal-conflicts': false,
           'same-institution': false,
-          'already-judged': false
+          'already-judged': false,
+          'zero-judged-border': false
         }
 
         if (this.selected_team !== null) {//FOR RELATIONS WARNINGS
@@ -345,6 +350,10 @@ export default {
           let adjudicator1 = this.entity_by_id(this.selected_adjudicator)
 
           warn_item_adjudicator['same-institution'] = this.check_institutions(adjudicator0, adjudicator1)
+        }
+        let result = this.compiled_adjudicator_result_by_id(id)
+        if (result !== undefined) {
+          warn_item_adjudicator['zero-judged-border'] = this.check_zero_judged(result)
         }
         warn_item_adjudicator['unavailable'] = !this.access_detail(this.entity_by_id(id), this.r_str).available
         return warn_item_adjudicator
@@ -536,6 +545,9 @@ export default {
     },
     check_judged (team, adj, team_result, adj_result) {
       return adj_result.judged_teams.includes(team.id)
+    },
+    check_zero_judged (result) {
+      return result.num_experienced === 0
     },
     check_personal_conflicts (team, adj) {
       return this.access_detail(adj, this.r_str).conflicts.includes(team.id)
@@ -789,6 +801,11 @@ export default {
     background-color #F7B82A
 
   .sided-border
+    transition-timing-function ease
+    transition all 0.4s
+    border 2px solid #F7B82A
+
+  .zero-judged-border
     transition-timing-function ease
     transition all 0.4s
     border 2px solid #F7B82A

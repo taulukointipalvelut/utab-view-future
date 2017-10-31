@@ -105,6 +105,7 @@ export default {
         converted_results.push({
           id: result.id,
           from_id: result.from_id,
+          is_chair: result.is_chair,
           r: result.r,
           judged_teams: [result.teams.gov, result.teams.opp],
           score: result.matter + result.manner,
@@ -154,6 +155,7 @@ export default {
         from_id: this.evaluation_sheet.from_id,
         r: this.evaluation_sheet.r,
         teams: this.evaluation_sheet.teams,
+        is_chair: this.evaluation_sheet.chairs.includes(id),
         comment: '',
         matter: 5,
         manner: 5,

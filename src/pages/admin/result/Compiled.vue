@@ -71,6 +71,12 @@
           el-table-column(prop="sd", label="StDev", align="center", sortable)
             template(slot-scope="scope")
               span {{ scope.row.sd }}
+          el-table-column(prop="num_experienced", label="Judged", align="center", sortable)
+            template(slot-scope="scope")
+              span {{ scope.row.num_experienced }}
+          el-table-column(prop="num_experienced_chair", label="As Chair", align="center", sortable)
+            template(slot-scope="scope")
+              span {{ scope.row.num_experienced_chair }}
           el-table-column(prop="comments", label="Comments", align="center", sortable)
             template(slot-scope="scope")
               span {{ scope.row.comments.join(', ') }}
