@@ -47,8 +47,8 @@ export default {
       } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'team') {
         evs = evs.filter(es => !es.is_adjudicator)
       }
-      let evs_done = evs.filter(ev => ev.done)
-      let evs_undone = evs.filter(ev => !ev.done)
+      let evs_done = evs.filter(ev => ev.done).slice().sort((s1, s2) => this.entity_name_by_id(s1.from_id).localeCompare(this.entity_name_by_id(s2.from_id)))
+      let evs_undone = evs.filter(ev => !ev.done).slice().sort((s1, s2) => this.entity_name_by_id(s1.from_id).localeCompare(this.entity_name_by_id(s2.from_id)))
       evs_done.sort((e1, e2) => e1.created.getTime() > e2.created.getTime() ? 1 : -1)
       return evs_undone.concat(evs_done)
     },

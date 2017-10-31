@@ -62,8 +62,8 @@ export default {
     smartphone: smartphone,
     score_sheets () {
       let score_sheets = this.target_score_sheets
-      let score_sheets_done = score_sheets.filter(s => s.done)
-      let score_sheets_undone = score_sheets.filter(s => !s.done)
+      let score_sheets_done = score_sheets.filter(s => s.done).slice().sort((s1, s2) => this.entity_name_by_id(s1.from_id).localeCompare(this.entity_name_by_id(s2.from_id)))
+      let score_sheets_undone = score_sheets.filter(s => !s.done).slice().sort((s1, s2) => this.entity_name_by_id(s1.from_id).localeCompare(this.entity_name_by_id(s2.from_id)))
       score_sheets_done.sort((s1, s2) => s1.created.getTime() > s2.created.getTime() ? 1 : -1)
       return score_sheets_undone.concat(score_sheets_done)
     },
