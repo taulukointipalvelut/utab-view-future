@@ -2,7 +2,7 @@
   .router-view-content
     div.tournament-header-wrapper
       h1(v-if="!loading") #[flexible-input(:loading="input_loading(target_tournament.id)", :text="target_tournament.name", @text-update="on_update_tournament_name", @start="flexible_input.identity=target_tournament.id")]
-      canvas(id='qr', style="float: right; ")
+      canvas(v-show="!loading", id='qr', style="float: right; ")
     el-card(v-if="compiled_markdown !== ''").info-card.admin
       div.info-card-header(slot="header")
         h5(style="opacity: 0") {{ '----' }}
