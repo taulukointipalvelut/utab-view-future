@@ -1,7 +1,7 @@
 import ballot from 'pages/tournament/user/round/ballot/adjudicator/stores'
 import math from 'assets/js/math.js'
 
-const BASE_URL = 'http://localhost'
+const BASE_URL = location.protocol+'//'+location.hostname
 //const BASE_URL = location.protocol+'//pda.herokuapp.com'
 const API_BASE_URL = BASE_URL + '/api'
 
