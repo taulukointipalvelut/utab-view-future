@@ -6,7 +6,7 @@
     section(v-if="target_tournament !== undefined")
       loading-container(:loading="loading")
         el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border, empty-text="Need More Teams")
-          el-table-column(label="Venue")
+          el-table-column(label="Venue", align="center")
             template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row.venues", :options="venue_options")
                 .draggable-item(v-for="id in scope.row.venues", :class="warn_item_venue(id)")
@@ -14,7 +14,7 @@
                     el-popover(:open-delay="500", placement="right", trigger="click")
                       el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                       p id: {{ id }}
-          el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels_short[side]")
+          el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels[side]", align="center")
             template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
                 .draggable-item(v-for="id in scope.row.teams[side]", :class="warn_item_team(id, side)")
@@ -29,7 +29,7 @@
                       p sides: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).past_sides.join(', ') : '' }}
                       p speakers: {{ speaker_names_by_team_id(id) }}
                       p id: {{ id }}
-          el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label")
+          el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label", align="center")
             template(slot-scope="scope")
               draggable.adj-list(v-model="scope.row[label]", :options="adjudicator_options")
                 .draggable-item(v-for="id in scope.row[label]", :class="warn_item_adjudicator(id)")
@@ -44,21 +44,22 @@
                       p judged: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced : '' }}
                       p judged as chair: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced_chair : '' }}
                       p id: {{ id }}
-          el-table-column(label="Warnings(Draw)")
-            template(slot-scope="scope")
-              div(v-for="warning in warn_square_teams(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
-                el-popover(placement="right", width="200", trigger="click")
-                  el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
-                  p {{ warning.message }}
-                  p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
-          el-table-column(label="Warnings(Alloc)")
-            template(slot-scope="scope")
-              div(v-for="warning in warn_square_adjudicators(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
-                el-popover(placement="right", width="200", trigger="click")
-                  el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
-                  p {{ warning.message }}
-                  p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
-                  p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
+          el-table-column(label="Warnings", align="center")
+            el-table-column(label="Draw", align="center")
+              template(slot-scope="scope")
+                div(v-for="warning in warn_square_teams(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
+                  el-popover(placement="right", width="200", trigger="click")
+                    el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
+                    p {{ warning.message }}
+                    p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
+            el-table-column(label="Alloc", align="center")
+              template(slot-scope="scope")
+                div(v-for="warning in warn_square_adjudicators(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
+                  el-popover(placement="right", width="200", trigger="click")
+                    el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
+                    p {{ warning.message }}
+                    p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
+                    p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
         .operations
           el-button(@click="on_reset_draw") Reset
           el-button(@click="dialog.draw.visible = true") Request
