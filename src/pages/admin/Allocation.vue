@@ -66,6 +66,11 @@
           el-button(@click="dialog.draw.visible = true") Request
           el-button(type="primary", @click="on_send_allocation", :disabled="!sendable") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
           el-button(@click="on_delete_draw", type="danger", :disabled="new_draw") Delete
+        legend Legend
+          el-row(:gutter="10", justify="space-between", style="width: 100%;")
+            el-col(v-for="class_label in Object.keys(warning_classes)", :key="class_label", :span="4")
+              div.legend-content(:class="warning_classes[class_label]", @mouseover="")
+                span {{ class_label }}
     .page-footer
       legend Waiting Adjudicators
       loading-container(:loading="loading")
@@ -217,6 +222,16 @@ export default {
     }
   },
   computed: {
+    warning_classes () {
+      return {
+        'Same Institution': 'same-institution',
+        'Already Judged': 'already-judged',
+        'Sided': 'sided',
+        'Different Win': 'different-win',
+        'Conflicts': 'conflicts',
+        'Personal Conflicts': 'personal-conflicts'
+      }
+    },
     sendable () {
       if (this.draw_adjusted.allocation.length === 0) {
         return false
@@ -843,6 +858,12 @@ export default {
   .el-table .sendable
     background #ffffff
     transition all 1.5s
+
+  .legend-content
+    text-align center
+    opacity 0.8
+    color white
+    border-radius 4px
 
   .details
     border none
