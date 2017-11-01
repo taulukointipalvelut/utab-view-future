@@ -29,7 +29,7 @@
               //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
               //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
         .operations
-          el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='dialog.compile.visible=true') Compile Results
+          el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
           el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
       legend(v-if="!loading") Check-in
@@ -119,7 +119,7 @@
         .dialog-body
           el-form(:model="dialog[label].form.model", :rules="dialog[label].form.rules")
             el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog[label].form.model.name")
+              el-input(v-model="dialog[label].form.model.name", @keyup.enter.native="on_create(label)")
             h3(style="text-align: center;", v-if="['teams', 'adjudicators', 'venues'].includes(label)") Values below are set default for all rounds.
             el-form-item(label="Available", prop="available", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[label].form.model.available")
@@ -380,6 +380,10 @@ export default {
     range: math.range,
     input_loading (identity) {
       return this.flexible_input.identity === identity ? this.flexible_input.loading : false
+    },
+    on_create_compile () {
+      this.dialog.compile.visible = true
+      this.dialog.compile.form.model.rs = this.target_tournament.rounds.map(round => round.r)
     },
     async on_update_tournament_name (name) {
       let payload = { tournament: { name, id: this.target_tournament.id } }
