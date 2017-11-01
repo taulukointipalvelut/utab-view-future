@@ -792,7 +792,7 @@ export default {
     transition-timing-function ease
     transition all 0.4s
     //border 2px solid #F7B82A
-    background-color #F7B82A
+    background-color #c0da1d
 
   .already-judged
     transition-timing-function ease
@@ -834,7 +834,7 @@ export default {
     transition-timing-function ease
     transition all 0.4s
     //border 2px solid #FF4949
-    background-color #FF4949
+    background-color #ff49b1
 
   .el-table .unsendable
     background #ff5e62
