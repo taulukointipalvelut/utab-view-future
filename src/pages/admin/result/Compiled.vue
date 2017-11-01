@@ -141,7 +141,7 @@ export default {
             model: {
               max_ranking_rewarded: 3,
               credit: '',
-              type: 'pretty',
+              type: 'listed',
             }
           }
         },
@@ -151,7 +151,7 @@ export default {
             model: {
               max_ranking_rewarded: 3,
               credit: '',
-              type: 'pretty',
+              type: 'listed',
             }
           }
         },
@@ -161,7 +161,7 @@ export default {
             model: {
               max_ranking_rewarded: 3,
               credit: '',
-              type: 'pretty',
+              type: 'listed',
             }
           }
         },
@@ -171,7 +171,7 @@ export default {
             model: {
               max_ranking_rewarded: 3,
               credit: '',
-              type: 'pretty',
+              type: 'listed',
             }
           }
         },
@@ -181,7 +181,7 @@ export default {
             model: {
               max_ranking_rewarded: 3,
               credit: '',
-              type: 'pretty',
+              type: 'listed',
             }
           }
         }
