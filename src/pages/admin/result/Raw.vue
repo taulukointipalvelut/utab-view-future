@@ -15,7 +15,10 @@
             el-collapse(v-else, accordion, @change="collapse_value = $event")
               el-collapse-item.collapse-item(v-for="results in divided_results('team')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
                 template(slot="title")
-                  span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                  div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
+                    span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                    div
+                      el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', results)") #[el-icon(name="close")]
                 el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ")
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
@@ -32,7 +35,7 @@
                   el-table-column(align="right")
                     template(slot-scope="scope")
                       el-button.edit(size="small", @click="on_edit('team', scope.row)") #[el-icon(name="edit")]
-                      el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', scope.row)") #[el-icon(name="close")]
+                      el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', [scope.row])") #[el-icon(name="close")]
           .operations
             el-button(@click="on_download_raw_team_results") Download Raw Team Results
 
@@ -42,7 +45,10 @@
             el-collapse(v-else, accordion, @change="collapse_value = $event")
               el-collapse-item.collapse-item(v-for="results in divided_results('speaker')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
                 template(slot="title")
-                  span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                  div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
+                    span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                    div
+                      el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', results)") #[el-icon(name="close")]
                 el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ")
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
@@ -57,7 +63,7 @@
                   el-table-column(align="right")
                     template(slot-scope="scope")
                       el-button.edit(size="small", @click="on_edit('speaker', scope.row)") #[el-icon(name="edit")]
-                      el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', scope.row)") #[el-icon(name="close")]
+                      el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', [scope.row])") #[el-icon(name="close")]
           .operations
             el-button(@click="on_download_raw_speaker_results") Download Raw Speaker Results
 
@@ -67,7 +73,10 @@
             el-collapse(v-else, accordion, @change="collapse_value = $event")
               el-collapse-item.collapse-item(v-for="results in divided_results('adjudicator')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
                 template(slot="title")
-                  span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                  div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
+                    span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                    div
+                      el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', results)") #[el-icon(name="close")]
                 el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ")
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
@@ -81,7 +90,7 @@
                   el-table-column(align="right")
                     template(slot-scope="scope")
                       el-button.edit(size="small", @click="on_edit('adjudicator', scope.row)") #[el-icon(name="edit")]
-                      el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', scope.row)") #[el-icon(name="close")]
+                      el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', [scope.row])") #[el-icon(name="close")]
           .operations
             el-button(@click="on_download_raw_adjudicator_results") Download Raw Adjudicator Results
 
@@ -257,16 +266,18 @@ export default {
       this.transfer(this.dialog[label_singular+'_result'].form.model, raw_result)
       this.dialog[label_singular+'_result'].visible = true
     },
-    async on_delete (label, label_singular, raw_result) {
+    async on_delete (label, label_singular, raw_results) {
       const ans = await this.$confirm('Are you sure?')
       if (ans === 'confirm') {
-        let payload = {
-          label,
-          label_singular,
-          tournament: this.target_tournament,
-          raw_result
+        for (let raw_result of raw_results) {
+          let payload = {
+            label,
+            label_singular,
+            tournament: this.target_tournament,
+            raw_result
+          }
+          this.send_delete_result(payload)
         }
-        this.send_delete_result(payload)
       }
     },
     on_update (label, label_singular) {
