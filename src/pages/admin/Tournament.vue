@@ -389,7 +389,6 @@ export default {
       let payload = { tournament: { name, id: this.target_tournament.id } }
       this.flexible_input.loading = true
       await this.send_update_tournament(payload)
-      this.initialize_qr()
       this.flexible_input.loading = false
     },
     capitalize (p) {
