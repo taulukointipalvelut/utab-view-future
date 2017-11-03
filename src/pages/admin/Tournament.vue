@@ -83,7 +83,7 @@
                 el-checkbox(label="speakers", :checked="true", :disabled="dialog.compile.form.model.simple")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.compile.visible = false") Cancel
-          el-button(type="primary", @click="on_compile", :disabled="dialog.compile.entities.length === 0 || dialog.compile.form.model.rs.length === 0") Request
+          el-button(type="primary", @click="on_compile", :disabled="dialog.compile.entities.length === 0 || dialog.compile.form.model.rs.length === 0", :loading="dialog.compile.loading") Request
 
       el-dialog(v-for="type in ['create', 'edit']", :key="type", :title="capitalize(type)+' New Round'", :visible.sync="dialog.round[type+'_visible']", v-if="!loading")
         .dialog-body
@@ -252,6 +252,7 @@ function dialog_generator () {
     compile: {
       entities: [],
       visible: false,
+      loading: false,
       form: {
         model: {
           rs: [],
@@ -519,6 +520,7 @@ export default {
     on_compile () {
       let tournament = this.target_tournament
       let model = this.dialog.compile.form.model
+      this.dialog.compile.loading = true
       let _payload = {
         tournament,
         request: {
@@ -551,6 +553,7 @@ export default {
 
       Promise.all(payloads.map(this.request_compiled_results))
         .then(() => {
+          this.dialog.compile.loading = false
           this.dialog.compile.visible = false
           this.$router.push({
             path: 'result/compiled'
