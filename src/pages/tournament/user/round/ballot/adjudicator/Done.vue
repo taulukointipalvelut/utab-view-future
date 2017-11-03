@@ -4,7 +4,7 @@
       el-card
         h2 Thank you! Your ballot was successfully sent.
         h2 You voted for #[span.voted-for {{ entity_name_by_id(winner) }} ({{ side_label }})].
-
+        h2 Please show this screen to debaters.
     section.buttons(v-if="!loading")
       el-button(@click="on_home") #[i.fa.fa-home] Home
       //el-button(type="primary" @click="on_next", :disabled="loading") Next #[el-icon(name="arrow-right")]
