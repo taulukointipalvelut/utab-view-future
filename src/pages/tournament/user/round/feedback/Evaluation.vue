@@ -43,7 +43,7 @@
                 el-form-item(label="Total")
                   span {{ result.manner + result.matter }}
                 el-form-item(label="Comment")
-                  span {{ result.comment }}
+                  span {{ result.comment !== '' ? result.comment : 'None' }}
         .dialog-footer(slot="footer")
           el-button(@click="dialog.check.visible = false") Cancel
           el-button(type="primary", :loading="dialog.check.sending", @click="on_send") #[i.fa.fa-paper-plane] Send
