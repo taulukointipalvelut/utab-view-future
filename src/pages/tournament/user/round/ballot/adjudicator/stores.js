@@ -44,17 +44,6 @@ function object_converter (result, prop, default_value=0) {
     return converted
 }
 
-function array_converter_temp (arr) {
-    let arr2 = []
-    for (let e of arr) {
-        arr2.push({
-            order: e.order,
-            value: e.order === 2 || e.order === 3 ? e.value/2 : e.value
-        })
-    }
-    return arr2
-}
-
 export default {
   namespaced: true,
   state: {
@@ -146,9 +135,9 @@ export default {
                 id: score_sheet.teams.gov,
                 win: state.result.winner === score_sheet.teams.gov,
                 speakers: state.result.gov.speakers,
-                scores: array_adder(array_converter_temp(state.result.gov.matters), array_converter_temp(state.result.gov.manners)),
-                matters: array_converter_temp(state.result.gov.matters),
-                manners: array_converter_temp(state.result.gov.manners),
+                scores: array_adder(state.result.gov.matters, state.result.gov.manners),
+                matters: state.result.gov.matters,
+                manners: state.result.gov.manners,
                 best: state.result.gov.best,
                 poi: state.result.gov.poi
             },
@@ -156,9 +145,9 @@ export default {
                 id: score_sheet.teams.opp,
                 win: state.result.winner === score_sheet.teams.opp,
                 speakers: state.result.opp.speakers,
-                scores: array_adder(array_converter_temp(state.result.opp.matters), array_converter_temp(state.result.opp.manners)),
-                matters: array_converter_temp(state.result.opp.matters),
-                manners: array_converter_temp(state.result.opp.manners),
+                scores: array_adder(state.result.opp.matters, state.result.opp.manners),
+                matters: state.result.opp.matters,
+                manners: state.result.opp.manners,
                 best: state.result.opp.best,
                 poi: state.result.opp.poi
             }

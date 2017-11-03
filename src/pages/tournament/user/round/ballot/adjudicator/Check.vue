@@ -31,7 +31,7 @@
                 .inner-table-tr.total
                   .inner-table-td Total
                   .inner-table-td.right {{ value(side, 'matters', role.order) + value(side, 'manners', role.order) }}
-          //.outer-table-tr
+          .outer-table-tr
             .outer-table-td.role Total
             .outer-table-td.flex.right {{ total(side) }}
 
