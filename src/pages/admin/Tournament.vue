@@ -2,7 +2,7 @@
   .router-view-content
     div.tournament-header-wrapper
       h1(v-if="!loading") #[flexible-input(:loading="input_loading(target_tournament.id)", :text="target_tournament.name", @text-update="on_update_tournament_name", @start="flexible_input.identity=target_tournament.id")]
-      canvas(v-show="!loading", id='qr', style="float: right; ")
+      //canvas(v-show="!loading", id='qr', style="float: right; ")
     el-card(v-if="compiled_markdown !== ''").info-card.admin
       div.info-card-header(slot="header")
         h5(style="opacity: 0") {{ '----' }}
@@ -143,7 +143,7 @@ import flexible_input from 'components/flexible-input'
 import Lazy from 'assets/js/lazy'
 import math from 'assets/js/math'
 import { validators, not, is_integer, is_nonzero, is_positive, exists } from 'assets/js/form-validator'
-import qrious from 'qrious'
+//import qrious from 'qrious'
 import marked from 'marked'
 
 function dialog_generator () {
@@ -681,7 +681,7 @@ export default {
           delete entity.priority
         }
     },
-    initialize_qr () {
+    /*initialize_qr () {
       let qr = new qrious({
         element: document.getElementById('qr'),
         value: this.view_config.base_url + '/' + this.target_tournament.id,
@@ -689,11 +689,11 @@ export default {
         level: 'L',
         size: 90
       })
-    }
+    }*/
   },
   async mounted () {
     await this.init_one({ tournament: this.target_tournament })
-    this.initialize_qr()
+    //this.initialize_qr()
   }
 }
 </script>
