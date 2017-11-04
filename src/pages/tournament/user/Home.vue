@@ -11,7 +11,7 @@
           h5 {{ info_time }}
       div.info-card-body(v-html="compiled_markdown")
     section
-      loading-container(:loading="loading", no_item_text="No Round Available")
+      loading-container(:loading="oneloading", no_item_text="No Round Available")
         link-list(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-if="!loading && !round.user_defined_data.hidden")
           legend(slot="legend") {{ round.name }}
           router-link(:to="url(round, 'draw')")
@@ -31,7 +31,7 @@ import math from 'assets/js/math'
 import marked from 'marked'
 
 export default {
-  props: ['loading', 'participant'],
+  props: ['loading', 'participant', 'oneloading'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item,

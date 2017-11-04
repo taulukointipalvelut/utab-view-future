@@ -1,6 +1,6 @@
 <template lang="pug">
   loading-container.router-view-content(:loading="loading", no_item_text="Fail to load round data")
-    router-view
+    router-view(:loading="loading", :oneloading="oneloading")
 </template>
 
 <script>
@@ -12,6 +12,11 @@ export default {
   components: {
     'utab-header': utab_header,
     'loading-container': loading_container
+  },
+  data () {
+    return {
+      oneloading: false
+    }
   },
   props: ['participant'],
   computed: {
@@ -54,7 +59,11 @@ export default {
         query: { next: this.$route.fullPath, tournament_id: this.target_tournament.id }
       })
     } else {
+      this.oneloading = true
       this.init_one({ tournament: this.target_tournament })
+          .then(() => {
+              this.oneloading = false
+          })
     }
   }
 }
