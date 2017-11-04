@@ -3,10 +3,10 @@
     .card-container(v-if="!loading")
       el-card
         el-form
-          .winner-selector
-            .winner-selector__item.sideinfo-header
-              div(v-for="side in ['gov', 'opp']", :key="side").sideinfo-header__item {{ style.side_labels_short[side] }}
-              .sideinfo-header__item {{ total(side) }} pts
+          .sideinfo-header
+              .team-label-wrapper(v-for="side in ['gov', 'opp']", :key="side")
+                span {{ style.side_labels_short[side] }}
+                span {{ total(side) }} pts
           el-radio-group.winner-selector(:value="result.winner", @input="on_select_winner", size="large")
             el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ entity_name_by_id(score_sheet.teams.gov) }}
             el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ entity_name_by_id(score_sheet.teams.opp) }}
@@ -90,7 +90,7 @@ export default {
         width 100%
 
   .sideinfo-header
-    justify-content space-between
+    justify-content space-around
 
     & .sideinfo-header__item
       flex 1
