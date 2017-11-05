@@ -19,7 +19,7 @@
                     span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
                     div
                       el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', results)") #[el-icon(name="close")]
-                el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ")
+                el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id)", border)
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ entity_name_by_id(scope.row.id) }}
@@ -32,7 +32,7 @@
                   el-table-column(prop="from_id", label="From", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ entity_name_by_id(scope.row.from_id) }}
-                  el-table-column(align="right")
+                  el-table-column(align="right", :min-width="100")
                     template(slot-scope="scope")
                       el-button.edit(size="small", @click="on_edit('team', scope.row)") #[el-icon(name="edit")]
                       el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', [scope.row])") #[el-icon(name="close")]
@@ -49,7 +49,7 @@
                     span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
                     div
                       el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', results)") #[el-icon(name="close")]
-                el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ")
+                el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ", border)
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ entity_name_by_id(scope.row.id) }}
@@ -60,15 +60,15 @@
                   el-table-column(label="Best", align="center")
                     el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
                       template(slot-scope="scope")
-                        span {{ scope.row.user_defined_data.best.find(b => b.order === index+1).value }}
+                        span {{ scope.row.user_defined_data.best.find(b => b.order === index+1).value ? '1' : '' }}
                   el-table-column(label="POI", align="center")
                     el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
                       template(slot-scope="scope")
-                        span {{ scope.row.user_defined_data.poi.find(b => b.order === index+1).value }}
+                        span {{ scope.row.user_defined_data.poi.find(b => b.order === index+1).value ? '1' : '' }}
                   el-table-column(prop="from_id", label="From", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ entity_name_by_id(scope.row.from_id) }}
-                  el-table-column(align="right")
+                  el-table-column(align="right", :min-width="100")
                     template(slot-scope="scope")
                       el-button.edit(size="small", @click="on_edit('speaker', scope.row)") #[el-icon(name="edit")]
                       el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', [scope.row])") #[el-icon(name="close")]
@@ -85,7 +85,7 @@
                     span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
                     div
                       el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', results)") #[el-icon(name="close")]
-                el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ")
+                el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ", border)
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ entity_name_by_id(scope.row.id) }}
@@ -95,7 +95,7 @@
                   el-table-column(prop="from_id", label="From", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ adjudicator_result_sender(scope.row.from_id) }}
-                  el-table-column(align="right")
+                  el-table-column(align="right", :min-width="100")
                     template(slot-scope="scope")
                       el-button.edit(size="small", @click="on_edit('adjudicator', scope.row)") #[el-icon(name="edit")]
                       el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', [scope.row])") #[el-icon(name="close")]
@@ -124,9 +124,9 @@
             el-form-item(v-for="score in dialog.speaker_result.form.model.scores", :key="score.order", :label="ordinal(score.order)")
               el-input-number(:value="score.value", @change="input_score(dialog.speaker_result.form.model.scores, score.order, $event)")
             el-form-item(v-for="poi in dialog.speaker_result.form.model.user_defined_data.poi", :key="poi.order", :label="'POI '+ordinal(poi.order)")
-              el-switch(:value="poi.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.poi, poi.order, $event)")
+              el-switch(:value="poi.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.poi, poi.order, $event)", on-text="", off-text="")
             el-form-item(v-for="best in dialog.speaker_result.form.model.user_defined_data.best", :key="best.order", :label="'Best '+ordinal(best.order)")
-              el-switch(:value="best.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.best, best.order, $event)")
+              el-switch(:value="best.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.best, best.order, $event)", on-text="", off-text="")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.speaker_result.visible = false") Cancel
           el-button(type="primary", :loading="dialog.speaker_result.loading", @click="on_update('speakers', 'speaker')") #[el-icon(name="plus", v-if="!dialog.speaker_result.loading")] OK
