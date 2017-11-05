@@ -115,8 +115,12 @@
           el-button(v-if="type==='create'", type="primary", :loading="dialog.round.create_loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
           el-button(v-if="type==='edit'", type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
 
-      el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'Add New '+capitalize(labels_singular[label])", :visible.sync="dialog[label].visible", :key="label", v-if="!loading")
+      el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'Add New '+capitalize(label)", :visible.sync="dialog[label].visible", :key="label", v-if="!loading")
         .dialog-body
+          h3 From csv File
+          .load-file-container
+            input(type="file", id="input", @change="handle_files(label, labels_singular[label], $event)", accept=".csv")
+          h3 Or
           el-form(:model="dialog[label].form.model", :rules="dialog[label].form.rules")
             el-form-item(label="Name", prop="name")
               el-input(v-model="dialog[label].form.model.name", @keyup.enter.native="on_create(label)")
@@ -375,6 +379,26 @@ export default {
       'init_one',
       'next_round'
     ]),
+    handle_files (label, label_singular, evt) {
+      this.dialog[label].visible = false
+      let file = evt.target.files[0]
+      if (file === undefined) { return }
+      let reader = new FileReader()
+      let that = this
+      reader.readAsText(file)
+      reader.addEventListener('load', async function () {
+        let text = reader.result.trim()
+        let rows = text.split('\n').map(row => row.split(',').map(e => e.trim()))
+        for (let row of rows) {
+          let name = row[0]
+          if (name === '' || name === undefined) { continue }
+          let ans = await that.$confirm('The following '+label_singular+' will be added : '+name)
+          if (ans === 'confirm') {
+            that.on_create(label, { name })
+          }
+        }
+      })
+    },
     specified (label) {
       return this.collapsed[this.labels_singular[label]]
     },
@@ -560,11 +584,11 @@ export default {
           })
       })
     },
-    async on_create (label) {
+    async on_create (label, model0=undefined) {
       this.dialog[label].loading = true
 
       const tournament = this.target_tournament
-      let model = this.dialog[label].form.model
+      let model = model0 === undefined ? this.dialog[label].form.model : model0
       let entity = Object.assign({}, model)
       this.convert_with_details(entity, label)
       let payload = {
@@ -709,6 +733,10 @@ export default {
 
   div.info-card.admin
     margin-top 2rem
+
+  .load-file-container
+    display flex
+    justify-content space-around
 
   .round-operations
     display flex
