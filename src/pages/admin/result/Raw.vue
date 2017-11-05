@@ -57,6 +57,14 @@
                     el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
                       template(slot-scope="scope")
                         span {{ score(scope.row.scores, index+1) === 0 ? '' : score(scope.row.scores, index+1) }}
+                  el-table-column(label="Best", align="center")
+                    el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
+                      template(slot-scope="scope")
+                        span {{ scope.row.user_defined_data.best.find(b => b.order === index+1).value }}
+                  el-table-column(label="POI", align="center")
+                    el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
+                      template(slot-scope="scope")
+                        span {{ scope.row.user_defined_data.poi.find(b => b.order === index+1).value }}
                   el-table-column(prop="from_id", label="From", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ entity_name_by_id(scope.row.from_id) }}
@@ -115,6 +123,10 @@
             h3(align="center", v-if="dialog.speaker_result.form.model.from_id !== null") Adjudicator: {{ entity_name_by_id(dialog.speaker_result.form.model.from_id) }}
             el-form-item(v-for="score in dialog.speaker_result.form.model.scores", :key="score.order", :label="ordinal(score.order)")
               el-input-number(:value="score.value", @change="input_score(dialog.speaker_result.form.model.scores, score.order, $event)")
+            el-form-item(v-for="poi in dialog.speaker_result.form.model.user_defined_data.poi", :key="poi.order", :label="'POI '+ordinal(poi.order)")
+              el-switch(:value="poi.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.poi, poi.order, $event)")
+            el-form-item(v-for="best in dialog.speaker_result.form.model.user_defined_data.best", :key="best.order", :label="'Best '+ordinal(best.order)")
+              el-switch(:value="best.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.best, best.order, $event)")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.speaker_result.visible = false") Cancel
           el-button(type="primary", :loading="dialog.speaker_result.loading", @click="on_update('speakers', 'speaker')") #[el-icon(name="plus", v-if="!dialog.speaker_result.loading")] OK
@@ -171,7 +183,11 @@ export default {
               r: null,
               id: null,
               scores: [],
-              from_id: null
+              from_id: null,
+              user_defined_data: {
+                poi: false,
+                best: false
+              }
             }
           },
           loading: false,
