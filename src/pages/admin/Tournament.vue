@@ -392,10 +392,16 @@ export default {
         for (let row of rows) {
           let name = row[0]
           if (name === '' || name === undefined) { continue }
-          let ans = await that.$confirm('The following '+label_singular+' will be added : '+name)
-          if (ans === 'confirm') {
-            that.on_create(label, { name })
-          }
+          await that.$confirm('The following '+label_singular+' will be added : '+name)
+                    .then(ans => {
+                      if (ans === 'confirm') {
+                        that.on_create(label, { name })
+                        return true
+                      }
+                    })
+                    .catch(() => {
+                      return false
+                    })
         }
       })
     },
