@@ -41,7 +41,7 @@ export default {
   props: ['r_str'],
   computed: {
     evaluation_sheets () {
-      let evs = this.target_evaluation_sheets
+      let evs = this.target_evaluation_sheets(this.r_str)
       if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'adjudicator') {
         evs = evs.filter(es => es.is_adjudicator)
       } else if (this.$route.query.hasOwnProperty('filter') && this.$route.query.filter === 'team') {
