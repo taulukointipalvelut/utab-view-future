@@ -595,6 +595,7 @@ export default {
       }
       for (let raw_square of this.draw_adjusted.allocation) {
         let square = {
+          id: raw_square.id,
           venue: raw_square.venues[0],
           teams: {
             gov: raw_square.teams.gov[0],
@@ -706,8 +707,10 @@ export default {
         }
 
         if (no_draw) {
+            let c = 0
             for (let square of Array(Math.floor(this.available_teams(this.r_str).length/2))) {
                 this.draw_adjusted.allocation.push({
+                    id: c,
                     venues: [],
                     teams: {
                         gov: [],
@@ -717,11 +720,14 @@ export default {
                     panels: [],
                     trainees: []
                 })
+                c += 1
             }
         } else {
             let sorted_allocation = draw.allocation.slice().sort((s1, s2) => this.entity_name_by_id(s1.venue).localeCompare(this.entity_name_by_id(s2.venue)))
+            let c = 0
             for (let square of sorted_allocation) {
                 this.draw_adjusted.allocation.push({
+                    id: c,
                     venues: square.venue === null ? [] : [square.venue],
                     teams: {
                         gov: [square.teams.gov],
@@ -731,6 +737,7 @@ export default {
                     panels: square.panels,
                     trainees: square.trainees
                 })
+                c += 1
             }
         }
 
