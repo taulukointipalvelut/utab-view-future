@@ -710,9 +710,11 @@ export default {
     init_tournaments ({ state, commit, dispatch }, payload) {
         console.log("init_tournaments called @"+state.route.path)
         return new Promise(async (resolve, reject) => {
-            await dispatch('load_login_status')
-            await dispatch('load_styles')
-            await dispatch('load_tournaments')
+            await Promise.all([
+                dispatch('load_login_status'),
+                dispatch('load_tournaments'),
+                dispatch('load_styles')
+            ])
             resolve(true)
         })
     },
@@ -722,12 +724,16 @@ export default {
         let tournament = find_tournament(state, payload)
         let usertype = state.auth.usertype
         return new Promise(async (resolve, reject) => {
-            await dispatch('load_login_status')
-            await dispatch('load_config', { tournament })
-            await dispatch('load_rounds', { tournament })
-            await dispatch('load_draws', { tournament })
-            await dispatch('load_raw_results', { tournament })
-            await dispatch('load_entities', { tournament })
+            await Promise.all([
+                dispatch('load_login_status'),
+                dispatch('load_config', { tournament })
+            ])
+            await Promise.all([
+                dispatch('load_rounds', { tournament }),
+                dispatch('load_draws', { tournament }),
+                dispatch('load_raw_results', { tournament }),
+                dispatch('load_entities', { tournament })
+            ])
             resolve(true)
         })
     },
