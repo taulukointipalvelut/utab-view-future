@@ -75,8 +75,6 @@
             el-form-item(label="Rounds")
               el-select(v-model="dialog.compile.form.model.rs", multiple)
                 el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
-            el-form-item(label="Force")
-              el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.force")
             el-form-item(label="Simple")
               el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.simple")
             el-form-item(label="Target")
@@ -263,7 +261,6 @@ function dialog_generator () {
       form: {
         model: {
           rs: [],
-          force: false,
           simple: false
         }
       }
@@ -561,8 +558,7 @@ export default {
         request: {
           rs: model.rs,
           options: {
-            simple: model.simple,
-            force: model.force
+            simple: model.simple
           }
         }
       }
