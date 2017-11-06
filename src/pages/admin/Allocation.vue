@@ -135,13 +135,13 @@
                   el-option(v-for="algorithm in ['standard', 'traditional']", :key="algorithm", :value="algorithm", :label="algorithm")
               el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
                 el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
-              el-form-item(label="Considering Rounds")
+              el-form-item(label="Considering Rounds", v-if="!dialog.draw.form.model.shuffle")
                 el-checkbox(v-model="dialog.draw.consider_all") All Rounds Before {{ target_round.name }}
                 el-select(v-if="!dialog.draw.consider_all", v-model="dialog.draw.considering_rs", multiple, :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
                   el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
             div(v-for="r in dialog.draw.considering_rs", :key="r")
-              p(v-if="adjudicators_ss_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
-              p(v-if="entities_es_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+              p(v-if="adjudicators_ss_unsubmitted(r).length > 0 && (['all', 'teams', 'adjudicators'].includes(label) || (label === 'venues' && !dialog.draw.form.model.shuffle))") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+              p(v-if="entities_es_unsubmitted(r).length > 0 && ['all', 'adjudicators'].includes(label)") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
       .dialog-footer(slot="footer")
         el-button(@click="dialog.draw.visible = false") Cancel
         el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
