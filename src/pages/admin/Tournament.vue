@@ -124,7 +124,7 @@
           h3 Or
           el-form(:model="dialog[label].form.model", :rules="dialog[label].form.rules")
             el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog[label].form.model.name", @keyup.enter.native="on_create(label)")
+              el-input(v-model="dialog[label].form.model.name", @keydown.enter.native="on_create(label)", @keyup.enter.native="", @submit="", autofocus)
             h3(style="text-align: center;", v-if="['teams', 'adjudicators', 'venues'].includes(label)") Values below are set default for all rounds.
             el-form-item(label="Available", prop="available", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog[label].form.model.available")
