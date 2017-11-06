@@ -3,8 +3,8 @@
     section(v-if="!loading").page-header.result-header
       h1 {{ target_tournament.name }}
     loading-container(:loading="loading")
-      p(v-if="!loading && adjudicators_ss_unsubmitted.length > 0") These adjudicators have not sent the score sheets: #[font(size="4", color="red") {{ adjudicators_ss_unsubmitted.map(entity_name_by_id).join(", ") }}]
-      p(v-if="!loading && entities_es_unsubmitted.length > 0") These adjudicators/teams have not sent the evaluation sheets: #[font(size="4", color="red") {{ entities_es_unsubmitted.map(entity_name_by_id).join(", ") }}]
+      p(v-if="!loading && adjudicators_ss_unsubmitted(r_str).length > 0") These adjudicators have not sent the score sheets: #[font(size="4", color="red") {{ adjudicators_ss_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
+      p(v-if="!loading && entities_es_unsubmitted(r_str).length > 0") These adjudicators/teams have not sent the evaluation sheets: #[font(size="4", color="red") {{ entities_es_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
       el-radio-group.sort-wrapper(v-model="sort_by")
         el-radio-button.sort-option(label="sender") Sort by sender
         el-radio-button.sort-option(label="target") Sort by target
@@ -226,34 +226,16 @@ export default {
     ...mapGetters([
       'style',
       'target_tournament',
-      'target_score_sheets',
-      'target_evaluation_sheets',
       'target_round',
       'entity_by_id',
       'entity_name_by_id',
       'teams_by_speaker_id',
       'raw_speaker_results_by_r',
       'raw_team_results_by_r',
-      'raw_adjudicator_results_by_r'
-    ]),
-    adjudicators_ss_watching () {
-      return Array.from(new Set(this.target_score_sheets.map(ss => ss.from_id)))
-    },
-    entities_es_watching () {
-      return Array.from(new Set(this.target_evaluation_sheets.map(es => es.from_id)))
-    },
-    adjudicators_ss_submitted () {
-      return Array.from(new Set(this.raw_team_results_by_r(this.r_str).map(tr => tr.from_id)))
-    },
-    adjudicators_ss_unsubmitted () {
-      return this.adjudicators_ss_watching.filter(id => !this.adjudicators_ss_submitted.includes(id))
-    },
-    entities_es_submitted () {
-      return Array.from(new Set(this.raw_adjudicator_results_by_r(this.r_str).map(ar => ar.from_id)))
-    },
-    entities_es_unsubmitted () {
-      return this.entities_es_watching.filter(id => !this.entities_es_submitted.includes(id))
-    }
+      'raw_adjudicator_results_by_r',
+      'adjudicators_ss_unsubmitted',
+      'entities_es_unsubmitted'
+    ])
   },
   methods: {
     ...mapActions([

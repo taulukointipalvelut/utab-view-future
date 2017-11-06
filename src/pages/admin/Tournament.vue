@@ -68,6 +68,9 @@
 
       el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
         .dialog-body
+          div(v-for="r in dialog.compile.form.model.rs", :key="r")
+            p(v-if="adjudicators_ss_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+            p(v-if="entities_es_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
           el-form(:model="dialog.compile.form.model", :rules="dialog.compile.form.rules")
             el-form-item(label="Rounds")
               el-select(v-model="dialog.compile.form.model.rs", multiple)
@@ -348,7 +351,9 @@ export default {
       'entity_name_by_id',
       'entity_by_id',
       'round_name_by_r',
-      'round_href'
+      'round_href',
+      'adjudicators_ss_unsubmitted',
+      'entities_es_unsubmitted'
     ]),
     compiled_markdown () {
       let info = this.target_tournament.user_defined_data.info
@@ -414,7 +419,7 @@ export default {
     },
     on_create_compile () {
       this.dialog.compile.visible = true
-      this.dialog.compile.form.model.rs = this.target_tournament.rounds.map(round => round.r)
+      this.dialog.compile.form.model.rs = this.target_tournament.rounds.filter(round => this.draw_by_r(round.r) !== undefined).map(round => round.r)
     },
     async on_update_tournament_name (name) {
       let payload = { tournament: { name, id: this.target_tournament.id } }

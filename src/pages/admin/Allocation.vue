@@ -63,7 +63,7 @@
                     p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
         .operations
           el-button(@click="on_reset_draw") Reset
-          el-button(@click="dialog.draw.visible = true") Request
+          el-button(@click="on_edit_request") Request
           el-button(type="primary", @click="on_send_allocation", :disabled="!sendable") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
           el-button(@click="on_delete_draw", type="danger", :disabled="new_draw") Delete
         legend Legend
@@ -139,6 +139,9 @@
                 el-checkbox(v-model="dialog.draw.consider_all") All Rounds Before {{ target_round.name }}
                 el-select(v-if="!dialog.draw.consider_all", v-model="dialog.draw.considering_rs", multiple, :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
                   el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
+            div(v-for="r in dialog.draw.considering_rs", :key="r")
+              p(v-if="adjudicators_ss_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+              p(v-if="entities_es_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
       .dialog-footer(slot="footer")
         el-button(@click="dialog.draw.visible = false") Cancel
         el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
@@ -269,10 +272,20 @@ export default {
       'draw_time',
       'access_detail',
       'compiled_team_result_by_id',
-      'compiled_adjudicator_result_by_id'
+      'compiled_adjudicator_result_by_id',
+      'round_name_by_r',
+      'entities_es_unsubmitted',
+      'adjudicators_ss_unsubmitted'
     ])
   },
   methods: {
+    on_edit_request () {
+      this.dialog.draw.visible = true
+      this.dialog.draw.considering_rs = this.target_tournament.rounds
+                                  .slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)
+                                  .filter(round => round.r < this.target_round.r)
+                                  .map(round => round.r)
+    },
     on_reset_draw () {
       this.draw_temp = null,
       this.init_allocation()
