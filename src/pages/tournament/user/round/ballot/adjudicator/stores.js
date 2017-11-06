@@ -188,7 +188,6 @@ export default {
                 from_id: score_sheet.from_id,
                 weight: 1,
                 win: converted_result[side].win,
-                side,
                 opponents: [score_sheet.teams[sides[1-i]]]
             }
             raw_team_results.push(raw_team_result)

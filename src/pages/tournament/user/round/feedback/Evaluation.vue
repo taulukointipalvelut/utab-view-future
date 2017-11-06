@@ -105,9 +105,7 @@ export default {
         converted_results.push({
           id: result.id,
           from_id: result.from_id,
-          is_chair: result.is_chair,
           r: result.r,
-          judged_teams: [result.teams.gov, result.teams.opp],
           score: result.matter + result.manner,
           comment: result.comment,
           user_defined_data: {

@@ -26,9 +26,6 @@
                   el-table-column(prop="win", label="Win", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ scope.row.win }}
-                  el-table-column(prop="side", label="Side", align="center", sortable)
-                    template(slot-scope="scope")
-                      span {{ scope.row.side }}
                   el-table-column(prop="from_id", label="From", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ entity_name_by_id(scope.row.from_id) }}
@@ -53,7 +50,7 @@
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
                       span {{ entity_name_by_id(scope.row.id) }}
-                  el-table-column(label="scores", align="center")
+                  el-table-column(label="Scores", align="center")
                     el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
                       template(slot-scope="scope")
                         span {{ score(scope.row.scores, index+1) === 0 ? '' : score(scope.row.scores, index+1) }}
