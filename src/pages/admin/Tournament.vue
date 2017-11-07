@@ -404,7 +404,7 @@ export default {
           let new_institution_names = row.slice(11, 21).filter(n => n !== '')
           if (new_team_name === '' || tournament.teams.map(t => t.name).includes(new_team_name)) { continue }
           await this.$confirm('The following team will be added : \nTeam: '+new_team_name+'\nSpeakers: '+new_speaker_names+'\nInstitutions: '+new_institution_names)
-                    .then(async (ans) => {
+                    .then((ans) => {
                       if (ans === 'confirm') {
                         Promise.all([
                           Promise.all(new_speaker_names.map(new_name => this.on_create('speakers', { name: new_name }))),
@@ -422,7 +422,7 @@ export default {
           let new_conflict_names = row.slice(11, 21).filter(n => n !== '')
           if (new_adjudicator_name === '') { continue }
           await this.$confirm('The following adjudicator will be added : \nAdjudicator: '+new_adjudicator_name+'\nInstitutions: '+new_institution_names+'\nPersonal Conflicts: '+new_conflict_names)
-                    .then(async (ans) => {
+                    .then((ans) => {
                       if (ans === 'confirm') {
                         Promise.all(new_institution_names.map(new_name => this.on_create('institutions', { name: new_name })))
                                .then(institutions => {
@@ -439,7 +439,7 @@ export default {
           let new_name = row[0]
           if (new_name === '') { continue }
           await this.$confirm('The following '+label_singular+' will be added : '+new_name)
-                    .then(async (ans) => {
+                    .then((ans) => {
                       if (ans === 'confirm') {
                         this.on_create(label, { name: new_name })
                         return true
@@ -642,7 +642,7 @@ export default {
       let already = tournament[label].find(e => e.name === entity.name)
       force = force || this.dialog[label].force
       if (already !== undefined && !force) {
-        return [{ id: already.id, name: already.name }]
+        return { id: already.id, name: already.name }
       }
       this.convert_with_details(entity, label)
       let payload = {
