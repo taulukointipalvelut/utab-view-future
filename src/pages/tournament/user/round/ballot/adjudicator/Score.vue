@@ -17,9 +17,9 @@
             number-box(:value="value(side_name, 'manners', role_order) + value(side_name, 'matters', role_order)", @input="$event => { on_input_result('manners', $event/2); on_input_result('matters', $event/2) }", :min="role_range.from", :max="role_range.to", :step="role_range.unit")
           el-form-item(label="Total Score", v-if="target_round.user_defined_data.score_by_matter_manner")
             input-label(:value="total_score")
-          el-form-item(label="Best Debater")
+          el-form-item(label="Best Debater", v-if="target_round.user_defined_data.best")
             el-switch(:value="value(side_name, 'best', role_order)", @input="on_input_result('best', $event)", on-text="Yes", off-text="No")
-          el-form-item(label="POI Prize")
+          el-form-item(label="POI Prize", v-if="target_round.user_defined_data.poi")
             el-switch(:value="value(side_name, 'poi', role_order)", @input="on_input_result('poi', $event)", on-text="Yes", off-text="No")
     section.buttons(v-if="score_sheet")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back

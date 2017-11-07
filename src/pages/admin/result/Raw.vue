@@ -54,11 +54,11 @@
                     el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
                       template(slot-scope="scope")
                         span {{ score(scope.row.scores, index+1) === 0 ? '' : score(scope.row.scores, index+1) }}
-                  el-table-column(label="Best", align="center")
+                  el-table-column(label="Best", align="center", v-if="target_round.user_defined_data.best")
                     el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
                       template(slot-scope="scope")
                         span {{ scope.row.user_defined_data.best.find(b => b.order === index+1).value ? '1' : '' }}
-                  el-table-column(label="POI", align="center")
+                  el-table-column(label="POI", align="center", v-if="target_round.user_defined_data.poi")
                     el-table-column(v-for="index in range(style.score_weights.length)", :key="index", :label="ordinal(index+1)", align="center", sortable)
                       template(slot-scope="scope")
                         span {{ scope.row.user_defined_data.poi.find(b => b.order === index+1).value ? '1' : '' }}

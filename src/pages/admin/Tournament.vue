@@ -110,6 +110,10 @@
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.allow_low_tie_win")
             el-form-item(label="Matter/Manner", prop="score_by_matter_manner")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.score_by_matter_manner")
+            el-form-item(label="POI Prize", prop="poi")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.poi")
+            el-form-item(label="Best Speaker Prize", prop="best")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.best")
             el-form-item(label="Evaluator in Team", prop="evaluator_in_team", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
               el-select(v-model="dialog.round[type+'_form'].model.user_defined_data.evaluator_in_team")
                 el-option(v-for="label in ['team', 'speaker']", :key="label", :value="label", :label="{ team: 'One', speaker: 'All' }[label]")
@@ -172,6 +176,8 @@ function dialog_generator () {
             evaluate_from_team: true,
             chairs_always_evaluated: false,
             score_by_matter_manner: true,
+            poi: true,
+            best: true,
             allow_low_tie_win: true,
             evaluator_in_team: 'team'
           }
@@ -189,6 +195,8 @@ function dialog_generator () {
             evaluate_from_team: true,
             chairs_always_evaluated: false,
             score_by_matter_manner: true,
+            poi: true,
+            best: true,
             allow_low_tie_win: true,
             evaluator_in_team: 'team'
           }

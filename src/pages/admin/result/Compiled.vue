@@ -84,7 +84,7 @@
           el-button(@click="on_download_adjudicator_results") Download Adjudicator Results
           el-button(type="primary", @click="on_configure_slide('adjudicator')") #[el-icon(name="picture")] &nbsp;Slide Show
 
-      el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize")
+      el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize[sub_prize]")
         el-table(:data="compiled_sub_prize_results(sub_prize)")
           el-table-column(prop="ranking", label="Ranking", align="center", sortable)
             template(slot-scope="scope")
@@ -198,7 +198,14 @@ export default {
       'entity_name_by_id',
       'teams_by_speaker_id',
       'compiled_sub_prize_results'
-    ])
+    ]),
+    sub_prize () {
+      let rounds = this.target_tournament.rounds
+      return {
+        poi: rounds.some(round => round.user_defined_data.poi),
+        best: rounds.some(round => round.user_defined_data.best)
+      }
+    }
   },
   methods: {
     capitalize: math.capitalize,
