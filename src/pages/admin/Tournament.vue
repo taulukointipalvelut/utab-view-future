@@ -68,9 +68,6 @@
 
       el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
         .dialog-body
-          div(v-for="r in dialog.compile.form.model.rs", :key="r")
-            p(v-if="adjudicators_ss_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
-            p(v-if="entities_es_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
           el-form(:model="dialog.compile.form.model", :rules="dialog.compile.form.rules")
             el-form-item(label="Rounds")
               el-select(v-model="dialog.compile.form.model.rs", multiple)
@@ -82,6 +79,9 @@
                 el-checkbox(label="teams", :checked="true")
                 el-checkbox(label="adjudicators", :checked="true")
                 el-checkbox(label="speakers", :checked="true", :disabled="dialog.compile.form.model.simple")
+          div(v-for="r in dialog.compile.form.model.rs", :key="r")
+            p(v-if="adjudicators_ss_unsubmitted(r).length > 0 && (dialog.compile.entities.includes('teams') || dialog.compile.entities.includes('speakers'))") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+            p(v-if="entities_es_unsubmitted(r).length > 0 && dialog.compile.entities.includes('adjudicators')") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
         .dialog-footer(slot="footer")
           el-button(@click="dialog.compile.visible = false") Cancel
           el-button(type="primary", @click="on_compile", :disabled="dialog.compile.entities.length === 0 || dialog.compile.form.model.rs.length === 0", :loading="dialog.compile.loading") Request

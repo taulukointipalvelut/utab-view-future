@@ -210,7 +210,7 @@ export default {
       return label_singular => {
         let key = this.sort_by === 'sender' ? 'from_id' : 'id'
         let results = this['raw_'+label_singular+'_results_by_r'](this.r_str)
-        let groups = Array.from(new Set(results.map(r => r[key])))
+        let groups = Array.from(new Set(results.map(r => r[key]))).sort((id1, id2) => this.entity_name_by_id(id1).localeCompare(this.entity_name_by_id(id2)))
         let divided_results = []
         for (let group of groups) {
           let divided = results.filter(r => r[key] === group).sort((r1, r2) => this.entity_name_by_id(r1[key]).localeCompare(this.entity_name_by_id(r2[key])))
