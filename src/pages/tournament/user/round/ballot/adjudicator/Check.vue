@@ -22,14 +22,17 @@
                   .inner-table-td {{ entity_name_by_id(value(side, 'speakers', role.order)) | defaults('Not specified yet') }}
                   .inner-table-td.right
                     router-link(:to="{ path: `score/${ side }-${ role.order }`, query: { prev: '../check' } }") #[el-icon(name="edit")]
-                .inner-table-tr
+                .inner-table-tr(v-if="target_round.user_defined_data.score_by_matter_manner")
                   .inner-table-td Matter
                   .inner-table-td.right {{ value(side, 'matters', role.order) }}
-                .inner-table-tr
+                .inner-table-tr(v-if="target_round.user_defined_data.score_by_matter_manner")
                   .inner-table-td Manner
                   .inner-table-td.right {{ value(side, 'manners', role.order) }}
-                .inner-table-tr.total
+                .inner-table-tr.total(v-if="target_round.user_defined_data.score_by_matter_manner")
                   .inner-table-td Total
+                  .inner-table-td.right {{ value(side, 'matters', role.order) + value(side, 'manners', role.order) }}
+                .inner-table-tr(v-if="!target_round.user_defined_data.score_by_matter_manner")
+                  .inner-table-td Score
                   .inner-table-td.right {{ value(side, 'matters', role.order) + value(side, 'manners', role.order) }}
           .outer-table-tr
             .outer-table-td.role Total

@@ -310,7 +310,11 @@ export default {
         result.manner = result.user_defined_data.manner
         result.comment = result.comment
       }
-      this.download_results_as_csv('raw_adjudicator_results_in_round_'+this.r_str+'.csv', organized_results, ['name', 'teams', 'score', 'matter', 'manner', 'comment', 'from_name'], ['Name', 'Judged Teams', 'Score', 'Matter', 'Manner', 'Comment', 'From'])
+      let headers = this.target_round.user_defined_data.score_by_matter_manner ? ['Name', 'Judged Teams', 'Score', 'Matter', 'Manner', 'Comment', 'From']
+                                                                               : ['Name', 'Judged Teams', 'Score', 'Comment', 'From']
+      let contents = this.target_round.user_defined_data.score_by_matter_manner ? ['name', 'teams', 'score', 'comment', 'from_name']
+                                                                                : []
+      this.download_results_as_csv('raw_adjudicator_results_in_round_'+this.r_str+'.csv', organized_results, contents, headers)
     },
     on_download_raw_speaker_results () {
       let results = this.raw_speaker_results_by_r(this.r_str)
@@ -326,15 +330,13 @@ export default {
           result['score'+(index+1)] = result.scores[index].value
           result['matter'+(index+1)] = result.user_defined_data.matters[index].value
           result['manner'+(index+1)] = result.user_defined_data.manners[index].value
-          //result.poi = result.user_defined_data.hasOwnProperty('poi') ? math.sum_bool(Object.values(result.user_defined_data.poi)) : false
-          //result.user_defined_data.hasOwnProperty('best') ? math.sum_bool(Object.values(result.user_defined_data.best)) : false
         }
       }
-      //this.download_results_as_csv('raw_speaker_results_in_round_'+this.r_str+'.csv', organized_results, ['name', 'score1', 'score2', 'score3', 'score4', 'matter1', 'matter2', 'matter3', 'matter4', 'manner1', 'manner2', 'manner3', 'manner4', 'from_name', 'poi', 'best'], ['Name', 'Score(1st)', 'Score(2nd)', 'Score(3rd)', 'Score(4th)', 'Matter(1st)', 'Matter(2nd)', 'Matter(3rd)', 'Matter(4th)', 'Manner(1st)', 'Manner(2nd)', 'Manner(3rd)', 'Manner(4th)', 'From', 'POI', 'Best Speaker'])
+
       let header = ['name', 'from_name']
       let labels = ['Name', 'From']
-      header = header.concat(...math.range(speakers_per_team).map(index => ['score'+(index+1), 'matter'+(index+1), 'manner'+(index+1)]))
-      labels = labels.concat(...math.range(speakers_per_team).map(index => ['Score('+this.ordinal(index+1)+')', 'Matter('+this.ordinal(index+1)+')', 'Manner('+this.ordinal(index+1)+')']))
+      header = header.concat(...math.range(speakers_per_team).map(index => this.target_round.user_defined_data.score_by_matter_manner ? ['score'+(index+1), 'matter'+(index+1), 'manner'+(index+1)] : ['score'+(index+1)]))
+      labels = labels.concat(...math.range(speakers_per_team).map(index => this.target_round.user_defined_data.score_by_matter_manner ? ['Score('+this.ordinal(index+1)+')', 'Matter('+this.ordinal(index+1)+')', 'Manner('+this.ordinal(index+1)+')'] : ['Score('+this.ordinal(index+1)+')']))
       this.download_results_as_csv('raw_speaker_results_in_round_'+this.r_str+'.csv', organized_results, header, labels)
     },
     download_results_as_csv (filename, results, labels, headers) {

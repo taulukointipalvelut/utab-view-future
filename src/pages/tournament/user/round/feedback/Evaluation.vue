@@ -14,12 +14,14 @@
               span.ev-card-title {{ entity_name_by_id(result.id) }}
               //span.ev-card-subtitle subtitle
             el-form
-              el-form-item(label="Matter", required)
+              el-form-item(label="Matter", required, v-if="target_round.user_defined_data.score_by_matter_manner")
                 number-box(v-model="result.matter", :min="1", :max="10", :step="1")
-              el-form-item(label="Manner", required)
+              el-form-item(label="Manner", required, v-if="target_round.user_defined_data.score_by_matter_manner")
                 number-box(v-model="result.manner", :min="1", :max="10", :step="1")
-              el-form-item(label="Total")
+              el-form-item(label="Total", v-if="target_round.user_defined_data.score_by_matter_manner")
                 input-label(:value="result.matter+result.manner")
+              el-form-item(label="Score", required, v-if="!target_round.user_defined_data.score_by_matter_manner")
+                number-box(:value="result.matter+result.manner", @input="$event => { result.manner = $event/2; result.matter = $event/2 }", :min="1", :max="10", :step="1")
               el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment for '+entity_name_by_id(result.id)+', if any'")
         section.buttons
           el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -36,11 +38,13 @@
               div(slot="header")
                 h3.adjudicator-name {{ entity_name_by_id(result.id) }}
               el-form.card-body
-                el-form-item(label="Matter")
+                el-form-item(label="Matter", v-if="target_round.user_defined_data.score_by_matter_manner")
                   span {{ result.matter }}
-                el-form-item(label="Manner")
+                el-form-item(label="Manner", v-if="target_round.user_defined_data.score_by_matter_manner")
                   span {{ result.manner }}
-                el-form-item(label="Total")
+                el-form-item(label="Total", v-if="target_round.user_defined_data.score_by_matter_manner")
+                  span {{ result.manner + result.matter }}
+                el-form-item(label="Score", v-if="!target_round.user_defined_data.score_by_matter_manner")
                   span {{ result.manner + result.matter }}
                 el-form-item(label="Comment")
                   span {{ result.comment !== '' ? result.comment : 'None' }}
@@ -88,7 +92,6 @@ export default {
     ]),
     ...mapGetters([
       'target_tournament',
-      'target_round',
       'target_round',
       'entity_by_id',
       'entity_name_by_id',
