@@ -31,8 +31,19 @@ function treat_reponse (promise, commit) {
 
 function fetch_data (commit, method, url, data=null) {
     let request = { method }
+    let unnecessary_keys = ['rounds', 'teams', 'adjudicators', 'speakers',
+                            'venues', 'institutions', 'draws', 'raw_team_results',
+                            'raw_speaker_results', 'raw_adjudicator_results',
+                            'compiled_team_results', 'compiled_speaker_results',
+                            'compiled_adjudicator_results']
     if (data !== null) {
         request.body = JSON.stringify(data)
+        if (request.body.hasOwnProperty('tournaments')) {
+            for (let key of unnecessary_keys) {
+                delete request.body.tournaments[key]
+            }
+        }
+        console.log(request.body)
     }
     request.headers = {
       'Accept': 'application/json',
