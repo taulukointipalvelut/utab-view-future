@@ -182,7 +182,7 @@ export default {
               simple: false,
               force: false,
               shuffle: false,
-              team_allocation_algorithm: 'strict',
+              team_allocation_algorithm: 'standard',
               team_allocation_algorithm_options: {
                 avoid_conflict: false,
                 method: 'straight',
