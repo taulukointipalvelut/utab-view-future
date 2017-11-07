@@ -390,34 +390,75 @@ export default {
       'send_update_entity',
       'send_update_round',
       'request_compiled_results',
-      'init_one',
-      'next_round'
+      'init_one'
     ]),
-    handle_files (label, label_singular, evt) {
+    async handle_files (label, label_singular, evt) {
       this.dialog[label].visible = false
       let file = evt.target.files[0]
-      if (file === undefined) { return }
-      let reader = new FileReader()
-      let that = this
-      reader.readAsText(file)
-      reader.addEventListener('load', async function () {
-        let text = reader.result.trim()
-        let rows = text.split('\n').map(row => row.split(',').map(e => e.trim()))
-        for (let row of rows) {
-          let name = row[0]
-          if (name === '' || name === undefined) { continue }
-          await that.$confirm('The following '+label_singular+' will be added : '+name)
-                    .then(ans => {
+      let rows = await math.csv_parser(file)
+      let tournament = this.target_tournament
+      if (label === 'teams') {
+        for (let row of rows.slice(1)) {
+          let new_team_name = row[0]
+          let new_speaker_names = row.slice(1, 11).filter(n => n !== '')
+          let new_institution_names = row.slice(11, 21).filter(n => n !== '')
+          if (new_team_name === '' || tournament.teams.map(t => t.name).includes(new_team_name)) { continue }
+          let team = { name: new_team_name, speakers: [], institutions: [] }
+          await this.$confirm('The following team will be added : \nTeam: '+new_team_name+'\nSpeakers: '+new_speaker_names+'\nInstitutions: '+new_institution_names)
+                    .then(async (ans) => {
                       if (ans === 'confirm') {
-                        that.on_create(label, { name })
+                        for (let new_name of new_speaker_names) {
+                          let speakers = await this.on_create('speakers', { name: new_name })
+                          team.speakers.push(speakers[0].id)
+                        }
+                        for (let new_name of new_institution_names) {
+                          let institutions = await this.on_create('institutions', { name: new_name })
+                          team.institutions.push(institutions[0].id)
+                        }
+                        await this.on_create('teams', team)
                         return true
                       }
                     })
-                    .catch(() => {
-                      return false
-                    })
+                    .catch(() => false)
         }
-      })
+      } else if (label === 'adjudicators') {
+        for (let row of rows.slice(1)) {
+          let new_adjudicator_name = row[0]
+          let new_institution_names = row.slice(1, 11).filter(n => n !== '')
+          let new_conflict_names = row.slice(11, 21).filter(n => n !== '')
+          if (new_adjudicator_name === '') { continue }
+          let adjudicator = { name: new_adjudicator_name, institutions: [], conflicts: [] }
+          await this.$confirm('The following adjudicator will be added : \nAdjudicator: '+new_adjudicator_name+'\nInstitutions: '+new_institution_names+'\nPersonal Conflicts: '+new_conflict_names)
+                    .then(async (ans) => {
+                      if (ans === 'confirm') {
+                        for (let new_name of new_institution_names) {
+                          let institutions = await this.on_create('institutions', { name: new_name })
+                          adjudicator.institutions.push(institutions[0].id)
+                        }
+                        for (let new_name of new_conflict_names) {
+                          let team = tournament.teams.find(t => t.name === new_name)
+                          adjudicator.conflicts.push(team.id)
+                        }
+                        await this.on_create('adjudicators', adjudicator)
+                        return true
+                      }
+                    })
+                    .catch(() => false)
+        }
+      } else {
+        for (let row of rows.slice(1)) {
+          let new_name = row[0]
+          if (new_name === '') { continue }
+          await this.$confirm('The following '+label_singular+' will be added : '+new_name)
+                    .then(async (ans) => {
+                      if (ans === 'confirm') {
+                        await this.on_create(label, { name: new_name })
+                        return true
+                      }
+                    })
+                    .catch(() => false)
+        }
+      }
     },
     specified (label) {
       return this.collapsed[this.labels_singular[label]]
@@ -603,23 +644,29 @@ export default {
           })
       })
     },
-    async on_create (label, model0=undefined) {
+    async on_create (label, model0=undefined, force=false) {
       this.dialog[label].loading = true
 
       const tournament = this.target_tournament
       let model = model0 === undefined ? this.dialog[label].form.model : model0
       let entity = Object.assign({}, model)
+      let already = tournament[label].find(e => e.name === entity.name)
+      force = force || this.dialog[label].force
+      if (already !== undefined && !force) {
+        return [{ id: already.id, name: already.name }]
+      }
       this.convert_with_details(entity, label)
       let payload = {
         tournament,
         label,
-        force: this.dialog[label].force
+        force
       }
       payload[label] = [entity]
-      await this.send_create_entities(payload)
+      let data = await this.send_create_entities(payload)
       this.dialog = dialog_generator()
       this.dialog[label].loading = false
       this.dialog[label].visible = false
+      return data
     },
     async on_update (label, label_singular, entity, name) {
       const tournament = this.target_tournament

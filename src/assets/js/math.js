@@ -94,6 +94,18 @@ function ordinal (order) {
     return ordinal
 }
 
+function csv_parser(raw_text) {
+  let reader = new FileReader()
+  return new Promise((resolve, reject) => {
+      if (raw_text === undefined) { resolve([]) }
+      reader.readAsText(raw_text)
+      reader.addEventListener('load', function () {
+        let text = reader.result.trim()
+        let rows = text.split('\n').map(row => row.split(',').map(e => e.trim()))
+        resolve(rows)
+      })
+  })
+}
 
 //exports.disjoint_loose = disjoint_loose
 exports.disjoint = disjoint
@@ -108,3 +120,4 @@ exports.count = count
 exports.pairs = pairs
 exports.ordinal = ordinal
 exports.elapsed_string = elapsed_string
+exports.csv_parser = csv_parser

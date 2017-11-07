@@ -583,6 +583,7 @@ export default {
             .then(function (data) {
                 payload[payload.label] = data
                 commit('add_entities', payload)
+                return data
             })
       },
       send_update_entity ({state, commit, dispatch}, payload) {
