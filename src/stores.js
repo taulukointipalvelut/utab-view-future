@@ -136,7 +136,7 @@ export default {
     errors: [],
     view_config: {
         base_url: BASE_URL,
-        max_rounds: 25,
+        max_rounds: 15,
         round_url: '/:tournament_id/rounds/:r',
         tournament_url: '/:tournament_id'
     }
