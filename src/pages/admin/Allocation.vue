@@ -25,13 +25,13 @@
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                         div(v-if="entity_by_id(id) !== undefined")
-                          p ranking: {{ compiled_team_result_by_id(id).ranking }}
-                          p win: {{ compiled_team_result_by_id(id).win }}
-                          p sum: {{ compiled_team_result_by_id(id).sum }}
-                          p margin: {{ compiled_team_result_by_id(id).margin }}
+                          p ranking: {{ compiled_team_result_by_id[id].ranking }}
+                          p win: {{ compiled_team_result_by_id[id].win }}
+                          p sum: {{ compiled_team_result_by_id[id].sum }}
+                          p margin: {{ compiled_team_result_by_id[id].margin }}
                           p institutions: {{ institution_names_by_team_id(id) }}
-                          p opponents: {{ compiled_team_result_by_id(id).past_opponents.map(entity_name_by_id).join(', ') }}
-                          p sides: {{ compiled_team_result_by_id(id).past_sides.join(', ') }}
+                          p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
+                          p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
                           p speakers: {{ speaker_names_by_team_id(id) }}
                           p id: {{ id }}
             el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label", align="center")
@@ -42,13 +42,13 @@
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                         div(v-if="entity_by_id(id) !== undefined")
-                          p ranking: {{ compiled_adjudicator_result_by_id(id).ranking }}
-                          p average: {{ compiled_adjudicator_result_by_id(id).average }}
+                          p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
+                          p average: {{ compiled_adjudicator_result_by_id[id].average }}
                           p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
                           p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                          p judged_teams: {{ compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') }}
-                          p judged: {{ compiled_adjudicator_result_by_id(id).num_experienced }}
-                          p judged as chair: {{ compiled_adjudicator_result_by_id(id).num_experienced_chair }}
+                          p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
+                          p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
+                          p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
                           p id: {{ id }}
             el-table-column(label="Warnings", align="center")
               el-table-column(label="Draw", align="center")
@@ -86,13 +86,13 @@
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                   div(v-if="entity_by_id(id) !== undefined")
-                    p ranking: {{ compiled_adjudicator_result_by_id(id).ranking }}
-                    p average: {{ compiled_adjudicator_result_by_id(id).average }}
+                    p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
+                    p average: {{ compiled_adjudicator_result_by_id[id].average }}
                     p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
                     p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                    p judged_teams: {{ compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') }}
-                    p judged: {{ compiled_adjudicator_result_by_id(id).num_experienced }}
-                    p judged as chair: {{ compiled_adjudicator_result_by_id(id).num_experienced_chair }}
+                    p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
+                    p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
+                    p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
                     p id: {{ id }}
       legend Waiting Teams
       loading-container(:loading="loading")
@@ -103,13 +103,13 @@
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                   div(v-if="entity_by_id(id) !== undefined")
-                    p ranking: {{ compiled_team_result_by_id(id).ranking }}
-                    p win: {{ compiled_team_result_by_id(id).win }}
-                    p sum: {{ compiled_team_result_by_id(id).sum }}
-                    p margin: {{ compiled_team_result_by_id(id).margin }}
+                    p ranking: {{ compiled_team_result_by_id[id].ranking }}
+                    p win: {{ compiled_team_result_by_id[id].win }}
+                    p sum: {{ compiled_team_result_by_id[id].sum }}
+                    p margin: {{ compiled_team_result_by_id[id].margin }}
                     p institutions: {{ institution_names_by_team_id(id) }}
-                    p opponents: {{ compiled_team_result_by_id(id).past_opponents.map(entity_name_by_id).join(', ') }}
-                    p sides: {{ compiled_team_result_by_id(id).past_sides.join(', ') }}
+                    p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
+                    p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
                     p speakers: {{ speaker_names_by_team_id(id) }}
                     p id: {{ id }}
       legend Waiting Venues
@@ -340,8 +340,8 @@ export default {
           let team0 = this.entity_by_id(this.selected_team)
           let team1 = this.entity_by_id(id)
           if (team0 !== undefined && team1 !== undefined) {
-            let result0 = this.compiled_team_result_by_id(this.selected_team)
-            let result1 = this.compiled_team_result_by_id(id)
+            let result0 = this.compiled_team_result_by_id[this.selected_team]
+            let result1 = this.compiled_team_result_by_id[id]
 
             warn_item_team['same-institution'] = this.check_institutions(team0, team1)
             warn_item_team['different-win'] = this.check_wins(team0, team1, result0, result1)
@@ -352,15 +352,15 @@ export default {
           let team = this.entity_by_id(id)
           let adjudicator = this.entity_by_id(this.selected_adjudicator)
           if (team !== undefined && adjudicator !== undefined) {
-            let team_result = this.compiled_team_result_by_id(id)
-            let adj_result = this.compiled_adjudicator_result_by_id(this.selected_adjudicator)
+            let team_result = this.compiled_team_result_by_id[id]
+            let adj_result = this.compiled_adjudicator_result_by_id[this.selected_adjudicator]
             warn_item_team['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
 
             warn_item_team['conflicts'] = this.check_conflicts(team, adjudicator)
             warn_item_team['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
           }
         }
-        let result = this.compiled_team_result_by_id(id)
+        let result = this.compiled_team_result_by_id[id]
         if (result !== undefined) {
           warn_item_team['sided-border'] = this.check_sided(result, side)
         }
@@ -383,8 +383,8 @@ export default {
           let team = this.entity_by_id(this.selected_team)
           let adjudicator = this.entity_by_id(id)
           if (team !== undefined && adjudicator !== undefined) {
-            let team_result = this.compiled_team_result_by_id(this.selected_team)
-            let adj_result = this.compiled_adjudicator_result_by_id(id)
+            let team_result = this.compiled_team_result_by_id[this.selected_team]
+            let adj_result = this.compiled_adjudicator_result_by_id[id]
             warn_item_adjudicator['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
 
             warn_item_adjudicator['conflicts'] = this.check_conflicts(team, adjudicator)
@@ -398,7 +398,7 @@ export default {
             warn_item_adjudicator['same-institution'] = this.check_institutions(adjudicator0, adjudicator1)
           }
         }
-        let result = this.compiled_adjudicator_result_by_id(id)
+        let result = this.compiled_adjudicator_result_by_id[id]
         if (result !== undefined) {
           warn_item_adjudicator['zero-judged-border'] = this.check_zero_judged(result)
         }
@@ -467,7 +467,7 @@ export default {
       for (let side of ['gov', 'opp']) {
         for (let id of square.teams[side]) {
           let team = this.entity_by_id(id)
-          let result = this.compiled_team_result_by_id(id)
+          let result = this.compiled_team_result_by_id[id]
           if (team === undefined) { continue }
           if (this.check_sided(result, side)) {
             warnings.push({
@@ -499,8 +499,8 @@ export default {
         let gov = this.entity_by_id(pair[0])
         let opp = this.entity_by_id(pair[1])
         if (gov === undefined || opp === undefined) { continue }
-        let result0 = this.compiled_team_result_by_id(pair[0])
-        let result1 = this.compiled_team_result_by_id(pair[1])
+        let result0 = this.compiled_team_result_by_id[pair[0]]
+        let result1 = this.compiled_team_result_by_id[pair[1]]
         for (let check of checks) {
           if (check.func(gov, opp, result0, result1)) {
             warnings.push({
@@ -537,8 +537,8 @@ export default {
         let adj = this.entity_by_id(pair[1])
         if (adj === undefined || team === undefined) { continue }
         for (let check of ta_checks) {
-          let team_result = this.compiled_team_result_by_id(pair[0])
-          let adj_result = this.compiled_adjudicator_result_by_id(pair[1])
+          let team_result = this.compiled_team_result_by_id[pair[0]]
+          let adj_result = this.compiled_adjudicator_result_by_id[pair[1]]
           if (check.func(team, adj, team_result, adj_result)) {
             warnings.push({
               name: check.name,

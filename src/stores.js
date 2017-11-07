@@ -56,10 +56,11 @@ function fetch_data (commit, method, url, data=null) {
 
 function select_by_key_factory (label, key="id") {
     function select_by_key (state, getters) {
-        return function (key_str) {
-            let targets = getters.target_tournament[label]
-            return targets.find(t => t[key] === parseInt(key_str, 10))
+        let dict = {}
+        for (let target of getters.target_tournament[label]) {
+            dict[target[key]] = target
         }
+        return dict
     }
     return select_by_key
 }
@@ -178,10 +179,12 @@ export default {
         return getters.target_tournament.rounds.find(d => d.r === parseInt(state.route.params.r_str, 10))
     },
     target_score_sheets (state, getters) {
-        return function (r_str) {
-            let tournament = getters.target_tournament
+        let tournament = getters.target_tournament
+        let all_score_sheets = {}
+        let rs = tournament.rounds.map(round => round.r)
+        for (let r of rs) {
             let style = getters.style
-            let draw = tournament.draws.find(d => d.r === parseInt(r_str, 10))
+            let draw = tournament.draws.find(d => d.r === r)
             if (draw === undefined) {
                 return []
             }
@@ -206,14 +209,19 @@ export default {
                     score_sheets.push(score_sheet)
                 }
             }
-            return score_sheets.slice().sort((a1, a2) => getters.entity_name_by_id(a1.venue).localeCompare(getters.entity_name_by_id(a2.venue)))
+            score_sheets.sort((a1, a2) => getters.entity_name_by_id(a1.venue).localeCompare(getters.entity_name_by_id(a2.venue)))
+            all_score_sheets[r] = score_sheets
         }
+        return all_score_sheets
     },
     target_evaluation_sheets (state, getters) {
-        return function (r_str) {
-            let tournament = getters.target_tournament
-            let draw = tournament.draws.find(d => d.r === parseInt(r_str, 10))
-            let round = tournament.rounds.find(d => d.r === parseInt(r_str, 10))
+        let tournament = getters.target_tournament
+        let rs = tournament.rounds.map(round => round.r)
+        let all_evaluation_sheets = {}
+
+        for (let r of rs) {
+            let draw = tournament.draws.find(d => d.r === r)
+            let round = tournament.rounds.find(d => d.r === r)
             if (draw === undefined) {
                 return []
             }
@@ -263,19 +271,20 @@ export default {
                 }
             }
             evaluation_sheets.sort((e1, e2) => getters.entity_name_by_id(e1.venue).localeCompare(getters.entity_name_by_id(e2.venue)))
-            return evaluation_sheets
+            all_evaluation_sheets[r] = evaluation_sheets
         }
+        return all_evaluation_sheets
     },
     adjudicators_ss_unsubmitted (state, getters) {
         return function (r_str) {
-            let ss_watching = Array.from(new Set(getters.target_score_sheets(r_str).map(ss => ss.from_id)))
+            let ss_watching = Array.from(new Set(getters.target_score_sheets[parseInt(r_str, 10)].map(ss => ss.from_id)))
             let ss_submitted = Array.from(new Set(getters.raw_team_results_by_r(r_str).map(tr => tr.from_id)))
             return ss_watching.filter(id => !ss_submitted.includes(id))
         }
     },
     entities_es_unsubmitted (state, getters) {
         return function (r_str) {
-            let es_watching = Array.from(new Set(getters.target_evaluation_sheets(r_str).map(es => es.from_id)))
+            let es_watching = Array.from(new Set(getters.target_evaluation_sheets[parseInt(r_str, 10)].map(es => es.from_id)))
             let es_submitted = Array.from(new Set(getters.raw_adjudicator_results_by_r(r_str).map(ar => ar.from_id)))
             return es_watching.filter(id => !es_submitted.includes(id))
         }
@@ -283,13 +292,13 @@ export default {
     score_sheet_by_id (state, getters) {
         return function (from_id) {
             let r_str = state.route.params.r_str
-            return getters.target_score_sheets(r_str).find(ss => ss.from_id === parseInt(from_id, 10))
+            return getters.target_score_sheets[parseInt(r_str, 10)].find(ss => ss.from_id === parseInt(from_id, 10))
         }
     },
     evaluation_sheet_by_id (state, getters) {
         return function (from_id) {
             let r_str = state.route.params.r_str
-            return getters.target_evaluation_sheets(r_str).find(es => es.from_id === parseInt(from_id, 10))
+            return getters.target_evaluation_sheets[parseInt(r_str, 10)].find(es => es.from_id === parseInt(from_id, 10))
         }
     },
     draw_time (state, getters) {
@@ -363,7 +372,7 @@ export default {
     },
     round_name_by_r (state, getters) {
         return function (r) {
-            let round = getters.round_by_r(parseInt(r, 10))
+            let round = getters.round_by_r[parseInt(r, 10)]
             if (round === undefined) {
                 return 'Undefined'
             } else {
