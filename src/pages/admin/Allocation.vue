@@ -724,7 +724,7 @@ export default {
                 c += 1
             }
         } else {
-            let sorted_allocation = draw.allocation.slice().sort((s1, s2) => this.entity_name_by_id(s1.venue).localeCompare(this.entity_name_by_id(s2.venue)))
+            let sorted_allocation = draw.allocation.slice().sort((s1, s2) => this.access_detail(this.entity_by_id(s1.venue), this.r_str).priority > this.access_detail(this.entity_by_id(s2.venue), this.r_str).priority ? 1 : -1)
             let c = 0
             for (let square of sorted_allocation) {
                 this.draw_adjusted.allocation.push({

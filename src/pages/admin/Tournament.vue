@@ -434,6 +434,20 @@ export default {
                     })
                     .catch(() => false)
         }
+      } else if (label === 'venues') {
+        for (let row of rows.slice(1)) {
+          let new_venue_name = row[0]
+          let priority = row[1] !== undefined ? parseInt(row[1], 10) : 1
+          if (new_venue_name === '') { continue }
+          await this.$confirm('The following venue will be added : \nVenue: '+new_venue_name+'\nPriority: '+priority)
+                    .then((ans) => {
+                      if (ans === 'confirm') {
+                        this.on_create('venues', { name: new_venue_name, priority })
+                        return true
+                      }
+                    })
+                    .catch(() => false)
+        }
       } else {
         for (let row of rows.slice(1)) {
           let new_name = row[0]

@@ -43,7 +43,7 @@ export default {
     sorted_rows () {
       let draw = this.target_draw
       return draw ? draw.allocation.slice()
-        .sort((a, b) => this.entity_name_by_id(a.venue).localeCompare(this.entity_name_by_id(b.venue))) : []
+        .sort((a, b) => this.access_detail(this.entity_by_id(a.venue), this.r_str).priority > this.access_detail(this.entity_by_id(b.venue), this.r_str).priority ? 1 : -1) : []
     },
     smartphone: smartphone,
     team_allocation_opened () {
@@ -59,13 +59,14 @@ export default {
       'loading'
     ]),
     ...mapGetters([
+      'access_detail',
       'entity_name_by_id',
       'target_round',
       'target_draw',
       'draw_time',
       'style',
       'target_tournament',
-      'entity_name_by_id'
+      'entity_by_id'
     ])
   },
   methods: {
