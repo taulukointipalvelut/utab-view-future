@@ -72,19 +72,14 @@
             el-form-item(label="Rounds")
               el-select(v-model="dialog.compile.form.model.rs", multiple)
                 el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
-            el-form-item(label="Simple")
+            //el-form-item(label="Simple")
               el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.simple")
-            el-form-item(label="Target")
-              el-checkbox-group(v-model="dialog.compile.entities")
-                el-checkbox(label="teams", :checked="true")
-                el-checkbox(label="adjudicators", :checked="true")
-                el-checkbox(label="speakers", :checked="true", :disabled="dialog.compile.form.model.simple")
           div(v-for="r in dialog.compile.form.model.rs", :key="r")
-            p(v-if="adjudicators_ss_unsubmitted(r).length > 0 && (dialog.compile.entities.includes('teams') || dialog.compile.entities.includes('speakers'))") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
-            p(v-if="entities_es_unsubmitted(r).length > 0 && dialog.compile.entities.includes('adjudicators')") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+            p(v-if="adjudicators_ss_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+            p(v-if="entities_es_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
         .dialog-footer(slot="footer")
           el-button(@click="dialog.compile.visible = false") Cancel
-          el-button(type="primary", @click="on_compile", :disabled="dialog.compile.entities.length === 0 || dialog.compile.form.model.rs.length === 0", :loading="dialog.compile.loading") Request
+          el-button(type="primary", @click="on_compile", :disabled="dialog.compile.form.model.rs.length === 0", :loading="dialog.compile.loading") Request
 
       el-dialog(v-for="type in ['create', 'edit']", :key="type", :title="capitalize(type)+' New Round'", :visible.sync="dialog.round[type+'_visible']", v-if="!loading")
         .dialog-body
@@ -267,7 +262,6 @@ function dialog_generator () {
       }
     },
     compile: {
-      entities: [],
       visible: false,
       loading: false,
       form: {
@@ -619,22 +613,11 @@ export default {
         }
       }
       let payloads = []
-      if (this.dialog.compile.entities.includes('adjudicators')) {
+      let labels = ['adjudicators', 'speakers', 'teams']
+      for (let label of labels) {
         let payload = Object.assign({}, _payload)
-        payload.label = 'adjudicators'
-        payload.label_singular = 'adjudicator'
-        payloads.push(payload)
-      }
-      if (this.dialog.compile.entities.includes('speakers') && !model.simple) {
-        let payload = Object.assign({}, _payload)
-        payload.label = 'speakers'
-        payload.label_singular = 'speaker'
-        payloads.push(payload)
-      }
-      if (this.dialog.compile.entities.includes('teams')) {
-        let payload = Object.assign({}, _payload)
-        payload.label = 'teams'
-        payload.label_singular = 'team'
+        payload.label = label
+        payload.label_singular = this.labels_singular[label]
         payloads.push(payload)
       }
 

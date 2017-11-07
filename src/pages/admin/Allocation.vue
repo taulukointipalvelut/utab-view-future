@@ -130,7 +130,7 @@
             el-form(:model="dialog.draw.form.model", :rules="dialog.draw.form.rules")
               el-form-item(label="Shuffle Venue", v-if="label === 'all' || label === 'venues'")
                 el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.shuffle")
-              el-form-item(label="Simple", prop="simple")
+              //el-form-item(label="Simple", prop="simple")
                 el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.simple", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
               el-form-item(label="Force", prop="force")
                 el-switch(on-text="", off-text="", v-model="dialog.draw.form.model.force", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
@@ -744,11 +744,11 @@ export default {
             }
         } else {
             let that = this
-            let sorted_allocation = draw.allocation.slice().sort(function (s1, s2) {
-              let v1 = that.entity_by_id(s1.venue)
-              let v2 = that.entity_by_id(s2.venue)
-              let pr1 = v1 !== undefined ? that.access_detail(v1, that.r_str).priority : 1
-              let pr2 = v2 !== undefined ? that.access_detail(v2, that.r_str).priority : 2
+            let sorted_allocation = draw.allocation.slice().sort(function (a, b) {
+              let venue1 = that.entity_by_id(a.venue)
+              let venue2 = that.entity_by_id(b.venue)
+              let pr1 = venue1 !== undefined ? that.access_detail(venue1, that.r_str).priority : 1
+              let pr2 = venue2 !== undefined ? that.access_detail(venue2, that.r_str).priority : 1
               return pr1 > pr2 ? 1 : -1
             })
             let c = 0
