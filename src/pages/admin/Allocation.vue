@@ -179,7 +179,7 @@ export default {
               team_allocation_algorithm: 'strict',
               team_allocation_algorithm_options: {
                 avoid_conflict: false,
-                method: 'absolute',
+                method: 'straight',
                 //weights: [1, 0, 1, 0],
                 filters: ['by_strength', 'by_side', 'by_past_opponent', 'by_institution']
               },
