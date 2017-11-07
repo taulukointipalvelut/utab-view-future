@@ -43,7 +43,6 @@ function fetch_data (commit, method, url, data=null) {
                 delete request.body.tournaments[key]
             }
         }
-        console.log(request.body)
     }
     request.headers = {
       'Accept': 'application/json',

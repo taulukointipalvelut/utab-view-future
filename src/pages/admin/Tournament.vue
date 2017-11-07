@@ -403,19 +403,13 @@ export default {
           let new_speaker_names = row.slice(1, 11).filter(n => n !== '')
           let new_institution_names = row.slice(11, 21).filter(n => n !== '')
           if (new_team_name === '' || tournament.teams.map(t => t.name).includes(new_team_name)) { continue }
-          let team = { name: new_team_name, speakers: [], institutions: [] }
           await this.$confirm('The following team will be added : \nTeam: '+new_team_name+'\nSpeakers: '+new_speaker_names+'\nInstitutions: '+new_institution_names)
                     .then(async (ans) => {
                       if (ans === 'confirm') {
-                        for (let new_name of new_speaker_names) {
-                          let speakers = await this.on_create('speakers', { name: new_name })
-                          team.speakers.push(speakers[0].id)
-                        }
-                        for (let new_name of new_institution_names) {
-                          let institutions = await this.on_create('institutions', { name: new_name })
-                          team.institutions.push(institutions[0].id)
-                        }
-                        await this.on_create('teams', team)
+                        Promise.all([
+                          Promise.all(new_speaker_names.map(new_name => this.on_create('speakers', { name: new_name }))),
+                          Promise.all(new_institution_names.map(new_name => this.on_create('institutions', { name: new_name })))
+                        ]).then(([speakers, institutions]) => this.on_create('teams', { name: new_team_name, institutions: institutions.map(i => i.id), speakers: speakers.map(s => s.id) }))
                         return true
                       }
                     })
@@ -427,19 +421,14 @@ export default {
           let new_institution_names = row.slice(1, 11).filter(n => n !== '')
           let new_conflict_names = row.slice(11, 21).filter(n => n !== '')
           if (new_adjudicator_name === '') { continue }
-          let adjudicator = { name: new_adjudicator_name, institutions: [], conflicts: [] }
           await this.$confirm('The following adjudicator will be added : \nAdjudicator: '+new_adjudicator_name+'\nInstitutions: '+new_institution_names+'\nPersonal Conflicts: '+new_conflict_names)
                     .then(async (ans) => {
                       if (ans === 'confirm') {
-                        for (let new_name of new_institution_names) {
-                          let institutions = await this.on_create('institutions', { name: new_name })
-                          adjudicator.institutions.push(institutions[0].id)
-                        }
-                        for (let new_name of new_conflict_names) {
-                          let team = tournament.teams.find(t => t.name === new_name)
-                          adjudicator.conflicts.push(team.id)
-                        }
-                        await this.on_create('adjudicators', adjudicator)
+                        Promise.all(new_institution_names.map(new_name => this.on_create('institutions', { name: new_name })))
+                               .then(institutions => {
+                                 let teams = tournament.teams.filter(t => new_conflict_names.includes(t.name))
+                                 this.on_create('adjudicators', { name: new_adjudicator_name, institutions: institutions.map(i => i.id), teams: teams.map(t => t.id) })
+                               })
                         return true
                       }
                     })
@@ -452,7 +441,7 @@ export default {
           await this.$confirm('The following '+label_singular+' will be added : '+new_name)
                     .then(async (ans) => {
                       if (ans === 'confirm') {
-                        await this.on_create(label, { name: new_name })
+                        this.on_create(label, { name: new_name })
                         return true
                       }
                     })
@@ -666,7 +655,7 @@ export default {
       this.dialog = dialog_generator()
       this.dialog[label].loading = false
       this.dialog[label].visible = false
-      return data
+      return data[0]
     },
     async on_update (label, label_singular, entity, name) {
       const tournament = this.target_tournament
