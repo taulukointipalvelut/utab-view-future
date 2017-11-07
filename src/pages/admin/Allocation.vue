@@ -30,6 +30,7 @@
                           p sum: {{ compiled_team_result_by_id(id).sum }}
                           p margin: {{ compiled_team_result_by_id(id).margin }}
                           p institutions: {{ institution_names_by_team_id(id) }}
+                          p opponents: {{ compiled_team_result_by_id(id).past_opponents.map(entity_name_by_id).join(', ') }}
                           p sides: {{ compiled_team_result_by_id(id).past_sides.join(', ') }}
                           p speakers: {{ speaker_names_by_team_id(id) }}
                           p id: {{ id }}
@@ -72,7 +73,7 @@
             el-button(@click="on_delete_draw", type="danger", :disabled="new_draw") Delete
           legend Legend
             el-row(:gutter="10", justify="space-between", style="width: 100%;")
-              el-col(v-for="class_label in Object.keys(warning_classes)", :key="class_label", :span="4")
+              el-col(v-for="class_label in Object.keys(warning_classes)", :key="class_label", :span="5")
                 div.legend-content(:class="warning_classes[class_label]", @mouseover="")
                   span {{ class_label }}
     .page-footer
@@ -107,6 +108,7 @@
                     p sum: {{ compiled_team_result_by_id(id).sum }}
                     p margin: {{ compiled_team_result_by_id(id).margin }}
                     p institutions: {{ institution_names_by_team_id(id) }}
+                    p opponents: {{ compiled_team_result_by_id(id).past_opponents.map(entity_name_by_id).join(', ') }}
                     p sides: {{ compiled_team_result_by_id(id).past_sides.join(', ') }}
                     p speakers: {{ speaker_names_by_team_id(id) }}
                     p id: {{ id }}
@@ -239,7 +241,8 @@ export default {
         'Sided': 'sided',
         'Different Win': 'different-win',
         'Conflicts': 'conflicts',
-        'Personal Conflicts': 'personal-conflicts'
+        'Personal Conflicts': 'personal-conflicts',
+        'Past Matched': 'past-matched'
       }
     },
     sendable () {
@@ -325,6 +328,7 @@ export default {
           'selected': id === this.selected_team || (this.selected_warning !== null && this.selected_warning.teams.includes(id)),
           'same-institution': false,
           'different-win': false,
+          'past-matched': false,
           'personal-conflicts': false,
           'conflicts': false,
           'sided': false,
@@ -340,9 +344,8 @@ export default {
             let result1 = this.compiled_team_result_by_id(id)
 
             warn_item_team['same-institution'] = this.check_institutions(team0, team1)
-            if (result0 !== undefined && result1 !== undefined) {
-              warn_item_team['different-win'] = this.check_wins(team0, team1, result0, result1)
-            }
+            warn_item_team['different-win'] = this.check_wins(team0, team1, result0, result1)
+            warn_item_team['past-matched'] = this.check_past_matched(team0, team1, result0, result1)
           }
         }
         if (this.selected_adjudicator !== null) {//FOR ADJUDICATOR RELATIONS WARNINGS
@@ -351,9 +354,7 @@ export default {
           if (team !== undefined && adjudicator !== undefined) {
             let team_result = this.compiled_team_result_by_id(id)
             let adj_result = this.compiled_adjudicator_result_by_id(this.selected_adjudicator)
-            if (team_result !== undefined || adj_result !== undefined) {
-              warn_item_team['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
-            }
+            warn_item_team['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
 
             warn_item_team['conflicts'] = this.check_conflicts(team, adjudicator)
             warn_item_team['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
@@ -384,9 +385,7 @@ export default {
           if (team !== undefined && adjudicator !== undefined) {
             let team_result = this.compiled_team_result_by_id(this.selected_team)
             let adj_result = this.compiled_adjudicator_result_by_id(id)
-            if (team_result !== undefined || adj_result !== undefined) {
-              warn_item_adjudicator['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
-            }
+            warn_item_adjudicator['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
 
             warn_item_adjudicator['conflicts'] = this.check_conflicts(team, adjudicator)
             warn_item_adjudicator['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
@@ -490,6 +489,11 @@ export default {
         func: this.check_wins,
         name: "DiffWin",
         message: "Two teams have different total win",
+      }, {
+        require_results: true,
+        func: this.check_past_matched,
+        name: "PastOpp",
+        message: "Two teams have matched in the previous rounds",
       }]
       for (let pair of math.pairs(square.teams.gov, square.teams.opp)) {
         let gov = this.entity_by_id(pair[0])
@@ -593,6 +597,9 @@ export default {
     },
     check_wins (team0, team1, result0, result1) {
       return result0.win !== result1.win
+    },
+    check_past_matched (team0, team1, result0, result1) {
+      return result0.past_opponents.includes(team1.id)
     },
     check_judged (team, adj, team_result, adj_result) {
       return adj_result.judged_teams.includes(team.id)
@@ -885,6 +892,11 @@ export default {
     transition all 0.4s
     //border 2px solid #13CE66
     background-color #13CE66
+
+  .past-matched
+    transition-timing-function ease
+    transition all 0.4s
+    background-color #7613cf
 
   .conflicts
     transition-timing-function ease
