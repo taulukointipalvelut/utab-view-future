@@ -186,7 +186,8 @@ export default {
             let style = getters.style
             let draw = tournament.draws.find(d => d.r === r)
             if (draw === undefined) {
-                return []
+                all_score_sheets[r] = []
+                continue
             }
             let allocation = draw.allocation
             let r = draw.r
@@ -223,11 +224,12 @@ export default {
             let draw = tournament.draws.find(d => d.r === r)
             let round = tournament.rounds.find(d => d.r === r)
             if (draw === undefined) {
-                return []
+                all_evaluation_sheets[r] = []
+                continue
             }
+            let evaluation_sheets = []
             let allocation = draw.allocation
             let r = draw.r
-            let evaluation_sheets = []
             let raw_adjudicator_results = getters.raw_adjudicator_results_by_r(r)
             let submitted = Array.from(new Set(raw_adjudicator_results.map(res => res.from_id)))
             for (let square of allocation) {
