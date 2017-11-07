@@ -25,12 +25,12 @@
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                         div(v-if="entity_by_id(id) !== undefined")
-                          p ranking: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).ranking : '' }}
-                          p win: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).win : '' }}
-                          p sum: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).sum : '' }}
-                          p margin: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).margin : '' }}
+                          p ranking: {{ compiled_team_result_by_id(id).ranking }}
+                          p win: {{ compiled_team_result_by_id(id).win }}
+                          p sum: {{ compiled_team_result_by_id(id).sum }}
+                          p margin: {{ compiled_team_result_by_id(id).margin }}
                           p institutions: {{ institution_names_by_team_id(id) }}
-                          p sides: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).past_sides.join(', ') : '' }}
+                          p sides: {{ compiled_team_result_by_id(id).past_sides.join(', ') }}
                           p speakers: {{ speaker_names_by_team_id(id) }}
                           p id: {{ id }}
             el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label", align="center")
@@ -41,13 +41,13 @@
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                         div(v-if="entity_by_id(id) !== undefined")
-                          p ranking: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).ranking : '' }}
-                          p average: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).average : '' }}
+                          p ranking: {{ compiled_adjudicator_result_by_id(id).ranking }}
+                          p average: {{ compiled_adjudicator_result_by_id(id).average }}
                           p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
                           p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                          p judged_teams: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') : '' }}
-                          p judged: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced : '' }}
-                          p judged as chair: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced_chair : '' }}
+                          p judged_teams: {{ compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') }}
+                          p judged: {{ compiled_adjudicator_result_by_id(id).num_experienced }}
+                          p judged as chair: {{ compiled_adjudicator_result_by_id(id).num_experienced_chair }}
                           p id: {{ id }}
             el-table-column(label="Warnings", align="center")
               el-table-column(label="Draw", align="center")
@@ -85,13 +85,13 @@
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                   div(v-if="entity_by_id(id) !== undefined")
-                    p ranking: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).ranking : '' }}
-                    p average: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).average : '' }}
+                    p ranking: {{ compiled_adjudicator_result_by_id(id).ranking }}
+                    p average: {{ compiled_adjudicator_result_by_id(id).average }}
                     p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
                     p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                    p judged_teams: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') : '' }}
-                    p judged: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced : '' }}
-                    p judged as chair: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced_chair : '' }}
+                    p judged_teams: {{ compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') }}
+                    p judged: {{ compiled_adjudicator_result_by_id(id).num_experienced }}
+                    p judged as chair: {{ compiled_adjudicator_result_by_id(id).num_experienced_chair }}
                     p id: {{ id }}
       legend Waiting Teams
       loading-container(:loading="loading")
@@ -102,12 +102,12 @@
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
                   div(v-if="entity_by_id(id) !== undefined")
-                    p ranking: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).ranking : '' }}
-                    p win: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).win : '' }}
-                    p sum: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).sum : '' }}
-                    p margin: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).margin : '' }}
+                    p ranking: {{ compiled_team_result_by_id(id).ranking }}
+                    p win: {{ compiled_team_result_by_id(id).win }}
+                    p sum: {{ compiled_team_result_by_id(id).sum }}
+                    p margin: {{ compiled_team_result_by_id(id).margin }}
                     p institutions: {{ institution_names_by_team_id(id) }}
-                    p sides: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).past_sides.join(', ') : '' }}
+                    p sides: {{ compiled_team_result_by_id(id).past_sides.join(', ') }}
                     p speakers: {{ speaker_names_by_team_id(id) }}
                     p id: {{ id }}
       legend Waiting Venues
