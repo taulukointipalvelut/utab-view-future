@@ -42,8 +42,15 @@ export default {
   computed: {
     sorted_rows () {
       let draw = this.target_draw
+      let that = this
       return draw ? draw.allocation.slice()
-        .sort((a, b) => this.access_detail(this.entity_by_id(a.venue), this.r_str).priority > this.access_detail(this.entity_by_id(b.venue), this.r_str).priority ? 1 : -1) : []
+        .sort(function (a, b) {
+          let venue1 = that.entity_by_id(a.venue)
+          let venue2 = that.entity_by_id(b.venue)
+          let pr1 = venue1 !== undefined ? that.access_detail(venue1, that.r_str).priority : 1
+          let pr2 = venue2 !== undefined ? that.access_detail(venue2, that.r_str).priority : 1
+          return pr1 > pr2 ? 1 : -1
+        }) : []
     },
     smartphone: smartphone,
     team_allocation_opened () {

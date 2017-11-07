@@ -228,7 +228,10 @@ export default {
                     if (round.user_defined_data.evaluator_in_team === 'team') {
                         team_evaluators = Object.values(square.teams)
                     } else if (round.user_defined_data.evaluator_in_team === 'speaker') {
-                        team_evaluators = [].concat(...Object.values(square.teams).map(getters.entity_by_id).map(t => getters.access_detail(t, r).speakers))
+                        team_evaluators = Object.values(square.teams)
+                                                .map(getters.entity_by_id)
+                                                .filter(t => t !== undefined)
+                                                .map(t => getters.access_detail(t, r).speakers)
                     }
                 }
                 let adj_evaluators = round.user_defined_data.evaluate_from_adjudicators ? square.chairs.concat(square.panels).concat(square.trainees) : []
@@ -338,7 +341,7 @@ export default {
         return function (id) {
             let entity = getters.entity_by_id(parseInt(id, 10))
             if (entity === undefined) {
-                return 'Undefined'
+                return ''
             } else {
                 return entity.name
             }

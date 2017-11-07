@@ -14,8 +14,9 @@
                     .draggable-content(@mouseover="selected_venue = id", @mouseout="selected_venue = null") {{ entity_name_by_id(id) }}
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                        p id: {{ id }}
-                        p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
+                        div(v-if="entity_by_id(id) !== undefined")
+                          p id: {{ id }}
+                          p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
             el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels[side]", align="center")
               template(slot-scope="scope")
                 draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
@@ -23,14 +24,15 @@
                     .draggable-content(@mouseover="selected_team = id", @mouseout="selected_team = null") {{ entity_name_by_id(id) }}
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                        p ranking: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).ranking : '' }}
-                        p win: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).win : '' }}
-                        p sum: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).sum : '' }}
-                        p margin: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).margin : '' }}
-                        p institutions: {{ institution_names_by_team_id(id) }}
-                        p sides: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).past_sides.join(', ') : '' }}
-                        p speakers: {{ speaker_names_by_team_id(id) }}
-                        p id: {{ id }}
+                        div(v-if="entity_by_id(id) !== undefined")
+                          p ranking: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).ranking : '' }}
+                          p win: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).win : '' }}
+                          p sum: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).sum : '' }}
+                          p margin: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).margin : '' }}
+                          p institutions: {{ institution_names_by_team_id(id) }}
+                          p sides: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).past_sides.join(', ') : '' }}
+                          p speakers: {{ speaker_names_by_team_id(id) }}
+                          p id: {{ id }}
             el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label", align="center")
               template(slot-scope="scope")
                 draggable.adj-list(v-model="scope.row[label]", :options="adjudicator_options")
@@ -38,14 +40,15 @@
                     .draggable-content(@mouseover="selected_adjudicator = id", @mouseout="selected_adjudicator = null") {{ entity_name_by_id(id) }}
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                        p ranking: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).ranking : '' }}
-                        p average: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).average : '' }}
-                        p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                        p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                        p judged_teams: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') : '' }}
-                        p judged: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced : '' }}
-                        p judged as chair: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced_chair : '' }}
-                        p id: {{ id }}
+                        div(v-if="entity_by_id(id) !== undefined")
+                          p ranking: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).ranking : '' }}
+                          p average: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).average : '' }}
+                          p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
+                          p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                          p judged_teams: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') : '' }}
+                          p judged: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced : '' }}
+                          p judged as chair: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced_chair : '' }}
+                          p id: {{ id }}
             el-table-column(label="Warnings", align="center")
               el-table-column(label="Draw", align="center")
                 template(slot-scope="scope")
@@ -81,14 +84,15 @@
               .draggable-content(@mouseover="selected_adjudicator = id", @mouseout="selected_adjudicator = null") {{ entity_name_by_id(id) }}
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                  p ranking: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).ranking : '' }}
-                  p average: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).average : '' }}
-                  p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                  p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                  p judged_teams: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') : '' }}
-                  p judged: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced : '' }}
-                  p judged as chair: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced_chair : '' }}
-                  p id: {{ id }}
+                  div(v-if="entity_by_id(id) !== undefined")
+                    p ranking: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).ranking : '' }}
+                    p average: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).average : '' }}
+                    p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
+                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                    p judged_teams: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).judged_teams.map(entity_name_by_id).join(', ') : '' }}
+                    p judged: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced : '' }}
+                    p judged as chair: {{ compiled_adjudicator_result_by_id(id) ? compiled_adjudicator_result_by_id(id).num_experienced_chair : '' }}
+                    p id: {{ id }}
       legend Waiting Teams
       loading-container(:loading="loading")
         .adj-list-container
@@ -97,14 +101,15 @@
               .draggable-content(@mouseover="selected_team = id", @mouseout="selected_team = null") {{ entity_name_by_id(id) }}
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                  p ranking: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).ranking : '' }}
-                  p win: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).win : '' }}
-                  p sum: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).sum : '' }}
-                  p margin: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).margin : '' }}
-                  p institutions: {{ institution_names_by_team_id(id) }}
-                  p sides: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).past_sides.join(', ') : '' }}
-                  p speakers: {{ speaker_names_by_team_id(id) }}
-                  p id: {{ id }}
+                  div(v-if="entity_by_id(id) !== undefined")
+                    p ranking: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).ranking : '' }}
+                    p win: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).win : '' }}
+                    p sum: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).sum : '' }}
+                    p margin: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).margin : '' }}
+                    p institutions: {{ institution_names_by_team_id(id) }}
+                    p sides: {{ compiled_team_result_by_id(id) ? compiled_team_result_by_id(id).past_sides.join(', ') : '' }}
+                    p speakers: {{ speaker_names_by_team_id(id) }}
+                    p id: {{ id }}
       legend Waiting Venues
       loading-container(:loading="loading")
         .adj-list-container
@@ -113,8 +118,9 @@
               .draggable-content(@mouseover="selected_venue = id", @mouseout="selected_venue = null") {{ entity_name_by_id(id) }}
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                  p id: {{ id }}
-                  p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
+                  div(v-if="entity_by_id(id) !== undefined")
+                    p id: {{ id }}
+                    p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
 
     el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
       el-tabs(v-model="dialog.draw.allocation_type")
@@ -329,31 +335,36 @@ export default {
         if (this.selected_team !== null) {//FOR RELATIONS WARNINGS
           let team0 = this.entity_by_id(this.selected_team)
           let team1 = this.entity_by_id(id)
-          let result0 = this.compiled_team_result_by_id(this.selected_team)
-          let result1 = this.compiled_team_result_by_id(id)
+          if (team0 !== undefined && team1 !== undefined) {
+            let result0 = this.compiled_team_result_by_id(this.selected_team)
+            let result1 = this.compiled_team_result_by_id(id)
 
-          warn_item_team['same-institution'] = this.check_institutions(team0, team1)
-          if (result0 !== undefined && result1 !== undefined) {
-            warn_item_team['different-win'] = this.check_wins(team0, team1, result0, result1)
+            warn_item_team['same-institution'] = this.check_institutions(team0, team1)
+            if (result0 !== undefined && result1 !== undefined) {
+              warn_item_team['different-win'] = this.check_wins(team0, team1, result0, result1)
+            }
           }
         }
         if (this.selected_adjudicator !== null) {//FOR ADJUDICATOR RELATIONS WARNINGS
           let team = this.entity_by_id(id)
           let adjudicator = this.entity_by_id(this.selected_adjudicator)
-          let team_result = this.compiled_team_result_by_id(id)
-          let adj_result = this.compiled_adjudicator_result_by_id(this.selected_adjudicator)
-          if (team_result !== undefined || adj_result !== undefined) {
-            warn_item_team['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
-          }
+          if (team !== undefined && adjudicator !== undefined) {
+            let team_result = this.compiled_team_result_by_id(id)
+            let adj_result = this.compiled_adjudicator_result_by_id(this.selected_adjudicator)
+            if (team_result !== undefined || adj_result !== undefined) {
+              warn_item_team['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
+            }
 
-          warn_item_team['conflicts'] = this.check_conflicts(team, adjudicator)
-          warn_item_team['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
+            warn_item_team['conflicts'] = this.check_conflicts(team, adjudicator)
+            warn_item_team['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
+          }
         }
         let result = this.compiled_team_result_by_id(id)
         if (result !== undefined) {
           warn_item_team['sided-border'] = this.check_sided(result, side)
         }
-        warn_item_team['unavailable'] = !this.access_detail(this.entity_by_id(id), this.r_str).available
+        let team = this.entity_by_id(id)
+        warn_item_team['unavailable'] = team === undefined || !this.access_detail(team, this.r_str).available
         return warn_item_team
     },
     warn_item_adjudicator (id) {
@@ -370,26 +381,30 @@ export default {
         if (this.selected_team !== null) {//FOR RELATIONS WARNINGS
           let team = this.entity_by_id(this.selected_team)
           let adjudicator = this.entity_by_id(id)
-          let team_result = this.compiled_team_result_by_id(this.selected_team)
-          let adj_result = this.compiled_adjudicator_result_by_id(id)
-          if (team_result !== undefined || adj_result !== undefined) {
-            warn_item_adjudicator['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
-          }
+          if (team !== undefined && adjudicator !== undefined) {
+            let team_result = this.compiled_team_result_by_id(this.selected_team)
+            let adj_result = this.compiled_adjudicator_result_by_id(id)
+            if (team_result !== undefined || adj_result !== undefined) {
+              warn_item_adjudicator['already-judged'] = this.check_judged(team, adjudicator, team_result, adj_result)
+            }
 
-          warn_item_adjudicator['conflicts'] = this.check_conflicts(team, adjudicator)
-          warn_item_adjudicator['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
+            warn_item_adjudicator['conflicts'] = this.check_conflicts(team, adjudicator)
+            warn_item_adjudicator['personal-conflicts'] = this.check_personal_conflicts(team, adjudicator)
+          }
         }
         if (this.selected_adjudicator !== null) {//FOR ADJUDICATOR RELATIONS WARNINGS
           let adjudicator0 = this.entity_by_id(id)
           let adjudicator1 = this.entity_by_id(this.selected_adjudicator)
-
-          warn_item_adjudicator['same-institution'] = this.check_institutions(adjudicator0, adjudicator1)
+          if (adjudicator1 !== undefined && adjudicator0 !== undefined) {
+            warn_item_adjudicator['same-institution'] = this.check_institutions(adjudicator0, adjudicator1)
+          }
         }
         let result = this.compiled_adjudicator_result_by_id(id)
         if (result !== undefined) {
           warn_item_adjudicator['zero-judged-border'] = this.check_zero_judged(result)
         }
-        warn_item_adjudicator['unavailable'] = !this.access_detail(this.entity_by_id(id), this.r_str).available
+        let adjudicator = this.entity_by_id(id)
+        warn_item_adjudicator['unavailable'] = adjudicator === undefined || !this.access_detail(adjudicator, this.r_str).available
         return warn_item_adjudicator
     },
     warn_item_venue (id) {
@@ -397,8 +412,8 @@ export default {
           'unavailable': false,
           'selected': id === this.selected_venue
         }
-
-        warn_item_venue['unavailable'] = !this.access_detail(this.entity_by_id(id), this.r_str).available
+        let v = this.entity_by_id(id)
+        warn_item_venue['unavailable'] = v === undefined || !this.access_detail(v, this.r_str).available
         return warn_item_venue
     },
     on_team (selected) {
@@ -436,12 +451,13 @@ export default {
     },
     square_sendable (square) {
       let square_adjudicators = square.chairs.concat(square.panels).concat(square.trainees)
-      let sub_entities = square.teams.opp.concat(square.teams.gov).concat(square.venues).concat(square_adjudicators)
+      let sub_entity_ids = square.teams.opp.concat(square.teams.gov).concat(square.venues).concat(square_adjudicators)
+      let sub_entities = sub_entity_ids.map(this.entity_by_id).filter(e => e !== undefined)
       if (square.teams.gov.length !== 1 || square.teams.opp.length !== 1) {
         return false
       } else if (square.venues.length > 1) {
         return false
-      } else if (sub_entities.some(id => !this.access_detail(this.entity_by_id(id), this.r_str).available)) {
+      } else if (sub_entities.some(e => !this.access_detail(e, this.r_str).available)) {
         return false
       } else {
         return true
@@ -453,7 +469,7 @@ export default {
         for (let id of square.teams[side]) {
           let team = this.entity_by_id(id)
           let result = this.compiled_team_result_by_id(id)
-          if (result === undefined) { continue }
+          if (team === undefined || result === undefined) { continue }
           if (this.check_sided(result, side)) {
             warnings.push({
               name: "OneSided",
@@ -478,10 +494,11 @@ export default {
       for (let pair of math.pairs(square.teams.gov, square.teams.opp)) {
         let gov = this.entity_by_id(pair[0])
         let opp = this.entity_by_id(pair[1])
+        if (gov === undefined || opp === undefined) { continue }
         let result0 = this.compiled_team_result_by_id(pair[0])
         let result1 = this.compiled_team_result_by_id(pair[1])
         for (let check of checks) {
-          if (check.require_results && (result0 === undefined || result1 === undefined)) { continue }
+          if (check.require_results) { continue }
           if (check.func(gov, opp, result0, result1)) {
             warnings.push({
               name: check.name,
@@ -515,6 +532,7 @@ export default {
       for (let pair of math.pairs(square.teams.gov.concat(square.teams.opp), square.chairs.concat(square.panels).concat(square.trainees))) {
         let team = this.entity_by_id(pair[0])
         let adj = this.entity_by_id(pair[1])
+        if (adj === undefined || team === undefined) { continue }
         for (let check of ta_checks) {
           let team_result = this.compiled_team_result_by_id(pair[0])
           let adj_result = this.compiled_adjudicator_result_by_id(pair[1])
@@ -540,6 +558,7 @@ export default {
         if (pair[0] >= pair[1]) { continue }
         let adj0 = this.entity_by_id(pair[0])
         let adj1 = this.entity_by_id(pair[1])
+        if (adj0 === undefined || adj1 === undefined) { continue }
         for (let check of aa_checks) {
           if (check.func(adj0, adj1)) {
             warnings.push({
@@ -597,7 +616,7 @@ export default {
       for (let raw_square of this.draw_adjusted.allocation) {
         let square = {
           id: raw_square.id,
-          venue: raw_square.venues[0],
+          venue: raw_square.venues.length > 0 ? raw_square.venues[0] : null,
           teams: {
             gov: raw_square.teams.gov[0],
             opp: raw_square.teams.opp[0]
@@ -724,7 +743,14 @@ export default {
                 c += 1
             }
         } else {
-            let sorted_allocation = draw.allocation.slice().sort((s1, s2) => this.access_detail(this.entity_by_id(s1.venue), this.r_str).priority > this.access_detail(this.entity_by_id(s2.venue), this.r_str).priority ? 1 : -1)
+            let that = this
+            let sorted_allocation = draw.allocation.slice().sort(function (s1, s2) {
+              let v1 = that.entity_by_id(s1.venue)
+              let v2 = that.entity_by_id(s2.venue)
+              let pr1 = v1 !== undefined ? that.access_detail(v1, that.r_str).priority : 1
+              let pr2 = v2 !== undefined ? that.access_detail(v2, that.r_str).priority : 2
+              return pr1 > pr2 ? 1 : -1
+            })
             let c = 0
             for (let square of sorted_allocation) {
                 this.draw_adjusted.allocation.push({
