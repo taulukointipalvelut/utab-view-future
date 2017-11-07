@@ -1,7 +1,7 @@
 <template lang="pug">
   loading-container#ballot-speaker(:loading="loading")
     .card-container(v-if="!loading && path_valid")
-      el-card(v-for="side in ['gov', 'opp']", :class="side", :key="side")
+      el-card(v-for="side in ['gov', 'opp']", :class="side", :key="side", v-if="!target_round.user_defined_data.no_speaker_score")
         div(slot="header").card-header-container
           span.card-title {{ entity_name_by_id(score_sheet.teams[side]) }}
           span.card-subtitle {{ style.side_labels_short[side] }}

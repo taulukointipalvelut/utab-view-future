@@ -90,7 +90,11 @@ export default {
     ]),
     on_select (selected) {
       if (!selected.done) {
-        this.$router.push(selected.href.to)
+        if (this.target_round.user_defined_data.no_speaker_score) {
+          this.$router.push(selected.href.to+'/winner')
+        } else {
+          this.$router.push(selected.href.to+'/speaker')
+        }
       }
     },
     row_class_name (row, index): string {

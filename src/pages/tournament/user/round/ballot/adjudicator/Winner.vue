@@ -6,7 +6,7 @@
           .sideinfo-header
               .team-label-wrapper(v-for="side in ['gov', 'opp']", :key="side")
                 span {{ style.side_labels_short[side] }}
-                span {{ total(side) }} pts
+                span(v-if="!target_round.user_defined_data.no_speaker_score") {{ total(side) }} pts
           el-radio-group.winner-selector(:value="result.winner", @input="on_select_winner", size="large")
             el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ entity_name_by_id(score_sheet.teams.gov) }}
             el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ entity_name_by_id(score_sheet.teams.opp) }}
@@ -36,7 +36,8 @@ export default {
     ]),
     ...mapGetters([
       'entity_name_by_id',
-      'style'
+      'style',
+      'target_round'
     ]),
     ...mapState('ballot', [
       'result'
@@ -44,16 +45,22 @@ export default {
   },
   methods: {
     ...mapMutations('ballot', [
-      'winner'
+      'winner',
+      'path_confirmed'
     ]),
     on_select_winner (winner) {
       this.winner({ winner })
     },
     on_prev () {
-      let speaker_sequence = this.style.speaker_sequence.slice().sort((s1, s2) => s1.order > s2.order ? 1 : -1)
-      this.$router.push('score/'+speaker_sequence[this.style.speaker_sequence.length - 1].value)
+      if (this.target_round.user_defined_data.no_speaker_score) {
+        this.$router.push('../home')
+      } else {
+        let speaker_sequence = this.style.speaker_sequence.slice().sort((s1, s2) => s1.order > s2.order ? 1 : -1)
+        this.$router.push('score/'+speaker_sequence[this.style.speaker_sequence.length - 1].value)
+      }
     },
     on_next () {
+      if (this.target_round.user_defined_data.no_speaker_score) { this.path_confirmed() }
       this.$router.push('check')
     },
     total (side) {

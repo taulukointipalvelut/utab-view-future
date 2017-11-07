@@ -5,8 +5,8 @@
       h3 {{ round.name }}
     section(v-if="round && adjudicator")
       el-steps(:active="current_step", finish-status="success", center)
-        el-step(title="Speaker")
-        el-step(title="Score")
+        el-step(title="Speaker", v-if="!target_round.user_defined_data.no_speaker_score")
+        el-step(title="Score", v-if="!target_round.user_defined_data.no_speaker_score")
         el-step(title="Winner")
         el-step(title="Check")
     router-view(v-if="round && adjudicator && score_sheet", :score_sheet="score_sheet")
@@ -22,14 +22,11 @@ export default {
   components: {
     'loading-container': loading_container
   },
-  data () {
-    return {
-      steps: ['speaker', 'score', 'winner', 'check', 'done']
-    }
-  },
   computed: {
     current_step () {
-      return this.steps.findIndex(step => step === this.$route.name)
+      let steps = this.target_round.user_defined_data.no_speaker_score ? ['winner', 'check', 'done']
+                                                                       : ['speaker', 'score', 'winner', 'check', 'done']
+      return steps.findIndex(step => step === this.$route.name)
     },
     round () {
       return this.target_round

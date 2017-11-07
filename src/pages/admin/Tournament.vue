@@ -101,17 +101,19 @@
               el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
             el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.chairs_always_evaluated")
-            el-form-item(label="Allow Low-Win/Tie-Win", prop="allow_low_tie_win")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.allow_low_tie_win")
-            el-form-item(label="Matter/Manner", prop="score_by_matter_manner")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.score_by_matter_manner")
-            el-form-item(label="POI Prize", prop="poi")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.poi")
-            el-form-item(label="Best Speaker Prize", prop="best")
-              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.best")
             el-form-item(label="Evaluator in Team", prop="evaluator_in_team", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
               el-select(v-model="dialog.round[type+'_form'].model.user_defined_data.evaluator_in_team")
                 el-option(v-for="label in ['team', 'speaker']", :key="label", :value="label", :label="{ team: 'One', speaker: 'All' }[label]")
+            el-form-item(label="Without Speaker Score", prop="no_speaker_score")
+              el-switch(:default="false", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+            el-form-item(label="Allow Low-Win/Tie-Win", prop="allow_low_tie_win", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.allow_low_tie_win")
+            el-form-item(label="Matter/Manner", prop="score_by_matter_manner", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.score_by_matter_manner")
+            el-form-item(label="POI Prize", prop="poi", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.poi")
+            el-form-item(label="Best Speaker Prize", prop="best", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+              el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.best")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.round[type+'_visible'] = false") Cancel
           el-button(v-if="type==='create'", type="primary", :loading="dialog.round.create_loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
@@ -169,6 +171,7 @@ function dialog_generator () {
             adjudicator_allocation_opened: true,
             evaluate_from_adjudicators: true,
             evaluate_from_team: true,
+            no_speaker_score: false,
             chairs_always_evaluated: false,
             score_by_matter_manner: true,
             poi: true,
@@ -188,6 +191,7 @@ function dialog_generator () {
             adjudicator_allocation_opened: true,
             evaluate_from_adjudicators: true,
             evaluate_from_team: true,
+            no_speaker_score: false,
             chairs_always_evaluated: false,
             score_by_matter_manner: true,
             poi: true,

@@ -35,9 +35,5 @@ export default [
   {
     path: 'home',
     redirect: 'speaker'
-  },
-  {
-    path: '',
-    redirect: 'speaker'
   }
 ]

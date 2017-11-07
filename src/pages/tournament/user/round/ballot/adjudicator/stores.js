@@ -72,7 +72,7 @@ export default {
             let target = state.result[side][label].find(r => r.order === order)
             return target === undefined ? null : target.value
         }
-    }
+    },
   },
   mutations: {
     path_confirmed (state) {
@@ -128,7 +128,7 @@ export default {
         }
         return Promise.all([dispatch('send_raw_results', payload1, { root: true }), dispatch('send_raw_results', payload2, { root: true })])
     },
-    convert_from_result ({ commit, state }, payload) {
+    convert_from_result ({ rootGetters, commit, state }, payload) {
         let score_sheet = payload.score_sheet
         let converted_result = {
             gov: {
@@ -163,22 +163,25 @@ export default {
             let manners_converted = object_converter(converted_result[side], 'manners')
             let poi_converted = object_converter(converted_result[side], 'poi', false)
             let best_converted = object_converter(converted_result[side], 'best', false)
-            for (let id of Array.from(new Set(converted_result[side].speakers.map(r => r.value)))) {
-                let raw_speaker_result = {
-                    id,
-                    r: score_sheet.r,
-                    from_id: score_sheet.from_id,
-                    weight: 1,
-                    scores: scores_converted[id],
-                    user_defined_data: {
+
+            if (!rootGetters.target_round.user_defined_data.no_speaker_score) {
+                for (let id of Array.from(new Set(converted_result[side].speakers.map(r => r.value)))) {
+                    let raw_speaker_result = {
+                        id,
                         r: score_sheet.r,
-                        matters: matters_converted[id],
-                        manners: manners_converted[id],
-                        best: best_converted[id],
-                        poi: poi_converted[id]
+                        from_id: score_sheet.from_id,
+                        weight: 1,
+                        scores: scores_converted[id],
+                        user_defined_data: {
+                            r: score_sheet.r,
+                            matters: matters_converted[id],
+                            manners: manners_converted[id],
+                            best: best_converted[id],
+                            poi: poi_converted[id]
+                        }
                     }
+                    raw_speaker_results.push(raw_speaker_result)
                 }
-                raw_speaker_results.push(raw_speaker_result)
             }
 
             let id = converted_result[side].id
