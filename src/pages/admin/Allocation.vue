@@ -469,7 +469,7 @@ export default {
         for (let id of square.teams[side]) {
           let team = this.entity_by_id(id)
           let result = this.compiled_team_result_by_id(id)
-          if (team === undefined || result === undefined) { continue }
+          if (team === undefined) { continue }
           if (this.check_sided(result, side)) {
             warnings.push({
               name: "OneSided",
@@ -498,7 +498,6 @@ export default {
         let result0 = this.compiled_team_result_by_id(pair[0])
         let result1 = this.compiled_team_result_by_id(pair[1])
         for (let check of checks) {
-          if (check.require_results) { continue }
           if (check.func(gov, opp, result0, result1)) {
             warnings.push({
               name: check.name,
@@ -536,7 +535,6 @@ export default {
         for (let check of ta_checks) {
           let team_result = this.compiled_team_result_by_id(pair[0])
           let adj_result = this.compiled_adjudicator_result_by_id(pair[1])
-          if (check.require_results && (team_result === undefined || adj_result === undefined)) { continue }
           if (check.func(team, adj, team_result, adj_result)) {
             warnings.push({
               name: check.name,
