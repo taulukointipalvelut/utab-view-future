@@ -109,23 +109,25 @@
           el-tab-pane(label="Score Histogram")
             mstat-histogram(:results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", score="score", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'adjudicator-'+round.r.toString()")
 
-      el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize[sub_prize]")
-        el-table(:data="compiled_sub_prize_results(sub_prize)")
-          el-table-column(prop="ranking", label="Ranking", align="center", sortable)
-            template(slot-scope="scope")
-              span {{ scope.row.ranking }}
-          el-table-column(label="Name", align="center", sortable)
-            template(slot-scope="scope")
-              span {{ entity_name_by_id(scope.row.id) }}
-          el-table-column(label="Team", align="center", sortable)
-            template(slot-scope="scope")
-              span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
-          el-table-column(label="Total", align="center", sortable, prop="sub_prize")
-            template(slot-scope="scope")
-              span {{ scope.row[sub_prize] }}
-        .operations
-          el-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Debater', poi: 'POI'}[sub_prize] }} Results
-          el-button(type="primary", @click="on_configure_slide(sub_prize)") #[el-icon(name="picture")] &nbsp;Slide Show
+      el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize_enabled[sub_prize]")
+        el-tabs.result-tabs(type="border-card")
+          el-tab-pane(label="Table")
+            el-table(:data="compiled_sub_prize_results(sub_prize)")
+              el-table-column(prop="ranking", label="Ranking", align="center", sortable)
+                template(slot-scope="scope")
+                  span {{ scope.row.ranking }}
+              el-table-column(label="Name", align="center", sortable)
+                template(slot-scope="scope")
+                  span {{ entity_name_by_id(scope.row.id) }}
+              el-table-column(label="Team", align="center", sortable)
+                template(slot-scope="scope")
+                  span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
+              el-table-column(label="Total", align="center", sortable, prop="sub_prize")
+                template(slot-scope="scope")
+                  span {{ scope.row[sub_prize] }}
+            .operations
+              el-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Debater', poi: 'POI'}[sub_prize] }} Results
+              el-button(type="primary", @click="on_configure_slide(sub_prize)") #[el-icon(name="picture")] &nbsp;Slide Show
 
       el-tab-pane(label="Fairness")
         el-tabs.result-tabs(type="border-card")
@@ -243,7 +245,7 @@ export default {
       'teams_by_speaker_id',
       'compiled_sub_prize_results'
     ]),
-    sub_prize () {
+    sub_prize_enabled () {
       let rounds = this.target_tournament.rounds
       return {
         poi: rounds.some(round => round.user_defined_data.poi),
