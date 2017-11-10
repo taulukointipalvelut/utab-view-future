@@ -33,12 +33,18 @@ export default {
           dataLabels: {
               enabled: false,
               color: '#000000'
-          }
+          },
+          borderWidth: 0,
+          nullColor: '#EFEFEF',
       }]
 
       for (let i = 0; i < categories.length; i++) {
           for (let j = 0; j < categories.length; j++) {
-              series[0].data.push([i, j, null])
+              if (i === j) {
+                  series[0].data.push([i, j, null])
+              } else {
+                  series[0].data.push([i, j, 0])
+              }
           }
       }
 
@@ -52,8 +58,8 @@ export default {
                   let j = detail.side === 'gov' ? that_index : this_index
                   let e1 = series[0].data.find(arr => arr[0] === i && arr[1] === j)
                   let e2 = series[0].data.find(arr => arr[1] === i && arr[0] === j)
-                  e1[2] = detail.win === 1 ? 1 : -1
-                  e2[2] = detail.win === 1 ? -1 : 1
+                  e1[2] = detail.win === 1 ? -1 : 1
+                  e2[2] = detail.win === 1 ? 1 : -1
               }
           }
       }
@@ -77,8 +83,12 @@ export default {
           colorAxis: {
               reversed: false,
               min: -1,
-              minColor: 'rgb(111, 177, 209)',
-              maxColor: 'rgb(237, 168, 123)',
+              max: 1,
+              stops: [
+                  [0, 'rgb(111, 177, 209)'],
+                  [0.5, '#fcfcfc'],
+                  [1, 'rgb(237, 168, 123)']
+              ],
               labels: {
                   enabled: true,
                   formatter () {

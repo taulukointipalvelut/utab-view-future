@@ -39,6 +39,7 @@ export default {
           })
       }]
       let categories = sorted_results.map(r => r.id).map(this.entity_name_by_id)
+
       highcharts.chart(this.id+'-score-range-container', {
           chart: {
               type: 'columnrange',
@@ -58,9 +59,13 @@ export default {
           plotOptions: {
               columnrange: {
                   dataLabels: {
-                      enabled: true,
+                      enabled: false,
                       formatter () {
                           return highcharts.numberFormat(this.y, 1)
+                      },
+                      style: {
+                          fontWeight: 0,
+                          fontSize: 5
                       }
                   },
                   marker: {
