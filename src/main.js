@@ -8,6 +8,7 @@ import 'element-ui/lib/theme-default/index.css'
 import routes from './routes'
 import stores from './stores'
 import App from './App.vue'
+import VueAnalytics from 'vue-analytics'
 
 Vue.use(Vuex)
 Vue.use(VueRouter)
@@ -16,6 +17,7 @@ Vue.use(ElementUI, { locale })
 const router = new VueRouter({
   routes
 })
+Vue.use(VueAnalytics, { id: 'UA-109491406-1', router })
 
 const store = new Vuex.Store(stores)
 
