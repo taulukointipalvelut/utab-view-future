@@ -34,13 +34,13 @@
               el-button(@click="on_download_team_results") Download Team Results
               el-button(type="primary", @click="on_configure_slide('team')") #[el-icon(name="picture")] &nbsp;Slide Show
           el-tab-pane(label="Score Graph")
-            mstat-series(id="team", :results="target_tournament.compiled_team_results", :tournament="target_tournament", :marker="{ key: 'win', value: 1 }", score="sum")
+            score-change(id="team", :results="target_tournament.compiled_team_results", :tournament="target_tournament", :marker="{ key: 'win', value: 1 }", score="sum")
           el-tab-pane(label="Score Range")
-            mstat-score-range(id="team", :results="target_tournament.compiled_team_results", :tournament="target_tournament", score="sum")
+            score-range(id="team", :results="target_tournament.compiled_team_results", :tournament="target_tournament", score="sum")
           el-tab-pane(label="Score Histogram")
-            mstat-histogram(:results="target_tournament.compiled_team_results", :tournament="target_tournament", score="sum", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'team-'+round.r.toString()")
+            score-histogram(:results="target_tournament.compiled_team_results", :tournament="target_tournament", score="sum", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'team-'+round.r.toString()")
           el-tab-pane(label="Team Performance Graph")
-            mstat-bar-negative(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
+            team-performance(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
 
       el-tab-pane(label="Speaker Results")
         el-tabs.result-tabs(type="border-card")
@@ -68,11 +68,11 @@
               el-button(@click="on_download_speaker_results") Download Speaker Results
               el-button(type="primary", @click="on_configure_slide('speaker')") #[el-icon(name="picture")] &nbsp;Slide Show
           el-tab-pane(label="Score Graph")
-            mstat-series(id="speaker", :results="target_tournament.compiled_speaker_results", :tournament="target_tournament", :marker="{ key: '', value: undefined }", score="average")
+            score-change(id="speaker", :results="target_tournament.compiled_speaker_results", :tournament="target_tournament", :marker="{ key: '', value: undefined }", score="average")
           el-tab-pane(label="Score Range")
-            mstat-score-range(id="speaker", :results="target_tournament.compiled_speaker_results", :tournament="target_tournament", score="average")
+            score-range(id="speaker", :results="target_tournament.compiled_speaker_results", :tournament="target_tournament", score="average")
           el-tab-pane(label="Score Histogram")
-            mstat-histogram(:results="target_tournament.compiled_speaker_results", :tournament="target_tournament", score="average", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'speaker-'+round.r.toString()")
+            score-histogram(:results="target_tournament.compiled_speaker_results", :tournament="target_tournament", score="average", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'speaker-'+round.r.toString()")
 
       el-tab-pane(label="Adjudicator Results")
         el-tabs.result-tabs(type="border-card")
@@ -103,11 +103,11 @@
               el-button(@click="on_download_adjudicator_results") Download Adjudicator Results
               el-button(type="primary", @click="on_configure_slide('adjudicator')") #[el-icon(name="picture")] &nbsp;Slide Show
           el-tab-pane(label="Score Graph")
-            mstat-series(id="adjudicator", :results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", :marker="{ key: '', value: undefined }", score="score")
+            score-change(id="adjudicator", :results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", :marker="{ key: '', value: undefined }", score="score")
           el-tab-pane(label="Score Range")
-            mstat-score-range(id="adjudicator", :results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", score="score")
+            score-range(id="adjudicator", :results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", score="score")
           el-tab-pane(label="Score Histogram")
-            mstat-histogram(:results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", score="score", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'adjudicator-'+round.r.toString()")
+            score-histogram(:results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", score="score", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'adjudicator-'+round.r.toString()")
 
       el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize_enabled[sub_prize]")
         el-tabs.result-tabs(type="border-card")
@@ -132,9 +132,9 @@
       el-tab-pane(label="Fairness")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Scores by Side")
-            mstat-side-fairness(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
+            side-scatter(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
           el-tab-pane(label="Win per Side")
-            mstat-side-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
+            side-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
 
       el-dialog(v-for="label_singular in ['team', 'adjudicator', 'speaker', 'poi', 'best']", :key="label_singular", title="Slide Show", :visible.sync="dialog[label_singular+'_slide'].visible", v-if="!loading")
         .dialog-body
@@ -158,24 +158,24 @@ import link_list from 'components/link-list.vue'
 import link_list_item from 'components/link-list-item.vue'
 import loading_container from 'components/loading-container'
 import math from 'assets/js/math'
-import mstat_series from 'components/mstat-series'
-import mstat_bar_negative from 'components/mstat-bar-negative'
-import mstat_histogram from 'components/mstat-histogram'
-import mstat_score_range from 'components/mstat-score-range'
-import mstat_side_fairness from 'components/mstat-side-fairness'
-import mstat_side_heatmap from 'components/mstat-side-heatmap'
+import score_change from 'components/mstat/score-change'
+import team_performance from 'components/mstat/team-performance'
+import score_histogram from 'components/mstat/score-histogram'
+import score_range from 'components/mstat/score-range'
+import side_scatter from 'components/mstat/side-scatter'
+import side_heatmap from 'components/mstat/side-heatmap'
 
 export default {
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item,
     'loading-container': loading_container,
-    'mstat-series': mstat_series,
-    'mstat-bar-negative': mstat_bar_negative,
-    'mstat-histogram': mstat_histogram,
-    'mstat-score-range': mstat_score_range,
-    'mstat-side-fairness': mstat_side_fairness,
-    'mstat-side-heatmap': mstat_side_heatmap,
+    'score-change': score_change,
+    'team-performance': team_performance,
+    'score-histogram': score_histogram,
+    'score-range': score_range,
+    'side-scatter': side_scatter,
+    'side-heatmap': side_heatmap,
   },
   props: ['r_str'],
   data () {

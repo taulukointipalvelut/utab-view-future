@@ -74,7 +74,6 @@ export default {
           plotOptions: {
               scatter: {
                   marker: {
-                      symbol: 'circle',
                       radius: 5,
                       states: {
                           hover: {
