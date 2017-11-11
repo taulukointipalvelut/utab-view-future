@@ -9,7 +9,9 @@ import routes from './routes'
 import stores from './stores'
 import App from './App.vue'
 import VueAnalytics from 'vue-analytics'
+import VueObserveVisibility from 'vue-observe-visibility'
 
+Vue.use(VueObserveVisibility)
 Vue.use(Vuex)
 Vue.use(VueRouter)
 Vue.use(ElementUI, { locale })

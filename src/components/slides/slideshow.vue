@@ -1,5 +1,5 @@
 <template lang="pug">
-  .screen
+  .screen(v-observe-visibility="change_visibility")
     .context
       .title(@click="on_full_screen")
         h1 {{ title }}
@@ -37,6 +37,7 @@ export default {
   ],
   data () {
     return {
+      visible: false,
       slide_num: 0,
       paragraph_num: 0,
       current_slide: [[]],
@@ -46,6 +47,9 @@ export default {
     }
   },
   methods: {
+    change_visibility (visible) {
+      this.visible = visible
+    },
     on_next () {
       if (this.pagination_locked) { return }
       if (this.paragraphs_list[this.slide_num].length > this.paragraph_num + 1) {
@@ -92,6 +96,7 @@ export default {
       }
     },
     on_keyup_event(evt) {
+      if (!this.visible) { return }
       if (evt.key === 'Enter' || evt.key === 'ArrowRight') {
         this.on_next()
       } else if (evt.key === 'Backspace' || evt.key === 'ArrowLeft') {
