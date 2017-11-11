@@ -46,7 +46,7 @@
                 template(slot-scope="scope")
                   span {{ scope.row.comments.join(', ') }}
             .operation-button-container
-              el-button.operation-button(@click="on_download_team_results") Download {{ capitalize(labels_singular[label]) }} Results
+              el-button.operation-button(@click="on_download_results(label)") Download {{ capitalize(labels_singular[label]) }} Results
           el-tab-pane(label="Slides")
             slides(:label="label", v-if="slides[label].configured", :tournament="target_tournament", :max_ranking_rewarded="slides[label].max_ranking_rewarded", :credit="slides[label].credit", :type="slides[label].type", @close="slides[label].configured=false")
             el-card(v-if="!slides[label].configured").slide-config-card
@@ -109,6 +109,8 @@
             side-scatter(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
           el-tab-pane(label="Win per Side")
             side-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
+          el-tab-pane(label="Margin per Side")
+            side-margin-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
 
       el-dialog(v-for="label_singular in ['team', 'adjudicator', 'speaker', 'poi', 'best']", :key="label_singular", title="Slide Show", :visible.sync="dialog[label_singular+'_slide'].visible", v-if="!loading")
         .dialog-body
@@ -138,6 +140,7 @@ import score_histogram from 'components/mstat/score-histogram'
 import score_range from 'components/mstat/score-range'
 import side_scatter from 'components/mstat/side-scatter'
 import side_heatmap from 'components/mstat/side-heatmap'
+import side_margin_heatmap from 'components/mstat/side-margin-heatmap'
 import slides from 'components/slides/slides'
 
 export default {
@@ -151,6 +154,7 @@ export default {
     'score-range': score_range,
     'side-scatter': side_scatter,
     'side-heatmap': side_heatmap,
+    'side-margin-heatmap': side_margin_heatmap,
     'slides': slides
   },
   props: ['r_str'],
@@ -278,34 +282,30 @@ export default {
         path: 'slide/'+label_singular+'?'+math.query_from_obj(this.dialog[label_singular+'_slide'].form.model)
       })
     },
-    on_download_team_results () {
-      let results = this.target_tournament.compiled_team_results
+    on_download_results (label) {
+      let label_singular = this.labels_singular[label]
+      let header_labels = []
+      let header_contents = []
+      if (label === 'teams') {
+        header_labels = ['Ranking', 'Place', 'Name', 'Win', 'Sum', 'Margin', 'Vote', 'StDev']
+        header_contents = ['ranking', 'place', 'name', 'win', 'sum', 'margin', 'vote', 'sd']
+      } else if (label === 'speakers') {
+        header_labels = ['Ranking', 'Place', 'Name', 'Team', 'Average', 'Sum', 'StDev']
+        header_contents = ['ranking', 'place', 'name', 'team_name', 'average', 'sum', 'sd']
+      } else if (label === 'adjudicators') {
+        header_labels = ['Ranking', 'Place', 'Name', 'Average', 'StDev']
+        header_contents = ['ranking', 'place', 'name', 'average', 'sd']
+      }
+      let results = this.target_tournament['compiled_'+label_singular+'_results']
       let organized_results = results.map(result => Object.assign({}, result))
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
         result.place = math.ordinal(result.ranking)
+        if (label === 'speakers') {
+          result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
+        }
       }
-      this.download_results_as_csv('team_results.csv', organized_results, ['ranking', 'place', 'name', 'win', 'sum', 'margin', 'vote', 'sd'], ['Ranking', 'Place', 'Name', 'Win', 'Sum', 'Margin', 'Vote', 'StDev'])
-    },
-    on_download_speaker_results () {
-      let results = this.target_tournament.compiled_speaker_results
-      let organized_results = results.map(result => Object.assign({}, result))
-      for (let result of organized_results) {
-        result.name = this.entity_name_by_id(result.id)
-        result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
-        result.place = math.ordinal(result.ranking)
-      }
-      this.download_results_as_csv('speaker_results.csv', organized_results, ['ranking', 'place', 'name', 'team_name', 'average', 'sum', 'sd'], ['Ranking', 'Place', 'Name', 'Team', 'Average', 'Sum', 'StDev'])
-    },
-    on_download_adjudicator_results () {
-      let results = this.target_tournament.compiled_adjudicator_results
-      let organized_results = results.map(result => Object.assign({}, result))
-      for (let result of organized_results) {
-        result.name = this.entity_name_by_id(result.id)
-        result.place = math.ordinal(result.ranking)
-        //result.team_name = this.teams_by_speaker_id(result.id).map(t => t.name)
-      }
-      this.download_results_as_csv('adjudicator_results.csv', organized_results, ['ranking', 'place', 'name', 'average', 'sd'], ['Ranking', 'Place', 'Name', 'Average', 'StDev'])
+      this.download_results_as_csv(label_singular+'_results.csv', organized_results, header_contents, header_labels)
     },
     on_download_sub_prize_results (sub_prize, head) {
       let results = this.compiled_sub_prize_results(sub_prize)
