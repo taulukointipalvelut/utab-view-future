@@ -106,9 +106,6 @@
             h3(align="center", v-if="dialog.team_result.form.model.from_id !== null") Adjudicator: {{ entity_name_by_id(dialog.team_result.form.model.from_id) }}
             el-form-item(label="Win", prop="win")
               el-input-number(:min="0", :max="1", v-model="dialog.team_result.form.model.win")
-            el-form-item(label="Side", prop="side")
-              el-select(v-model="dialog.team_result.form.model.side")
-                el-option(v-for="side in ['gov', 'opp']", :value="side", :label="capitalize(side)", :key="side")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.team_result.visible = false") Cancel
           el-button(type="primary", :loading="dialog.team_result.loading", @click="on_update('teams', 'team')") #[el-icon(name="plus", v-if="!dialog.team_result.loading")] OK
