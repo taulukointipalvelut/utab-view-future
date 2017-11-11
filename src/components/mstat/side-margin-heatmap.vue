@@ -1,5 +1,5 @@
 <template lang="pug">
-  div(:id="id+'-side-heatmap-container'")
+  div(:id="id+'-side-margin-heatmap-container'")
 </template>
 
 <script>
@@ -10,7 +10,7 @@ import heatmap from 'highcharts/modules/heatmap.js'
 heatmap(highcharts)
 
 export default {
-  name: 'mstat-side-heatmap',
+  name: 'mstat-side-margin-heatmap',
   props: {
     results: Array,
     tournament: Object,
@@ -27,7 +27,7 @@ export default {
       let categories = sorted_results.map(r => r.id)
 
       let series = [{
-          name: 'Win per Side',
+          name: 'Margin per Side',
           borderWidth: 1,
           data: [],
           dataLabels: {
@@ -52,21 +52,22 @@ export default {
       for (let result of sorted_results) {
           for (let detail of result.details) {
               if (detail.r === this.round.r) {
-                  let this_index = categories.findIndex(id => id === detail.id)
-                  let that_index = categories.findIndex(id => id === detail.opponents[0])
-                  let i = detail.side === 'gov' ? this_index : that_index
-                  let j = detail.side === 'gov' ? that_index : this_index
+                  let this_id = categories.findIndex(id => id === detail.id)
+                  let that_id = categories.findIndex(id => id === detail.opponents[0])
+                  let i = detail.side === 'gov' ? this_id : that_id
+                  let j = detail.side === 'gov' ? that_id : this_id
                   if (i < j) {
                     let e = series[0].data.find(arr => arr[0] === i && arr[1] === j)
-                    e[2] = detail.win === 1 ? -1 : 1
+                    e[2] = -detail.margin
                   } else {
-                    let e = series[0].data.find(arr => arr[1] === i && arr[0] === j)
-                    e[2] = detail.win === 1 ? 1 : -1
+                    let e = series[0].data.find(arr => arr[0] === j && arr[1] === i)
+                    e[2] = detail.margin
                   }
               }
           }
       }
-      highcharts.chart(this.id+'-side-heatmap-container', {
+      let max = Math.max(...series[0].data.map(e => Math.abs(e[2])))
+      highcharts.chart(this.id+'-side-margin-heatmap-container', {
           chart: {
               type: 'heatmap',
               marginTop: 40,
@@ -74,7 +75,7 @@ export default {
               plotBorderWidth: 1
           },
           title: {
-              text: 'Gov win for team pairs in '+this.round.name
+              text: 'Gov margin for team pairs in '+this.round.name
           },
           xAxis: {
               title: null,
@@ -86,24 +87,15 @@ export default {
           },
           colorAxis: {
               reversed: false,
-              min: -1,
-              max: 1,
+              min: -max,
+              max: max,
               stops: [
-                  [0, 'rgb(111, 177, 209)'],
+                  [0, 'rgb(89, 136, 185)'],
                   [0.5, '#fcfcfc'],
-                  [1, 'rgb(237, 168, 123)']
+                  [1, 'rgb(158, 190, 99)']
               ],
               labels: {
-                  enabled: true,
-                  formatter () {
-                      if (this.value === 1) {
-                          return 'Win'
-                      } else if (this.value === -1) {
-                          return 'Lose'
-                      } else {
-                          return ''
-                      }
-                  }
+                  enabled: true
               }
           },
           legend: {
