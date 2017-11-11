@@ -97,11 +97,11 @@
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.adjudicator_allocation_opened")
             el-form-item(label="Judge evaluation from Judges", prop="evaluate_from_adjudicators")
               el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_adjudicators")
-            el-form-item(label="Judge evaluation from Teams", prop="evaluate_from_team")
-              el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
-            el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
+            el-form-item(label="Judge evaluation from Teams", prop="evaluate_from_teams")
+              el-switch(:default="true", on-text="", off-text="", on-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
+            el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
               el-switch(:default="true", on-text="", off-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.chairs_always_evaluated")
-            el-form-item(label="Evaluator in Team", prop="evaluator_in_team", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_team")
+            el-form-item(label="Evaluator in Team", prop="evaluator_in_team", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
               el-select(v-model="dialog.round[type+'_form'].model.user_defined_data.evaluator_in_team")
                 el-option(v-for="label in ['team', 'speaker']", :key="label", :value="label", :label="{ team: 'One', speaker: 'All' }[label]")
             el-form-item(label="Without Speaker Score", prop="no_speaker_score")
@@ -170,7 +170,7 @@ function dialog_generator () {
             team_allocation_opened: true,
             adjudicator_allocation_opened: true,
             evaluate_from_adjudicators: true,
-            evaluate_from_team: true,
+            evaluate_from_teams: true,
             no_speaker_score: false,
             chairs_always_evaluated: false,
             score_by_matter_manner: true,
@@ -190,7 +190,7 @@ function dialog_generator () {
             team_allocation_opened: true,
             adjudicator_allocation_opened: true,
             evaluate_from_adjudicators: true,
-            evaluate_from_team: true,
+            evaluate_from_teams: true,
             no_speaker_score: false,
             chairs_always_evaluated: false,
             score_by_matter_manner: true,

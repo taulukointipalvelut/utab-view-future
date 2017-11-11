@@ -234,7 +234,7 @@ export default {
             let submitted = Array.from(new Set(raw_adjudicator_results.map(res => res.from_id)))
             for (let square of allocation) {
                 let team_evaluators = []
-                if (round.user_defined_data.evaluate_from_team) {
+                if (round.user_defined_data.evaluate_from_teams) {
                     if (round.user_defined_data.evaluator_in_team === 'team') {
                         team_evaluators = Object.values(square.teams)
                     } else if (round.user_defined_data.evaluator_in_team === 'speaker') {

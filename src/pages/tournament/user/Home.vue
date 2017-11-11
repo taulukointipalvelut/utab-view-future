@@ -18,7 +18,7 @@
             link-list-item Draw &amp; Allocation
           router-link(:to="url(round, 'ballot')", v-if="is_adjudicator")
             link-list-item Score Sheet
-          router-link(:to="url(round, 'feedback')", v-if="(is_speaker && round.user_defined_data.evaluate_from_team) || (is_adjudicator && round.user_defined_data.evaluate_from_adjudicators)")
+          router-link(:to="url(round, 'feedback')", v-if="(is_speaker && round.user_defined_data.evaluate_from_teams) || (is_adjudicator && round.user_defined_data.evaluate_from_adjudicators)")
             link-list-item Judge Evaluation Sheet
 </template>
 
