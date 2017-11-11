@@ -5,7 +5,7 @@
     loading-container(:loading="loading")
     p(v-if="target_tournament.compiled_team_results.length === 0 && target_tournament.compiled_speaker_results.length === 0 && target_tournament.compiled_adjudicator_results.length === 0") No results are collected or Please recompile results.
     el-tabs.results-tabs(v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
-      el-tab-pane(v-for="label in ['teams', 'speakers', 'adjudicators']", :key="label", :label="capitalize(labels_singular[label])+' Results'")
+      el-tab-pane(v-for="label in ['teams', 'speakers', 'adjudicators']", :key="label", :label="capitalize(labels_singular[label])+' Results'", v-if="label === 'teams' || (label === 'speakers' && !without_speakers) || (label === 'adjudicators' && !without_adjudicators)")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Table")
             el-table(:data="target_tournament['compiled_'+labels_singular[label]+'_results'].slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
@@ -21,28 +21,28 @@
               el-table-column(prop="win", label="Win", align="center", sortable, v-if="label === 'teams'")
                 template(slot-scope="scope")
                   span {{ scope.row.win }}
-              el-table-column(prop="average", label="Average", align="center", sortable, v-if="['speakers', 'adjudicators'].includes(label)")
+              el-table-column(prop="average", label="Average", align="center", sortable, v-if="(label === 'speakers' && !without_speakers) || (label === 'adjudicators' && !without_adjudicators)")
                 template(slot-scope="scope")
                   span {{ scope.row.average }}
-              el-table-column(prop="sum", label="Sum", align="center", sortable, v-if="['teams', 'speakers'].includes(label)")
+              el-table-column(prop="sum", label="Sum", align="center", sortable, v-if="['speakers', 'teams'].includes(label) && !without_speakers")
                 template(slot-scope="scope")
                   span {{ scope.row.sum }}
-              el-table-column(prop="margin", label="Margin", align="center", sortable, v-if="label === 'teams'")
+              el-table-column(prop="margin", label="Margin", align="center", sortable, v-if="label === 'teams' && !without_speakers")
                 template(slot-scope="scope")
                   span {{ scope.row.margin }}
-              el-table-column(prop="vote", label="Vote", align="center", sortable, v-if="label === 'teams'")
+              el-table-column(prop="vote", label="Vote", align="center", sortable, v-if="label === 'teams' && !without_speakers")
                 template(slot-scope="scope")
                   span {{ scope.row.vote }}
-              el-table-column(prop="sd", label="StDev", align="center", sortable)
+              el-table-column(prop="sd", label="StDev", align="center", sortable, v-if="(label === 'adjudicators' && !without_adjudicators) || !without_speakers")
                 template(slot-scope="scope")
                   span {{ scope.row.sd }}
-              el-table-column(prop="num_experienced", label="Judged", align="center", sortable, v-if="label === 'adjudicators'")
+              el-table-column(prop="num_experienced", label="Judged", align="center", sortable, v-if="label === 'adjudicators' && !without_adjudicators")
                 template(slot-scope="scope")
                   span {{ scope.row.num_experienced }}
-              el-table-column(prop="num_experienced_chair", label="As Chair", align="center", sortable, v-if="label === 'adjudicators'")
+              el-table-column(prop="num_experienced_chair", label="As Chair", align="center", sortable, v-if="label === 'adjudicators' && !without_adjudicators")
                 template(slot-scope="scope")
                   span {{ scope.row.num_experienced_chair }}
-              el-table-column(prop="comments", label="Comments", align="center", sortable, v-if="label === 'adjudicators'")
+              el-table-column(prop="comments", label="Comments", align="center", sortable, v-if="label === 'adjudicators' && !without_adjudicators")
                 template(slot-scope="scope")
                   span {{ scope.row.comments.join(', ') }}
             .operation-button-container
@@ -61,16 +61,16 @@
                     el-option(label="Pretty", value="pretty")
             .operation-button-container(v-if="!slides[label].configured")
               el-button.operation-button(size="small", type="primary", @click="slides[label].configured=true") #[el-icon(name="picture")] Start
-          el-tab-pane(label="Score Graph")
+          el-tab-pane(label="Score Graph", v-if="label === 'adjudicators' || !without_speakers")
             score-change(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :marker="label === 'teams' ? { key: 'win', value: 1 } : { key: '', value: undefined }", :score="detail_score[label]")
-          el-tab-pane(label="Score Range")
+          el-tab-pane(label="Score Range", v-if="label === 'adjudicators' || !without_speakers")
             score-range(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :score="detail_score[label]")
-          el-tab-pane(label="Score Histogram")
+          el-tab-pane(label="Score Histogram", v-if="label === 'adjudicators' || !without_speakers")
             score-histogram(:results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :score="detail_score[label]", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="label+'-'+round.r.toString()")
-          el-tab-pane(label="Team Performance Graph", v-if="label === 'teams'")
+          el-tab-pane(label="Team Performance Graph", v-if="label === 'teams' && !without_speakers")
             team-performance(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
 
-      el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize_enabled[sub_prize]")
+      el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize_enabled[sub_prize] && !without_speakers")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Table")
             el-table(:data="compiled_sub_prize_results(sub_prize)")
@@ -105,11 +105,11 @@
 
       el-tab-pane(label="Fairness")
         el-tabs.result-tabs(type="border-card")
-          el-tab-pane(label="Scores by Side")
+          el-tab-pane(label="Scores by Side", v-if="!without_speakers")
             side-scatter(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
           el-tab-pane(label="Win per Side")
             side-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
-          el-tab-pane(label="Margin per Side")
+          el-tab-pane(label="Margin per Side", v-if="!without_speakers")
             side-margin-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
 
       el-dialog(v-for="label_singular in ['team', 'adjudicator', 'speaker', 'poi', 'best']", :key="label_singular", title="Slide Show", :visible.sync="dialog[label_singular+'_slide'].visible", v-if="!loading")
@@ -269,6 +269,12 @@ export default {
         poi: rounds.some(round => round.user_defined_data.poi),
         best: rounds.some(round => round.user_defined_data.best)
       }
+    },
+    without_speakers () {
+      return this.target_tournament.rounds.every(round => round.user_defined_data.no_speaker_score)
+    },
+    without_adjudicators () {
+      return this.target_tournament.rounds.every(round => !round.user_defined_data.evaluate_from_teams && !round.user_defined_data.evaluate_from_adjudicators)
     }
   },
   methods: {
