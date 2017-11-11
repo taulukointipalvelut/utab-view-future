@@ -14,14 +14,14 @@
               h5.text(v-show="phrase.tag === 'h5'") {{ phrase.text }}
               p.text(v-show="phrase.tag === 'p'") {{ phrase.text }}
       .footer
-        .credit
-          p {{ credit }}
         .pagination
           p l {{ (1+paragraph_num)+' / '+(paragraphs_list[slide_num].length) }}, p {{ (slide_num+1)+' / '+paragraphs_list.length }}
         .control
           el-button(style="padding: 0; border: none; background: none;", @click="on_previous", :disabled="slide_num === 0 && paragraph_num === 0") #[el-icon(name="arrow-left")]
           el-button(style="padding: 0; border: none; background: none;", @click="on_close") #[el-icon(name="close")]
           el-button(style="padding: 0; border: none; background: none;", @click="on_next", :disabled="slide_num+1 === paragraphs_list.length && paragraph_num+1 === paragraphs_list[slide_num].length") #[el-icon(name="arrow-right")]
+        .credit
+          p {{ credit }}
 </template>
 
 <script>
@@ -126,7 +126,7 @@ export default {
       this.pagination_locked = false
     }, timestep)
 
-    this.$message({
+    /*this.$message({
       message: 'Press Enter key for the next slide',
       duration: 3000,
       showClose: true
@@ -144,7 +144,7 @@ export default {
         duration: 3000,
         showClose: true
       })
-    }, 6000)
+    }, 6000)*/
 
     this.$on('slide', function (step) {
       if (step === 1) {
@@ -263,10 +263,9 @@ export default {
       width 100%
 
       .title
-        position relative
+        height 12%
         font-size 1.5rem
         margin-left 1.5rem
-        height 5%
         & h1
           margin-top 1rem
           padding-right 0.3rem
@@ -275,9 +274,7 @@ export default {
           font-family serif
 
       .content
-        margin-top 9%
-        height 73%
-        position relative
+        height 88%
         display flex
         flex-direction column
         justify-content center
@@ -286,51 +283,46 @@ export default {
         font-family Times, 'Times New Roman'
 
         & h1
-          font-size 4rem
+          font-size 3.4rem
           font-weight normal
         & h2
-          font-size 3rem
+          font-size 2.4rem
           font-weight normal
         & h3
-          font-size 2.5rem
+          font-size 1.8rem
           font-weight normal
         & h4
-          font-size 2rem
-          font-weight normal
-        & h5
           font-size 1.5rem
           font-weight normal
+        & h5
+          font-size 1.3rem
+          font-weight normal
         & p
-          font-size 2rem
+          font-size 1.7rem
 
         .text
           margin 0
           padding 0
 
       .footer
-        height 20%
-        padding 0
-
-        .credit
-          width 40%
-          text-align right
-          margin-right 1rem
-          float right
-
+        margin-top -2rem
+        height 2rem
+        display flex
+        justify-content space-between
         .pagination
-          width 40%
-          text-align left
-          margin-left 1rem
           color #a4a4a4
-          float left
           font-size 1rem
-
-        .control
           width 20%
-          float center
-          margin-left auto
-          margin-right auto
-          text-align center
+          padding-left 1rem
+          & p
+            margin 0
+        .control
           opacity 0.4
           transform scale(0.8, 0.8)
+        .credit
+          width 20%
+          text-align right
+          padding-right 1rem
+          & p
+            margin 0
 </style>
