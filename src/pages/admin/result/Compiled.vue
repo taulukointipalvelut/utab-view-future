@@ -45,8 +45,8 @@
               el-table-column(prop="comments", label="Comments", align="center", sortable, v-if="label === 'adjudicators'")
                 template(slot-scope="scope")
                   span {{ scope.row.comments.join(', ') }}
-            .operations
-              el-button(@click="on_download_team_results") Download {{ capitalize(labels_singular[label]) }} Results
+            .operation-button-container
+              el-button.operation-button(@click="on_download_team_results") Download {{ capitalize(labels_singular[label]) }} Results
           el-tab-pane(label="Slides")
             slides(:label="label", v-if="slides[label].configured", :tournament="target_tournament", :max_ranking_rewarded="slides[label].max_ranking_rewarded", :credit="slides[label].credit", :type="slides[label].type", @close="slides[label].configured=false")
             el-card(v-if="!slides[label].configured").slide-config-card
@@ -59,8 +59,8 @@
                   el-select(v-model="slides[label].type")
                     el-option(label="Listed", value="listed")
                     el-option(label="Pretty", value="pretty")
-            .slide-button-container(v-if="!slides[label].configured")
-              el-button.slide-button(size="small", type="primary", @click="slides[label].configured=true") #[el-icon(name="picture")] Start
+            .operation-button-container(v-if="!slides[label].configured")
+              el-button.operation-button(size="small", type="primary", @click="slides[label].configured=true") #[el-icon(name="picture")] Start
           el-tab-pane(label="Score Graph")
             score-change(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :marker="label === 'teams' ? { key: 'win', value: 1 } : { key: '', value: undefined }", :score="detail_score[label]")
           el-tab-pane(label="Score Range")
@@ -86,7 +86,7 @@
               el-table-column(label="Total", align="center", sortable, prop="sub_prize")
                 template(slot-scope="scope")
                   span {{ scope.row[sub_prize] }}
-            .operations
+            .operation-b
               el-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Debater', poi: 'POI'}[sub_prize] }} Results
           el-tab-pane(label="Slides")
             slides(v-if="slides[sub_prize].configured", :label="sub_prize", :tournament="target_tournament", :max_ranking_rewarded="slides[sub_prize].max_ranking_rewarded", :credit="slides[sub_prize].credit", :type="slides[sub_prize].type", @close="slides[sub_prize].configured=false")
@@ -100,8 +100,8 @@
                   el-select(v-model="slides[sub_prize].type")
                     el-option(label="Listed", value="listed")
                     el-option(label="Pretty", value="pretty")
-            .slide-button-container(v-if="!slides[sub_prize].configured")
-              el-button.slide-button(size="small", type="primary", @click="slides[sub_prize].configured=true") #[el-icon(name="picture")] {{ !slides[sub_prize].configured ? 'Start' : 'Cancel' }}
+            .operation-button-container(v-if="!slides[sub_prize].configured")
+              el-button.operation-button(size="small", type="primary", @click="slides[sub_prize].configured=true") #[el-icon(name="picture")] {{ !slides[sub_prize].configured ? 'Start' : 'Cancel' }}
 
       el-tab-pane(label="Fairness")
         el-tabs.result-tabs(type="border-card")
@@ -351,10 +351,10 @@ export default {
     margin auto
     margin-top 2rem
 
-  .slide-button-container
+  .operation-button-container
     display flex
     justify-content space-around
-    .slide-button
+    .operation-button
       width 90%
       margin 1rem
       margin-top 1.5rem
