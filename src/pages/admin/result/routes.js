@@ -1,7 +1,5 @@
 import Raw from './Raw'
 import Compiled from './Compiled'
-import Slide from './slide/Index'
-import slide_routes from './slide/routes'
 
 export default [
     {
@@ -14,10 +12,5 @@ export default [
     }, {
         path: '',
         redirect: 'compiled'
-    }, {
-        path: 'slide',
-        props: true,
-        component: Slide,
-        children: slide_routes
     }
 ]

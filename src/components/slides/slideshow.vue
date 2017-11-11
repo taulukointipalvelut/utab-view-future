@@ -1,9 +1,9 @@
 <template lang="pug">
-  .screen(@click="on_full_screen")
+  .screen
     .context
-      .title
+      .title(@click="on_full_screen")
         h1 {{ title }}
-      .content
+      .content(@click="on_full_screen")
         div(:class="slide_class")
           section(v-for="paragraph in current_slide", :class="paragraph_classes[paragraph.num]")
             div(v-for="phrase in paragraph")
@@ -20,6 +20,7 @@
           p l {{ (1+paragraph_num)+' / '+(paragraphs_list[slide_num].length) }}, p {{ (slide_num+1)+' / '+paragraphs_list.length }}
         .control
           el-button(style="padding: 0; border: none; background: none;", @click="on_previous", :disabled="slide_num === 0 && paragraph_num === 0") #[el-icon(name="arrow-left")]
+          el-button(style="padding: 0; border: none; background: none;", @click="on_close") #[el-icon(name="close")]
           el-button(style="padding: 0; border: none; background: none;", @click="on_next", :disabled="slide_num+1 === paragraphs_list.length && paragraph_num+1 === paragraphs_list[slide_num].length") #[el-icon(name="arrow-right")]
 </template>
 
@@ -63,6 +64,15 @@ export default {
         }
       }
     },
+    on_close () {
+      let is_full = document.webkitFullscreenElement || document.fullscreenElement
+      if (is_full) {
+        document.webkitExitFullscreen && document.webkitExitFullscreen()
+        document.exitFullscreen && document.exitFullscreen()
+      } else {
+        this.$emit('close')
+      }
+    },
     on_previous () {
       if (this.pagination_locked) { return }
       if (this.paragraph_num > 0) {
@@ -89,11 +99,10 @@ export default {
       }
     },
     on_full_screen () {
-      let e = document.getElementsByClassName('context')[0]
-      if (e.webkitRequestFullScreen) {
-        e.webkitRequestFullScreen()
-      } else if (e.RequestFullScreen) {
-        e.RequestFullScreen()
+      if (this.$el.webkitRequestFullScreen) {
+        this.$el.webkitRequestFullScreen()
+      } else if (this.$el.RequestFullScreen) {
+        this.$el.RequestFullScreen()
       } else {
         this.$message.error('Fullscreen mode is unavailable in your browser')
       }
@@ -262,7 +271,7 @@ export default {
 
       .content
         margin-top 9%
-        height 75%
+        height 73%
         position relative
         display flex
         flex-direction column

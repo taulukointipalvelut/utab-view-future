@@ -5,114 +5,75 @@
     loading-container(:loading="loading")
     p(v-if="target_tournament.compiled_team_results.length === 0 && target_tournament.compiled_speaker_results.length === 0 && target_tournament.compiled_adjudicator_results.length === 0") No results are collected or Please recompile results.
     el-tabs.results-tabs(v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
-      el-tab-pane(label="Team Results")
+      el-tab-pane(v-for="label in ['teams', 'speakers', 'adjudicators']", :key="label", :label="capitalize(labels_singular[label])+' Results'")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Table")
-            el-table(:data="target_tournament.compiled_team_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
+            //el-table(:data="target_tournament['compiled_'+labels_singular[label]+'_results'].slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
               el-table-column(prop="ranking", label="Ranking", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ scope.row.ranking }}
               el-table-column(prop="id", label="Name", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ entity_name_by_id(scope.row.id) }}
-              el-table-column(prop="win", label="Win", align="center", sortable)
+              el-table-column(label="Team", align="center", sortable, v-if="label === 'speaker'")
+                template(slot-scope="scope")
+                  span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
+              el-table-column(prop="win", label="Win", align="center", sortable, v-if="label === 'teams'")
                 template(slot-scope="scope")
                   span {{ scope.row.win }}
-              el-table-column(prop="sum", label="Sum", align="center", sortable)
+              el-table-column(prop="average", label="Average", align="center", sortable, v-if="['speakers', 'adjudicators'].includes(label)")
+                template(slot-scope="scope")
+                  span {{ scope.row.average }}
+              el-table-column(prop="sum", label="Sum", align="center", sortable, v-if="['teams', 'speakers'].includes(label)")
                 template(slot-scope="scope")
                   span {{ scope.row.sum }}
-              el-table-column(prop="margin", label="Margin", align="center", sortable)
+              el-table-column(prop="margin", label="Margin", align="center", sortable, v-if="label === 'teams'")
                 template(slot-scope="scope")
                   span {{ scope.row.margin }}
-              el-table-column(prop="vote", label="Vote", align="center", sortable)
+              el-table-column(prop="vote", label="Vote", align="center", sortable, v-if="label === 'teams'")
                 template(slot-scope="scope")
                   span {{ scope.row.vote }}
               el-table-column(prop="sd", label="StDev", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ scope.row.sd }}
-            .operations
-              el-button(@click="on_download_team_results") Download Team Results
-              el-button(type="primary", @click="on_configure_slide('team')") #[el-icon(name="picture")] &nbsp;Slide Show
-          el-tab-pane(label="Score Graph")
-            score-change(id="team", :results="target_tournament.compiled_team_results", :tournament="target_tournament", :marker="{ key: 'win', value: 1 }", score="sum")
-          el-tab-pane(label="Score Range")
-            score-range(id="team", :results="target_tournament.compiled_team_results", :tournament="target_tournament", score="sum")
-          el-tab-pane(label="Score Histogram")
-            score-histogram(:results="target_tournament.compiled_team_results", :tournament="target_tournament", score="sum", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'team-'+round.r.toString()")
-          el-tab-pane(label="Team Performance Graph")
-            team-performance(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
-
-      el-tab-pane(label="Speaker Results")
-        el-tabs.result-tabs(type="border-card")
-          el-tab-pane(label="Table")
-            el-table(:data="target_tournament.compiled_speaker_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
-              el-table-column(prop="ranking", label="Ranking", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.ranking }}
-              el-table-column(prop="id", label="Name", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ entity_name_by_id(scope.row.id) }}
-              el-table-column(label="Team", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
-              el-table-column(prop="average", label="Average", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.average }}
-              el-table-column(prop="sum", label="Sum", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.sum }}
-              el-table-column(prop="sd", label="StDev", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.sd }}
-            .operations
-              el-button(@click="on_download_speaker_results") Download Speaker Results
-              el-button(type="primary", @click="on_configure_slide('speaker')") #[el-icon(name="picture")] &nbsp;Slide Show
-          el-tab-pane(label="Score Graph")
-            score-change(id="speaker", :results="target_tournament.compiled_speaker_results", :tournament="target_tournament", :marker="{ key: '', value: undefined }", score="average")
-          el-tab-pane(label="Score Range")
-            score-range(id="speaker", :results="target_tournament.compiled_speaker_results", :tournament="target_tournament", score="average")
-          el-tab-pane(label="Score Histogram")
-            score-histogram(:results="target_tournament.compiled_speaker_results", :tournament="target_tournament", score="average", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'speaker-'+round.r.toString()")
-
-      el-tab-pane(label="Adjudicator Results")
-        el-tabs.result-tabs(type="border-card")
-          el-tab-pane(label="Table")
-            el-table(:data="target_tournament.compiled_adjudicator_results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
-              el-table-column(prop="ranking", label="Ranking", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.ranking }}
-              el-table-column(prop="id", label="Name", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ entity_name_by_id(scope.row.id) }}
-              el-table-column(prop="average", label="Average", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.average }}
-              el-table-column(prop="sd", label="StDev", align="center", sortable)
-                template(slot-scope="scope")
-                  span {{ scope.row.sd }}
-              el-table-column(prop="num_experienced", label="Judged", align="center", sortable)
+              el-table-column(prop="num_experienced", label="Judged", align="center", sortable, v-if="label === 'adjudicators'")
                 template(slot-scope="scope")
                   span {{ scope.row.num_experienced }}
-              el-table-column(prop="num_experienced_chair", label="As Chair", align="center", sortable)
+              el-table-column(prop="num_experienced_chair", label="As Chair", align="center", sortable, v-if="label === 'adjudicators'")
                 template(slot-scope="scope")
                   span {{ scope.row.num_experienced_chair }}
-              el-table-column(prop="comments", label="Comments", align="center", sortable)
+              el-table-column(prop="comments", label="Comments", align="center", sortable, v-if="label === 'adjudicators'")
                 template(slot-scope="scope")
                   span {{ scope.row.comments.join(', ') }}
             .operations
-              el-button(@click="on_download_adjudicator_results") Download Adjudicator Results
-              el-button(type="primary", @click="on_configure_slide('adjudicator')") #[el-icon(name="picture")] &nbsp;Slide Show
+              el-button(@click="on_download_team_results") Download {{ capitalize(labels_singular[label]) }} Results
+          el-tab-pane(label="Slides")
+            slides(:label="label", v-if="slides[label].configured", :tournament="target_tournament", :max_ranking_rewarded="slides[label].max_ranking_rewarded", :credit="slides[label].credit", :type="slides[label].type", @close="slides[label].configured=false")
+            el-card(v-if="!slides[label].configured").slide-config-card
+              el-form
+                el-form-item(:label="'Max '+capitalize(label)+' Rewarded'")
+                  el-input-number(v-model="slides[label].max_ranking_rewarded", :min="1")
+                el-form-item(label="Credit")
+                  el-input(v-model="slides[label].credit")
+                el-form-item(label="Type")
+                  el-select(v-model="slides[label].type")
+                    el-option(label="Listed", value="listed")
+                    el-option(label="Pretty", value="pretty")
+            .slide-button-container(v-if="!slides[label].configured")
+              el-button.slide-button(size="small", type="primary", @click="slides[label].configured=true") #[el-icon(name="picture")] Start
           el-tab-pane(label="Score Graph")
-            score-change(id="adjudicator", :results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", :marker="{ key: '', value: undefined }", score="score")
+            score-change(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :marker="label === 'teams' ? { key: 'win', value: 1 } : { key: '', value: undefined }", :score="detail_score[label]")
           el-tab-pane(label="Score Range")
-            score-range(id="adjudicator", :results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", score="score")
+            score-range(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :score="detail_score[label]")
           el-tab-pane(label="Score Histogram")
-            score-histogram(:results="target_tournament.compiled_adjudicator_results", :tournament="target_tournament", score="score", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="'adjudicator-'+round.r.toString()")
+            score-histogram(:results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :score="detail_score[label]", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="label+'-'+round.r.toString()")
+          el-tab-pane(label="Team Performance Graph", v-if="label === 'teams'")
+            team-performance(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
 
       el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize_enabled[sub_prize]")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Table")
-            el-table(:data="compiled_sub_prize_results(sub_prize)")
+            //el-table(:data="compiled_sub_prize_results(sub_prize)")
               el-table-column(prop="ranking", label="Ranking", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ scope.row.ranking }}
@@ -127,7 +88,20 @@
                   span {{ scope.row[sub_prize] }}
             .operations
               el-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Debater', poi: 'POI'}[sub_prize] }} Results
-              el-button(type="primary", @click="on_configure_slide(sub_prize)") #[el-icon(name="picture")] &nbsp;Slide Show
+          el-tab-pane(label="Slides")
+            slides(v-if="slides[sub_prize].configured", :label="sub_prize", :tournament="target_tournament", :max_ranking_rewarded="slides[sub_prize].max_ranking_rewarded", :credit="slides[sub_prize].credit", :type="slides[sub_prize].type", @close="slides[sub_prize].configured=false")
+            el-card(v-if="!slides[sub_prize].configured").slide-config-card
+              el-form
+                el-form-item(label="Max Speakers Rewarded")
+                  el-input-number(v-model="slides[sub_prize].max_ranking_rewarded", :min="1")
+                el-form-item(label="Credit")
+                  el-input(v-model="slides[sub_prize].credit")
+                el-form-item(label="Type")
+                  el-select(v-model="slides[sub_prize].type")
+                    el-option(label="Listed", value="listed")
+                    el-option(label="Pretty", value="pretty")
+            .slide-button-container(v-if="!slides[sub_prize].configured")
+              el-button.slide-button(size="small", type="primary", @click="slides[sub_prize].configured=true") #[el-icon(name="picture")] {{ !slides[sub_prize].configured ? 'Start' : 'Cancel' }}
 
       el-tab-pane(label="Fairness")
         el-tabs.result-tabs(type="border-card")
@@ -164,6 +138,7 @@ import score_histogram from 'components/mstat/score-histogram'
 import score_range from 'components/mstat/score-range'
 import side_scatter from 'components/mstat/side-scatter'
 import side_heatmap from 'components/mstat/side-heatmap'
+import slides from 'components/slides/slides'
 
 export default {
   components: {
@@ -176,10 +151,49 @@ export default {
     'score-range': score_range,
     'side-scatter': side_scatter,
     'side-heatmap': side_heatmap,
+    'slides': slides
   },
   props: ['r_str'],
   data () {
     return {
+      labels_singular: {
+        teams: 'team',
+        speakers: 'speaker',
+        adjudicators: 'adjudicator'
+      },
+      detail_score: { teams: 'sum', speakers: 'average', adjudicators: 'score' },
+      slides: {
+        teams: {
+          configured: false,
+          max_ranking_rewarded: 3,
+          type: 'listed',
+          credit: ''
+        },
+        adjudicators: {
+          configured: false,
+          max_ranking_rewarded: 3,
+          type: 'listed',
+          credit: ''
+        },
+        speakers: {
+          configured: false,
+          max_ranking_rewarded: 3,
+          type: 'listed',
+          credit: ''
+        },
+        poi: {
+          configured: false,
+          max_ranking_rewarded: 3,
+          type: 'listed',
+          credit: ''
+        },
+        best: {
+          configured: false,
+          max_ranking_rewarded: 3,
+          type: 'listed',
+          credit: ''
+        }
+      },
       dialog: {
         team_slide: {
           visible: false,
@@ -331,6 +345,19 @@ export default {
     color inherit
   main
     padding 5%
+
+  .slide-config-card
+    width 90%
+    margin auto
+    margin-top 2rem
+
+  .slide-button-container
+    display flex
+    justify-content space-around
+    .slide-button
+      width 90%
+      margin 1rem
+      margin-top 1.5rem
 
   .results-tabs
     .el-tabs__header

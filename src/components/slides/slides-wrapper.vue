@@ -1,16 +1,16 @@
 <template lang="pug">
-  slides(:paragraphs_list="paragraphs_list", :title="title", :credit="credit")
+  slideshow(:paragraphs_list="paragraphs_list", :title="title", :credit="credit", @close="$emit('close')")
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import math from 'assets/js/math'
-import slides from 'components/slides'
+import slideshow from 'components/slides/slideshow'
 
 export default {
   name: 'slides-wrapper',
   components: {
-    'slides': slides
+    'slideshow': slideshow
   },
   props: [
     'max_ranking_rewarded',

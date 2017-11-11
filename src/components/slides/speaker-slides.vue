@@ -1,35 +1,25 @@
 <template lang="pug">
-  .router-view-content(v-if="target_tournament")
-    section.page-header
-      h1 {{ target_tournament.name }}
-    slides-wrapper.slides(title="Speaker Results", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="speakers", sub_label="teams", :type="type")
+  slides-wrapper(title="Speaker Results", :max_ranking_rewarded="max_ranking_rewarded", :credit="credit", :organized_results="organized_results", label="speakers", sub_label="teams", :type="type", @close="$emit('close')")
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import loading_container from 'components/loading-container'
-import slides_wrapper from 'components/slides-wrapper.vue'
+import slides_wrapper from 'components/slides/slides-wrapper.vue'
 
 export default {
+  name: 'speaker-slides',
   components: {
     'loading-container': loading_container,
     'slides-wrapper': slides_wrapper
   },
+  props: ['credit', 'type', 'max_ranking_rewarded', 'tournament'],
   data () {
     return {
       started: false
     }
   },
   computed: {
-    max_ranking_rewarded () {
-      return this.$route.query.max_ranking_rewarded
-    },
-    credit () {
-      return this.$route.query.credit
-    },
-    type () {
-      return this.$route.query.type
-    },
     organized_results () {
       let organized_results = []
       for (let compiled_result of this.target_tournament.compiled_speaker_results) {
@@ -52,8 +42,3 @@ export default {
   }
 }
 </script>
-
-<style lang="stylus">
-  .slides
-    border solid 1px lightgray
-</style>
