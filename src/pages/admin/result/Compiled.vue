@@ -8,7 +8,7 @@
       el-tab-pane(v-for="label in ['teams', 'speakers', 'adjudicators']", :key="label", :label="capitalize(labels_singular[label])+' Results'")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Table")
-            //el-table(:data="target_tournament['compiled_'+labels_singular[label]+'_results'].slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
+            el-table(:data="target_tournament['compiled_'+labels_singular[label]+'_results'].slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
               el-table-column(prop="ranking", label="Ranking", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ scope.row.ranking }}
@@ -73,7 +73,7 @@
       el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize_enabled[sub_prize]")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Table")
-            //el-table(:data="compiled_sub_prize_results(sub_prize)")
+            el-table(:data="compiled_sub_prize_results(sub_prize)")
               el-table-column(prop="ranking", label="Ranking", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ scope.row.ranking }}
@@ -86,8 +86,8 @@
               el-table-column(label="Total", align="center", sortable, prop="sub_prize")
                 template(slot-scope="scope")
                   span {{ scope.row[sub_prize] }}
-            .operation-b
-              el-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Debater', poi: 'POI'}[sub_prize] }} Results
+            .operation-button-container
+              el-button.operation-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Debater', poi: 'POI'}[sub_prize] }} Results
           el-tab-pane(label="Slides")
             slides(v-if="slides[sub_prize].configured", :label="sub_prize", :tournament="target_tournament", :max_ranking_rewarded="slides[sub_prize].max_ranking_rewarded", :credit="slides[sub_prize].credit", :type="slides[sub_prize].type", @close="slides[sub_prize].configured=false")
             el-card(v-if="!slides[sub_prize].configured").slide-config-card
