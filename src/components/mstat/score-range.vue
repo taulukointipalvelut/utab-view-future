@@ -22,6 +22,7 @@ export default {
     ])
   },
   mounted () {
+      const slight = 0.02
       let scores_list = []
       let rounds = this.tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)
       let sorted_results = this.results.sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)
@@ -37,8 +38,8 @@ export default {
                   let min = Math.min(...scores)
                   let max = Math.max(...scores)
                   if (min === max) {
-                      min -= 0.02
-                      max += 0.02
+                      min -= slight
+                      max += slight
                   }
                   return [min, max]
               }
@@ -80,6 +81,15 @@ export default {
                   },
                   states: {
                       hover: { enabled: false }
+                  },
+                  tooltip: {
+                      pointFormatter () {
+                          if (this.high - this.low <= 2*slight+0.01) {
+                              return 'score: '+(this.high - slight)
+                          } else {
+                              return 'scores: '+this.low+'-'+this.high
+                          }
+                      }
                   }
               }
           },
