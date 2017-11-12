@@ -62,13 +62,17 @@
             .operation-button-container(v-if="!slides[label].configured")
               el-button.operation-button(size="small", type="primary", @click="slides[label].configured=true") #[el-icon(name="picture")] Start
           el-tab-pane(label="Score Graph", v-if="label === 'adjudicators' || !without_speakers")
-            score-change(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :marker="label === 'teams' ? { key: 'win', value: 1 } : { key: '', value: undefined }", :score="detail_score[label]")
+            lazy-item
+              score-change(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :marker="label === 'teams' ? { key: 'win', value: 1 } : { key: '', value: undefined }", :score="detail_score[label]")
           el-tab-pane(label="Score Range", v-if="label === 'adjudicators' || !without_speakers")
-            score-range(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :score="detail_score[label]")
+            lazy-item
+              score-range(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :score="detail_score[label]")
           el-tab-pane(label="Score Histogram", v-if="label === 'adjudicators' || !without_speakers")
-            score-histogram(:results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :score="detail_score[label]", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="label+'-'+round.r.toString()")
+            lazy-item
+              score-histogram(:results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :score="detail_score[label]", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="label+'-'+round.r.toString()")
           el-tab-pane(label="Team Performance Graph", v-if="label === 'teams' && !without_speakers")
-            team-performance(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
+            lazy-item
+              team-performance(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
 
       el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize_enabled[sub_prize] && !without_speakers")
         el-tabs.result-tabs(type="border-card")
@@ -106,13 +110,17 @@
       el-tab-pane(label="Fairness")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Scores by Side", v-if="!without_speakers")
-            side-scatter(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
+            lazy-item
+              side-scatter(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
           el-tab-pane(label="Win per Side")
-            side-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
+            lazy-item
+              side-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
           el-tab-pane(label="Margin per Side", v-if="!without_speakers")
-            side-margin-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
+            lazy-item
+              side-margin-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
           el-tab-pane(label="Winers")
-            side-pie-chart(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
+            lazy-item
+              side-pie-chart(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
 
       el-dialog(v-for="label_singular in ['team', 'adjudicator', 'speaker', 'poi', 'best']", :key="label_singular", title="Slide Show", :visible.sync="dialog[label_singular+'_slide'].visible", v-if="!loading")
         .dialog-body
@@ -145,6 +153,7 @@ import side_heatmap from 'components/mstat/side-heatmap'
 import side_margin_heatmap from 'components/mstat/side-margin-heatmap'
 import side_pie_chart from 'components/mstat/side-pie-chart'
 import slides from 'components/slides/slides'
+import lazy_item from 'components/lazy-item'
 
 export default {
   components: {
@@ -159,7 +168,8 @@ export default {
     'side-heatmap': side_heatmap,
     'side-margin-heatmap': side_margin_heatmap,
     'side-pie-chart': side_pie_chart,
-    'slides': slides
+    'slides': slides,
+    'lazy-item': lazy_item
   },
   props: ['r_str'],
   data () {
