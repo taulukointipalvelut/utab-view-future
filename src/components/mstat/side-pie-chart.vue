@@ -8,7 +8,7 @@ import highcharts from 'highcharts'
 import math from 'assets/js/math'
 
 export default {
-  name: 'mstat-side-pie-chart',
+  name: 'side-pie-chart',
   props: {
     results: Array,
     tournament: Object,

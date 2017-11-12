@@ -9,7 +9,7 @@ import more from 'highcharts-more'
 more(highcharts)
 
 export default {
-  name: 'mstat-score-range',
+  name: 'score-range',
   props: {
     id: String,
     results: Array,

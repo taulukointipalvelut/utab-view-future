@@ -10,7 +10,7 @@ import heatmap from 'highcharts/modules/heatmap.js'
 heatmap(highcharts)
 
 export default {
-  name: 'mstat-side-heatmap',
+  name: 'side-heatmap',
   props: {
     results: Array,
     tournament: Object,

@@ -1,5 +1,5 @@
 <template lang="pug">
-  div(:id="id+'-series-container'")
+  div(:id="id+'-score-change-container'")
 </template>
 
 <script>
@@ -7,7 +7,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import highcharts from 'highcharts'
 
 export default {
-  name: 'mstat-series',
+  name: 'score-change',
   props: {
     id: String,
     results: Array,
@@ -62,7 +62,7 @@ export default {
       let categories = {}
       rounds.map(round => { categories[round.r] = round.name })
 
-      highcharts.chart(this.id+'-series-container', {
+      highcharts.chart(this.id+'-score-change-container', {
           title: {
               text: 'Changes in Scores'
           },

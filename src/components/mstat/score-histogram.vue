@@ -1,5 +1,5 @@
 <template lang="pug">
-  div(:id="id+'-histogram-container'")
+  div(:id="id+'-score-histogram-container'")
 </template>
 
 <script>
@@ -8,7 +8,7 @@ import highcharts from 'highcharts'
 import math from 'assets/js/math'
 
 export default {
-  name: 'mstat-histogram',
+  name: 'score-histogram',
   props: {
     results: Array,
     tournament: Object,
@@ -72,7 +72,7 @@ export default {
       if (scores.length === 0) { return }
       let hist = this.hist(scores, start, end)
 
-      highcharts.chart(this.id+'-histogram-container', {
+      highcharts.chart(this.id+'-score-histogram-container', {
           title: {
               text: 'Score histogram in '+this.round.name
           },

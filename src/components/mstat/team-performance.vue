@@ -1,5 +1,5 @@
 <template lang="pug">
-  #bar-negative-container
+  #team-performance-container
 </template>
 
 <script>
@@ -8,7 +8,7 @@ import highcharts from 'highcharts'
 //import 'highcharts/js/themes/grid-light.js'
 
 export default {
-  name: 'mstat-bar-negative',
+  name: 'team-performance',
   props: {
     results: Array,
     tournament: Object,
@@ -40,7 +40,7 @@ export default {
       }
       series.map(side_series => { side_series.data = side_series.data.map(v => side_series.name === 'gov' ? -v : v) })
 
-      highcharts.chart('bar-negative-container', {
+      highcharts.chart('team-performance-container', {
           title: {
               text: 'Team performance in gov/opp'
           },

@@ -1,5 +1,5 @@
 <template lang="pug">
-  div(id="side-fairness-container")
+  div(id="side-scatter-container")
 </template>
 
 <script>
@@ -7,7 +7,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import highcharts from 'highcharts'
 
 export default {
-  name: 'mstat-side-fairness',
+  name: 'side-scatter',
   props: {
     results: Array,
     tournament: Object
@@ -36,7 +36,7 @@ export default {
       let categories = {}
       rounds.map(round => { categories[round.r] = round.name })
 
-      highcharts.chart('side-fairness-container', {
+      highcharts.chart('side-scatter-container', {
           title: {
               text: 'Scores by side'
           },
