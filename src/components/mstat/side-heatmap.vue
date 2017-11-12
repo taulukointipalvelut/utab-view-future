@@ -48,10 +48,11 @@ export default {
           }
       }
 
-      let filtered_details = [].concat(...sorted_results.map(r => r.details.filter(d => d.r === this.round.r)))
+      let result_exists = false
       for (let result of sorted_results) {
           for (let detail of result.details) {
               if (detail.r === this.round.r) {
+                  result_exists = true
                   let this_index = categories.findIndex(id => id === detail.id)
                   let that_index = categories.findIndex(id => id === detail.opponents[0])
                   let i = detail.side === 'gov' ? this_index : that_index
@@ -66,6 +67,8 @@ export default {
               }
           }
       }
+      if (!result_exists) { return }
+      
       highcharts.chart(this.id+'-side-heatmap-container', {
           chart: {
               type: 'heatmap',

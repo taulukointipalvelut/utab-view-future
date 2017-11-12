@@ -47,11 +47,11 @@ export default {
               }
           }
       }
-
-      let filtered_details = [].concat(...sorted_results.map(r => r.details.filter(d => d.r === this.round.r)))
+      let result_exists = false
       for (let result of sorted_results) {
           for (let detail of result.details) {
               if (detail.r === this.round.r) {
+                  result_exists = true
                   let this_id = categories.findIndex(id => id === detail.id)
                   let that_id = categories.findIndex(id => id === detail.opponents[0])
                   let i = detail.side === 'gov' ? this_id : that_id
@@ -66,6 +66,7 @@ export default {
               }
           }
       }
+      if (!result_exists) { return }
       let max = Math.max(...series[0].data.map(e => Math.abs(e[2])))
       highcharts.chart(this.id+'-side-margin-heatmap-container', {
           chart: {

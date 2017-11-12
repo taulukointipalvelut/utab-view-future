@@ -69,6 +69,7 @@ export default {
           }
       }
 
+      if (scores.length === 0) { return }
       let hist = this.hist(scores, start, end)
 
       highcharts.chart(this.id+'-histogram-container', {
