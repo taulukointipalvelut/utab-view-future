@@ -11,7 +11,7 @@
         .time
           h5 {{ info_time }}
       div.info-card-body(v-html="compiled_markdown")
-    loading-container(:loading="loading")
+    loading-container(:loading="loading || tournament_loading")
       legend(v-if="!loading") Rounds
       loading-container(:loading="loading")
         el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)")
@@ -285,6 +285,7 @@ export default {
   },
   data () {
     return {
+      tournament_loading: true,
       flexible_input: {
         identity: null,
         loading: false
@@ -776,7 +777,7 @@ export default {
   },
   async mounted () {
     await this.init_one({ tournament: this.target_tournament })
-    //this.initialize_qr()
+    this.tournament_loading = false
   }
 }
 </script>
