@@ -5,7 +5,7 @@
         h1 Draw &amp; Allocation
         h3(v-if="!loading && this.target_round !== undefined") {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
       section(v-if="target_tournament !== undefined")
-        loading-container(:loading="loading")
+        loading-container(:loading="loading || allocation_loading")
           el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border, empty-text="Need More Teams")
             el-table-column(label="Venue", align="center")
               template(slot-scope="scope")
@@ -14,9 +14,10 @@
                     .draggable-content(@mouseover="selected_venue = id", @mouseout="selected_venue = null") {{ entity_name_by_id(id) }}
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                        div(v-if="entity_by_id(id) !== undefined")
-                          p id: {{ id }}
-                          p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
+                        lazy-item
+                          div(v-if="entity_accessible(id)")
+                            p id: {{ id }}
+                            p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
             el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels[side]", align="center")
               template(slot-scope="scope")
                 draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
@@ -24,16 +25,17 @@
                     .draggable-content(@mouseover="selected_team = id", @mouseout="selected_team = null") {{ entity_name_by_id(id) }}
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                        div(v-if="entity_by_id(id) !== undefined")
-                          p ranking: {{ compiled_team_result_by_id[id].ranking }}
-                          p win: {{ compiled_team_result_by_id[id].win }}
-                          p sum: {{ compiled_team_result_by_id[id].sum }}
-                          p margin: {{ compiled_team_result_by_id[id].margin }}
-                          p institutions: {{ institution_names_by_team_id(id) }}
-                          p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
-                          p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
-                          p speakers: {{ speaker_names_by_team_id(id) }}
-                          p id: {{ id }}
+                        lazy-item
+                          div(v-if="team_accessible(id)")
+                            p ranking: {{ compiled_team_result_by_id[id].ranking }}
+                            p win: {{ compiled_team_result_by_id[id].win }}
+                            p sum: {{ compiled_team_result_by_id[id].sum }}
+                            p margin: {{ compiled_team_result_by_id[id].margin }}
+                            p institutions: {{ institution_names_by_team_id(id) }}
+                            p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
+                            p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
+                            p speakers: {{ speaker_names_by_team_id(id) }}
+                            p id: {{ id }}
             el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label", align="center")
               template(slot-scope="scope")
                 draggable.adj-list(v-model="scope.row[label]", :options="adjudicator_options")
@@ -41,15 +43,16 @@
                     .draggable-content(@mouseover="selected_adjudicator = id", @mouseout="selected_adjudicator = null") {{ entity_name_by_id(id) }}
                       el-popover(:open-delay="500", placement="right", trigger="click")
                         el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                        div(v-if="entity_by_id(id) !== undefined")
-                          p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
-                          p average: {{ compiled_adjudicator_result_by_id[id].average }}
-                          p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                          p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                          p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
-                          p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
-                          p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
-                          p id: {{ id }}
+                        lazy-item
+                          div(v-if="adjudicator_accessible(id)")
+                            p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
+                            p average: {{ compiled_adjudicator_result_by_id[id].average }}
+                            p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
+                            p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                            p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
+                            p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
+                            p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
+                            p id: {{ id }}
             el-table-column(label="Warnings", align="center")
               el-table-column(label="Draw", align="center")
                 template(slot-scope="scope")
@@ -85,15 +88,16 @@
               .draggable-content(@mouseover="selected_adjudicator = id", @mouseout="selected_adjudicator = null") {{ entity_name_by_id(id) }}
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                  div(v-if="entity_by_id(id) !== undefined")
-                    p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
-                    p average: {{ compiled_adjudicator_result_by_id[id].average }}
-                    p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                    p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
-                    p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
-                    p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
-                    p id: {{ id }}
+                  lazy-item
+                    div(v-if="adjudicator_accessible(id)")
+                      p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
+                      p average: {{ compiled_adjudicator_result_by_id[id].average }}
+                      p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
+                      p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                      p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
+                      p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
+                      p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
+                      p id: {{ id }}
       legend Waiting Teams
       loading-container(:loading="loading")
         .adj-list-container
@@ -102,16 +106,17 @@
               .draggable-content(@mouseover="selected_team = id", @mouseout="selected_team = null") {{ entity_name_by_id(id) }}
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                  div(v-if="entity_by_id(id) !== undefined")
-                    p ranking: {{ compiled_team_result_by_id[id].ranking }}
-                    p win: {{ compiled_team_result_by_id[id].win }}
-                    p sum: {{ compiled_team_result_by_id[id].sum }}
-                    p margin: {{ compiled_team_result_by_id[id].margin }}
-                    p institutions: {{ institution_names_by_team_id(id) }}
-                    p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
-                    p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
-                    p speakers: {{ speaker_names_by_team_id(id) }}
-                    p id: {{ id }}
+                  lazy-item
+                    div(v-if="team_accessible(id)")
+                      p ranking: {{ compiled_team_result_by_id[id].ranking }}
+                      p win: {{ compiled_team_result_by_id[id].win }}
+                      p sum: {{ compiled_team_result_by_id[id].sum }}
+                      p margin: {{ compiled_team_result_by_id[id].margin }}
+                      p institutions: {{ institution_names_by_team_id(id) }}
+                      p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
+                      p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
+                      p speakers: {{ speaker_names_by_team_id(id) }}
+                      p id: {{ id }}
       legend Waiting Venues
       loading-container(:loading="loading")
         .adj-list-container
@@ -120,7 +125,8 @@
               .draggable-content(@mouseover="selected_venue = id", @mouseout="selected_venue = null") {{ entity_name_by_id(id) }}
                 el-popover(:open-delay="500", placement="right", trigger="click")
                   el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                  div(v-if="entity_by_id(id) !== undefined")
+                  lazy-item
+                  div(v-if="entity_accessible(id)")
                     p id: {{ id }}
                     p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
 
@@ -162,16 +168,19 @@ import utab_header from 'components/utab-header.vue'
 import loading_container from 'components/loading-container.vue'
 import draggable from 'vuedraggable'
 import math from 'assets/js/math.js'
+import lazy_item from 'components/lazy-item'
 
 export default {
   components: {
     'utab-header': utab_header,
     'draggable': draggable,
-    'loading-container': loading_container
+    'loading-container': loading_container,
+    'lazy-item': lazy_item
   },
   props: ['r_str'],
   data () {
     return {
+      allocation_loading: true,
       dialog: {
         draw: {
           allocation_type: 'all',
@@ -289,6 +298,15 @@ export default {
     ])
   },
   methods: {
+    team_accessible (id) {
+      return this.entity_by_id(id) !== undefined && this.compiled_team_result_by_id[id] !== undefined
+    },
+    adjudicator_accessible (id) {
+      return this.entity_by_id(id) !== undefined && this.compiled_adjudicator_result_by_id[id] !== undefined
+    },
+    entity_accessible (id) {
+      return this.entity_by_id(id) !== undefined
+    },
     on_edit_request () {
       this.dialog.draw.visible = true
       this.dialog.draw.considering_rs = this.target_tournament.rounds
@@ -710,67 +728,56 @@ export default {
       }
       return venues_in_draw
     },
-    async init_allocation () {
+    init_allocation () {
         let draw = {}
+        let that = this
         let tournament = this.target_tournament
-        let request = {
-          rs: tournament.rounds.filter(round => round.r < parseInt(this.r_str, 10)).map(round => round.r),
-          options: { force: true }
-        }
-        await this.request_compiled_results({ tournament, label_singular: 'team', label: 'teams', request })
-        await this.request_compiled_results({ tournament, label_singular: 'adjudicator',label: 'adjudicators', request })
         this.draw_adjusted.allocation = []
-        let no_draw = true
 
         if (this.draw_temp !== null) {
             draw = this.draw_temp
-            no_draw = false
         } else if (this.target_draw !== undefined) {
             draw = this.target_draw
             this.draw_temp = draw
-            no_draw = false
         }
+        let allocation = draw.allocation === undefined ? [] : draw.allocation
+        let sorted_allocation = allocation.slice().sort(function (a, b) {
+          let venue1 = that.entity_by_id(a.venue)
+          let venue2 = that.entity_by_id(b.venue)
+          let pr1 = venue1 !== undefined ? that.access_detail(venue1, that.r_str).priority : 1
+          let pr2 = venue2 !== undefined ? that.access_detail(venue2, that.r_str).priority : 1
+          return pr1 > pr2 ? 1 : -1
+        })
 
-        if (no_draw) {
-            let c = 0
-            for (let square of Array(Math.floor(this.available_teams(this.r_str).length/2))) {
-                this.draw_adjusted.allocation.push({
-                    id: c,
-                    venues: [],
-                    teams: {
-                        gov: [],
-                        opp: []
-                    },
-                    chairs: [],
-                    panels: [],
-                    trainees: []
-                })
-                c += 1
-            }
-        } else {
-            let that = this
-            let sorted_allocation = draw.allocation.slice().sort(function (a, b) {
-              let venue1 = that.entity_by_id(a.venue)
-              let venue2 = that.entity_by_id(b.venue)
-              let pr1 = venue1 !== undefined ? that.access_detail(venue1, that.r_str).priority : 1
-              let pr2 = venue2 !== undefined ? that.access_detail(venue2, that.r_str).priority : 1
-              return pr1 > pr2 ? 1 : -1
+        let c = 0
+
+        for (let square of sorted_allocation) {
+            this.draw_adjusted.allocation.push({
+                id: c,
+                venues: square.venue === null ? [] : [square.venue],
+                teams: {
+                    gov: [square.teams.gov],
+                    opp: [square.teams.opp]
+                },
+                chairs: square.chairs,
+                panels: square.panels,
+                trainees: square.trainees
             })
-            let c = 0
-            for (let square of sorted_allocation) {
-                this.draw_adjusted.allocation.push({
-                    id: c,
-                    venues: square.venue === null ? [] : [square.venue],
-                    teams: {
-                        gov: [square.teams.gov],
-                        opp: [square.teams.opp]
-                    },
-                    chairs: square.chairs,
-                    panels: square.panels,
-                    trainees: square.trainees
-                })
-                c += 1
-            }
+            c += 1
+        }
+        for (let i = 0; i < Math.floor(this.available_teams(this.r_str).length/2)-sorted_allocation.length; i++) {
+            this.draw_adjusted.allocation.push({
+                id: c,
+                venues: [],
+                teams: {
+                    gov: [],
+                    opp: []
+                },
+                chairs: [],
+                panels: [],
+                trainees: []
+            })
+            c += 1
         }
 
         this.venues = tournament.venues.map(v => v.id).filter(id => !this.venues_in_draw().includes(id))
@@ -778,11 +785,20 @@ export default {
         this.teams = tournament.teams.map(t => t.id).filter(id => !this.teams_in_draw().includes(id))
     }
   },
-  mounted () {
-    this.init_one({ tournament: this.target_tournament }).then(() => {
-      this.new_draw = this.target_draw === undefined ? true : false
-      this.init_allocation()
-    })
+  async mounted () {
+    this.new_draw = this.target_draw === undefined ? true : false
+    this.allocation_loading = true
+    this.init_allocation()
+    await this.init_one({ tournament: this.target_tournament })
+    let request = {
+      rs: this.target_tournament.rounds.filter(round => round.r < parseInt(this.r_str, 10)).map(round => round.r),
+      options: { force: true }
+    }
+    await Promise.all([
+      this.request_compiled_results({ tournament: this.target_tournament, label_singular: 'team', label: 'teams', request }),
+      this.request_compiled_results({ tournament: this.target_tournament, label_singular: 'adjudicator',label: 'adjudicators', request })
+    ])
+    this.allocation_loading = false
   }
 }
 </script>
