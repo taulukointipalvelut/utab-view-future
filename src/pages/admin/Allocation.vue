@@ -799,7 +799,7 @@ export default {
             c += 1
         }
 
-        for (let i = 0; i < Math.floor(this.available_teams(this.r_str).length/2) - this.draw_adjusted.allocation.length; i++) {
+        for (let i = 0; i < Math.floor(this.available_teams(this.r_str).length/2) - sorted_allocation.length; i++) {
             this.draw_adjusted.allocation.push({
                 id: c,
                 venues: [],
