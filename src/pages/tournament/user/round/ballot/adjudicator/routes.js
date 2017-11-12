@@ -2,7 +2,6 @@ import Speaker from './Speaker'
 import Score from './Score'
 import Winner from './Winner'
 import Check from './Check'
-import Done from './Done'
 
 export default [
   {
@@ -26,11 +25,6 @@ export default [
     path: 'check',
     name: 'check',
     component: Check
-  },
-  {
-    path: 'done',
-    name: 'done',
-    component: Done
   },
   {
     path: 'home',

@@ -136,11 +136,13 @@ export default {
       let winner = this.result.winner
       let side = this.score_sheet.teams.gov === winner ? 'gov' : 'opp'
       this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
-        .then(() => { return this.init_one({ tournament: this.target_tournament }) })
+        .then(() => {
+          this.$router.push({ query: { winner, side } })
+          return this.init_one({ tournament: this.target_tournament })
+        })
         .then(() => {
           this.dialog.check.visible = false
           this.dialog.check.sending = false
-          this.$router.push('done?winner='+winner+'&side='+side)
         })
     },
     total (side) {

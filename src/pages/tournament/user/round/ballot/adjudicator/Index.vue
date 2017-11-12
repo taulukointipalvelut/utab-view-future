@@ -3,13 +3,21 @@
     section.page-header(v-if="round && adjudicator")
       h1 {{ adjudicator.name }}
       h3 {{ round.name }}
-    section(v-if="round && adjudicator")
+    section(v-if="round && adjudicator && !sent")
       el-steps(:active="current_step", finish-status="success", center)
         el-step(title="Speaker", v-if="!target_round.user_defined_data.no_speaker_score")
         el-step(title="Score", v-if="!target_round.user_defined_data.no_speaker_score")
         el-step(title="Winner")
         el-step(title="Check")
-    router-view(v-if="round && adjudicator && score_sheet", :score_sheet="score_sheet")
+    router-view(v-if="round && adjudicator && score_sheet && !sent", :score_sheet="score_sheet")
+    section(v-if="sent")
+      .card-container
+        el-card
+          h2 Thank you! Your ballot was successfully sent.
+          h2(v-if="after_check") You voted for #[span.voted-for {{ entity_name_by_id(winner) }} ({{ side_label }})].
+          h2(v-if="after_check") Please show this screen to debaters.
+      section
+        el-button.home-button(@click="on_home") #[i.fa.fa-home] Home
 </template>
 
 <script>
@@ -23,6 +31,21 @@ export default {
     'loading-container': loading_container
   },
   computed: {
+    after_check () {
+      return this.$route.query.hasOwnProperty('winner')
+    },
+    winner () {
+      return this.$route.query.winner
+    },
+    side () {
+      return this.$route.query.side
+    },
+    side_label () {
+      return this.target_tournament.style.side_labels[this.side]
+    },
+    sent () {
+      return this.score_sheet.done
+    },
     current_step () {
       let steps = this.target_round.user_defined_data.no_speaker_score ? ['winner', 'check', 'done']
                                                                        : ['speaker', 'score', 'winner', 'check', 'done']
@@ -42,8 +65,10 @@ export default {
       'loading'
     ]),
     ...mapGetters([
+      'target_tournament',
       'target_round',
       'entity_by_id',
+      'entity_name_by_id',
       'score_sheet_by_id',
       'style'
     ])
@@ -52,6 +77,9 @@ export default {
     ...mapMutations('ballot', [
       'init_result'
     ]),
+    on_home () {
+      this.$router.push('/home')
+    }
   },
   mounted () {
     let role_names = {
@@ -80,3 +108,18 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+  .card-container
+    .el-card
+      width 100%
+      margin-bottom 2rem
+
+  .home-button
+    width 100%
+    margin-left 0
+
+  span.voted-for
+    color red
+
+</style>

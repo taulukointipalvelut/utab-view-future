@@ -126,7 +126,7 @@ export default {
 </script>
 
 <style lang="stylus">
-  @import "./ballot.styl"
+  @import "./ballot"
 
   .el-form-item__content
     width 100%
