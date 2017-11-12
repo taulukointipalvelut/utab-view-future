@@ -73,8 +73,8 @@
             el-button(@click="on_fix_draw", v-if="need_fix") Remove Unavailables
             el-button(@click="on_reset_draw") Reset
             el-button(@click="on_edit_request") Request
-            el-button(type="primary", @click="on_send_allocation", :disabled="!sendable") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
-            el-button(@click="on_delete_draw", type="danger", :disabled="new_draw") Delete
+            el-button(type="primary", @click="on_send_allocation", :disabled="!sendable", :loading="submit_loading") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
+            el-button(@click="on_delete_draw", type="danger", :disabled="new_draw", :loading="delete_loading") Delete
           legend Legend
             el-row(:gutter="10", justify="space-between", style="width: 100%;")
               el-col(v-for="class_label in Object.keys(warning_classes)", :key="class_label", :span="5")
@@ -156,8 +156,8 @@
                 el-select(v-if="!dialog.draw.consider_all", v-model="dialog.draw.considering_rs", multiple, :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
                   el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
             div(v-for="r in dialog.draw.considering_rs", :key="r")
-              p(v-if="adjudicators_ss_unsubmitted(r).length > 0 && (['all', 'teams', 'adjudicators'].includes(label) || (label === 'venues' && !dialog.draw.form.model.shuffle))") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
-              p(v-if="entities_es_unsubmitted(r).length > 0 && ['all', 'adjudicators'].includes(label)") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+              p(style="color: red;", v-if="adjudicators_ss_unsubmitted(r).length > 0 && (['all', 'teams', 'adjudicators'].includes(label) || (label === 'venues' && !dialog.draw.form.model.shuffle))") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+              p(style="color: red;", v-if="entities_es_unsubmitted(r).length > 0 && ['all', 'adjudicators'].includes(label)") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
       .dialog-footer(slot="footer")
         el-button(@click="dialog.draw.visible = false") Cancel
         el-button(type="primary", :loading="dialog.draw.loading", @click="on_request_draw") Send
@@ -181,6 +181,8 @@ export default {
   props: ['r_str'],
   data () {
     return {
+      submit_loading: false,
+      delete_loading: false,
       allocation_loading: true,
       dialog: {
         draw: {
@@ -354,11 +356,13 @@ export default {
     async on_delete_draw () {
       const ans = await this.$confirm('Are you sure?')
       if (ans === 'confirm') {
+        this.delete_loading = true
         let payload = {
           tournament: this.target_tournament,
           draw: this.target_draw
         }
         await this.send_delete_draw(payload)
+        this.delete_loading = false
         this.draw_temp = null
         this.new_draw = true
         this.init_allocation()
@@ -731,6 +735,7 @@ export default {
       })
     },
     on_send_allocation () {
+      this.submit_loading = true
       let tournament = this.target_tournament
       let draw = this.convert_to_draw()
       let action = this.suggested_action
@@ -738,7 +743,10 @@ export default {
         'update': this.update_draw,
         'save': this.submit_draw
       }
-      return actions[action]({ tournament, draw }).then(() => { this.new_draw = false })
+      return actions[action]({ tournament, draw }).then(() => {
+        this.new_draw = false
+        this.submit_loading = false
+      })
     },
     adjudicators_in_draw () {
       let adjudicators_in_draw = []
