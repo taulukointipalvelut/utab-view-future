@@ -389,9 +389,9 @@ export default {
     raw_team_results_by_r: results_factory('raw_team_results'),
     raw_speaker_results_by_r: results_factory('raw_speaker_results'),
     raw_adjudicator_results_by_r: results_factory('raw_adjudicator_results'),
-    //available_speakers: available_entities_factory('speakers'),
+    available_adjudicators: available_entities_factory('adjudicators'),
     available_teams: available_entities_factory('teams'),
-    //available_venues: available_entities_factory('venues'),
+    available_venues: available_entities_factory('venues'),
     access_detail (state, getters) {
         return function (entity, r_str=null) {
             if (r_str === null) {

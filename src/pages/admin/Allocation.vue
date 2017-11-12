@@ -70,6 +70,7 @@
                       p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
                       p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
           .operations
+            el-button(@click="on_fix_draw", v-if="need_fix") Remove Unavailables
             el-button(@click="on_reset_draw") Reset
             el-button(@click="on_edit_request") Request
             el-button(type="primary", @click="on_send_allocation", :disabled="!sendable") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
@@ -243,6 +244,21 @@ export default {
     }
   },
   computed: {
+    need_fix () {
+      if (this.draw_temp !== null) {
+          let available_team_ids = this.available_teams(this.r_str).map(t => t.id)
+          for (let square of this.draw_temp.allocation) {
+            if (square.teams.gov !== null && !available_team_ids.includes(square.teams.gov)) {
+              return true
+            } else if (square.teams.opp !== null && !available_team_ids.includes(square.teams.opp)) {
+              return true
+            }
+          }
+          return false
+      } else {
+          return false
+      }
+    },
     warning_classes () {
       return {
         'Same Institution': 'same-institution',
@@ -286,6 +302,8 @@ export default {
       'entity_by_id',
       'entity_name_by_id',
       'available_teams',
+      'available_adjudicators',
+      'available_venues',
       'target_round',
       'target_draw',
       'draw_time',
@@ -316,6 +334,21 @@ export default {
     },
     on_reset_draw () {
       this.draw_temp = null,
+      this.init_allocation()
+    },
+    on_fix_draw () {
+      let new_allocation_temp = []
+      let available_ids = this.available_teams(this.r_str)
+                              .concat(this.available_adjudicators(this.r_str)
+                              .concat(this.available_venues(this.r_str)))
+                              .map(e => e.id)
+      for (let square of this.draw_temp.allocation) {
+        let ids = [square.venue, square.teams.gov, square.teams.opp].concat(square.chairs).concat(square.panels).concat(square.trainees)
+        if (math.wrapped(ids, available_ids)) {
+          new_allocation_temp.push(square)
+        }
+      }
+      this.draw_temp.allocation = new_allocation_temp
       this.init_allocation()
     },
     async on_delete_draw () {
@@ -765,7 +798,8 @@ export default {
             })
             c += 1
         }
-        for (let i = 0; i < Math.floor(this.available_teams(this.r_str).length/2)-sorted_allocation.length; i++) {
+
+        for (let i = 0; i < Math.floor(this.available_teams(this.r_str).length/2) - this.draw_adjusted.allocation.length; i++) {
             this.draw_adjusted.allocation.push({
                 id: c,
                 venues: [],

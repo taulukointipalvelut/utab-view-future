@@ -1,6 +1,10 @@
 function disjoint (list1, list2) {
     return list1.every(e1 => !list2.includes(e1))
 }
+
+function wrapped (list1, list2) {
+    return list1.every(e => list2.includes(e))
+}
 /*
 function disjoint_loose (list1, list2) {
     if (list1 === null || list2 === null) {
@@ -121,3 +125,4 @@ exports.pairs = pairs
 exports.ordinal = ordinal
 exports.elapsed_string = elapsed_string
 exports.csv_parser = csv_parser
+exports.wrapped = wrapped
