@@ -111,6 +111,8 @@
             side-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
           el-tab-pane(label="Margin per Side", v-if="!without_speakers")
             side-margin-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
+          el-tab-pane(label="Winers")
+            side-pie-chart(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
 
       el-dialog(v-for="label_singular in ['team', 'adjudicator', 'speaker', 'poi', 'best']", :key="label_singular", title="Slide Show", :visible.sync="dialog[label_singular+'_slide'].visible", v-if="!loading")
         .dialog-body
@@ -141,6 +143,7 @@ import score_range from 'components/mstat/score-range'
 import side_scatter from 'components/mstat/side-scatter'
 import side_heatmap from 'components/mstat/side-heatmap'
 import side_margin_heatmap from 'components/mstat/side-margin-heatmap'
+import side_pie_chart from 'components/mstat/side-pie-chart'
 import slides from 'components/slides/slides'
 
 export default {
@@ -155,6 +158,7 @@ export default {
     'side-scatter': side_scatter,
     'side-heatmap': side_heatmap,
     'side-margin-heatmap': side_margin_heatmap,
+    'side-pie-chart': side_pie_chart,
     'slides': slides
   },
   props: ['r_str'],
