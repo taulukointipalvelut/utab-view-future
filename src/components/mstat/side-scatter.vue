@@ -27,7 +27,7 @@ export default {
               color: side === 'gov' ? 'rgba(223, 83, 83, .5)' : 'rgba(119, 152, 191, .5)',
               data: all_details.filter(d => d.side === side).map(detail => {
                   return [
-                      detail.r,
+                      detail.r+(detail.side === 'gov' ? 0.05 : -0.05),
                       detail.sum
                   ]
               })
@@ -35,6 +35,7 @@ export default {
       }
       let categories = {}
       rounds.map(round => { categories[round.r] = round.name })
+      let rs = rounds.map(round => round.r)
 
       highcharts.chart('side-scatter-container', {
           title: {
@@ -48,6 +49,8 @@ export default {
           //    text: rounds.map(round => round.name).join(',')
           //},
           xAxis: {
+              min: Math.min(...rs),
+              max: Math.max(...rs),
               title: {
                   enabled: false
               },
