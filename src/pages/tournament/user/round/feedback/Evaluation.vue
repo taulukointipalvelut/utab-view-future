@@ -84,7 +84,7 @@ export default {
   computed: {
     from () {
       let from_id = parseInt(this.from_id_str, 10)
-      return this.entity_by_id(from_id)
+      return this.entity_by_id[from_id]
     },
     ...mapState([
       'loading'

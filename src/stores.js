@@ -239,7 +239,7 @@ export default {
                         team_evaluators = Object.values(square.teams)
                     } else if (round.user_defined_data.evaluator_in_team === 'speaker') {
                         team_evaluators = Object.values(square.teams)
-                                                .map(getters.entity_by_id)
+                                                .map(id => getters.entity_by_id[id])
                                                 .filter(t => t !== undefined)
                                                 .map(t => getters.access_detail(t, r).speakers)
                     }
@@ -337,20 +337,20 @@ export default {
     },
     entity_by_id (state, getters) {
         let labels = ['teams', 'adjudicators', 'speakers', 'institutions', 'venues']
-        return function (id) {
-            let tournament = getters.target_tournament
-            for (let label of labels) {
-                let entity = tournament[label].find(e => e.id === parseInt(id, 10))
-                if (entity !== undefined) {
-                    return entity
-                }
+
+        let tournament = getters.target_tournament
+        if (tournament === undefined) { return {} }
+        let entities = {}
+        for (let label of labels) {
+            for (let entity of tournament[label]) {
+                entities[entity.id] = entity
             }
-            return undefined
         }
+        return entities
     },
     entity_name_by_id (state, getters) {
         return function (id) {
-            let entity = getters.entity_by_id(parseInt(id, 10))
+            let entity = getters.entity_by_id[parseInt(id, 10)]
             if (entity === undefined) {
                 return ''
             } else {
@@ -366,7 +366,7 @@ export default {
                 allocated_speakers = allocated_speakers.concat(getters.access_detail(team, r).speakers)
             }
             if (except_team !== null) {
-                let team = getters.entity_by_id(except_team)
+                let team = getters.entity_by_id[except_team]
                 allocated_speakers = allocated_speakers.filter(id => !getters.access_detail(team, r).speakers.includes(id))
             }
             return tournament.speakers.filter(speaker => !allocated_speakers.includes(speaker.id))

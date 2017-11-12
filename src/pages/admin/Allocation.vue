@@ -17,7 +17,7 @@
                         lazy-item
                           div(v-if="entity_accessible(id)")
                             p id: {{ id }}
-                            p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
+                            p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
             el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels[side]", align="center")
               template(slot-scope="scope")
                 draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
@@ -128,7 +128,7 @@
                   lazy-item
                   div(v-if="entity_accessible(id)")
                     p id: {{ id }}
-                    p priority: {{ access_detail(entity_by_id(id), r_str).priority }}
+                    p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
 
     el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
       el-tabs(v-model="dialog.draw.allocation_type")
@@ -299,13 +299,13 @@ export default {
   },
   methods: {
     team_accessible (id) {
-      return this.entity_by_id(id) !== undefined && this.compiled_team_result_by_id[id] !== undefined
+      return this.entity_by_id[id] !== undefined && this.compiled_team_result_by_id[id] !== undefined
     },
     adjudicator_accessible (id) {
-      return this.entity_by_id(id) !== undefined && this.compiled_adjudicator_result_by_id[id] !== undefined
+      return this.entity_by_id[id] !== undefined && this.compiled_adjudicator_result_by_id[id] !== undefined
     },
     entity_accessible (id) {
-      return this.entity_by_id(id) !== undefined
+      return this.entity_by_id[id] !== undefined
     },
     on_edit_request () {
       this.dialog.draw.visible = true
@@ -355,8 +355,8 @@ export default {
         }
 
         if (this.selected_team !== null) {//FOR RELATIONS WARNINGS
-          let team0 = this.entity_by_id(this.selected_team)
-          let team1 = this.entity_by_id(id)
+          let team0 = this.entity_by_id[this.selected_team]
+          let team1 = this.entity_by_id[id]
           if (team0 !== undefined && team1 !== undefined) {
             let result0 = this.compiled_team_result_by_id[this.selected_team]
             let result1 = this.compiled_team_result_by_id[id]
@@ -367,8 +367,8 @@ export default {
           }
         }
         if (this.selected_adjudicator !== null) {//FOR ADJUDICATOR RELATIONS WARNINGS
-          let team = this.entity_by_id(id)
-          let adjudicator = this.entity_by_id(this.selected_adjudicator)
+          let team = this.entity_by_id[id]
+          let adjudicator = this.entity_by_id[this.selected_adjudicator]
           if (team !== undefined && adjudicator !== undefined) {
             let team_result = this.compiled_team_result_by_id[id]
             let adj_result = this.compiled_adjudicator_result_by_id[this.selected_adjudicator]
@@ -382,7 +382,7 @@ export default {
         if (result !== undefined) {
           warn_item_team['sided-border'] = this.check_sided(result, side)
         }
-        let team = this.entity_by_id(id)
+        let team = this.entity_by_id[id]
         warn_item_team['unavailable'] = team === undefined || !this.access_detail(team, this.r_str).available
         return warn_item_team
     },
@@ -398,8 +398,8 @@ export default {
         }
 
         if (this.selected_team !== null) {//FOR RELATIONS WARNINGS
-          let team = this.entity_by_id(this.selected_team)
-          let adjudicator = this.entity_by_id(id)
+          let team = this.entity_by_id[this.selected_team]
+          let adjudicator = this.entity_by_id[id]
           if (team !== undefined && adjudicator !== undefined) {
             let team_result = this.compiled_team_result_by_id[this.selected_team]
             let adj_result = this.compiled_adjudicator_result_by_id[id]
@@ -410,8 +410,8 @@ export default {
           }
         }
         if (this.selected_adjudicator !== null) {//FOR ADJUDICATOR RELATIONS WARNINGS
-          let adjudicator0 = this.entity_by_id(id)
-          let adjudicator1 = this.entity_by_id(this.selected_adjudicator)
+          let adjudicator0 = this.entity_by_id[id]
+          let adjudicator1 = this.entity_by_id[this.selected_adjudicator]
           if (adjudicator1 !== undefined && adjudicator0 !== undefined) {
             warn_item_adjudicator['same-institution'] = this.check_institutions(adjudicator0, adjudicator1)
           }
@@ -420,7 +420,7 @@ export default {
         if (result !== undefined) {
           warn_item_adjudicator['zero-judged-border'] = this.check_zero_judged(result)
         }
-        let adjudicator = this.entity_by_id(id)
+        let adjudicator = this.entity_by_id[id]
         warn_item_adjudicator['unavailable'] = adjudicator === undefined || !this.access_detail(adjudicator, this.r_str).available
         return warn_item_adjudicator
     },
@@ -429,7 +429,7 @@ export default {
           'unavailable': false,
           'selected': id === this.selected_venue
         }
-        let v = this.entity_by_id(id)
+        let v = this.entity_by_id[id]
         warn_item_venue['unavailable'] = v === undefined || !this.access_detail(v, this.r_str).available
         return warn_item_venue
     },
@@ -444,19 +444,19 @@ export default {
       this.selected_adjudicator = null
     },
     speaker_names_by_team_id (id) {
-      return this.access_detail(this.entity_by_id(id), this.r_str)
+      return this.access_detail(this.entity_by_id[id], this.r_str)
         .speakers.map(this.entity_name_by_id).join(', ')
     },
     institution_names_by_team_id (id) {
-      return this.access_detail(this.entity_by_id(id), this.r_str).institutions
+      return this.access_detail(this.entity_by_id[id], this.r_str).institutions
         .map(this.entity_name_by_id).join(', ')
     },
     institution_names_by_adjudicator_id (id) {
-      return this.access_detail(this.entity_by_id(id), this.r_str).institutions
+      return this.access_detail(this.entity_by_id[id], this.r_str).institutions
         .map(this.entity_name_by_id).join(', ')
     },
     conflict_names_by_adjudicator_id (id) {
-      return this.access_detail(this.entity_by_id(id), this.r_str).conflicts
+      return this.access_detail(this.entity_by_id[id], this.r_str).conflicts
         .map(this.entity_name_by_id).join(', ')
     },
     row_class(data, index) {
@@ -469,7 +469,7 @@ export default {
     square_sendable (square) {
       let square_adjudicators = square.chairs.concat(square.panels).concat(square.trainees)
       let sub_entity_ids = square.teams.opp.concat(square.teams.gov).concat(square.venues).concat(square_adjudicators)
-      let sub_entities = sub_entity_ids.map(this.entity_by_id).filter(e => e !== undefined)
+      let sub_entities = sub_entity_ids.map(id => this.entity_by_id[id]).filter(e => e !== undefined)
       if (square.teams.gov.length !== 1 || square.teams.opp.length !== 1) {
         return false
       } else if (square.venues.length > 1) {
@@ -484,7 +484,7 @@ export default {
       let warnings = []
       for (let side of ['gov', 'opp']) {
         for (let id of square.teams[side]) {
-          let team = this.entity_by_id(id)
+          let team = this.entity_by_id[id]
           let result = this.compiled_team_result_by_id[id]
           if (team === undefined) { continue }
           if (this.check_sided(result, side)) {
@@ -514,8 +514,8 @@ export default {
         message: "Two teams have matched in the previous rounds",
       }]
       for (let pair of math.pairs(square.teams.gov, square.teams.opp)) {
-        let gov = this.entity_by_id(pair[0])
-        let opp = this.entity_by_id(pair[1])
+        let gov = this.entity_by_id[pair[0]]
+        let opp = this.entity_by_id[pair[1]]
         if (gov === undefined || opp === undefined) { continue }
         let result0 = this.compiled_team_result_by_id[pair[0]]
         let result1 = this.compiled_team_result_by_id[pair[1]]
@@ -551,8 +551,8 @@ export default {
         message: "Adjudicators already watched the teams",
       }]
       for (let pair of math.pairs(square.teams.gov.concat(square.teams.opp), square.chairs.concat(square.panels).concat(square.trainees))) {
-        let team = this.entity_by_id(pair[0])
-        let adj = this.entity_by_id(pair[1])
+        let team = this.entity_by_id[pair[0]]
+        let adj = this.entity_by_id[pair[1]]
         if (adj === undefined || team === undefined) { continue }
         for (let check of ta_checks) {
           let team_result = this.compiled_team_result_by_id[pair[0]]
@@ -576,8 +576,8 @@ export default {
       let adjudicators = square.chairs.concat(square.panels).concat(square.trainees)
       for (let pair of math.pairs(adjudicators, adjudicators)) {
         if (pair[0] >= pair[1]) { continue }
-        let adj0 = this.entity_by_id(pair[0])
-        let adj1 = this.entity_by_id(pair[1])
+        let adj0 = this.entity_by_id[pair[0]]
+        let adj1 = this.entity_by_id[pair[1]]
         if (adj0 === undefined || adj1 === undefined) { continue }
         for (let check of aa_checks) {
           if (check.func(adj0, adj1)) {
@@ -742,8 +742,8 @@ export default {
         }
         let allocation = draw.allocation === undefined ? [] : draw.allocation
         let sorted_allocation = allocation.slice().sort(function (a, b) {
-          let venue1 = that.entity_by_id(a.venue)
-          let venue2 = that.entity_by_id(b.venue)
+          let venue1 = that.entity_by_id[a.venue]
+          let venue2 = that.entity_by_id[b.venue]
           let pr1 = venue1 !== undefined ? that.access_detail(venue1, that.r_str).priority : 1
           let pr2 = venue2 !== undefined ? that.access_detail(venue2, that.r_str).priority : 1
           return pr1 > pr2 ? 1 : -1

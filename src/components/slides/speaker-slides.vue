@@ -23,7 +23,7 @@ export default {
     organized_results () {
       let organized_results = []
       for (let compiled_result of this.target_tournament.compiled_speaker_results) {
-        let speaker = this.entity_by_id(compiled_result.id)
+        let speaker = this.entity_by_id[compiled_result.id]
         let result = Object.assign({}, compiled_result)
         result.name = speaker.name
         result.teams = this.teams_by_speaker_id(speaker.id).map(t => t.name)

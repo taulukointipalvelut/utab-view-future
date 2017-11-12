@@ -23,7 +23,7 @@ export default {
     organized_results () {
       let organized_results = []
       for (let compiled_result of this.tournament.compiled_team_results) {
-        let team = this.entity_by_id(compiled_result.id)
+        let team = this.entity_by_id[compiled_result.id]
         let result = Object.assign({}, compiled_result)
         result.name = team.name
         result.institutions = this.access_detail(team).institutions.map(this.entity_name_by_id)

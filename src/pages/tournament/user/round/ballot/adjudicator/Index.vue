@@ -55,7 +55,7 @@ export default {
       return this.target_round
     },
     adjudicator () {
-      return this.entity_by_id(this.from_id_str)
+      return this.entity_by_id[parseInt(this.from_id_str, 10)]
     },
     score_sheet () {
       return this.score_sheet_by_id(this.from_id_str)

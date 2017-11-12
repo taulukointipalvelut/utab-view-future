@@ -596,7 +596,7 @@ export default {
       this.collapsed[label_singular].loading = true
       let detail = this.collapsed[label_singular].detail
       let id = this.collapsed[label_singular].id
-      let entity = this.entity_by_id(id)
+      let entity = this.entity_by_id[id]
       let details = entity.details.filter(d => d.r !== detail.r)
       details.push(detail)
       let payload = { tournament: this.target_tournament, label_singular, label }

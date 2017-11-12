@@ -45,8 +45,8 @@ export default {
       let that = this
       return draw ? draw.allocation.slice()
         .sort(function (a, b) {
-          let venue1 = that.entity_by_id(a.venue)
-          let venue2 = that.entity_by_id(b.venue)
+          let venue1 = that.entity_by_id[parseInt(a.venue, 10)]
+          let venue2 = that.entity_by_id[parseInt(b.venue, 10)]
           let pr1 = venue1 !== undefined ? that.access_detail(venue1, that.r_str).priority : 1
           let pr2 = venue2 !== undefined ? that.access_detail(venue2, that.r_str).priority : 1
           return pr1 > pr2 ? 1 : -1
