@@ -70,7 +70,6 @@ export default {
   props: ['r_str', 'from_id_str'],
   data () {
     return {
-      sent: false,
       adjudicators_to_evaluate: [],
       results: [],
       active_a_id: '',
@@ -100,6 +99,9 @@ export default {
     smartphone: smartphone,
     evaluation_sheet () {
       return this.evaluation_sheet_by_id(this.from_id_str)
+    },
+    sent () {
+      return this.evaluation_sheet.done
     },
     converted_results () {
       let results = this.results.filter(r => this.adjudicators_to_evaluate.includes(r.id))
@@ -139,7 +141,6 @@ export default {
       }).then(() => {
           this.dialog.check.sending = false
           this.dialog.check.visible = false
-          this.sent = true
         })
     },
     on_home () {
@@ -168,6 +169,8 @@ export default {
 </script>
 
 <style lang="stylus">
+  @import "./evaluation"
+
   .check-card
     width 90%
     margin auto
@@ -186,7 +189,6 @@ export default {
 
   .judge-selection
     text-align center
-  @import "./evaluation"
 
   .home-button
     width 100%
