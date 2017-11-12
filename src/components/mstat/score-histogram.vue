@@ -26,6 +26,7 @@ export default {
           if (raw_data.length === 0) {
             return {
               freqs: [],
+              nums: [],
               bins: { start: null, end: null, n: null, h: null }
             }
           }
@@ -34,7 +35,7 @@ export default {
           start = start === null ? Math.floor(data[0]*10)/10 : start
           end = end === null ? Math.ceil(data[data.length-1]*10)/10 : end
           let h = (end - start)/n
-          let freqs = Array(n).fill(0)
+          let nums = Array(n).fill(0)
 
           let bins = math.range(n-1).map(v => start+v*h)
           bins.push(end)
@@ -43,10 +44,11 @@ export default {
             while (e > bins[i]) {
               i++
             }
-            freqs[i]++
+            nums[i]++
           }
           return {
-            freqs,
+            freqs: nums.map(v => v/data.length),
+            nums: nums,
             bins: { start, end, n, h }
           }
       }
@@ -92,7 +94,14 @@ export default {
                   groupPadding: 0,
                   pointStart: hist.bins.start,
                   pointInterval: hist.bins.h,
-                  pointPlacement: 'between'
+                  pointPlacement: 'between',
+                  tooltip: {
+                      headerFormat: '',
+                      pointFormatter () {
+                          let ind = hist.freqs.findIndex(v => v === this.y)
+                          return 'Range: '+this.x+'-'+(this.x+hist.bins.h)+'<br>Nums: '+hist.nums[ind]+'<br>Frequency: '+this.y
+                      }
+                  }
               }
           },
           series: [{

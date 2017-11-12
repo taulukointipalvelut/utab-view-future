@@ -27,7 +27,7 @@ export default {
       let categories = sorted_results.map(r => r.id)
 
       let series = [{
-          name: 'Margin per Side',
+          name: 'Gov Margin',
           borderWidth: 1,
           data: [],
           dataLabels: {
@@ -85,6 +85,13 @@ export default {
           yAxis: {
               title: null,
               categories: categories.map(this.entity_name_by_id)
+          },
+          plotOptions: {
+              heatmap: {
+                  tooltip: {
+                      pointFormat: '{point.value}'
+                  }
+              }
           },
           colorAxis: {
               reversed: false,

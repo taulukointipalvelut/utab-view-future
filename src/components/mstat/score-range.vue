@@ -77,6 +77,9 @@ export default {
                   marker: {
                       enabled: false,
                       lineWidth: 0
+                  },
+                  states: {
+                      hover: { enabled: false }
                   }
               }
           },

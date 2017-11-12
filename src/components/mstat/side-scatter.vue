@@ -5,6 +5,7 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import highcharts from 'highcharts'
+import math from 'assets/js/math'
 
 export default {
   name: 'side-scatter',
@@ -23,7 +24,7 @@ export default {
       let all_details = [].concat(...this.results.map(r => r.details))
       for (let side of ['gov', 'opp']) {
           series.push({
-              name: side,
+              name: math.capitalize(side),
               color: side === 'gov' ? 'rgba(223, 83, 83, .5)' : 'rgba(119, 152, 191, .5)',
               data: all_details.filter(d => d.side === side).map(detail => {
                   return [
@@ -91,6 +92,10 @@ export default {
                               enabled: false
                           }
                       }
+                  },
+                  tooltip: {
+                      headerFormat: '<b>{series.name}</b><br>',
+                      pointFormat: '{point.y} pts'
                   }
               }
           },

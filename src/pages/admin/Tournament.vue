@@ -75,8 +75,8 @@
             //el-form-item(label="Simple")
               el-switch(on-text="", off-text="", v-model="dialog.compile.form.model.simple")
           div(v-for="r in dialog.compile.form.model.rs", :key="r")
-            p(v-if="adjudicators_ss_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
-            p(v-if="entities_es_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+            p(style="color: red;", v-if="adjudicators_ss_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+            p(style="color: red;", v-if="entities_es_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
         .dialog-footer(slot="footer")
           el-button(@click="dialog.compile.visible = false") Cancel
           el-button(type="primary", @click="on_compile", :disabled="dialog.compile.form.model.rs.length === 0", :loading="dialog.compile.loading") Request

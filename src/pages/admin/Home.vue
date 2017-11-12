@@ -165,7 +165,6 @@ export default {
           this.send_create_user({ tournament: { id: t.id }, username, password, usertype })
         }
       }
-      await this.init_one({ tournament: t })
       this.dialog.create.loading = false
       this.dialog.create.visible = false
     },

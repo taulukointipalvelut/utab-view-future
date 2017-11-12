@@ -112,10 +112,10 @@
           el-tab-pane(label="Scores by Side", v-if="!without_speakers")
             lazy-item
               side-scatter(:results="target_tournament.compiled_team_results", :tournament="target_tournament")
-          el-tab-pane(label="Win per Side")
+          el-tab-pane(label="Gov Win")
             lazy-item
               side-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
-          el-tab-pane(label="Margin per Side", v-if="!without_speakers")
+          el-tab-pane(label="Gov Margin", v-if="!without_speakers")
             lazy-item
               side-margin-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
           el-tab-pane(label="Winers")

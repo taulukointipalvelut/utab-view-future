@@ -25,9 +25,10 @@ export default {
   mounted () {
       let sorted_results = this.results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)
       let categories = sorted_results.map(r => r.id)
+      let that = this
 
       let series = [{
-          name: 'Win per Side',
+          name: 'Gov Win',
           borderWidth: 1,
           data: [],
           dataLabels: {
@@ -68,7 +69,7 @@ export default {
           }
       }
       if (!result_exists) { return }
-      
+
       highcharts.chart(this.id+'-side-heatmap-container', {
           chart: {
               type: 'heatmap',
@@ -86,6 +87,22 @@ export default {
           yAxis: {
               title: null,
               categories: categories.map(this.entity_name_by_id)
+          },
+          plotOptions: {
+              heatmap: {
+                  tooltip: {
+                      headerFormat: '',
+                      pointFormatter () {
+                          if (this.value === 1) {
+                              return 'Win'
+                          } else if (this.value === -1) {
+                              return 'Lose'
+                          } else {
+                              return 'Undefined'
+                          }
+                      }
+                  }
+              }
           },
           colorAxis: {
               reversed: false,

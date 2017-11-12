@@ -70,7 +70,13 @@ export default {
           },
           plotOptions: {
               series: {
-                  stacking: 'normal'
+                  stacking: 'normal',
+                  tooltip: {
+                      headerFormat: '<b>{point.x}</b><br>',
+                      pointFormatter () {
+                          return Math.abs(this.y)+' pts'
+                      }
+                  }
               }
           },
           series,
