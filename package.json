@@ -13,6 +13,7 @@
     "highcharts": "^6.0.2",
     "highcharts-exporting": "^0.1.2",
     "highcharts-more": "^0.1.2",
+    "intersection-observer": "^0.4.3",
     "log": "^1.4.0",
     "marked": "^0.3.6",
     "qrious": "^4.0.2",
