@@ -32,9 +32,15 @@ export default {
           name: 'Scores',
           data: scores_list.map(scores => {
               if (scores.length === 0) {
-                  return [0, 0]
+                  return null
               } else {
-                  return [Math.min(...scores), Math.max(...scores)]
+                  let min = Math.min(...scores)
+                  let max = Math.max(...scores)
+                  if (min === max) {
+                      min -= 0.02
+                      max += 0.02
+                  }
+                  return [min, max]
               }
           })
       }]
