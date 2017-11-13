@@ -43,12 +43,11 @@
                 template(slot="title")
                   div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
                     span #[flexible-input(:loading="input_loading(entity.id)", :text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, $event)", @start="flexible_input.identity=entity.id")]
-                    div
-                      el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
+                    el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
                 el-collapse.inner-collapse(accordion, @change="on_collapse(labels_singular[label], entity, $event)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
                   el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
                     template(slot="title")
-                      span(:style="detail.available ? '' : 'color: red;'") {{ round_name_by_r(detail.r) }} #[el-icon(name="warning", v-if="warn_entity_detail(detail).length > 0")] {{ warn_entity_detail(labels_singular[label], detail).join(',') }}
+                      span.round-name(:style="detail.available ? '' : 'color: red;'") {{ round_name_by_r(detail.r) }} #[el-icon(name="warning", v-if="warn_entity_detail(detail).length > 0")] {{ warn_entity_detail(labels_singular[label], detail).join(',') }}
                     el-table.inner-table(:data="[specified(label).detail]", v-if="specified(label).id !== null")
                       el-table-column(label="Available", align="center")
                         template(slot-scope="scope")
@@ -96,9 +95,9 @@
             el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened", v-if="!dialog.round[type+'_form'].model.user_defined_data.hidden")
               el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.adjudicator_allocation_opened")
             el-form-item(label="Judge evaluation from Judges", prop="evaluate_from_adjudicators")
-              el-switch(:default="true", active-text="", inactive-text="", on-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_adjudicators")
+              el-switch(:default="true", active-text="", inactive-text="", active-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_adjudicators")
             el-form-item(label="Judge evaluation from Teams", prop="evaluate_from_teams")
-              el-switch(:default="true", active-text="", inactive-text="", on-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
+              el-switch(:default="true", active-text="", inactive-text="", active-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
             el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
               el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.chairs_always_evaluated")
             el-form-item(label="Evaluator in Team", prop="evaluator_in_team", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
@@ -806,7 +805,7 @@ export default {
     //text-decoration line-through
 
   .no-detail-entity
-    i.el-collapse-item__header__arrow.el-icon-arrow-right
+    i.el-collapse-item__arrow.el-icon-arrow-right
       display none
     div.el-collapse-item__wrap
       border-bottom 0
@@ -834,11 +833,13 @@ export default {
 
   .inner-collapse-item
     margin-left 1rem
-    border-left solid 1px #dfe6ec
-    div.el-collapse-item__wrap
-      border none
+    border-top solid 1px #dfe6ec
+    span.round-name
+      margin-left 1rem
     div.el-collapse-item__content
       padding 0
+    div.el-collapse-item__wrap
+      border-bottom 0
 
   body
     background-color #f5f5f5

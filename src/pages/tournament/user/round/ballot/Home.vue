@@ -13,8 +13,6 @@
               template(slot-scope="scope")
                 span.icon-ok(v-if="scope.row.done")
                   el-icon(name="check")
-                span(v-else)
-                  el-icon(name="edit")
             el-table-column(prop="from_id", label="Name")
               template(slot-scope="scope")
                 span {{ entity_name_by_id(scope.row.from_id) }} #[i.fa.fa-user-secret(v-if="scope.row.is_chair")]
@@ -97,7 +95,7 @@ export default {
         }
       }
     },
-    row_class_name (row, index): string {
+    row_class_name ({row}): string {
       let class_name = 'row'
       if (row.done) {
         class_name += ' done'

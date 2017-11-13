@@ -23,27 +23,34 @@
     & h1
       margin 0 0 2rem 0
 
+  .el-table
+    border-top solid 1px #dfe6ec
+    border-left solid 1px #dfe6ec
+    border-right solid 1px #dfe6ec
+    th
+      background-color rgb(245, 247, 250)
+    td
+      padding 0.5rem
+
   .el-tabs__item
     outline 0
 
-  .el-collapse-item__header
-    outline 0
+  .el-collapse
+    .el-collapse-item__header
+      outline 0
 
   .el-tag
-    background-color #88a3d0
+    background-color rgba(133, 216, 251, 0.84)
 
   .el-input__inner
     line-height unset
 
-  .el-switch__core
-    height 20px
+  //.el-step__head.is-process
+  //  background $primary-color
+  //  border-color $primary-color
 
-  .el-step__head.is-text.is-process
-    background $primary-color
-    border-color $primary-color
-
-  .el-step__head.is-text.is-success .el-step__line
-    background $primary-color
+  //.el-step__head.is-text.is-success .el-step__line
+  //  background $primary-color
 
   .page-header
     display flex

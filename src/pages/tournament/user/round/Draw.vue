@@ -4,7 +4,7 @@
       h1 {{ target_round.name }}
       h3(v-if="draw_time && draw_time.updated") {{ draw_time.text }}
     section(v-if="!loading && team_allocation_opened && sorted_rows.length > 0")
-      el-table.draw(:data="sorted_rows", :row-class-name="(_, index) => 'row-class-'+(index%2)")
+      el-table.draw(:data="sorted_rows", :row-class-name="payload => 'row-class-'+(payload.rowIndex%2)")
         el-table-column(label="Venue", align="center")
           template(slot-scope="scope")
             .venue {{ scope.row.venue ? entity_name_by_id(scope.row.venue) : '' }}

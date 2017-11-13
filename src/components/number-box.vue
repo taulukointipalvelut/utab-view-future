@@ -1,8 +1,8 @@
 <template lang="pug">
   .number-box
-    el-button(@click="on_minus", :disabled="minus_button_disabled"): el-icon(name="minus")
+    el-button(@click="on_minus", :disabled="minus_button_disabled", size="small"): el-icon(name="minus")
     el-input.number-box__input(ref="input", :value="value", @input="updateValue(Number.isNaN($event) ? $event.target.value : $event)", type="number", :max="max", :min="min", :step="step", :disabled="disabled")
-    el-button(@click="on_plus", :disabled="plus_button_disabled"): el-icon(name="plus")
+    el-button(@click="on_plus", :disabled="plus_button_disabled", size="small"): el-icon(name="plus")
 </template>
 
 <script>

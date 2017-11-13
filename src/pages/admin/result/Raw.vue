@@ -16,9 +16,8 @@
               el-collapse-item.collapse-item(v-for="results in divided_results('team')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
                 template(slot="title")
                   div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
-                    span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
-                    div
-                      el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', results)") #[el-icon(name="close")]
+                    span.entity-name {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                    el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', results)") #[el-icon(name="close")]
                 el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id)", border)
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
@@ -43,9 +42,8 @@
               el-collapse-item.collapse-item(v-for="results in divided_results('speaker')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
                 template(slot="title")
                   div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
-                    span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
-                    div
-                      el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', results)") #[el-icon(name="close")]
+                    span.entity-name {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                    el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', results)") #[el-icon(name="close")]
                 el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ", border)
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
@@ -79,9 +77,8 @@
               el-collapse-item.collapse-item(v-for="results in divided_results('adjudicator')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
                 template(slot="title")
                   div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
-                    span {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
-                    div
-                      el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', results)") #[el-icon(name="close")]
+                    span.entity-name {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                    el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', results)") #[el-icon(name="close")]
                 el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ", border)
                   el-table-column(prop="id", label="Name", align="center", sortable)
                     template(slot-scope="scope")
@@ -399,6 +396,8 @@ export default {
       padding 0
     div.el-collapse-item__wrap
       border 0
+    .entity-name
+      margin-left 1rem
 
   .operations
     display flex
