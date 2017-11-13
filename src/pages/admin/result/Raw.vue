@@ -118,9 +118,9 @@
             el-form-item(v-for="score in dialog.speaker_result.form.model.scores", :key="score.order", :label="ordinal(score.order)")
               el-input-number(:value="score.value", @change="input_score(dialog.speaker_result.form.model.scores, score.order, $event)")
             el-form-item(v-for="poi in dialog.speaker_result.form.model.user_defined_data.poi", :key="poi.order", :label="'POI '+ordinal(poi.order)")
-              el-switch(:value="poi.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.poi, poi.order, $event)", on-text="", off-text="")
+              el-switch(:value="poi.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.poi, poi.order, $event)", active-text="", inactive-text="")
             el-form-item(v-for="best in dialog.speaker_result.form.model.user_defined_data.best", :key="best.order", :label="'Best '+ordinal(best.order)")
-              el-switch(:value="best.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.best, best.order, $event)", on-text="", off-text="")
+              el-switch(:value="best.value", @change="input_score(dialog.speaker_result.form.model.user_defined_data.best, best.order, $event)", active-text="", inactive-text="")
         .dialog-footer(slot="footer")
           el-button(@click="dialog.speaker_result.visible = false") Cancel
           el-button(type="primary", :loading="dialog.speaker_result.loading", @click="on_update('speakers', 'speaker')") #[el-icon(name="plus", v-if="!dialog.speaker_result.loading")] OK

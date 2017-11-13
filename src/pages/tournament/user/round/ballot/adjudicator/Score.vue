@@ -18,9 +18,9 @@
           el-form-item(label="Total Score", v-if="target_round.user_defined_data.score_by_matter_manner")
             input-label(:value="total_score")
           el-form-item(label="Best Debater", v-if="target_round.user_defined_data.best")
-            el-switch(:value="value(side_name, 'best', role_order)", @input="on_input_result('best', $event)", on-text="Yes", off-text="No")
+            el-switch(:value="value(side_name, 'best', role_order)", @input="on_input_result('best', $event)", active-text="Yes", inactive-text="No")
           el-form-item(label="POI Prize", v-if="target_round.user_defined_data.poi")
-            el-switch(:value="value(side_name, 'poi', role_order)", @input="on_input_result('poi', $event)", on-text="Yes", off-text="No")
+            el-switch(:value="value(side_name, 'poi', role_order)", @input="on_input_result('poi', $event)", active-text="Yes", inactive-text="No")
     section.buttons(v-if="score_sheet")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]

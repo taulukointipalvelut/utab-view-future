@@ -8,8 +8,8 @@
     "build": "rimraf dist && webpack -p --progress --hide-modules"
   },
   "dependencies": {
-    "axios": "^0.16.2",
-    "element-ui": "^1.4.6",
+    "element-theme-default": "^1.4.9",
+    "element-ui": "^2.0.4",
     "highcharts": "^6.0.2",
     "highcharts-exporting": "^0.1.2",
     "highcharts-more": "^0.1.2",
@@ -19,7 +19,7 @@
     "qrious": "^4.0.2",
     "simplemde": "^1.11.2",
     "vue": "^2.5.2",
-    "vue-analytics": "^5.3.0",
+    "vue-analytics": "^5.3.1",
     "vue-observe-visibility": "^0.3.1",
     "vue-router": "^2.8.1",
     "vue-simplemde": "^0.4.6",
