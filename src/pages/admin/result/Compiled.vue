@@ -23,19 +23,19 @@
                   span {{ scope.row.win }}
               el-table-column(prop="average", label="Average", align="center", sortable, v-if="(label === 'speakers' && !without_speakers) || (label === 'adjudicators' && !without_adjudicators)")
                 template(slot-scope="scope")
-                  span {{ scope.row.average }}
+                  span {{ round(scope.row.average) }}
               el-table-column(prop="sum", label="Sum", align="center", sortable, v-if="['speakers', 'teams'].includes(label) && !without_speakers")
                 template(slot-scope="scope")
-                  span {{ scope.row.sum }}
+                  span {{ round(scope.row.sum) }}
               el-table-column(prop="margin", label="Margin", align="center", sortable, v-if="label === 'teams' && !without_speakers")
                 template(slot-scope="scope")
-                  span {{ scope.row.margin }}
+                  span {{ round(scope.row.margin) }}
               el-table-column(prop="vote", label="Vote", align="center", sortable, v-if="label === 'teams' && !without_speakers")
                 template(slot-scope="scope")
                   span {{ scope.row.vote }}
               el-table-column(prop="sd", label="StDev", align="center", sortable, v-if="(label === 'adjudicators' && !without_adjudicators) || !without_speakers")
                 template(slot-scope="scope")
-                  span {{ scope.row.sd }}
+                  span {{ round(scope.row.sd) }}
               el-table-column(prop="num_experienced", label="Judged", align="center", sortable, v-if="label === 'adjudicators' && !without_adjudicators")
                 template(slot-scope="scope")
                   span {{ scope.row.num_experienced }}
@@ -89,7 +89,7 @@
                   span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
               el-table-column(label="Total", align="center", sortable, prop="sub_prize")
                 template(slot-scope="scope")
-                  span {{ scope.row[sub_prize] }}
+                  span {{ round(scope.row[sub_prize]) }}
             .operation-button-container
               el-button.operation-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Debater', poi: 'POI'}[sub_prize] }} Results
           el-tab-pane(label="Slides")
@@ -292,6 +292,7 @@ export default {
     }
   },
   methods: {
+    round: math.round,
     capitalize: math.capitalize,
     on_configure_slide (label_singular) {
       this.dialog[label_singular+'_slide'].visible = true
@@ -385,6 +386,7 @@ export default {
 
   .result-tabs
     border-top 0
+    margin-top 1px
     .el-tabs__content
       padding 0
       .el-table

@@ -89,7 +89,10 @@ export default {
           plotOptions: {
               heatmap: {
                   tooltip: {
-                      pointFormat: '{point.value}'
+                      headerFormat: '',
+                      pointFormatter () {
+                          return highcharts.numberFormat(this.value)+' pts'
+                      }
                   }
               }
           },

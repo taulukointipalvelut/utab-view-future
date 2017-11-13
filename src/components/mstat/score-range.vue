@@ -85,9 +85,9 @@ export default {
                   tooltip: {
                       pointFormatter () {
                           if (this.high - this.low <= 2*slight+0.01) {
-                              return 'score: '+(this.high - slight)
+                              return 'score: '+highcharts.numberFormat(this.high - slight, 2)
                           } else {
-                              return 'scores: '+this.low+'-'+this.high
+                              return 'scores: '+highcharts.numberFormat(this.low, 2)+'-'+highcharts.numberFormat(this.high, 2)
                           }
                       }
                   }

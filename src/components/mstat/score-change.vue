@@ -39,7 +39,7 @@ export default {
           name: this.entity_name_by_id(result.id),
           data: rounds.map(round => {
             let detail = result.details.find(d => d.r === round.r)
-            let e = { x: round.r, y: null }
+            let e = { x: round.r, y: null, id: result.id }
             if (detail !== undefined) {
               e.y = detail[this.score]
               e.marker = {
@@ -94,7 +94,13 @@ export default {
                       symbol: 'circle'
                   },
                   color: '#4198c8',
-                  lineWidth: 1
+                  lineWidth: 1,
+                  tooltip: {
+                      headerFormat: '<b>{point.x}</b><br>',
+                      pointFormatter () {
+                          return this.series.name+': '+highcharts.numberFormat(this.y, 2)+' pts'
+                      }
+                  }
               }
           },
           series,

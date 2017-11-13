@@ -99,7 +99,7 @@ export default {
                       headerFormat: '',
                       pointFormatter () {
                           let ind = hist.freqs.findIndex(v => v === this.y)
-                          return 'Range: '+this.x+'-'+(this.x+hist.bins.h)+'<br>Nums: '+hist.nums[ind]+'<br>Frequency: '+this.y
+                          return 'Range: '+highcharts.numberFormat(this.x, 1)+'-'+highcharts.numberFormat(this.x+hist.bins.h, 1)+'<br>Nums: '+hist.nums[ind]+'<br>Frequency: '+highcharts.numberFormat(this.y, 2)+'%'
                       }
                   }
               }

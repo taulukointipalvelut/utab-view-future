@@ -95,7 +95,9 @@ export default {
                   },
                   tooltip: {
                       headerFormat: '<b>{series.name}</b><br>',
-                      pointFormat: '{point.y} pts'
+                      pointFormatter () {
+                          return highcharts.numberFormat(this.y, 2)+' pts'
+                      }
                   }
               }
           },

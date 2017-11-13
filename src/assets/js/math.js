@@ -5,6 +5,10 @@ function disjoint (list1, list2) {
 function wrapped (list1, list2) {
     return list1.every(e => list2.includes(e))
 }
+
+function round (num, len=3) {
+    return Math.round(num*Math.pow(10, len))/Math.pow(10, len)
+}
 /*
 function disjoint_loose (list1, list2) {
     if (list1 === null || list2 === null) {
@@ -112,6 +116,7 @@ function csv_parser(raw_text) {
 }
 
 //exports.disjoint_loose = disjoint_loose
+exports.round = round
 exports.disjoint = disjoint
 exports.common = common
 exports.range = range

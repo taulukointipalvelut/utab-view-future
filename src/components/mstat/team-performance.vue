@@ -74,7 +74,7 @@ export default {
                   tooltip: {
                       headerFormat: '<b>{point.x}</b><br>',
                       pointFormatter () {
-                          return Math.abs(this.y)+' pts'
+                          return highcharts.numberFormat(Math.abs(this.y), 2)+' pts'
                       }
                   }
               }
