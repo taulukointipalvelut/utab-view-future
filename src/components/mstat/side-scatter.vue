@@ -72,7 +72,7 @@ export default {
               x: 100,
               y: 70,
               floating: true,
-              backgroundColor: (highcharts.theme && highcharts.theme.legendBackgroundColor) || '#FFFFFF',
+              backgroundColor: 'rgba(255, 255, 255, 0.5)',
               borderWidth: 1
           },
           plotOptions: {
