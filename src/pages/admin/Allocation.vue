@@ -6,66 +6,63 @@
         h3(v-if="!loading && this.target_round !== undefined") {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
       section(v-if="target_tournament !== undefined")
         loading-container(:loading="loading || allocation_loading")
-          el-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border, empty-text="Need More Teams")
+          el-table.allocation-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border, empty-text="Need More Teams")
             el-table-column(label="Venue", align="center")
               template(slot-scope="scope")
                 draggable.adj-list(v-model="scope.row.venues", :options="venue_options")
                   .draggable-item(v-for="id in scope.row.venues", :class="warn_item_venue(id)")
-                    .draggable-content(@mouseover="selected_venue = id", @mouseout="selected_venue = null") {{ entity_name_by_id(id) }}
-                      el-popover(:open-delay="500", placement="right", trigger="click")
-                        el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                        lazy-item
-                          div(v-if="entity_accessible(id)")
-                            p id: {{ id }}
-                            p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
+                    el-popover(:open-delay="500", placement="right", trigger="click")
+                      el-button.detail-button(slot="reference", @mouseover.native="selected_venue = id", @mouseout.native="selected_venue = null") {{ entity_name_by_id(id) }}
+                      lazy-item
+                        div(v-if="entity_accessible(id)")
+                          p id: {{ id }}
+                          p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
             el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels[side]", align="center")
               template(slot-scope="scope")
                 draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
                   .draggable-item(v-for="id in scope.row.teams[side]", :class="warn_item_team(id, side)")
-                    .draggable-content(@mouseover="selected_team = id", @mouseout="selected_team = null") {{ entity_name_by_id(id) }}
-                      el-popover(:open-delay="500", placement="right", trigger="click")
-                        el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                        lazy-item
-                          div(v-if="team_accessible(id)")
-                            p ranking: {{ compiled_team_result_by_id[id].ranking }}
-                            p win: {{ compiled_team_result_by_id[id].win }}
-                            p sum: {{ compiled_team_result_by_id[id].sum }}
-                            p margin: {{ compiled_team_result_by_id[id].margin }}
-                            p institutions: {{ institution_names_by_team_id(id) }}
-                            p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
-                            p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
-                            p speakers: {{ speaker_names_by_team_id(id) }}
-                            p id: {{ id }}
+                    el-popover(:open-delay="500", placement="right", trigger="click")
+                      el-button.detail-button(slot="reference", @mouseover.native="selected_team = id", @mouseout.native="selected_team = null") {{ entity_name_by_id(id) }}
+                      lazy-item
+                        div(v-if="team_accessible(id)")
+                          p ranking: {{ compiled_team_result_by_id[id].ranking }}
+                          p win: {{ compiled_team_result_by_id[id].win }}
+                          p sum: {{ compiled_team_result_by_id[id].sum }}
+                          p margin: {{ compiled_team_result_by_id[id].margin }}
+                          p institutions: {{ institution_names_by_team_id(id) }}
+                          p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
+                          p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
+                          p speakers: {{ speaker_names_by_team_id(id) }}
+                          p id: {{ id }}
             el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label", align="center")
               template(slot-scope="scope")
                 draggable.adj-list(v-model="scope.row[label]", :options="adjudicator_options")
                   .draggable-item(v-for="id in scope.row[label]", :class="warn_item_adjudicator(id)")
-                    .draggable-content(@mouseover="selected_adjudicator = id", @mouseout="selected_adjudicator = null") {{ entity_name_by_id(id) }}
-                      el-popover(:open-delay="500", placement="right", trigger="click")
-                        el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                        lazy-item
-                          div(v-if="adjudicator_accessible(id)")
-                            p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
-                            p average: {{ compiled_adjudicator_result_by_id[id].average }}
-                            p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                            p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                            p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
-                            p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
-                            p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
-                            p id: {{ id }}
+                    el-popover(:open-delay="500", placement="right", trigger="click")
+                      el-button.detail-button(slot="reference", @mouseover.native="selected_adjudicator = id", @mouseout.native="selected_adjudicator = null") {{ entity_name_by_id(id) }}
+                      lazy-item
+                        div(v-if="adjudicator_accessible(id)")
+                          p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
+                          p average: {{ compiled_adjudicator_result_by_id[id].average }}
+                          p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
+                          p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                          p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
+                          p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
+                          p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
+                          p id: {{ id }}
             el-table-column(label="Warnings", align="center")
               el-table-column(label="Draw", align="center")
                 template(slot-scope="scope")
                   div(v-for="warning in warn_square_teams(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
                     el-popover(placement="right", width="200", trigger="click")
-                      el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
+                      el-button.warning-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
                       p {{ warning.message }}
                       p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
               el-table-column(label="Alloc", align="center")
                 template(slot-scope="scope")
                   div(v-for="warning in warn_square_adjudicators(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
                     el-popover(placement="right", width="200", trigger="click")
-                      el-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
+                      el-button.warning-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
                       p {{ warning.message }}
                       p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
                       p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
@@ -86,47 +83,44 @@
         .adj-list-container
           draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options")
             .draggable-item(v-for="id in adjudicators", :class="warn_item_adjudicator(id)")
-              .draggable-content(@mouseover="selected_adjudicator = id", @mouseout="selected_adjudicator = null") {{ entity_name_by_id(id) }}
-                el-popover(:open-delay="500", placement="right", trigger="click")
-                  el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                  lazy-item
-                    div(v-if="adjudicator_accessible(id)")
-                      p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
-                      p average: {{ compiled_adjudicator_result_by_id[id].average }}
-                      p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                      p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                      p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
-                      p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
-                      p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
-                      p id: {{ id }}
+              el-popover(:open-delay="500", placement="right", trigger="click")
+                el-button.detail-button(slot="reference", @mouseover.native="selected_adjudicator = id", @mouseout.native="selected_adjudicator = null") {{ entity_name_by_id(id) }}
+                lazy-item
+                  div(v-if="adjudicator_accessible(id)")
+                    p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
+                    p average: {{ compiled_adjudicator_result_by_id[id].average }}
+                    p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
+                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                    p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
+                    p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
+                    p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
+                    p id: {{ id }}
       legend Waiting Teams
       loading-container(:loading="loading")
         .adj-list-container
           draggable.adj-list.src(v-model="teams", :options="team_options")
             .draggable-item(v-for="id in teams", :class="warn_item_team(id, '')")
-              .draggable-content(@mouseover="selected_team = id", @mouseout="selected_team = null") {{ entity_name_by_id(id) }}
-                el-popover(:open-delay="500", placement="right", trigger="click")
-                  el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                  lazy-item
-                    div(v-if="team_accessible(id)")
-                      p ranking: {{ compiled_team_result_by_id[id].ranking }}
-                      p win: {{ compiled_team_result_by_id[id].win }}
-                      p sum: {{ compiled_team_result_by_id[id].sum }}
-                      p margin: {{ compiled_team_result_by_id[id].margin }}
-                      p institutions: {{ institution_names_by_team_id(id) }}
-                      p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
-                      p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
-                      p speakers: {{ speaker_names_by_team_id(id) }}
-                      p id: {{ id }}
+              el-popover(:open-delay="500", placement="right", trigger="click")
+                el-button.detail-button(slot="reference", @mouseover.native="selected_team = id", @mouseout.native="selected_team = null") {{ entity_name_by_id(id) }}
+                lazy-item
+                  div(v-if="team_accessible(id)")
+                    p ranking: {{ compiled_team_result_by_id[id].ranking }}
+                    p win: {{ compiled_team_result_by_id[id].win }}
+                    p sum: {{ compiled_team_result_by_id[id].sum }}
+                    p margin: {{ compiled_team_result_by_id[id].margin }}
+                    p institutions: {{ institution_names_by_team_id(id) }}
+                    p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
+                    p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
+                    p speakers: {{ speaker_names_by_team_id(id) }}
+                    p id: {{ id }}
       legend Waiting Venues
       loading-container(:loading="loading")
         .adj-list-container
           draggable.adj-list.src(v-model="venues", :options="venue_options")
             .draggable-item(v-for="id in venues", :class="warn_item_venue(id)")
-              .draggable-content(@mouseover="selected_venue = id", @mouseout="selected_venue = null") {{ entity_name_by_id(id) }}
-                el-popover(:open-delay="500", placement="right", trigger="click")
-                  el-button.details(slot="reference", size="mini", style="opacity: 0;") #[el-icon(name="more")]
-                  lazy-item
+              el-popover(:open-delay="500", placement="right", trigger="click")
+                el-button.detail-button(slot="reference", @mouseover.native="selected_venue = id", @mouseout.native="selected_venue = null") {{ entity_name_by_id(id) }}
+                lazy-item
                   div(v-if="entity_accessible(id)")
                     p id: {{ id }}
                     p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
@@ -496,8 +490,8 @@ export default {
       return this.access_detail(this.entity_by_id[id], this.r_str).conflicts
         .map(this.entity_name_by_id).join(', ')
     },
-    row_class(data, index) {
-      if (this.square_sendable(data)) {
+    row_class({row}) {
+      if (this.square_sendable(row)) {
         return 'sendable'
       } else {
         return 'unsendable'
@@ -849,27 +843,27 @@ export default {
   @import "../../common"
 
   .draggable-item
-    //border 2px solid #999
     background rgba(172, 240, 255, 0.35)
     border-radius 5px
-    padding 3px 10px
+    padding 0.2rem
     margin-top .5rem
     cursor pointer
-    //min-width 70px
 
   .unavailable
     color white
     background gray
 
-  .draggable-content
-    width 120%
-    font-size 14px
-    height 140%
-
   .router-view-content
     .allocation-content
       position relative
       padding-bottom 40vh
+
+  .allocation-table
+    th
+      padding 0.3rem
+    tr.el-table__row
+      td
+        padding 0
 
   .page-footer
     bottom 0
@@ -982,8 +976,19 @@ export default {
     color white
     border-radius 4px
 
-  .details
+  .warning-button
+    padding 0.2rem
+
+  .detail-button
+    width 100%
     border none
+    outline 0
+    font-size 12px
+    padding 0
+    background rgba(255, 255, 255, 0)
+    &:hover
+      background rgba(255, 255, 255, 0)
+      color unset
 
   .el-table .cell
     padding 0
