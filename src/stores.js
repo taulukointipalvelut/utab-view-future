@@ -242,6 +242,7 @@ export default {
                                                 .map(id => getters.entity_by_id[id])
                                                 .filter(t => t !== undefined)
                                                 .map(t => getters.access_detail(t, r).speakers)
+                        team_evaluators = [].concat(...team_evaluators)
                     }
                 }
                 let adj_evaluators = round.user_defined_data.evaluate_from_adjudicators ? square.chairs.concat(square.panels).concat(square.trainees) : []
