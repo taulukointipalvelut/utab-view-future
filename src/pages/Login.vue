@@ -94,7 +94,6 @@
 <style>
   .login-card {
     width: 280px;
-    height: 400px;
     margin: calc((100vh - 400px) / 2) auto;
   }
   .login {
