@@ -989,6 +989,12 @@ export default {
     &:hover
       background rgba(255, 255, 255, 0)
       color unset
+    &:active
+      background rgba(255, 255, 255, 0)
+      color unset
+    &:focus
+      background rgba(255, 255, 255, 0)
+      color unset
 
   .el-table .cell
     padding 0
