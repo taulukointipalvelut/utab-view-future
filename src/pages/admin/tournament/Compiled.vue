@@ -1,5 +1,5 @@
 <template lang="pug">
-  .router-view-content(v-if="target_tournament")
+  .router-view-content
     section.page-header
       h1 {{ target_tournament.name }}
     p(v-if="target_tournament.compiled_team_results.length === 0 && target_tournament.compiled_speaker_results.length === 0 && target_tournament.compiled_adjudicator_results.length === 0") No results are collected or Please recompile results.

@@ -379,8 +379,7 @@ export default {
       'send_delete_entity',
       'send_update_entity',
       'send_update_round',
-      'request_compiled_results',
-      'init_one'
+      'request_compiled_results'
     ]),
     async handle_files (label, label_singular, evt) {
       this.dialog[label].visible = false
@@ -765,9 +764,6 @@ export default {
         size: 90
       })
     }*/
-  },
-  async mounted () {
-    await this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

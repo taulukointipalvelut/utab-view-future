@@ -1,5 +1,5 @@
 <template lang="pug">
-  .router-view-content(v-if="target_tournament")
+  .router-view-content
     section.page-header.result-header
       h1 {{ target_tournament.name }}
     p(v-if="adjudicators_ss_unsubmitted(r_str).length > 0") These adjudicators have not sent the score sheets: #[font(size="4", color="red") {{ adjudicators_ss_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
@@ -230,8 +230,7 @@ export default {
   methods: {
     ...mapActions([
       'send_update_result',
-      'send_delete_result',
-      'init_one'
+      'send_delete_result'
     ]),
     capitalize: math.capitalize,
     input_score(scores, order, value) {
@@ -352,9 +351,6 @@ export default {
       }
     },
     range: math.range
-  },
-  mounted () {
-    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

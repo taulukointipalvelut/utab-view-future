@@ -1,5 +1,5 @@
 <template lang="pug">
-  .router-view-content(v-if="target_tournament")
+  .router-view-content
     section.page-header
       h1 {{ target_tournament.name }}
     el-card(v-if="compiled_markdown !== ''").info-card.admin

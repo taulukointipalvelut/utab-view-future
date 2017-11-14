@@ -3,8 +3,8 @@
     .allocation-content
       section.page-header
         h1 Draw &amp; Allocation
-        h3(v-if="!this.target_round !== undefined") {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
-      section(v-if="target_tournament !== undefined")
+        h3 {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
+      section
         el-table.allocation-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border, empty-text="Need More Teams")
           el-table-column(label="Venue", align="center")
             template(slot-scope="scope")
@@ -357,7 +357,6 @@ export default {
       'request_draw',
       'submit_draw',
       'update_draw',
-      'init_one',
       'send_delete_draw',
       'request_compiled_results'
     ]),
@@ -507,7 +506,7 @@ export default {
         for (let id of square.teams[side]) {
           let team = this.entity_by_id[id]
           let result = this.compiled_team_result_by_id[id]
-          if (team === undefined) { continue }
+          if (team === undefined || result === undefined) { continue }
           if (this.check_sided(result, side)) {
             warnings.push({
               name: "OneSided",
@@ -540,6 +539,7 @@ export default {
         if (gov === undefined || opp === undefined) { continue }
         let result0 = this.compiled_team_result_by_id[pair[0]]
         let result1 = this.compiled_team_result_by_id[pair[1]]
+        if (result0 === undefined || result1 === undefined) { continue }
         for (let check of checks) {
           if (check.func(gov, opp, result0, result1)) {
             warnings.push({
@@ -578,6 +578,7 @@ export default {
         for (let check of ta_checks) {
           let team_result = this.compiled_team_result_by_id[pair[0]]
           let adj_result = this.compiled_adjudicator_result_by_id[pair[1]]
+          if (team_result === undefined || adj_result === undefined) { continue }
           if (check.func(team, adj, team_result, adj_result)) {
             warnings.push({
               name: check.name,
@@ -764,8 +765,11 @@ export default {
         } else if (this.target_draw !== undefined) {
             draw = this.target_draw
             this.draw_temp = draw
+        } else {
+            draw = { r: parseInt(this.r_str, 10), allocation: [] }
+            this.draw_temp = draw
         }
-        let allocation = draw.allocation === undefined ? [] : draw.allocation
+        let allocation = draw.allocation
         let sorted_allocation = allocation.slice().sort(function (a, b) {
           let venue1 = that.entity_by_id[a.venue]
           let venue2 = that.entity_by_id[b.venue]
@@ -790,7 +794,6 @@ export default {
             })
             c += 1
         }
-
         for (let i = 0; i < Math.floor(this.available_teams(this.r_str).length/2) - sorted_allocation.length; i++) {
             this.draw_adjusted.allocation.push({
                 id: c,
@@ -815,7 +818,6 @@ export default {
     this.new_draw = this.target_draw === undefined ? true : false
     this.allocation_loading = true
     this.init_allocation()
-    await this.init_one({ tournament: this.target_tournament })
     let request = {
       rs: this.target_tournament.rounds.filter(round => round.r < parseInt(this.r_str, 10)).map(round => round.r),
       options: { force: true }

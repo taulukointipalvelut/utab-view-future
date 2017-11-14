@@ -1,13 +1,16 @@
 <template lang="pug">
-  router-view
+  loading-container(:loading="one_loading || one_reloading")
+    router-view(v-if="!one_loading")
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import utab_header from 'components/utab-header.vue'
+import loading_container from 'components/loading-container'
 
 export default {
   components: {
+    'loading-container': loading_container,
     'utab-header': utab_header
   },
   props: ['participant'],
@@ -25,7 +28,9 @@ export default {
     ...mapGetters([
       'target_tournament',
       'tournament_href',
-      'is_auth'
+      'is_auth',
+      'one_loading',
+      'one_reloading'
     ])
   },
   methods: {

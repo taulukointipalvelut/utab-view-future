@@ -1,6 +1,6 @@
 <template lang="pug">
   loading-container(:loading="one_loading || one_reloading")
-    router-view
+    router-view(v-if="!one_loading")
 </template>
 
 <script>

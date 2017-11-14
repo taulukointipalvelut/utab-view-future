@@ -1,30 +1,35 @@
 <template lang="pug">
-  .router-view-content
-    section.page-header(v-if="round && adjudicator")
-      h1 {{ adjudicator.name }}
-      h3 {{ round.name }}
-    section(v-if="round && adjudicator && !sent")
-      el-steps(:active="current_step", finish-status="success")
-        el-step(title="Speaker", v-if="!target_round.user_defined_data.no_speaker_score")
-        el-step(title="Score", v-if="!target_round.user_defined_data.no_speaker_score")
-        el-step(title="Winner")
-        el-step(title="Check")
-    router-view(v-if="round && adjudicator && score_sheet && !sent", :score_sheet="score_sheet")
-    section(v-if="sent")
-      .card-container
-        el-card
-          h2 Thank you! Your ballot was successfully sent.
-          h2(v-if="after_check") You voted for #[span.voted-for {{ entity_name_by_id(winner) }} ({{ side_label }})].
-          h2(v-if="after_check") Please show this screen to debaters.
-      section
-        el-button.home-button(@click="on_home") #[i.fa.fa-home] Home
+  loading-container(:loading="one_loading || one_reloading")
+    .router-view-content(v-if="!one_loading")
+      section.page-header(v-if="round && adjudicator")
+        h1 {{ adjudicator.name }}
+        h3 {{ round.name }}
+      section(v-if="round && adjudicator && !sent")
+        el-steps(:active="current_step", finish-status="success")
+          el-step(title="Speaker", v-if="!target_round.user_defined_data.no_speaker_score")
+          el-step(title="Score", v-if="!target_round.user_defined_data.no_speaker_score")
+          el-step(title="Winner")
+          el-step(title="Check")
+      router-view(v-if="round && adjudicator && score_sheet && !sent", :score_sheet="score_sheet")
+      section(v-if="sent")
+        .card-container
+          el-card
+            h2 Thank you! Your ballot was successfully sent.
+            h2(v-if="after_check") You voted for #[span.voted-for {{ entity_name_by_id(winner) }} ({{ side_label }})].
+            h2(v-if="after_check") Please show this screen to debaters.
+        section
+          el-button.home-button(@click="on_home") #[i.fa.fa-home] Home
 </template>
 
 <script>
 /* @flow */
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import loading_container from 'components/loading-container'
 
 export default {
+  components: {
+    'loading-container': loading_container
+  },
   props: ['r_str', 'from_id_str'],
   computed: {
     after_check () {
@@ -65,7 +70,9 @@ export default {
       'entity_by_id',
       'entity_name_by_id',
       'score_sheet_by_id',
-      'style'
+      'style',
+      'one_loading',
+      'one_reloading'
     ])
   },
   methods: {
