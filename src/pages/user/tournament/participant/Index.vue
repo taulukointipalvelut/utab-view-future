@@ -22,13 +22,11 @@ export default {
       return this.target_tournament ? this.tournament_href(this.target_tournament) : { to: '/home' }
     },
     ...mapState([
-      'rounds',
-      'auth'
+      'rounds'
     ]),
     ...mapGetters([
       'target_tournament',
       'tournament_href',
-      'is_auth',
       'one_loading',
       'one_reloading'
     ])
@@ -37,26 +35,6 @@ export default {
     ...mapActions([
       'init_one'
     ])
-  },
-  watch: {
-    is_auth (new_value) {
-      if (!new_value) {
-        this.$router.replace({
-          path: this.auth.href.login.to,
-          query: { next: this.$route.fullPath, tournament_id: this.target_tournament.id }
-        })
-      }
-    }
-  },
-  mounted () {
-    if (!this.is_auth && this.target_tournament.auth[this.participant].required) {
-      this.$router.replace({
-        path: this.auth.href.login.to+'?message=Login Timed Out',
-        query: { next: this.$route.fullPath, tournament_id: this.target_tournament.id }
-      })
-    } else {
-      this.init_one({ tournament: this.target_tournament })
-    }
   }
 }
 </script>

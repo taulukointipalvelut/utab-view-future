@@ -61,9 +61,6 @@ export default {
       let round = this.target_round
       return round ? round.user_defined_data.adjudicator_allocation_opened : false
     },
-    ...mapState([
-      'auth'
-    ]),
     ...mapGetters([
       'access_detail',
       'entity_name_by_id',

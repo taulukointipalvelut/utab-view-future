@@ -210,9 +210,6 @@ export default {
         return divided_results
       }
     },
-    ...mapState([
-      'auth'
-    ]),
     ...mapGetters([
       'style',
       'target_tournament',

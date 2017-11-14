@@ -61,9 +61,6 @@ export default {
     score_sheet () {
       return this.score_sheet_by_id(this.from_id_str)
     },
-    ...mapState([
-      'auth'
-    ]),
     ...mapGetters([
       'target_tournament',
       'target_round',

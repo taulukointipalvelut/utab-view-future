@@ -25,9 +25,6 @@ export default {
     proceedable () {
       return this.result.gov.speakers.every(s => s.value !== null) && this.result.opp.speakers.every(s => s.value !== null)
     },
-    ...mapState([
-      'auth'
-    ]),
     ...mapState('ballot', [
       'result'
     ]),

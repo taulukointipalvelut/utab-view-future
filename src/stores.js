@@ -144,7 +144,32 @@ export default {
     }
   },
   getters: {
-    is_auth: state => state.auth.username !== '',
+    is_auth (state) {
+      let tournament = state.tournaments.find(t => t.id === parseInt(state.route.params.tournament_id, 10))
+      let is_auth = true
+      if (tournament !== undefined) {
+        let participant = state.route.params.participant
+        if (participant !== undefined) {
+          if (tournament.auth[participant].required && !state.auth.tournaments.includes(tournament.id)) {
+            is_auth = false
+          }
+        }
+        if (state.route.path.includes('admin') && !state.auth.tournaments.includes(tournament.id)) {
+          is_auth = false
+        }
+      } else if (state.route.path.includes('admin')) {
+        if (state.auth.username === '') {
+          is_auth = false
+        }
+      }
+      if (state.auth.usertype === 'superuser') {
+        is_auth = true
+      }
+      return is_auth
+    },
+    is_admin (state) {
+      return state.auth.username !== ''
+    },
     is_organizer (state, getters) {
         return tournament => {
             return state.auth.usertype === 'superuser' || state.auth.tournaments.includes(tournament.id)

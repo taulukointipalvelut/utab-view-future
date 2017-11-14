@@ -94,9 +94,6 @@ export default {
     proceedable () {
       return this.target_round.user_defined_data.allow_low_tie_win || !this.is_low_tie_win
     },
-    ...mapState([
-      'auth'
-    ]),
     ...mapGetters([
       'entity_name_by_id',
       'target_tournament',

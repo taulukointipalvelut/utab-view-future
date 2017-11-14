@@ -26,9 +26,6 @@ export default {
     proceedable () {
       return this.result.winner && this.result.winner !== ''
     },
-    ...mapState([
-      'auth'
-    ]),
     ...mapGetters([
       'entity_name_by_id',
       'style',

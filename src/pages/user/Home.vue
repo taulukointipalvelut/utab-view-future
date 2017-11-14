@@ -25,7 +25,6 @@ export default {
       return this.tournaments.filter(t => !t.user_defined_data.hidden)
     },
     ...mapState([
-      'auth',
       'tournaments',
       'loading',
       'reloading'

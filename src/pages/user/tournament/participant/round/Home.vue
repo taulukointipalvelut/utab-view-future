@@ -29,9 +29,6 @@ export default {
     'link-list-item': link_list_item
   },
   computed: {
-    ...mapState([
-      'auth'
-    ]),
     ...mapGetters([
       'target_round'
     ])

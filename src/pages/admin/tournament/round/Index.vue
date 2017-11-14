@@ -12,11 +12,7 @@ export default {
     'loading-container': loading_container
   },
   computed: {
-    ...mapState([
-      'auth'
-    ]),
     ...mapGetters([
-      'is_auth',
       'target_tournament',
       'one_loading',
       'one_reloading'
@@ -29,9 +25,6 @@ export default {
   },
   mounted () {
       this.init_one({ tournament: this.target_tournament })
-      if (!this.is_auth) {
-        this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
-      }
   }
 }
 </script>

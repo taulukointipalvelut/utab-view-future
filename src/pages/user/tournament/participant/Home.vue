@@ -66,9 +66,6 @@ export default {
         return ''
       }
     },
-    ...mapState([
-      'auth'
-    ]),
     ...mapGetters([
       'target_tournament',
       'round_href',

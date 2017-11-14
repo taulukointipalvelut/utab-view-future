@@ -279,7 +279,6 @@ export default {
       }
     },
     ...mapState([
-      'auth',
       'tournaments'
     ]),
     ...mapGetters([

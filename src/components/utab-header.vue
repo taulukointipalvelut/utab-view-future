@@ -14,20 +14,20 @@
           li.spacer
           li(v-if="target_tournament")
             router-link(v-if="tournament_href(target_tournament)", :to="tournament_href(target_tournament)") {{ target_tournament.name }}
-          li(v-if="target_tournament !== undefined && is_auth")
+          li(v-if="target_tournament !== undefined && is_admin")
             a(@click="on_edit_info") #[el-icon(name="message")]
           li
             a(@click="reload") Reload #[el-icon(v-if="reloading", name="loading")] #[i.fa.fa-refresh(v-if="!reloading")]
-          li(v-if="is_auth")
+          li(v-if="is_admin")
             a(@click="on_logout") Sign-out #[i.fa.fa-sign-out]
-          li(v-if="is_auth")
+          li(v-if="is_admin")
             router-link(v-if="!is_user", :to="admin_href", @click.native="toggleDropdownMenu") {{ username }} #[el-icon(name="setting")]
             a(v-if="is_user") {{ username }}
-          li(v-if="!is_auth && target_tournament !== undefined")
+          li(v-if="!is_admin && target_tournament !== undefined")
             router-link(:to="user_login_href", @click.native="toggleDropdownMenu") Sign-in #[i.fa.fa-sign-in]
-          li(v-if="!is_auth && target_tournament === undefined")
+          li(v-if="!is_admin && target_tournament === undefined")
             router-link(:to="login_href", @click.native="toggleDropdownMenu") Admin
-          li(v-if="!is_auth")
+          li(v-if="!is_admin")
             router-link(:to="signup_href", @click.native="toggleDropdownMenu") Register
 
     el-dialog.message-dialog(title="Tournament Information", :visible.sync="editor.visible", v-if="!one_loading")
@@ -116,7 +116,7 @@
         'auth'
       ]),
       ...mapGetters([
-        'is_auth',
+        'is_admin',
         'one_reloading',
         'one_loading',
         'target_tournament',

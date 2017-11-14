@@ -17,10 +17,12 @@ export default {
   },
   computed: {
     ...mapState([
-      'errors'
+      'errors',
+      'auth'
     ]),
     ...mapGetters([
-      'target_tournament'
+      'target_tournament',
+      'is_auth'
     ])
   },
   methods: {
@@ -42,10 +44,12 @@ export default {
         message: err.message,
         duration: 0
       }))
-    }/*,
-    '$route': function () {
-      console.log("route changed")
-    }*/
+    },
+    is_auth (new_value) {
+      if (!new_value) {
+        this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
+      }
+    }
   }
 }
 </script>

@@ -15,27 +15,13 @@ export default {
   },
   computed: {
     ...mapState([
-      'auth',
       'loading',
       'reloading'
     ]),
     ...mapGetters([
-      'is_auth',
       'tournament_href',
       'target_tournament'
     ])
-  },
-  mounted () {
-    if (!this.is_auth) {
-      this.$router.replace({ path: this.auth.href.login.to+'?message=Please Login', query: { next: this.$route.fullPath } })
-    }
-  },
-  watch: {
-    is_auth (new_value) {
-      if (!new_value) {
-        this.$router.replace({ path: this.auth.href.login.to+'?message=Login Timed Out', query: { next: this.$route.fullPath } })
-      }
-    }
   }
 }
 </script>
