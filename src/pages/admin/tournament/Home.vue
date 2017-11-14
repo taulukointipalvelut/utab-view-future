@@ -526,7 +526,7 @@ export default {
     },
     on_raw_result (selected) {
       this.$router.push({
-        path: 'result/raw/'+selected.r
+        path: 'rounds/'+selected.r+'/result'
       })
     },
     async on_create_round () {
@@ -622,7 +622,7 @@ export default {
           this.dialog.compile.loading = false
           this.dialog.compile.visible = false
           this.$router.push({
-            path: 'result/compiled'
+            path: 'result'
           })
       })
     },

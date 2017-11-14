@@ -830,7 +830,7 @@ export default {
 </script>
 
 <style lang="stylus">
-  @import "../../../common"
+  @import "../../../../common"
 
   .draggable-item
     background rgba(172, 240, 255, 0.35)

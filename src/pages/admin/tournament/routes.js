@@ -1,21 +1,20 @@
 import Home from './Home'
-import Allocation from './Allocation'
-import Result from './result/Index'
-import result_routes from './result/routes'
+import Compiled from './Compiled'
+import Round from './round/Index'
+import round_routes from './round/routes'
 
 export default [{
     path: 'home',
     props: true,
     component: Home
   }, {
-    path: 'rounds/:r_str/allocation',
+    path: 'rounds/:r_str',
     props: true,
-    component: Allocation
+    component: Round,
+    children: round_routes
   }, {
     path: 'result',
-    props: true,
-    component: Result,
-    children: result_routes
+    component: Compiled
   }, {
     path: '',
     redirect: 'home'
