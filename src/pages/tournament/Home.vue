@@ -33,8 +33,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'auth',
-      'loading'
+      'auth'
     ]),
     ...mapGetters([
       'target_tournament'

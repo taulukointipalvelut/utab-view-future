@@ -1,6 +1,5 @@
 <template lang="pug">
-  loading-container.router-view-content(:loading="loading", no_item_text="Fail to load round data")
-    router-view(:loading="loading", :oneloading="oneloading")
+  router-view(:loading="loading", :oneloading="oneloading")
 </template>
 
 <script>

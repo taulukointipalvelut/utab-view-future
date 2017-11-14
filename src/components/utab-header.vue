@@ -17,7 +17,7 @@
           li(v-if="target_tournament !== undefined && is_auth")
             a(@click="on_edit_info") #[el-icon(name="message")]
           li
-            a(@click="reload") Reload #[el-icon(v-if="loading || reloading", name="loading")]
+            a(@click="reload") Reload #[el-icon(v-if="reloading", name="loading")]
           li(v-if="is_auth")
             a(@click="on_logout") Logout #[el-icon(name="circle-cross")]
           li(v-if="is_auth")
@@ -30,7 +30,7 @@
           li(v-if="!is_auth")
             router-link(:to="signup_href", @click.native="toggleDropdownMenu") Register
 
-    el-dialog.message-dialog(title="Tournament Information", :visible.sync="editor.visible", v-if="!loading")
+    el-dialog.message-dialog(title="Tournament Information", :visible.sync="editor.visible", v-if="!one_loading")
       span You can use Markdown here. For further information, press ? button below.
       markdown-editor.tournament-info(v-model="editor.text", :configs="editor.configs")
       .message-dialog-footer
@@ -117,7 +117,8 @@
         'auth'
       ]),
       ...mapGetters([
-        'is_auth'
+        'is_auth',
+        'one_loading'
       ]),
       ...mapGetters([
         'target_tournament',
@@ -126,8 +127,8 @@
     },
     methods: {
       ...mapMutations([
-        'start_loading',
-        'finish_loading'
+        'one_unloaded',
+        'unloaded'
       ]),
       ...mapActions([
         'init_tournaments',
@@ -151,12 +152,10 @@
         this.editor.loading = false
         this.editor.visible = false
       },
-      async on_logout () {
-        await this.logout()
+      on_logout () {
+        this.logout()
         this.$router.push('/')
-        this.start_loading()
-        await this.init_tournaments()
-        this.finish_loading()
+        this.init_tournaments()
       },
       on_select (index, indexPath) {
         this.nav_opened = false
@@ -175,13 +174,13 @@
         this.nav_opened = false
         let tournament = this.target_tournament
         this.reloading = true
-        this.start_loading()
         if (tournament !== undefined) {
+          this.one_unloaded({ tournament })
           await this.init_one({ tournament })
         } else {
+          this.unloaded()
           await this.init_tournaments()
         }
-        this.finish_loading()
         this.reloading = false
       }
     }

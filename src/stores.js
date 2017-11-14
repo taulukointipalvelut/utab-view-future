@@ -172,6 +172,14 @@ export default {
     target_tournament (state) {
       return state.tournaments.find(t => t.id === parseInt(state.route.params.tournament_id, 10))
     },
+    one_loading (state) {
+      let t = state.tournaments.find(t => t.id === parseInt(state.route.params.tournament_id, 10))
+      if (t === undefined) {
+          return true
+      } else {
+          return t.one_loading
+      }
+    },
     target_draw (state, getters) {
         return getters.draw_by_r(state.route.params.r_str)
     },
@@ -480,6 +488,20 @@ export default {
     clear_tournaments (state, payload) {
       state.tournaments = []
     },
+    one_loaded (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament.one_loading = false
+    },
+    loaded (state) {
+        state.loading = false
+    },
+    one_unloaded (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament.one_loading = true
+    },
+    unloaded (state) {
+        state.loading = true
+    },
     add_tournament (state, payload) {
         let tournament = {
           id: payload.tournament.id,
@@ -498,6 +520,7 @@ export default {
           compiled_team_results: [],
           compiled_speaker_results: [],
           compiled_adjudicator_results: [],
+          one_loading: true,
           auth: payload.tournament.auth,
           user_defined_data: payload.tournament.user_defined_data
         }
@@ -741,6 +764,7 @@ export default {
                 dispatch('load_tournaments'),
                 dispatch('load_styles')
             ])
+            commit('loaded')
             resolve(true)
         })
     },
@@ -760,6 +784,7 @@ export default {
                 dispatch('load_raw_results', { tournament }),
                 dispatch('load_entities', { tournament })
             ])
+            commit('one_loaded', { tournament })
             resolve(true)
         })
     },

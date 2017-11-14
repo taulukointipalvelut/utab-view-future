@@ -79,51 +79,48 @@
                   span {{ class_label }}
     .page-footer
       legend Waiting Adjudicators
-      loading-container(:loading="loading")
-        .adj-list-container
-          draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options")
-            .draggable-item(v-for="id in adjudicators", :class="warn_item_adjudicator(id)")
-              el-popover(:open-delay="500", placement="right", trigger="click")
-                el-button.detail-button(slot="reference", @mouseover.native="selected_adjudicator = id", @mouseout.native="selected_adjudicator = null") {{ entity_name_by_id(id) }}
-                lazy-item
-                  div(v-if="adjudicator_accessible(id)")
-                    p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
-                    p average: {{ compiled_adjudicator_result_by_id[id].average }}
-                    p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                    p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
-                    p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
-                    p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
-                    p id: {{ id }}
+      .adj-list-container
+        draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options")
+          .draggable-item(v-for="id in adjudicators", :class="warn_item_adjudicator(id)")
+            el-popover(:open-delay="500", placement="right", trigger="click")
+              el-button.detail-button(slot="reference", @mouseover.native="selected_adjudicator = id", @mouseout.native="selected_adjudicator = null") {{ entity_name_by_id(id) }}
+              lazy-item
+                div(v-if="adjudicator_accessible(id)")
+                  p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
+                  p average: {{ compiled_adjudicator_result_by_id[id].average }}
+                  p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
+                  p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                  p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
+                  p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
+                  p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
+                  p id: {{ id }}
       legend Waiting Teams
-      loading-container(:loading="loading")
-        .adj-list-container
-          draggable.adj-list.src(v-model="teams", :options="team_options")
-            .draggable-item(v-for="id in teams", :class="warn_item_team(id, '')")
-              el-popover(:open-delay="500", placement="right", trigger="click")
-                el-button.detail-button(slot="reference", @mouseover.native="selected_team = id", @mouseout.native="selected_team = null") {{ entity_name_by_id(id) }}
-                lazy-item
-                  div(v-if="team_accessible(id)")
-                    p ranking: {{ compiled_team_result_by_id[id].ranking }}
-                    p win: {{ compiled_team_result_by_id[id].win }}
-                    p sum: {{ compiled_team_result_by_id[id].sum }}
-                    p margin: {{ compiled_team_result_by_id[id].margin }}
-                    p institutions: {{ institution_names_by_team_id(id) }}
-                    p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
-                    p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
-                    p speakers: {{ speaker_names_by_team_id(id) }}
-                    p id: {{ id }}
+      .adj-list-container
+        draggable.adj-list.src(v-model="teams", :options="team_options")
+          .draggable-item(v-for="id in teams", :class="warn_item_team(id, '')")
+            el-popover(:open-delay="500", placement="right", trigger="click")
+              el-button.detail-button(slot="reference", @mouseover.native="selected_team = id", @mouseout.native="selected_team = null") {{ entity_name_by_id(id) }}
+              lazy-item
+                div(v-if="team_accessible(id)")
+                  p ranking: {{ compiled_team_result_by_id[id].ranking }}
+                  p win: {{ compiled_team_result_by_id[id].win }}
+                  p sum: {{ compiled_team_result_by_id[id].sum }}
+                  p margin: {{ compiled_team_result_by_id[id].margin }}
+                  p institutions: {{ institution_names_by_team_id(id) }}
+                  p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
+                  p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
+                  p speakers: {{ speaker_names_by_team_id(id) }}
+                  p id: {{ id }}
       legend Waiting Venues
-      loading-container(:loading="loading")
-        .adj-list-container
-          draggable.adj-list.src(v-model="venues", :options="venue_options")
-            .draggable-item(v-for="id in venues", :class="warn_item_venue(id)")
-              el-popover(:open-delay="500", placement="right", trigger="click")
-                el-button.detail-button(slot="reference", @mouseover.native="selected_venue = id", @mouseout.native="selected_venue = null") {{ entity_name_by_id(id) }}
-                lazy-item
-                  div(v-if="entity_accessible(id)")
-                    p id: {{ id }}
-                    p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
+      .adj-list-container
+        draggable.adj-list.src(v-model="venues", :options="venue_options")
+          .draggable-item(v-for="id in venues", :class="warn_item_venue(id)")
+            el-popover(:open-delay="500", placement="right", trigger="click")
+              el-button.detail-button(slot="reference", @mouseover.native="selected_venue = id", @mouseout.native="selected_venue = null") {{ entity_name_by_id(id) }}
+              lazy-item
+                div(v-if="entity_accessible(id)")
+                  p id: {{ id }}
+                  p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
 
     el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
       el-tabs(v-model="dialog.draw.allocation_type")
@@ -840,7 +837,7 @@ export default {
 </script>
 
 <style lang="stylus">
-  @import "../../common"
+  @import "../../../common"
 
   .draggable-item
     background rgba(172, 240, 255, 0.35)

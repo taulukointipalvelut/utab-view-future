@@ -9,13 +9,11 @@ import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 export default {
   name: 'app',
   async mounted () {
-    await this.start_loading()
     await this.init_tournaments()
     let tournament = this.target_tournament
     if (tournament !== undefined) {
       await this.init_one({ tournament })
     }
-    await this.finish_loading()
   },
   computed: {
     ...mapState([

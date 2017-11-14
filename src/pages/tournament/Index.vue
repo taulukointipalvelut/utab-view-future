@@ -1,7 +1,7 @@
 <template lang="pug">
-  #app-content(v-loading.fillscreen.lock="loading_tournament", element-loading-text="Loading...")
+  #app-content(v-loading.fillscreen.lock="!one_loading", element-loading-text="Loading...")
     utab-header
-    main(v-if="target_tournament")
+    main(v-if="!one_loading")
       router-view
 </template>
 
@@ -14,9 +14,6 @@ export default {
     'utab-header': utab_header
   },
   computed: {
-    loading_tournament () {
-      return !this.target_tournament
-    },
     icon_href () {
       return this.target_tournament ? this.tournament_href(this.target_tournament) : { to: '/home' }
     },
@@ -25,7 +22,8 @@ export default {
     ]),
     ...mapGetters([
       'target_tournament',
-      'tournament_href'
+      'tournament_href',
+      'one_loading'
     ])
   }
 }

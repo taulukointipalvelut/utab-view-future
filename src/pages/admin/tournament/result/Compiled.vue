@@ -2,13 +2,12 @@
   .router-view-content(v-if="target_tournament")
     section.page-header
       h1 {{ target_tournament.name }}
-    loading-container(:loading="loading")
     p(v-if="target_tournament.compiled_team_results.length === 0 && target_tournament.compiled_speaker_results.length === 0 && target_tournament.compiled_adjudicator_results.length === 0") No results are collected or Please recompile results.
     el-tabs.results-tabs(v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
       el-tab-pane(v-for="label in ['teams', 'speakers', 'adjudicators']", :key="label", :label="capitalize(labels_singular[label])+' Results'", v-if="label === 'teams' || (label === 'speakers' && !without_speakers) || (label === 'adjudicators' && !without_adjudicators)")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Table")
-            el-table(:data="target_tournament['compiled_'+labels_singular[label]+'_results'].slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
+            //el-table(:data="target_tournament['compiled_'+labels_singular[label]+'_results'].slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
               el-table-column(prop="ranking", label="Ranking", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ scope.row.ranking }}
@@ -77,7 +76,7 @@
       el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize_enabled[sub_prize] && !without_speakers")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Table")
-            el-table(:data="compiled_sub_prize_results(sub_prize)")
+            //el-table(:data="compiled_sub_prize_results(sub_prize)")
               el-table-column(prop="ranking", label="Ranking", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ scope.row.ranking }}

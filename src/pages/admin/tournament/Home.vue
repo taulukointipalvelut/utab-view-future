@@ -13,57 +13,55 @@
       div.info-card-body(v-html="compiled_markdown")
     loading-container(:loading="loading || tournament_loading")
       legend(v-if="!loading") Rounds
-      loading-container(:loading="loading")
-        el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)")
-          el-table-column(prop="r", label="No.", align="center", :min-width="80")
-          el-table-column(prop="name", label="Name", :min-width="200")
-            template(slot-scope="scope")
-              flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r", :class="{ 'round-hidden': scope.row.user_defined_data.hidden }")
-          el-table-column(:min-width="270")
-            template(slot-scope="scope")
-              .round-operations
-                el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
-                el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
-                el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
-                el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")]
-              //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
-              //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
-        .operations
-          el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
-          el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+      el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)")
+        el-table-column(prop="r", label="No.", align="center", :min-width="80")
+        el-table-column(prop="name", label="Name", :min-width="200")
+          template(slot-scope="scope")
+            flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r", :class="{ 'round-hidden': scope.row.user_defined_data.hidden }")
+        el-table-column(:min-width="270")
+          template(slot-scope="scope")
+            .round-operations
+              el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
+              el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+              el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
+              el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")]
+            //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
+            //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
+      .operations
+        el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
+        el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
       legend(v-if="!loading") Check-in
       el-tabs(v-if="!loading")
         el-tab-pane(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :key="label")
           span.tab-label(slot="label") {{ capitalize(label) }} #[el-badge(type="mark", :value="target_tournament[label].length")]
-          loading-container(:loading="loading")
-            span(v-if="target_tournament[label].length === 0") No {{ capitalize(label) }} are registered.
-            el-collapse.outer-collapse(v-else, accordion, @change="outer_collapse[labels_singular[label]] = $event", :class="{ 'no-detail-entity': label==='speakers' || label==='institutions' }")
-              el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
-                template(slot="title")
-                  div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
-                    span #[flexible-input(:loading="input_loading(entity.id)", :text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, $event)", @start="flexible_input.identity=entity.id")]
-                    el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
-                el-collapse.inner-collapse(accordion, @change="on_collapse(labels_singular[label], entity, $event)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
-                  el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
-                    template(slot="title")
-                      span.round-name(:style="detail.available ? '' : 'color: red;'") {{ round_name_by_r(detail.r) }} #[el-icon(name="warning", v-if="warn_entity_detail(detail).length > 0")] {{ warn_entity_detail(labels_singular[label], detail).join(',') }}
-                    el-table.inner-table(:data="[specified(label).detail]", v-if="specified(label).id !== null")
-                      el-table-column(label="Available", align="center")
-                        template(slot-scope="scope")
-                          el-switch(v-model="specified(label).detail.available", active-text="", inactive-text="")
-                      el-table-column(label="Priority", v-if="label==='venues'", align="center")
-                        template(slot-scope="scope")
-                          el-input-number(:min="1", v-model="specified(label).detail.priority")
-                      el-table-column(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", align="center", :key="sub_label")
-                        template(slot-scope="scope")
-                          el-select(multiple, v-model="specified(label).detail[sub_label]")
-                            el-option(v-for="sub_entity in data_to_select(sub_label, specified(label).id, detail.r)", :label="sub_entity.name", :value="sub_entity.id", :key="sub_entity.id")
-                      el-table-column(label="", align="center")
-                        template(slot-scope="scope")
-                          el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
-            .operations
-              el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(label) }}
+          span(v-if="target_tournament[label].length === 0") No {{ capitalize(label) }} are registered.
+          el-collapse.outer-collapse(v-else, accordion, @change="outer_collapse[labels_singular[label]] = $event", :class="{ 'no-detail-entity': label==='speakers' || label==='institutions' }")
+            el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
+              template(slot="title")
+                div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
+                  span #[flexible-input(:loading="input_loading(entity.id)", :text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, $event)", @start="flexible_input.identity=entity.id")]
+                  el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
+              el-collapse.inner-collapse(accordion, @change="on_collapse(labels_singular[label], entity, $event)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
+                el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
+                  template(slot="title")
+                    span.round-name(:style="detail.available ? '' : 'color: red;'") {{ round_name_by_r(detail.r) }} #[el-icon(name="warning", v-if="warn_entity_detail(detail).length > 0")] {{ warn_entity_detail(labels_singular[label], detail).join(',') }}
+                  el-table.inner-table(:data="[specified(label).detail]", v-if="specified(label).id !== null")
+                    el-table-column(label="Available", align="center")
+                      template(slot-scope="scope")
+                        el-switch(v-model="specified(label).detail.available", active-text="", inactive-text="")
+                    el-table-column(label="Priority", v-if="label==='venues'", align="center")
+                      template(slot-scope="scope")
+                        el-input-number(:min="1", v-model="specified(label).detail.priority")
+                    el-table-column(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", align="center", :key="sub_label")
+                      template(slot-scope="scope")
+                        el-select(multiple, v-model="specified(label).detail[sub_label]")
+                          el-option(v-for="sub_entity in data_to_select(sub_label, specified(label).id, detail.r)", :label="sub_entity.name", :value="sub_entity.id", :key="sub_entity.id")
+                    el-table-column(label="", align="center")
+                      template(slot-scope="scope")
+                        el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
+          .operations
+            el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(label) }}
 
       el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
         .dialog-body
@@ -782,7 +780,7 @@ export default {
 </script>
 
 <style lang="stylus">
-  @import "../../common"
+  @import "../../../common"
 
   span.tab-label
     color rgb(80, 80, 80)
