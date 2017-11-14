@@ -61,8 +61,7 @@ export default {
       return this.score_sheet_by_id(this.from_id_str)
     },
     ...mapState([
-      'auth',
-      'loading'
+      'auth'
     ]),
     ...mapGetters([
       'target_tournament',

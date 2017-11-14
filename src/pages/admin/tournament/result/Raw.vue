@@ -1,15 +1,15 @@
 <template lang="pug">
   .router-view-content(v-if="target_tournament")
-    section(v-if="!loading").page-header.result-header
+    section.page-header.result-header
       h1 {{ target_tournament.name }}
-    p(v-if="!loading && adjudicators_ss_unsubmitted(r_str).length > 0") These adjudicators have not sent the score sheets: #[font(size="4", color="red") {{ adjudicators_ss_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
-    p(v-if="!loading && entities_es_unsubmitted(r_str).length > 0") These adjudicators/teams have not sent the evaluation sheets: #[font(size="4", color="red") {{ entities_es_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
+    p(v-if="adjudicators_ss_unsubmitted(r_str).length > 0") These adjudicators have not sent the score sheets: #[font(size="4", color="red") {{ adjudicators_ss_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
+    p(v-if="entities_es_unsubmitted(r_str).length > 0") These adjudicators/teams have not sent the evaluation sheets: #[font(size="4", color="red") {{ entities_es_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
     el-radio-group.sort-wrapper(v-model="sort_by")
       el-radio-button.sort-option(label="sender") Sort by sender
       el-radio-button.sort-option(label="target") Sort by target
     el-tabs
       el-tab-pane(label="Collected raw Team results")
-        section(v-if="!loading")
+        section
           span(v-if="raw_team_results_by_r(r_str).length === 0") No team results are collected.
           el-collapse(v-else, accordion, @change="collapse_value = $event")
             el-collapse-item.collapse-item(v-for="results in divided_results('team')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
@@ -35,7 +35,7 @@
           el-button(@click="on_download_raw_team_results") Download Raw Team Results
 
       el-tab-pane(label="Collected raw Speaker results")
-        section(v-if="!loading")
+        section
           span(v-if="raw_speaker_results_by_r(r_str).length === 0") No speaker results are collected.
           el-collapse(v-else, accordion, @change="collapse_value = $event")
             el-collapse-item.collapse-item(v-for="results in divided_results('speaker')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
@@ -70,7 +70,7 @@
           el-button(@click="on_download_raw_speaker_results") Download Raw Speaker Results
 
       el-tab-pane(label="Collected raw Adjudicator results")
-        section(v-if="!loading")
+        section
           span(v-if="raw_adjudicator_results_by_r(r_str).length === 0") No adjudicator results are collected.
           el-collapse(v-else, accordion, @change="collapse_value = $event")
             el-collapse-item.collapse-item(v-for="results in divided_results('adjudicator')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
@@ -95,7 +95,7 @@
         .operations
           el-button(@click="on_download_raw_adjudicator_results") Download Raw Adjudicator Results
 
-    el-dialog(title="Edit Result", :visible.sync="dialog.team_result.visible", v-if="!loading")
+    el-dialog(title="Edit Result", :visible.sync="dialog.team_result.visible")
       .dialog-body
         el-form(:model="dialog.team_result.form.model")
           h3(align="center", v-if="dialog.team_result.form.model.id !== null") Team: {{ entity_name_by_id(dialog.team_result.form.model.id) }}
@@ -106,7 +106,7 @@
         el-button(@click="dialog.team_result.visible = false") Cancel
         el-button(type="primary", :loading="dialog.team_result.loading", @click="on_update('teams', 'team')") #[el-icon(name="plus", v-if="!dialog.team_result.loading")] OK
 
-    el-dialog(title="Edit Result", :visible.sync="dialog.speaker_result.visible", v-if="!loading")
+    el-dialog(title="Edit Result", :visible.sync="dialog.speaker_result.visible")
       .dialog-body
         el-form(:model="dialog.speaker_result.form.model")
           h3(align="center", v-if="dialog.speaker_result.form.model.id !== null") Speaker: {{ entity_name_by_id(dialog.speaker_result.form.model.id) }}
@@ -122,7 +122,7 @@
         el-button(type="primary", :loading="dialog.speaker_result.loading", @click="on_update('speakers', 'speaker')") #[el-icon(name="plus", v-if="!dialog.speaker_result.loading")] OK
 
 
-    el-dialog(title="Edit Result", :visible.sync="dialog.adjudicator_result.visible", v-if="!loading")
+    el-dialog(title="Edit Result", :visible.sync="dialog.adjudicator_result.visible")
       .dialog-body
         el-form(:model="dialog.adjudicator_result.form.model")
           h3(align="center", v-if="dialog.adjudicator_result.form.model.id !== null") Team: {{ entity_name_by_id(dialog.adjudicator_result.form.model.id) }}
@@ -213,8 +213,7 @@ export default {
       }
     },
     ...mapState([
-      'auth',
-      'loading'
+      'auth'
     ]),
     ...mapGetters([
       'style',

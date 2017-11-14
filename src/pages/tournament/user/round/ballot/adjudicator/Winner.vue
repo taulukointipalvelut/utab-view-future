@@ -1,6 +1,6 @@
 <template lang="pug">
-  loading-container#ballot-speaker(:loading="loading")
-    .card-container(v-if="!loading")
+  #ballot-speaker
+    .card-container
       el-card
         el-form
           .sideinfo-header
@@ -11,9 +11,9 @@
             el-radio-button.winner-selector__item(:label="score_sheet.teams.gov") {{ entity_name_by_id(score_sheet.teams.gov) }}
             el-radio-button.winner-selector__item(:label="score_sheet.teams.opp") {{ entity_name_by_id(score_sheet.teams.opp) }}
 
-    section.buttons(v-if="!loading")
+    section.buttons
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
+      el-button(type="primary" @click="on_next", :disabled="!proceedable") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -31,8 +31,7 @@ export default {
       return this.result.winner && this.result.winner !== ''
     },
     ...mapState([
-      'auth',
-      'loading'
+      'auth'
     ]),
     ...mapGetters([
       'entity_name_by_id',

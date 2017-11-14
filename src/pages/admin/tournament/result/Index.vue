@@ -12,8 +12,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'auth',
-      'loading'
+      'auth'
     ]),
     ...mapGetters([
       'is_auth'

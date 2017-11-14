@@ -4,7 +4,7 @@
 
     section
       legend Your Tournaments
-      el-table(:data="available_tournaments", @row-click="on_select_tournament", v-if="!loading", empty-text="No Tournaments Available")
+      el-table(:data="available_tournaments", @row-click="on_select_tournament", empty-text="No Tournaments Available")
         el-table-column(prop="id", label="ID", align="center", :min-width="150")
         el-table-column(label="Name", show-overflow-tooltip, align="center")
           template(slot-scope="scope")
@@ -14,7 +14,7 @@
           template(slot-scope="scope")
             el-button(size="small", @click="on_edit(scope.row)") #[el-icon(name="edit")]
             el-button(size="small", type="danger", @click="on_delete(scope.row)") #[el-icon(name="close")]
-    .operations(v-if="!loading")
+    .operations
       el-button(type="primary", @click="on_new_tournament") #[el-icon(name="plus")] &nbsp;Create New Tournament
 
     el-dialog(v-for="type in ['create', 'edit']", :key="type", :title="capitalize(type)+' New Tournament'", :visible.sync="dialog[type].visible")
@@ -135,7 +135,6 @@ export default {
     },
     ...mapState([
       'auth',
-      'loading',
       'tournaments',
       'styles'
     ]),

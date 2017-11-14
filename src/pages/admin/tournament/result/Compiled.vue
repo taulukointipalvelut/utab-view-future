@@ -121,7 +121,7 @@
             lazy-item
               side-pie-chart(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
 
-      el-dialog(v-for="label_singular in ['team', 'adjudicator', 'speaker', 'poi', 'best']", :key="label_singular", title="Slide Show", :visible.sync="dialog[label_singular+'_slide'].visible", v-if="!loading")
+      el-dialog(v-for="label_singular in ['team', 'adjudicator', 'speaker', 'poi', 'best']", :key="label_singular", title="Slide Show", :visible.sync="dialog[label_singular+'_slide'].visible")
         .dialog-body
           el-form(:model="dialog[label_singular+'_slide'].form.model")
             el-form-item(label="Max Ranking Rewarded")
@@ -267,8 +267,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'auth',
-      'loading'
+      'auth'
     ]),
     ...mapGetters([
       'target_tournament',

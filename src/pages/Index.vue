@@ -23,9 +23,6 @@ export default {
     'link-list-item': link_list_item
   },
   computed: {
-    has_tournaments () {
-      return this.tournaments && this.tournaments.length > 0
-    },
     available_tournaments () {
       return this.tournaments.filter(t => !t.user_defined_data.hidden)
     },

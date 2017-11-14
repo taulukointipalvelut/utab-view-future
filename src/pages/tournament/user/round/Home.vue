@@ -1,5 +1,5 @@
 <template lang="pug">
-  .router-view-content(v-if="!loading")
+  .router-view-content
     section.page-header
       h1 {{ target_round.name }}
     section
@@ -23,7 +23,7 @@ import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
 
 export default {
-  props: ['r_str', 'loading'],
+  props: ['r_str'],
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item

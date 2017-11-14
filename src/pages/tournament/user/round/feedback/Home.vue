@@ -3,26 +3,25 @@
     section.page-header
       h1 Judge Evaluation Sheet
       h3 {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
-    loading-container(:loading="loading")
-      section(v-if="!loading")
-        el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
-      section(v-if="!loading && target_round.user_defined_data.team_allocation_opened && target_round.user_defined_data.adjudicator_allocation_opened")
-        el-table(:data="evaluation_sheets", @current-change="on_select", :row-class-name="row_class_name", empty-text="No Evaluation Sheets are available")
-          el-table-column(prop="done", label="", width="40", align="center")
-            template(slot-scope="scope")
-              span.icon-ok(v-if="scope.row.done")
-                el-icon(name="check")
-          el-table-column(prop="name", label="Name")
-            template(slot-scope="scope")
-              span {{ entity_name_by_id(scope.row.from_id) }}
-          el-table-column(prop="venue", label="Venue", v-if="!smartphone")
-            template(slot-scope="scope")
-              span {{ entity_name_by_id(scope.row.venue) }}
-          el-table-column(label="Time", v-if="!smartphone")
-            template(slot-scope="scope")
-              span {{ elapsed_time(scope.row.created) }}
-      section(v-else)
-        p Evaluation Sheets for {{ target_round.name }} are not available.
+    section
+      el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
+    section(v-if="target_round.user_defined_data.team_allocation_opened && target_round.user_defined_data.adjudicator_allocation_opened")
+      el-table(:data="evaluation_sheets", @current-change="on_select", :row-class-name="row_class_name", empty-text="No Evaluation Sheets are available")
+        el-table-column(prop="done", label="", width="40", align="center")
+          template(slot-scope="scope")
+            span.icon-ok(v-if="scope.row.done")
+              el-icon(name="check")
+        el-table-column(prop="name", label="Name")
+          template(slot-scope="scope")
+            span {{ entity_name_by_id(scope.row.from_id) }}
+        el-table-column(prop="venue", label="Venue", v-if="!smartphone")
+          template(slot-scope="scope")
+            span {{ entity_name_by_id(scope.row.venue) }}
+        el-table-column(label="Time", v-if="!smartphone")
+          template(slot-scope="scope")
+            span {{ elapsed_time(scope.row.created) }}
+    section(v-else)
+      p Evaluation Sheets for {{ target_round.name }} are not available.
 </template>
 
 <script>
@@ -59,9 +58,6 @@ export default {
         return fastest
       }
     },
-    ...mapState([
-      'loading'
-    ]),
     ...mapGetters([
       'target_round',
       'target_tournament',

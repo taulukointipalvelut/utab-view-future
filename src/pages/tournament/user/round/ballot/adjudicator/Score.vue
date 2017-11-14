@@ -1,5 +1,5 @@
 <template lang="pug">
-  loading-container#ballot-speaker(:loading="loading")
+  #ballot-speaker
     section(v-if="score_sheet")
       el-card(:class="side_name")
         div(slot="header").card-header-container
@@ -23,7 +23,7 @@
             el-switch(:value="value(side_name, 'poi', role_order)", @input="on_input_result('poi', $event)", active-text="Yes", inactive-text="No")
     section.buttons(v-if="score_sheet")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
+      el-button(type="primary" @click="on_next", :disabled="!proceedable") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -78,9 +78,6 @@ export default {
     ]),
     ...mapGetters('ballot', [
       'value'
-    ]),
-    ...mapState([
-      'loading'
     ]),
     ...mapState('ballot', [
       'result'

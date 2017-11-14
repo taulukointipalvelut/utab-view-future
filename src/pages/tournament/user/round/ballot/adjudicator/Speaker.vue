@@ -1,6 +1,6 @@
 <template lang="pug">
-  loading-container#ballot-speaker(:loading="loading")
-    .card-container(v-if="!loading && score_sheet")
+  #ballot-speaker
+    .card-container(v-if="score_sheet")
       el-card(v-for="side in ['gov', 'opp']", :class="side", :key="side")
         div(slot="header").card-header-container
           span.card-title {{ entity_name_by_id(score_sheet.teams[side]) }}
@@ -9,9 +9,9 @@
           el-form-item(v-for="role in style.roles[side].slice().sort((r1, r2) => r1.order > r2.order ? 1 : -1)", :key="role.abbr", :label="role.abbr", required, :error='"Select "+role.abbr+"\'s Name"')
             el-select(:value="value(side, 'speakers', role.order)", @input="on_speaker_name(side, role.order, $event)", :placeholder="'Select '+role.abbr")
               el-option(v-for="id in access_detail(entity_by_id[score_sheet.teams[side]], r_str).speakers", :key="id", :label="entity_name_by_id(id)", :value="id")
-    section.buttons(v-if="!loading")
+    section.buttons
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-      el-button(type="primary" @click="on_next", :disabled="loading || !proceedable") Next #[el-icon(name="arrow-right")]
+      el-button(type="primary" @click="on_next", :disabled="!proceedable") Next #[el-icon(name="arrow-right")]
 </template>
 
 <script>
@@ -30,8 +30,7 @@ export default {
       return this.result.gov.speakers.every(s => s.value !== null) && this.result.opp.speakers.every(s => s.value !== null)
     },
     ...mapState([
-      'auth',
-      'loading'
+      'auth'
     ]),
     ...mapState('ballot', [
       'result'

@@ -1,9 +1,9 @@
 <template lang="pug">
-  .router-view-content(v-if="!loading")
-    section(v-if="!loading").page-header
+  .router-view-content
+    section.page-header
       h1 {{ target_round.name }}
       h3(v-if="draw_time && draw_time.updated") {{ draw_time.text }}
-    section(v-if="!loading && team_allocation_opened && sorted_rows.length > 0")
+    section(v-if="team_allocation_opened && sorted_rows.length > 0")
       el-table.draw(:data="sorted_rows", :row-class-name="payload => 'row-class-'+(payload.rowIndex%2)")
         el-table-column(label="Venue", align="center")
           template(slot-scope="scope")
@@ -62,8 +62,7 @@ export default {
       return round ? round.user_defined_data.adjudicator_allocation_opened : false
     },
     ...mapState([
-      'auth',
-      'loading'
+      'auth'
     ]),
     ...mapGetters([
       'access_detail',

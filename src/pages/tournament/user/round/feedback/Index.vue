@@ -7,10 +7,5 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
-  computed: {
-    ...mapState([
-      'loading'
-    ])
-  }
 }
 </script>

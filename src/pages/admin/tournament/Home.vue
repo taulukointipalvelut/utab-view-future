@@ -1,8 +1,7 @@
 <template lang="pug">
   .router-view-content
     div.tournament-header-wrapper
-      h1(v-if="!loading") #[flexible-input(:loading="input_loading(target_tournament.id)", :text="target_tournament.name", @text-update="on_update_tournament_name", @start="flexible_input.identity=target_tournament.id")]
-      //canvas(v-show="!loading", id='qr', style="float: right; ")
+      h1 #[flexible-input(:loading="input_loading(target_tournament.id)", :text="target_tournament.name", @text-update="on_update_tournament_name", @start="flexible_input.identity=target_tournament.id")]
     el-card(v-if="compiled_markdown !== ''").info-card.admin
       div.info-card-header(slot="header")
         h5(style="opacity: 0") {{ '----' }}
@@ -11,133 +10,132 @@
         .time
           h5 {{ info_time }}
       div.info-card-body(v-html="compiled_markdown")
-    loading-container(:loading="loading || tournament_loading")
-      legend(v-if="!loading") Rounds
-      el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)")
-        el-table-column(prop="r", label="No.", align="center", :min-width="80")
-        el-table-column(prop="name", label="Name", :min-width="200")
-          template(slot-scope="scope")
-            flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r", :class="{ 'round-hidden': scope.row.user_defined_data.hidden }")
-        el-table-column(:min-width="270")
-          template(slot-scope="scope")
-            .round-operations
-              el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
-              el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
-              el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
-              el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")]
-            //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
-            //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
-      .operations
-        el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
-        el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+    legend Rounds
+    el-table(:data="target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)")
+      el-table-column(prop="r", label="No.", align="center", :min-width="80")
+      el-table-column(prop="name", label="Name", :min-width="200")
+        template(slot-scope="scope")
+          flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r", :class="{ 'round-hidden': scope.row.user_defined_data.hidden }")
+      el-table-column(:min-width="270")
+        template(slot-scope="scope")
+          .round-operations
+            el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
+            el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+            el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
+            el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")]
+          //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
+          //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
+    .operations
+      el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
+      el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
 
-      legend(v-if="!loading") Check-in
-      el-tabs(v-if="!loading")
-        el-tab-pane(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :key="label")
-          span.tab-label(slot="label") {{ capitalize(label) }} #[el-badge(type="mark", :value="target_tournament[label].length")]
-          span(v-if="target_tournament[label].length === 0") No {{ capitalize(label) }} are registered.
-          el-collapse.outer-collapse(v-else, accordion, @change="outer_collapse[labels_singular[label]] = $event", :class="{ 'no-detail-entity': label==='speakers' || label==='institutions' }")
-            el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
-              template(slot="title")
-                div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
-                  span #[flexible-input(:loading="input_loading(entity.id)", :text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, $event)", @start="flexible_input.identity=entity.id")]
-                  el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
-              el-collapse.inner-collapse(accordion, @change="on_collapse(labels_singular[label], entity, $event)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
-                el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
-                  template(slot="title")
-                    span.round-name(:style="detail.available ? '' : 'color: red;'") {{ round_name_by_r(detail.r) }} #[el-icon(name="warning", v-if="warn_entity_detail(detail).length > 0")] {{ warn_entity_detail(labels_singular[label], detail).join(',') }}
-                  el-table.inner-table(:data="[specified(label).detail]", v-if="specified(label).id !== null")
-                    el-table-column(label="Available", align="center")
-                      template(slot-scope="scope")
-                        el-switch(v-model="specified(label).detail.available", active-text="", inactive-text="")
-                    el-table-column(label="Priority", v-if="label==='venues'", align="center")
-                      template(slot-scope="scope")
-                        el-input-number(:min="1", v-model="specified(label).detail.priority")
-                    el-table-column(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", align="center", :key="sub_label")
-                      template(slot-scope="scope")
-                        el-select(multiple, v-model="specified(label).detail[sub_label]")
-                          el-option(v-for="sub_entity in data_to_select(sub_label, specified(label).id, detail.r)", :label="sub_entity.name", :value="sub_entity.id", :key="sub_entity.id")
-                    el-table-column(label="", align="center")
-                      template(slot-scope="scope")
-                        el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
-          .operations
-            el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(label) }}
+    legend Check-in
+    el-tabs
+      el-tab-pane(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :key="label")
+        span.tab-label(slot="label") {{ capitalize(label) }} #[el-badge(type="mark", :value="target_tournament[label].length")]
+        span(v-if="target_tournament[label].length === 0") No {{ capitalize(label) }} are registered.
+        el-collapse.outer-collapse(v-else, accordion, @change="outer_collapse[labels_singular[label]] = $event", :class="{ 'no-detail-entity': label==='speakers' || label==='institutions' }")
+          el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
+            template(slot="title")
+              div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
+                span #[flexible-input(:loading="input_loading(entity.id)", :text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, $event)", @start="flexible_input.identity=entity.id")]
+                el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
+            el-collapse.inner-collapse(accordion, @change="on_collapse(labels_singular[label], entity, $event)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
+              el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
+                template(slot="title")
+                  span.round-name(:style="detail.available ? '' : 'color: red;'") {{ round_name_by_r(detail.r) }} #[el-icon(name="warning", v-if="warn_entity_detail(detail).length > 0")] {{ warn_entity_detail(labels_singular[label], detail).join(',') }}
+                el-table.inner-table(:data="[specified(label).detail]", v-if="specified(label).id !== null")
+                  el-table-column(label="Available", align="center")
+                    template(slot-scope="scope")
+                      el-switch(v-model="specified(label).detail.available", active-text="", inactive-text="")
+                  el-table-column(label="Priority", v-if="label==='venues'", align="center")
+                    template(slot-scope="scope")
+                      el-input-number(:min="1", v-model="specified(label).detail.priority")
+                  el-table-column(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", align="center", :key="sub_label")
+                    template(slot-scope="scope")
+                      el-select(multiple, v-model="specified(label).detail[sub_label]")
+                        el-option(v-for="sub_entity in data_to_select(sub_label, specified(label).id, detail.r)", :label="sub_entity.name", :value="sub_entity.id", :key="sub_entity.id")
+                  el-table-column(label="", align="center")
+                    template(slot-scope="scope")
+                      el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
+        .operations
+          el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(label) }}
 
-      el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible", v-if="!loading")
-        .dialog-body
-          el-form(:model="dialog.compile.form.model", :rules="dialog.compile.form.rules")
-            el-form-item(label="Rounds")
-              el-select(v-model="dialog.compile.form.model.rs", multiple)
-                el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
-            //el-form-item(label="Simple")
-              el-switch(active-text="", inactive-text="", v-model="dialog.compile.form.model.simple")
-          div(v-for="r in dialog.compile.form.model.rs", :key="r")
-            p(style="color: red;", v-if="adjudicators_ss_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
-            p(style="color: red;", v-if="entities_es_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog.compile.visible = false") Cancel
-          el-button(type="primary", @click="on_compile", :disabled="dialog.compile.form.model.rs.length === 0", :loading="dialog.compile.loading") Request
+    el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible")
+      .dialog-body
+        el-form(:model="dialog.compile.form.model", :rules="dialog.compile.form.rules")
+          el-form-item(label="Rounds")
+            el-select(v-model="dialog.compile.form.model.rs", multiple)
+              el-option(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", :value="round.r", :label="round.name")
+          //el-form-item(label="Simple")
+            el-switch(active-text="", inactive-text="", v-model="dialog.compile.form.model.simple")
+        div(v-for="r in dialog.compile.form.model.rs", :key="r")
+          p(style="color: red;", v-if="adjudicators_ss_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Score Sheets from: {{ adjudicators_ss_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+          p(style="color: red;", v-if="entities_es_unsubmitted(r).length > 0") {{ round_name_by_r(r) }}> Need Evaluation Sheets from: {{ entities_es_unsubmitted(r).map(entity_name_by_id).join(", ") }}
+      .dialog-footer(slot="footer")
+        el-button(@click="dialog.compile.visible = false") Cancel
+        el-button(type="primary", @click="on_compile", :disabled="dialog.compile.form.model.rs.length === 0", :loading="dialog.compile.loading") Request
 
-      el-dialog(v-for="type in ['create', 'edit']", :key="type", :title="capitalize(type)+' New Round'", :visible.sync="dialog.round[type+'_visible']", v-if="!loading")
-        .dialog-body
-          el-form(ref="dialog_round", :model="dialog.round[type+'_form'].model", :rules="dialog.round[type+'_form'].rules")
-            el-form-item(label="Round No.", prop="r")
-              el-input-number(v-if="type === 'create'", v-model="dialog.round[type+'_form'].model.r", :min="1", :max="view_config.max_rounds")
-              span(v-if="type === 'edit'") {{ dialog.round.edit_form.model.r }}
-            el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog.round[type+'_form'].model.name", :placeholder="'Round '+dialog.round[type+'_form'].model.r")
-            el-form-item(label="Round Hidden", prop="hidden")
-              el-switch(:default="false", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.hidden")
-            el-form-item(label="Draw Opened", prop="team_allocation_opened", v-if="!dialog.round[type+'_form'].model.user_defined_data.hidden")
-              el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.team_allocation_opened")
-            el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened", v-if="!dialog.round[type+'_form'].model.user_defined_data.hidden")
-              el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.adjudicator_allocation_opened")
-            el-form-item(label="Judge evaluation from Judges", prop="evaluate_from_adjudicators")
-              el-switch(:default="true", active-text="", inactive-text="", active-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_adjudicators")
-            el-form-item(label="Judge evaluation from Teams", prop="evaluate_from_teams")
-              el-switch(:default="true", active-text="", inactive-text="", active-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
-            el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
-              el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.chairs_always_evaluated")
-            el-form-item(label="Evaluator in Team", prop="evaluator_in_team", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
-              el-select(v-model="dialog.round[type+'_form'].model.user_defined_data.evaluator_in_team")
-                el-option(v-for="label in ['team', 'speaker']", :key="label", :value="label", :label="{ team: 'One', speaker: 'All' }[label]")
-            el-form-item(label="Without Speaker Score", prop="no_speaker_score")
-              el-switch(:default="false", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
-            el-form-item(label="Allow Low-Win/Tie-Win", prop="allow_low_tie_win", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
-              el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.allow_low_tie_win")
-            el-form-item(label="Matter/Manner", prop="score_by_matter_manner", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
-              el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.score_by_matter_manner")
-            el-form-item(label="POI Prize", prop="poi", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
-              el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.poi")
-            el-form-item(label="Best Speaker Prize", prop="best", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
-              el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.best")
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog.round[type+'_visible'] = false") Cancel
-          el-button(v-if="type==='create'", type="primary", :loading="dialog.round.create_loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
-          el-button(v-if="type==='edit'", type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
+    el-dialog(v-for="type in ['create', 'edit']", :key="type", :title="capitalize(type)+' New Round'", :visible.sync="dialog.round[type+'_visible']")
+      .dialog-body
+        el-form(ref="dialog_round", :model="dialog.round[type+'_form'].model", :rules="dialog.round[type+'_form'].rules")
+          el-form-item(label="Round No.", prop="r")
+            el-input-number(v-if="type === 'create'", v-model="dialog.round[type+'_form'].model.r", :min="1", :max="view_config.max_rounds")
+            span(v-if="type === 'edit'") {{ dialog.round.edit_form.model.r }}
+          el-form-item(label="Name", prop="name")
+            el-input(v-model="dialog.round[type+'_form'].model.name", :placeholder="'Round '+dialog.round[type+'_form'].model.r")
+          el-form-item(label="Round Hidden", prop="hidden")
+            el-switch(:default="false", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.hidden")
+          el-form-item(label="Draw Opened", prop="team_allocation_opened", v-if="!dialog.round[type+'_form'].model.user_defined_data.hidden")
+            el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.team_allocation_opened")
+          el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened", v-if="!dialog.round[type+'_form'].model.user_defined_data.hidden")
+            el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.adjudicator_allocation_opened")
+          el-form-item(label="Judge evaluation from Judges", prop="evaluate_from_adjudicators")
+            el-switch(:default="true", active-text="", inactive-text="", active-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_adjudicators")
+          el-form-item(label="Judge evaluation from Teams", prop="evaluate_from_teams")
+            el-switch(:default="true", active-text="", inactive-text="", active-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
+          el-form-item(label="Chairs Always Evaluated", prop="chairs_always_evaluated", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
+            el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.chairs_always_evaluated")
+          el-form-item(label="Evaluator in Team", prop="evaluator_in_team", v-if="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_teams")
+            el-select(v-model="dialog.round[type+'_form'].model.user_defined_data.evaluator_in_team")
+              el-option(v-for="label in ['team', 'speaker']", :key="label", :value="label", :label="{ team: 'One', speaker: 'All' }[label]")
+          el-form-item(label="Without Speaker Score", prop="no_speaker_score")
+            el-switch(:default="false", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+          el-form-item(label="Allow Low-Win/Tie-Win", prop="allow_low_tie_win", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+            el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.allow_low_tie_win")
+          el-form-item(label="Matter/Manner", prop="score_by_matter_manner", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+            el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.score_by_matter_manner")
+          el-form-item(label="POI Prize", prop="poi", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+            el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.poi")
+          el-form-item(label="Best Speaker Prize", prop="best", v-if="!dialog.round[type+'_form'].model.user_defined_data.no_speaker_score")
+            el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.best")
+      .dialog-footer(slot="footer")
+        el-button(@click="dialog.round[type+'_visible'] = false") Cancel
+        el-button(v-if="type==='create'", type="primary", :loading="dialog.round.create_loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
+        el-button(v-if="type==='edit'", type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
 
-      el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'Add New '+capitalize(label)", :visible.sync="dialog[label].visible", :key="label", v-if="!loading")
-        .dialog-body
-          h3 From csv File
-          .load-file-container
-            input(type="file", id="input", @change="handle_files(label, labels_singular[label], $event)", accept=".csv")
-          h3 Or
-          el-form(:model="dialog[label].form.model", :rules="dialog[label].form.rules")
-            el-form-item(label="Name", prop="name")
-              el-input(v-model="dialog[label].form.model.name", @keydown.enter.native="on_create(label)", @keyup.enter.native="", @submit="", autofocus)
-            h3(style="text-align: center;", v-if="['teams', 'adjudicators', 'venues'].includes(label)") Values below are set default for all rounds.
-            el-form-item(label="Available", prop="available", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
-              el-switch(:default="true", active-text="", inactive-text="", v-model="dialog[label].form.model.available")
-            el-form-item(label="Priority", prop="priority", v-if="label==='venues'")
-              el-input-number(:min="1", v-model="dialog.venues.form.model.priority")
-            el-form-item(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", :prop="sub_label", :key="sub_label", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
-              el-select(multiple, v-model="dialog[label].form.model[sub_label]")
-                el-option(v-for="sub_entity in data_to_select(sub_label)", :key="sub_entity.id", :label="sub_entity.name", :value="sub_entity.id")
-            el-form-item(label="Force", prop="force")
-              el-switch(:default="false", active-text="", inactive-text="", v-model="dialog[label].force")
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog[label].visible = false") Cancel
-          el-button(type="primary", :loading="dialog[label].loading", @click="on_create(label)") #[el-icon(name="plus", v-if="!dialog[label].loading")] Create
+    el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'Add New '+capitalize(label)", :visible.sync="dialog[label].visible", :key="label")
+      .dialog-body
+        h3 From csv File
+        .load-file-container
+          input(type="file", id="input", @change="handle_files(label, labels_singular[label], $event)", accept=".csv")
+        h3 Or
+        el-form(:model="dialog[label].form.model", :rules="dialog[label].form.rules")
+          el-form-item(label="Name", prop="name")
+            el-input(v-model="dialog[label].form.model.name", @keydown.enter.native="on_create(label)", @keyup.enter.native="", @submit="", autofocus)
+          h3(style="text-align: center;", v-if="['teams', 'adjudicators', 'venues'].includes(label)") Values below are set default for all rounds.
+          el-form-item(label="Available", prop="available", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
+            el-switch(:default="true", active-text="", inactive-text="", v-model="dialog[label].form.model.available")
+          el-form-item(label="Priority", prop="priority", v-if="label==='venues'")
+            el-input-number(:min="1", v-model="dialog.venues.form.model.priority")
+          el-form-item(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", :prop="sub_label", :key="sub_label", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
+            el-select(multiple, v-model="dialog[label].form.model[sub_label]")
+              el-option(v-for="sub_entity in data_to_select(sub_label)", :key="sub_entity.id", :label="sub_entity.name", :value="sub_entity.id")
+          el-form-item(label="Force", prop="force")
+            el-switch(:default="false", active-text="", inactive-text="", v-model="dialog[label].force")
+      .dialog-footer(slot="footer")
+        el-button(@click="dialog[label].visible = false") Cancel
+        el-button(type="primary", :loading="dialog[label].loading", @click="on_create(label)") #[el-icon(name="plus", v-if="!dialog[label].loading")] Create
 </template>
 
 <script>
@@ -282,7 +280,6 @@ export default {
   },
   data () {
     return {
-      tournament_loading: true,
       flexible_input: {
         identity: null,
         loading: false
@@ -343,7 +340,6 @@ export default {
   computed: {
     ...mapState([
       'auth',
-      'loading',
       'adjudicators',
       'view_config'
     ]),
@@ -774,7 +770,6 @@ export default {
   },
   async mounted () {
     await this.init_one({ tournament: this.target_tournament })
-    this.tournament_loading = false
   }
 }
 </script>

@@ -3,54 +3,53 @@
     section.page-header
       h1 {{ from.name }}
       h3 {{ target_round.name }}
-    loading-container(:loading="loading")
-      section(v-if="!loading && !sent")
-        h3 Select Judges to evaluate
-          el-checkbox-group.judge-selection(v-model="adjudicators_to_evaluate")
-            el-checkbox-button(v-for="result in results", :label="result.id", :key="result.id") {{ entity_name_by_id(result.id) }}
-        .ev-card-container(v-if="!loading")
-          el-card.ev-card(v-for="result in results", :key="result.id", v-if="result_visible(result)")
-            div(slot="header").ev-card-header-container
-              span.ev-card-title {{ entity_name_by_id(result.id) }}
-              //span.ev-card-subtitle subtitle
-            el-form
-              el-form-item(label="Matter", required, v-if="target_round.user_defined_data.score_by_matter_manner")
-                number-box(v-model="result.matter", :min="1", :max="10", :step="1")
-              el-form-item(label="Manner", required, v-if="target_round.user_defined_data.score_by_matter_manner")
-                number-box(v-model="result.manner", :min="1", :max="10", :step="1")
-              el-form-item(label="Total", v-if="target_round.user_defined_data.score_by_matter_manner")
-                input-label(:value="result.matter+result.manner")
-              el-form-item(label="Score", required, v-if="!target_round.user_defined_data.score_by_matter_manner")
-                number-box(:value="result.matter+result.manner", @input="$event => { result.manner = $event/2; result.matter = $event/2 }", :min="1", :max="10", :step="1")
-              el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment for '+entity_name_by_id(result.id)+', if any'")
-        section.buttons
-          el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
-          el-button(type="primary" @click="dialog.check.visible = true", :disabled="loading || adjudicators_to_evaluate.length === 0") Send #[i.fa.fa-paper-plane]
-      section(v-if="sent && !loading")
-        h2 Thank you! Your evaluation sheet was successfully sent.
-        el-button.home-button(@click="on_home") #[i.fa.fa-home] Home
+    section(v-if="!sent")
+      h3 Select Judges to evaluate
+        el-checkbox-group.judge-selection(v-model="adjudicators_to_evaluate")
+          el-checkbox-button(v-for="result in results", :label="result.id", :key="result.id") {{ entity_name_by_id(result.id) }}
+      .ev-card-container
+        el-card.ev-card(v-for="result in results", :key="result.id", v-if="result_visible(result)")
+          div(slot="header").ev-card-header-container
+            span.ev-card-title {{ entity_name_by_id(result.id) }}
+            //span.ev-card-subtitle subtitle
+          el-form
+            el-form-item(label="Matter", required, v-if="target_round.user_defined_data.score_by_matter_manner")
+              number-box(v-model="result.matter", :min="1", :max="10", :step="1")
+            el-form-item(label="Manner", required, v-if="target_round.user_defined_data.score_by_matter_manner")
+              number-box(v-model="result.manner", :min="1", :max="10", :step="1")
+            el-form-item(label="Total", v-if="target_round.user_defined_data.score_by_matter_manner")
+              input-label(:value="result.matter+result.manner")
+            el-form-item(label="Score", required, v-if="!target_round.user_defined_data.score_by_matter_manner")
+              number-box(:value="result.matter+result.manner", @input="$event => { result.manner = $event/2; result.matter = $event/2 }", :min="1", :max="10", :step="1")
+            el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment for '+entity_name_by_id(result.id)+', if any'")
+      section.buttons
+        el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
+        el-button(type="primary" @click="dialog.check.visible = true", :disabled="adjudicators_to_evaluate.length === 0") Send #[i.fa.fa-paper-plane]
+    section(v-if="sent")
+      h2 Thank you! Your evaluation sheet was successfully sent.
+      el-button.home-button(@click="on_home") #[i.fa.fa-home] Home
 
-      el-dialog(title="Confirmation", :visible.sync="dialog.check.visible")
-        .dialog-body
-          .outer-table-tr.check__label
-            p.declaration If this is correct, press Send button.
-            el-card.check-card(v-for="result in results", :key="result.id")
-              div(slot="header")
-                h3.adjudicator-name {{ entity_name_by_id(result.id) }}
-              el-form.card-body
-                el-form-item(label="Matter", v-if="target_round.user_defined_data.score_by_matter_manner")
-                  span {{ result.matter }}
-                el-form-item(label="Manner", v-if="target_round.user_defined_data.score_by_matter_manner")
-                  span {{ result.manner }}
-                el-form-item(label="Total", v-if="target_round.user_defined_data.score_by_matter_manner")
-                  span {{ result.manner + result.matter }}
-                el-form-item(label="Score", v-if="!target_round.user_defined_data.score_by_matter_manner")
-                  span {{ result.manner + result.matter }}
-                el-form-item(label="Comment")
-                  span {{ result.comment !== '' ? result.comment : 'None' }}
-        .dialog-footer(slot="footer")
-          el-button(@click="dialog.check.visible = false") Cancel
-          el-button(type="primary", :loading="dialog.check.sending", @click="on_send") #[i.fa.fa-paper-plane] Send
+    el-dialog(title="Confirmation", :visible.sync="dialog.check.visible")
+      .dialog-body
+        .outer-table-tr.check__label
+          p.declaration If this is correct, press Send button.
+          el-card.check-card(v-for="result in results", :key="result.id")
+            div(slot="header")
+              h3.adjudicator-name {{ entity_name_by_id(result.id) }}
+            el-form.card-body
+              el-form-item(label="Matter", v-if="target_round.user_defined_data.score_by_matter_manner")
+                span {{ result.matter }}
+              el-form-item(label="Manner", v-if="target_round.user_defined_data.score_by_matter_manner")
+                span {{ result.manner }}
+              el-form-item(label="Total", v-if="target_round.user_defined_data.score_by_matter_manner")
+                span {{ result.manner + result.matter }}
+              el-form-item(label="Score", v-if="!target_round.user_defined_data.score_by_matter_manner")
+                span {{ result.manner + result.matter }}
+              el-form-item(label="Comment")
+                span {{ result.comment !== '' ? result.comment : 'None' }}
+      .dialog-footer(slot="footer")
+        el-button(@click="dialog.check.visible = false") Cancel
+        el-button(type="primary", :loading="dialog.check.sending", @click="on_send") #[i.fa.fa-paper-plane] Send
 </template>
 
 <script>
@@ -86,9 +85,6 @@ export default {
       let from_id = parseInt(this.from_id_str, 10)
       return this.entity_by_id[from_id]
     },
-    ...mapState([
-      'loading'
-    ]),
     ...mapGetters([
       'target_tournament',
       'target_round',

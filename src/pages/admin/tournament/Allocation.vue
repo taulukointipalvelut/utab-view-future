@@ -3,9 +3,9 @@
     .allocation-content
       section.page-header
         h1 Draw &amp; Allocation
-        h3(v-if="!loading && this.target_round !== undefined") {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
+        h3(v-if="!this.target_round !== undefined") {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
       section(v-if="target_tournament !== undefined")
-        loading-container(:loading="loading || allocation_loading")
+        loading-container(:loading="allocation_loading")
           el-table.allocation-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border, empty-text="Need More Teams")
             el-table-column(label="Venue", align="center")
               template(slot-scope="scope")
@@ -122,7 +122,7 @@
                   p id: {{ id }}
                   p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
 
-    el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible", v-if="!loading")
+    el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible")
       el-tabs(v-model="dialog.draw.allocation_type")
         el-tab-pane(v-for="label in (draw_temp !== null ? ['all', 'teams', 'adjudicators', 'venues'] : ['all', 'teams'])", :label="capitalize(label)", :key="label", :name="label")
           .dialog-body
@@ -274,9 +274,6 @@ export default {
       }
       return true
     },
-    loading_tournaments () {
-      return !this.tournaments
-    },
     suggested_action () {
       if (this.new_draw) {
         return 'save'
@@ -286,8 +283,7 @@ export default {
     },
     ...mapState([
       'auth',
-      'tournaments',
-      'loading'
+      'tournaments'
     ]),
     ...mapGetters([
       'style',

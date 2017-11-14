@@ -1,6 +1,6 @@
 <template lang="pug">
-  loading-container#ballot-speaker(:loading="loading")
-    .card-container(v-if="!loading && path_valid")
+  #ballot-speaker
+    .card-container(v-if="path_valid")
       el-card(v-for="side in ['gov', 'opp']", :class="side", :key="side", v-if="!target_round.user_defined_data.no_speaker_score")
         div(slot="header").card-header-container
           span.card-title {{ entity_name_by_id(score_sheet.teams[side]) }}
@@ -38,7 +38,7 @@
             .outer-table-td.role Total
             .outer-table-td.flex.right {{ total(side) }}
 
-    .card-container(v-if="!loading && path_valid")
+    .card-container(v-if="path_valid")
       el-card.flat
         .outer-table.no-border
           .outer-table-tr
@@ -47,12 +47,12 @@
             .outer-table-td
               router-link(:to="{ path: `winner`, query: { prev: 'check' } }"): el-icon(name="edit")
 
-    section.buttons(v-if="!loading && path_valid")
+    section.buttons(v-if="path_valid")
       el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
       el-button(type="primary" @click="dialog.check.visible = true", :disabled="!proceedable") {{ proceedable ? 'OK' : 'Low-Win/Tie-Win' }}
 
-    p(v-if="!loading && !path_valid", style="text-align: center;") Sorry, you seem to have reloaded this page. Please try again.
-    section.buttons(v-if="!loading && !path_valid")
+    p(v-if="!path_valid", style="text-align: center;") Sorry, you seem to have reloaded this page. Please try again.
+    section.buttons(v-if="!path_valid")
       el-button(@click="on_home") #[i.fa.fa-home] Home
 
     el-dialog(title="Confirmation", :visible.sync="dialog.check.visible")
@@ -97,8 +97,7 @@ export default {
       return this.target_round.user_defined_data.allow_low_tie_win || !this.is_low_tie_win
     },
     ...mapState([
-      'auth',
-      'loading'
+      'auth'
     ]),
     ...mapGetters([
       'entity_name_by_id',

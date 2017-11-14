@@ -1,5 +1,5 @@
 <template lang="pug">
-  router-view(:loading="loading", :oneloading="oneloading")
+  router-view
 </template>
 
 <script>
@@ -12,11 +12,6 @@ export default {
     'utab-header': utab_header,
     'loading-container': loading_container
   },
-  data () {
-    return {
-      oneloading: false
-    }
-  },
   props: ['participant'],
   computed: {
     loading_tournament () {
@@ -27,7 +22,6 @@ export default {
     },
     ...mapState([
       'rounds',
-      'loading',
       'auth'
     ]),
     ...mapGetters([
@@ -58,11 +52,7 @@ export default {
         query: { next: this.$route.fullPath, tournament_id: this.target_tournament.id }
       })
     } else {
-      this.oneloading = true
       this.init_one({ tournament: this.target_tournament })
-          .then(() => {
-              this.oneloading = false
-          })
     }
   }
 }

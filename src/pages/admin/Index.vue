@@ -2,7 +2,7 @@
   #app-content(v-loading.fillscreen.lock="loading", element-loading-text="Loading...")
     utab-header
     main
-      router-view
+      router-view(v-if="!loading")
 </template>
 
 <script>

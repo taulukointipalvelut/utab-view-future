@@ -1,6 +1,6 @@
 <template lang="pug">
-  loading-container.router-view-content(:loading="loading", no_item_text="Fail to load round data")
-    router-view(v-if="target_round")
+  router-view(v-if="target_round")
+  h3(v-else) Round No. {{ r_str }} is not available
 </template>
 
 <script>
@@ -13,9 +13,6 @@ export default {
     'loading-container': loading_container
   },
   computed: {
-    ...mapState([
-      'loading'
-    ]),
     ...mapGetters([
       'target_round'
     ])

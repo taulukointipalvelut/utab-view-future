@@ -1,5 +1,5 @@
 <template lang="pug">
-  #app-content(v-loading.fillscreen.lock="!one_loading", element-loading-text="Loading...")
+  #app-content(v-loading.fillscreen.lock="one_loading", element-loading-text="Loading...")
     utab-header
     main(v-if="!one_loading")
       router-view
@@ -25,6 +25,12 @@ export default {
       'tournament_href',
       'one_loading'
     ])
+  },
+  methods: {
+    ...mapActions(['init_one'])
+  },
+  mounted () {
+    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>
