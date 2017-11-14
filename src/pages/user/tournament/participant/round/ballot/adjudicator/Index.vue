@@ -1,5 +1,5 @@
 <template lang="pug">
-  loading-container.router-view-content(:loading="!round || !adjudicator", no_item_text="Fail to load round/adjudicator data")
+  .router-view-content
     section.page-header(v-if="round && adjudicator")
       h1 {{ adjudicator.name }}
       h3 {{ round.name }}
@@ -23,13 +23,9 @@
 <script>
 /* @flow */
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
-import loading_container from 'components/loading-container'
 
 export default {
   props: ['r_str', 'from_id_str'],
-  components: {
-    'loading-container': loading_container
-  },
   computed: {
     after_check () {
       return this.$route.query.hasOwnProperty('winner')

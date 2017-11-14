@@ -29,14 +29,10 @@
 /* @flow */
 import { smartphone } from 'assets/js/media-query.js'
 import { mapState, mapGetters, mapActions } from 'vuex'
-import loading_container from 'components/loading-container'
 import math from 'assets/js/math.js'
 
 export default {
   props: ['r_str'],
-  components: {
-    'loading-container': loading_container
-  },
   computed: {
     fastest_time () {
         let sheets_done = this.score_sheets.filter(s => s.done)

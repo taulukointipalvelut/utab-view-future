@@ -1,12 +1,10 @@
 <template lang="pug">
-  #app-content
-    utab-header
-    main
-      h1 Welcome!
-      link-list(:loading="loading", no_item_text="No Tournament Available")
-        legend(slot="legend") Tournaments
-        router-link(v-for="tournament in available_tournaments", :to="tournament_href(tournament)", :key="tournament.id", v-if="!loading")
-          link-list-item {{ tournament.name }}
+  .router-view-content
+    h1 Welcome!
+    link-list
+      legend(slot="legend") Tournaments
+      router-link(v-for="tournament in available_tournaments", :to="tournament_href(tournament)", :key="tournament.id", v-if="!loading")
+        link-list-item {{ tournament.name }}
 </template>
 
 <script>
@@ -29,7 +27,8 @@ export default {
     ...mapState([
       'auth',
       'tournaments',
-      'loading'
+      'loading',
+      'reloading'
     ]),
     ...mapGetters([
       'tournament_href'
@@ -47,7 +46,7 @@ export default {
 </script>
 
 <style lang="stylus">
-  @import "../common"
+  @import "../../common"
 
   body
     background-color #f5f5f5

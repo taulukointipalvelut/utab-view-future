@@ -3,19 +3,14 @@
     .link-list__legend
       slot(name="legend")
     ul.link-list__container
-      loading-container(:loading="loading", :no_item_text="no_item_text")
-        slot
+      slot
 </template>
 
 <script>
-  import loading_container from 'components/loading-container'
 
   export default {
     name: "link-list",
     props: ['loading', 'no_item_text'],
-    components: {
-      'loading-container': loading_container
-    },
     data () {
       return {
         /* none */
@@ -36,7 +31,7 @@
     list-style none
     padding 0
     margin 0
-    
+
     & .link-list-item
       margin 0 0 .5rem
 </style>

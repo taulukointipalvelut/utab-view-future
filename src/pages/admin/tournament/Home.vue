@@ -141,7 +141,6 @@
 <script>
 /* @flow */
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
-import loading_container from 'components/loading-container'
 import flexible_input from 'components/flexible-input'
 import Lazy from 'assets/js/lazy'
 import math from 'assets/js/math'
@@ -275,7 +274,6 @@ function dialog_generator () {
 
 export default {
   components: {
-    'loading-container': loading_container,
     'flexible-input': flexible_input
   },
   data () {

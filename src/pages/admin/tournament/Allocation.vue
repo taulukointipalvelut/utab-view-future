@@ -5,78 +5,77 @@
         h1 Draw &amp; Allocation
         h3(v-if="!this.target_round !== undefined") {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
       section(v-if="target_tournament !== undefined")
-        loading-container(:loading="allocation_loading")
-          el-table.allocation-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border, empty-text="Need More Teams")
-            el-table-column(label="Venue", align="center")
+        el-table.allocation-table(:data="draw_adjusted.allocation", :row-class-name="row_class", border, empty-text="Need More Teams")
+          el-table-column(label="Venue", align="center")
+            template(slot-scope="scope")
+              draggable.adj-list(v-model="scope.row.venues", :options="venue_options")
+                .draggable-item(v-for="id in scope.row.venues", :class="warn_item_venue(id)")
+                  el-popover(:open-delay="500", placement="right", trigger="click")
+                    el-button.detail-button(slot="reference", @mouseover.native="selected_venue = id", @mouseout.native="selected_venue = null") {{ entity_name_by_id(id) }}
+                    lazy-item
+                      div(v-if="entity_accessible(id)")
+                        p id: {{ id }}
+                        p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
+          el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels[side]", align="center")
+            template(slot-scope="scope")
+              draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
+                .draggable-item(v-for="id in scope.row.teams[side]", :class="warn_item_team(id, side)")
+                  el-popover(:open-delay="500", placement="right", trigger="click")
+                    el-button.detail-button(slot="reference", @mouseover.native="selected_team = id", @mouseout.native="selected_team = null") {{ entity_name_by_id(id) }}
+                    lazy-item
+                      div(v-if="team_accessible(id)")
+                        p ranking: {{ compiled_team_result_by_id[id].ranking }}
+                        p win: {{ compiled_team_result_by_id[id].win }}
+                        p sum: {{ compiled_team_result_by_id[id].sum }}
+                        p margin: {{ compiled_team_result_by_id[id].margin }}
+                        p institutions: {{ institution_names_by_team_id(id) }}
+                        p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
+                        p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
+                        p speakers: {{ speaker_names_by_team_id(id) }}
+                        p id: {{ id }}
+          el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label", align="center")
+            template(slot-scope="scope")
+              draggable.adj-list(v-model="scope.row[label]", :options="adjudicator_options")
+                .draggable-item(v-for="id in scope.row[label]", :class="warn_item_adjudicator(id)")
+                  el-popover(:open-delay="500", placement="right", trigger="click")
+                    el-button.detail-button(slot="reference", @mouseover.native="selected_adjudicator = id", @mouseout.native="selected_adjudicator = null") {{ entity_name_by_id(id) }}
+                    lazy-item
+                      div(v-if="adjudicator_accessible(id)")
+                        p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
+                        p average: {{ compiled_adjudicator_result_by_id[id].average }}
+                        p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
+                        p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                        p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
+                        p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
+                        p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
+                        p id: {{ id }}
+          el-table-column(label="Warnings", align="center")
+            el-table-column(label="Draw", align="center")
               template(slot-scope="scope")
-                draggable.adj-list(v-model="scope.row.venues", :options="venue_options")
-                  .draggable-item(v-for="id in scope.row.venues", :class="warn_item_venue(id)")
-                    el-popover(:open-delay="500", placement="right", trigger="click")
-                      el-button.detail-button(slot="reference", @mouseover.native="selected_venue = id", @mouseout.native="selected_venue = null") {{ entity_name_by_id(id) }}
-                      lazy-item
-                        div(v-if="entity_accessible(id)")
-                          p id: {{ id }}
-                          p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
-            el-table-column(v-for="side in ['gov', 'opp']", :key="side", :label="style.side_labels[side]", align="center")
+                div(v-for="warning in warn_square_teams(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
+                  el-popover(placement="right", width="200", trigger="click")
+                    el-button.warning-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
+                    p {{ warning.message }}
+                    p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
+            el-table-column(label="Alloc", align="center")
               template(slot-scope="scope")
-                draggable.adj-list(v-model="scope.row.teams[side]", :options="team_options")
-                  .draggable-item(v-for="id in scope.row.teams[side]", :class="warn_item_team(id, side)")
-                    el-popover(:open-delay="500", placement="right", trigger="click")
-                      el-button.detail-button(slot="reference", @mouseover.native="selected_team = id", @mouseout.native="selected_team = null") {{ entity_name_by_id(id) }}
-                      lazy-item
-                        div(v-if="team_accessible(id)")
-                          p ranking: {{ compiled_team_result_by_id[id].ranking }}
-                          p win: {{ compiled_team_result_by_id[id].win }}
-                          p sum: {{ compiled_team_result_by_id[id].sum }}
-                          p margin: {{ compiled_team_result_by_id[id].margin }}
-                          p institutions: {{ institution_names_by_team_id(id) }}
-                          p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
-                          p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
-                          p speakers: {{ speaker_names_by_team_id(id) }}
-                          p id: {{ id }}
-            el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label", align="center")
-              template(slot-scope="scope")
-                draggable.adj-list(v-model="scope.row[label]", :options="adjudicator_options")
-                  .draggable-item(v-for="id in scope.row[label]", :class="warn_item_adjudicator(id)")
-                    el-popover(:open-delay="500", placement="right", trigger="click")
-                      el-button.detail-button(slot="reference", @mouseover.native="selected_adjudicator = id", @mouseout.native="selected_adjudicator = null") {{ entity_name_by_id(id) }}
-                      lazy-item
-                        div(v-if="adjudicator_accessible(id)")
-                          p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
-                          p average: {{ compiled_adjudicator_result_by_id[id].average }}
-                          p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                          p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                          p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
-                          p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
-                          p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
-                          p id: {{ id }}
-            el-table-column(label="Warnings", align="center")
-              el-table-column(label="Draw", align="center")
-                template(slot-scope="scope")
-                  div(v-for="warning in warn_square_teams(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
-                    el-popover(placement="right", width="200", trigger="click")
-                      el-button.warning-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
-                      p {{ warning.message }}
-                      p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
-              el-table-column(label="Alloc", align="center")
-                template(slot-scope="scope")
-                  div(v-for="warning in warn_square_adjudicators(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
-                    el-popover(placement="right", width="200", trigger="click")
-                      el-button.warning-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
-                      p {{ warning.message }}
-                      p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
-                      p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
-          .operations
-            el-button(@click="on_fix_draw", v-if="need_fix") Remove Unavailables
-            el-button(@click="on_reset_draw") Reset
-            el-button(@click="on_edit_request") Request
-            el-button(type="primary", @click="on_send_allocation", :disabled="!sendable", :loading="submit_loading") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
-            el-button(@click="on_delete_draw", type="danger", :disabled="new_draw", :loading="delete_loading") Delete
-          legend Legend
-            el-row(:gutter="10", justify="space-between", style="width: 100%;")
-              el-col(v-for="class_label in Object.keys(warning_classes)", :key="class_label", :span="5")
-                div.legend-content(:class="warning_classes[class_label]", @mouseover="")
-                  span {{ class_label }}
+                div(v-for="warning in warn_square_adjudicators(scope.row)", :key="warning.name", @mouseover="selected_warning = warning", @mouseout="selected_warning = null")
+                  el-popover(placement="right", width="200", trigger="click")
+                    el-button.warning-button(type="warning", size="mini", slot="reference")  {{ warning.name }}
+                    p {{ warning.message }}
+                    p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
+                    p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
+        .operations
+          el-button(@click="on_fix_draw", v-if="need_fix") Remove Unavailables
+          el-button(@click="on_reset_draw") Reset
+          el-button(@click="on_edit_request") Request
+          el-button(type="primary", @click="on_send_allocation", :disabled="!sendable", :loading="submit_loading") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
+          el-button(@click="on_delete_draw", type="danger", :disabled="new_draw", :loading="delete_loading") Delete
+        legend Legend
+          el-row(:gutter="10", justify="space-between", style="width: 100%;")
+            el-col(v-for="class_label in Object.keys(warning_classes)", :key="class_label", :span="5")
+              div.legend-content(:class="warning_classes[class_label]", @mouseover="")
+                span {{ class_label }}
     .page-footer
       legend Waiting Adjudicators
       .adj-list-container
@@ -157,7 +156,6 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import utab_header from 'components/utab-header.vue'
-import loading_container from 'components/loading-container.vue'
 import draggable from 'vuedraggable'
 import math from 'assets/js/math.js'
 import lazy_item from 'components/lazy-item'
@@ -166,7 +164,6 @@ export default {
   components: {
     'utab-header': utab_header,
     'draggable': draggable,
-    'loading-container': loading_container,
     'lazy-item': lazy_item
   },
   props: ['r_str'],

@@ -4,13 +4,11 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-import loading_container from 'components/loading-container'
 import slides_wrapper from 'components/slides/slides-wrapper.vue'
 
 export default {
   name: 'best-slides',
   components: {
-    'loading-container': loading_container,
     'slides-wrapper': slides_wrapper
   },
   props: ['credit', 'type', 'max_ranking_rewarded', 'tournament'],

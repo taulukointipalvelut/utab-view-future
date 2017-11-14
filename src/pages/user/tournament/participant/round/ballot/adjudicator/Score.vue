@@ -32,12 +32,10 @@ import qs from 'qs'
 import { smartphone } from 'assets/js/media-query'
 import number_box from 'components/number-box'
 import input_label from 'components/input-label'
-import loading_container from 'components/loading-container'
 
 export default {
   props: ['sequence_name', 'score_sheet', 'r_str'],
   components: {
-    'loading-container': loading_container,
     'number-box': number_box,
     'input-label': input_label
   },

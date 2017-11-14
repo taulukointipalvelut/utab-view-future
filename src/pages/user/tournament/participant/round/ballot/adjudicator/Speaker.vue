@@ -17,13 +17,9 @@
 <script>
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { smartphone } from 'assets/js/media-query'
-import loading_container from 'components/loading-container'
 import math from 'assets/js/math.js'
 
 export default {
-  components: {
-    'loading-container': loading_container
-  },
   props: ['score_sheet', 'r_str'],
   computed: {
     proceedable () {

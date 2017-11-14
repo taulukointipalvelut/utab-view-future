@@ -1,13 +1,13 @@
 import Home from './Home'
-import User from './user/Index'
-import user_routes from './user/routes'
+import Participant from './participant/Index'
+import participant_routes from './participant/routes'
 
 export default [
     {
         path: ':participant(\\adjudicator|speaker|audience)',
         props: true,
-        component: User,
-        children: user_routes
+        component: Participant,
+        children: participant_routes
     }, {
         path: 'home',
         component: Home

@@ -1,5 +1,5 @@
 <template lang="pug">
-  loading-container.router-view-content(:loading="one_loading", no_item_text="Fail to load round data")
+  loading-container(:loading="one_loading || one_reloading")
     router-view
 </template>
 
@@ -14,6 +14,7 @@ export default {
   computed: {
     ...mapGetters([
       'one_loading',
+      'one_reloading',
       'target_tournament'
     ])
   },

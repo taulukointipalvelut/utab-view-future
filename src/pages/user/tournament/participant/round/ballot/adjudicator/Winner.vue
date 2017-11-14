@@ -19,12 +19,8 @@
 <script>
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { smartphone } from 'assets/js/media-query'
-import loading_container from 'components/loading-container'
 
 export default {
-  components: {
-    'loading-container': loading_container
-  },
   props: ['score_sheet'],
   computed: {
     proceedable () {

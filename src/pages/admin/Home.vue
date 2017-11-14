@@ -41,13 +41,9 @@
 <script>
 /* @flow */
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
-import loading_container from 'components/loading-container'
 import math from 'assets/js/math'
 
 export default {
-  components: {
-    'loading-container': loading_container
-  },
   data () {
     return {
       dialog: {
@@ -208,8 +204,7 @@ export default {
       'send_delete_tournament',
       'send_update_tournament',
       'send_create_user',
-      'init_tournaments',
-      'init_one'
+      'init_tournaments'
     ])
   }
 }

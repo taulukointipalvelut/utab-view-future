@@ -11,22 +11,20 @@
           h5 {{ info_time }}
       div.info-card-body(v-html="compiled_markdown")
     section
-      loading-container(no_item_text="No Round Available")
-        link-list(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-if="!round.user_defined_data.hidden")
-          legend(slot="legend") {{ round.name }}
-          router-link(:to="url(round, 'draw')")
-            link-list-item Draw &amp; Allocation
-          router-link(:to="url(round, 'ballot')", v-if="is_adjudicator")
-            link-list-item Score Sheet
-          router-link(:to="url(round, 'feedback')", v-if="(is_speaker && round.user_defined_data.evaluate_from_teams) || (is_adjudicator && round.user_defined_data.evaluate_from_adjudicators)")
-            link-list-item Judge Evaluation Sheet
+      link-list(v-for="round in target_tournament.rounds.slice().sort((r1, r2) => r1.r > r2.r ? 1 : -1)", :key="round.r", v-if="!round.user_defined_data.hidden")
+        legend(slot="legend") {{ round.name }}
+        router-link(:to="url(round, 'draw')")
+          link-list-item Draw &amp; Allocation
+        router-link(:to="url(round, 'ballot')", v-if="is_adjudicator")
+          link-list-item Score Sheet
+        router-link(:to="url(round, 'feedback')", v-if="(is_speaker && round.user_defined_data.evaluate_from_teams) || (is_adjudicator && round.user_defined_data.evaluate_from_adjudicators)")
+          link-list-item Judge Evaluation Sheet
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import link_list from 'components/link-list'
 import link_list_item from 'components/link-list-item'
-import loading_container from 'components/loading-container'
 import math from 'assets/js/math'
 import marked from 'marked'
 
@@ -35,7 +33,6 @@ export default {
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item,
-    'loading-container': loading_container
   },
   computed: {
     compiled_markdown () {

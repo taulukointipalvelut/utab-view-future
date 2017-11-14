@@ -4,12 +4,8 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-import loading_container from 'components/loading-container'
 
 export default {
-  components: {
-    'loading-container': loading_container
-  },
   computed: {
     ...mapState([
       'auth'

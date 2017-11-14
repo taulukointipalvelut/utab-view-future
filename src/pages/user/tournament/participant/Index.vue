@@ -5,12 +5,10 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 import utab_header from 'components/utab-header.vue'
-import loading_container from 'components/loading-container'
 
 export default {
   components: {
-    'utab-header': utab_header,
-    'loading-container': loading_container
+    'utab-header': utab_header
   },
   props: ['participant'],
   computed: {

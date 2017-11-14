@@ -1,5 +1,5 @@
 <template lang="pug">
-  #app-content(v-loading.fillscreen.lock="loading", element-loading-text="Loading...")
+  #app-content(v-loading.fillscreen.lock="loading || reloading", element-loading-text="Loading...")
     utab-header
     main
       router-view(v-if="!loading")
@@ -16,7 +16,8 @@ export default {
   computed: {
     ...mapState([
       'auth',
-      'loading'
+      'loading',
+      'reloading'
     ]),
     ...mapGetters([
       'is_auth',

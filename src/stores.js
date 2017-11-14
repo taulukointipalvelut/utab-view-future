@@ -1,4 +1,4 @@
-import ballot from 'pages/tournament/user/round/ballot/adjudicator/stores'
+import ballot from 'pages/user/tournament/participant/round/ballot/adjudicator/stores'
 import math from 'assets/js/math.js'
 
 const BASE_URL = location.protocol+'//'+location.hostname
@@ -124,8 +124,9 @@ function available_entities_factory(label) {
 export default {
   state: {
     loading: true,
+    reloading: false,
     auth: {
-      username: '',
+      username: 'default',
       usertype: '',
       tournaments: [],
       href: {
@@ -171,6 +172,14 @@ export default {
     },
     target_tournament (state) {
       return state.tournaments.find(t => t.id === parseInt(state.route.params.tournament_id, 10))
+    },
+    one_reloading (state) {
+      let t = state.tournaments.find(t => t.id === parseInt(state.route.params.tournament_id, 10))
+      if (t === undefined) {
+          return false
+      } else {
+          return t.one_reloading
+      }
     },
     one_loading (state) {
       let t = state.tournaments.find(t => t.id === parseInt(state.route.params.tournament_id, 10))
@@ -495,14 +504,22 @@ export default {
     loaded (state) {
         state.loading = false
     },
-    one_unloaded (state, payload) {
+    one_reloaded (state, payload) {
         let tournament = find_tournament(state, payload)
-        tournament.one_loading = true
+        tournament.one_reloading = false
     },
-    unloaded (state) {
-        state.loading = true
+    reloaded (state) {
+        state.reloading = false
+    },
+    one_unreloaded (state, payload) {
+        let tournament = find_tournament(state, payload)
+        tournament.one_reloading = true
+    },
+    unreloaded (state) {
+        state.reloading = true
     },
     add_tournament (state, payload) {
+        let already = find_tournament(state, payload)
         let tournament = {
           id: payload.tournament.id,
           name: payload.tournament.name,
@@ -520,7 +537,8 @@ export default {
           compiled_team_results: [],
           compiled_speaker_results: [],
           compiled_adjudicator_results: [],
-          one_loading: true,
+          one_loading: already === undefined ? true : false,
+          one_reloading: false,
           auth: payload.tournament.auth,
           user_defined_data: payload.tournament.user_defined_data
         }
@@ -759,8 +777,8 @@ export default {
     init_tournaments ({ state, commit, dispatch }, payload) {
         console.log("init_tournaments called @"+state.route.path)
         return new Promise(async (resolve, reject) => {
+            dispatch('load_login_status'),
             await Promise.all([
-                dispatch('load_login_status'),
                 dispatch('load_tournaments'),
                 dispatch('load_styles')
             ])
@@ -774,8 +792,8 @@ export default {
         let tournament = find_tournament(state, payload)
         let usertype = state.auth.usertype
         return new Promise(async (resolve, reject) => {
+            dispatch('load_login_status'),
             await Promise.all([
-                dispatch('load_login_status'),
                 dispatch('load_config', { tournament })
             ])
             await Promise.all([

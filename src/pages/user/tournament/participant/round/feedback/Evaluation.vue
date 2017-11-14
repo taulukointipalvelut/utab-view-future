@@ -56,13 +56,11 @@
 /* @flow */
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { smartphone } from 'assets/js/media-query.js'
-import loading_container from 'components/loading-container'
 import number_box from 'components/number-box'
 import input_label from 'components/input-label'
 
 export default {
   components: {
-    'loading-container': loading_container,
     'number-box': number_box,
     'input-label': input_label
   },

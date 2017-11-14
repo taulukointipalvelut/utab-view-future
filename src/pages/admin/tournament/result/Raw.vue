@@ -138,14 +138,12 @@
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import link_list from 'components/link-list.vue'
 import link_list_item from 'components/link-list-item.vue'
-import loading_container from 'components/loading-container'
 import math from 'assets/js/math.js'
 
 export default {
   components: {
     'link-list': link_list,
-    'link-list-item': link_list_item,
-    'loading-container': loading_container
+    'link-list-item': link_list_item
   },
   props: ['r_str'],
   data () {

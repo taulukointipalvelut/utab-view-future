@@ -1,8 +1,8 @@
 <template lang="pug">
-  #app-content(v-loading.fillscreen.lock="one_loading", element-loading-text="Loading...")
+  #app-content(v-loading.fillscreen.lock="loading || reloading", element-loading-text="Loading...")
     utab-header
-    main(v-if="!one_loading")
-      router-view
+    main
+      router-view(v-if="!loading")
 </template>
 
 <script>
@@ -14,23 +14,28 @@ export default {
     'utab-header': utab_header
   },
   computed: {
-    icon_href () {
-      return this.target_tournament ? this.tournament_href(this.target_tournament) : { to: '/home' }
-    },
     ...mapState([
-      'rounds'
+      'auth',
+      'loading',
+      'reloading'
     ]),
     ...mapGetters([
-      'target_tournament',
+      'is_auth',
       'tournament_href',
-      'one_loading'
+      'target_tournament'
     ])
   },
-  methods: {
-    ...mapActions(['init_one'])
-  },
   mounted () {
-    this.init_one({ tournament: this.target_tournament })
+    if (!this.is_auth) {
+      this.$router.replace({ path: this.auth.href.login.to+'?message=Please Login', query: { next: this.$route.fullPath } })
+    }
+  },
+  watch: {
+    is_auth (new_value) {
+      if (!new_value) {
+        this.$router.replace({ path: this.auth.href.login.to+'?message=Login Timed Out', query: { next: this.$route.fullPath } })
+      }
+    }
   }
 }
 </script>
@@ -53,5 +58,4 @@ export default {
     main
       max-width 600px
       margin 0 auto
-
 </style>

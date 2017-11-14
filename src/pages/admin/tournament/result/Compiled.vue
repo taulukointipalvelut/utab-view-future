@@ -141,7 +141,6 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 import link_list from 'components/link-list.vue'
 import link_list_item from 'components/link-list-item.vue'
-import loading_container from 'components/loading-container'
 import math from 'assets/js/math'
 import score_change from 'components/mstat/score-change'
 import team_performance from 'components/mstat/team-performance'
@@ -158,7 +157,6 @@ export default {
   components: {
     'link-list': link_list,
     'link-list-item': link_list_item,
-    'loading-container': loading_container,
     'score-change': score_change,
     'team-performance': team_performance,
     'score-histogram': score_histogram,
