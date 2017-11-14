@@ -1,5 +1,5 @@
 <template lang="pug">
-  el-card(class="signup-card")
+  el-card.signup-card
     div(slot="header")
       img.logo-img(:src="logo")
       span.logo-text Sign Up As Tournament Organizer

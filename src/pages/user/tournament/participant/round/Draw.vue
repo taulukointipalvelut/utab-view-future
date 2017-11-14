@@ -85,27 +85,6 @@ export default {
 </script>
 
 <style lang="stylus">
-  body
-    background-color #f5f5f5
-  #app-content
-    margin 0
-    padding 0
-    width 100%
-    min-height 100vh
-  a
-    text-decoration none
-    color inherit
-  main
-    padding 5%
-
-  @media (min-width: 600px)
-    main
-      max-width 600px
-      margin 0 auto
-
-</style>
-
-<style lang="stylus">
 
   .draw
     table.el-table__header

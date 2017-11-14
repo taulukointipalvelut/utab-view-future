@@ -1,5 +1,5 @@
 <template lang="pug">
-  el-card(class="login-card")
+  el-card.login-card
     div(slot="header")
       img.logo-img(:src="logo")
       span.logo-text utab admin interface
@@ -91,43 +91,6 @@
   }
 </script>
 
-<style>
-  .login-card {
-    width: 280px;
-    margin: calc((100vh - 400px) / 2) auto;
-  }
-  .login {
-    display: block;
-    margin: 5% auto;
-  }
-  .logo-img {
-    width: 90px;
-  }
-  .logo-text {
-    display: inline-block;
-    font-family: "Oswald", sans-serif;
-    color: gray;
-  }
-  .message {
-    color: red;
-    font-size: 13px;
-    float: right;
-  }
-  .fail-text {
-    display: inline-block;
-    color: red;
-  }
-  @media (min-width: 600px) {
-    .login-card {
-      width: 600px;
-    }
-    .login {
-      display: block;
-      width: 400px;
-      margin: 5% auto;
-    }
-    .logo-text {
-      margin-left: 20px;
-    }
-  }
+<style lang="stylus">
+  @import '../common'
 </style>

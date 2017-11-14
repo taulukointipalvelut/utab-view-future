@@ -827,19 +827,6 @@ export default {
     div.el-collapse-item__wrap
       border-bottom 0
 
-  body
-    background-color #f5f5f5
-  #app-content
-    margin 0
-    padding 0
-    width 100%
-    min-height 100vh
-  a
-    text-decoration none
-    color inherit
-  main
-    padding 5%
-
   .compiled
     margin-right 0.5rem
 

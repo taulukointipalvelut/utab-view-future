@@ -23,10 +23,8 @@
           li(v-if="is_admin")
             router-link(v-if="!is_user", :to="admin_href", @click.native="toggleDropdownMenu") {{ username }} #[el-icon(name="setting")]
             a(v-if="is_user") {{ username }}
-          li(v-if="!is_admin && target_tournament !== undefined")
+          li(v-if="!is_admin")
             router-link(:to="user_login_href", @click.native="toggleDropdownMenu") Sign-in #[i.fa.fa-sign-in]
-          li(v-if="!is_admin && target_tournament === undefined")
-            router-link(:to="login_href", @click.native="toggleDropdownMenu") Admin
           li(v-if="!is_admin")
             router-link(:to="signup_href", @click.native="toggleDropdownMenu") Register
 
@@ -93,7 +91,11 @@
         return { path: '/login', query: { next: this.nextLoginPath } }
       },
       user_login_href () {
-        return { path: '/login', query: { next: this.nextLoginPath, tournament_id: this.target_tournament.id } }
+        let query = { next: this.nextLoginPath }
+        if (this.target_tournament !== undefined) {
+          query.tournament_id = this.target_tournament.id
+        }
+        return { path: '/login', query }
       },
       signup_href () {
         return { path: '/signup', query: { next: this.nextLoginPath } }

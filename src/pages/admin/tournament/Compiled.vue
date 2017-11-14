@@ -350,19 +350,6 @@ export default {
 </script>
 
 <style lang="stylus">
-  body
-    background-color #f5f5f5
-  #app-content
-    margin 0
-    padding 0
-    width 100%
-    min-height 100vh
-  a
-    text-decoration none
-    color inherit
-  main
-    padding 5%
-
   .slide-config-card
     width 90%
     margin auto
