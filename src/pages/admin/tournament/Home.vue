@@ -16,7 +16,7 @@
       el-table-column(prop="name", label="Name", :min-width="200")
         template(slot-scope="scope")
           flexible-input(:loading="input_loading(scope.row.r)", :text="scope.row.name", @text-update="on_update_round_name(scope.row, $event)", @start="flexible_input.identity=scope.row.r", :class="{ 'round-hidden': scope.row.user_defined_data.hidden }")
-      el-table-column(:min-width="270")
+      el-table-column(:min-width="400")
         template(slot-scope="scope")
           .round-operations
             el-button(size="small", @click="on_raw_result(scope.row)") #[i.fa.fa-list-ol] Result
@@ -26,7 +26,7 @@
           //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
           //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
     .operations
-      el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
+      el-button(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
       el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] New Round
 
     legend Check-in
@@ -826,17 +826,7 @@ export default {
       padding 0
     div.el-collapse-item__wrap
       border-bottom 0
-
-  .compiled
-    margin-right 0.5rem
-
-  .operations
-    width 100%
-    display flex
-    flex-wrap wrap
-    align-content space-between
-    justify-content flex-end
-
+      
   legend
     color rgba(0,0,0,.54)
     font-size 90%

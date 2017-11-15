@@ -4,7 +4,7 @@
       h1 Score Sheet
       h3 {{ target_round.name }}
     section(v-if="target_round.user_defined_data.team_allocation_opened && target_round.user_defined_data.adjudicator_allocation_opened")
-      section
+      .progress
         el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
       section
         el-table(:data="score_sheets", @current-change="on_select", :row-class-name="row_class_name", empty-text="No score sheets are available")

@@ -375,11 +375,6 @@ export default {
       .el-table
         border 0
 
-  .operations
-    display flex
-    justify-content flex-end
-    margin-top 1rem
-
   @media (min-width: 600px)
     main
       max-width 600px

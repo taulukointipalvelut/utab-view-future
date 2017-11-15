@@ -4,7 +4,7 @@
       section.page-header(v-if="round && adjudicator")
         h1 {{ adjudicator.name }}
         h3 {{ round.name }}
-      section(v-if="round && adjudicator && !sent")
+      .steps(v-if="round && adjudicator && !sent")
         el-steps(:active="current_step", finish-status="success")
           el-step(title="Speaker", v-if="!target_round.user_defined_data.no_speaker_score")
           el-step(title="Score", v-if="!target_round.user_defined_data.no_speaker_score")

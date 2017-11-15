@@ -34,7 +34,7 @@
         .operations
           el-button(@click="on_download_raw_team_results") Download Raw Team Results
 
-      el-tab-pane(label="Collected raw Speaker results")
+      el-tab-pane(label="Collected raw Speaker results", v-if="!target_round.user_defined_data.no_speaker_score")
         section
           span(v-if="raw_speaker_results_by_r(r_str).length === 0") No speaker results are collected.
           el-collapse(v-else, accordion, @change="collapse_value = $event")
@@ -374,11 +374,6 @@ export default {
       border 0
     .entity-name
       margin-left 1rem
-
-  .operations
-    display flex
-    justify-content flex-end
-    margin-top 1rem
 
   .edit
     margin-right .4rem
