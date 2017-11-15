@@ -615,13 +615,7 @@ export default {
     add_round: add_one_factory('rounds', 'round'),
     delete_round: delete_factory('rounds', 'round', ['r']),
     add_draw: add_one_factory('draws', 'draw', ['r']),
-    delete_draw: delete_factory('draws', 'draw', ['r']),
-    finish_loading (state) {
-        state.loading = false
-    },
-    start_loading (state) {
-        state.loading = true
-    }
+    delete_draw: delete_factory('draws', 'draw', ['r'])
   },
   actions: {
       send_create_tournament ({state, commit, dispatch}, payload) {

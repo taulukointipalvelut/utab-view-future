@@ -71,14 +71,6 @@ export default {
       'target_tournament',
       'entity_by_id'
     ])
-  },
-  methods: {
-    ...mapActions([
-      'init_one'
-    ])
-  },
-  mounted () {
-    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

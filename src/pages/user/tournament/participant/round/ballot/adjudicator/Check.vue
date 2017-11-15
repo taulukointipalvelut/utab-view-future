@@ -115,9 +115,6 @@ export default {
     ...mapActions('ballot', [
       'send_result'
     ]),
-    ...mapActions([
-      'init_one'
-    ]),
     on_home () {
       this.$router.push('/home')
     },
@@ -132,7 +129,6 @@ export default {
       this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(() => {
           this.$router.push({ query: { winner, side } })
-          this.init_one({ tournament: this.target_tournament })
         })
         .then(() => {
           this.dialog.check.visible = false

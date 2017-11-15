@@ -76,9 +76,6 @@ export default {
       if (created === null) { return '' }
       return math.elapsed_string(created, this.fastest_time)
     },
-    ...mapActions([
-      'init_one'
-    ]),
     on_select (selected) {
       if (!selected.done) {
         if (this.target_round.user_defined_data.no_speaker_score) {
@@ -95,9 +92,6 @@ export default {
       }
       return class_name
     }
-  },
-  mounted () {
-    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

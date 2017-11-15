@@ -8,13 +8,6 @@ import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
 export default {
   name: 'app',
-  async mounted () {
-    await this.init_tournaments()
-    let tournament = this.target_tournament
-    if (tournament !== undefined) {
-      await this.init_one({ tournament })
-    }
-  },
   computed: {
     ...mapState([
       'errors',
@@ -29,11 +22,14 @@ export default {
     ...mapActions([
       'init_tournaments',
       'init_one'
-    ]),
-    ...mapMutations([
-      'finish_loading',
-      'start_loading'
     ])
+  },
+  async mounted () {
+    await this.init_tournaments()
+    let tournament = this.target_tournament
+    if (tournament !== undefined) {
+      await this.init_one({ tournament })
+    }
   },
   watch: {
     errors (errs) {
@@ -48,6 +44,14 @@ export default {
     is_auth (new_value) {
       if (!new_value) {
         this.$router.replace({ path: this.auth.href.login.to, query: { next: this.$route.fullPath } })
+      }
+    },
+    '$route': function () {
+      let tournament = this.target_tournament
+      if (tournament !== undefined) {
+        this.init_one({ tournament })
+      } else {
+        this.init_tournaments()
       }
     }
   }

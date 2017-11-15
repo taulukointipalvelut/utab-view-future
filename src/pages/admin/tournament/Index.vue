@@ -17,12 +17,6 @@ export default {
       'one_reloading',
       'target_tournament'
     ])
-  },
-  methods: {
-    ...mapActions(['init_one'])
-  },
-  mounted () {
-    this.init_one({ tournament: this.target_tournament })
   }
 }
 </script>

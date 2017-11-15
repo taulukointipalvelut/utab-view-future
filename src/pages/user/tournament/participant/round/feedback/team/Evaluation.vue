@@ -119,8 +119,7 @@ export default {
   },
   methods: {
     ...mapActions([
-      'send_raw_results',
-      'init_one'
+      'send_raw_results'
     ]),
     on_prev () {
       this.$router.back()
