@@ -127,10 +127,8 @@
     },
     methods: {
       ...mapMutations([
-        'one_unreloaded',
-        'unreloaded',
-        'one_reloaded',
-        'reloaded'
+        'set_one_reloading',
+        'set_reloading'
       ]),
       ...mapActions([
         'init_tournaments',
@@ -176,13 +174,13 @@
         this.nav_opened = false
         let tournament = this.target_tournament
         if (tournament !== undefined) {
-          this.one_unreloaded({ tournament })
+          this.set_one_reloading({ tournament, one_reloading: true })
           await this.init_one({ tournament })
-          this.one_reloaded({ tournament })
+          this.set_one_reloading({ tournament, one_reloading: false })
         } else {
-          this.unreloaded()
+          this.set_reloading({ reloading: true })
           await this.init_tournaments()
-          this.reloaded()
+          this.set_reloading({ reloading: false })
         }
       }
     }

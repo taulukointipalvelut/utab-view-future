@@ -522,26 +522,23 @@ export default {
     clear_tournaments (state, payload) {
       state.tournaments = []
     },
-    one_loaded (state, payload) {
+    set_one_calling (state, payload) {
         let tournament = find_tournament(state, payload)
-        tournament.one_loading = false
+        tournament.one_calling = payload.one_calling
     },
-    loaded (state) {
-        state.loading = false
-    },
-    one_reloaded (state, payload) {
+    set_one_loading (state, payload) {
         let tournament = find_tournament(state, payload)
-        tournament.one_reloading = false
+        tournament.one_loading = payload.one_loading
     },
-    reloaded (state) {
-        state.reloading = false
+    set_loading (state, payload) {
+        state.loading = payload.loading
     },
-    one_unreloaded (state, payload) {
+    set_one_reloading (state, payload) {
         let tournament = find_tournament(state, payload)
-        tournament.one_reloading = true
+        tournament.one_reloading = payload.one_reloading
     },
-    unreloaded (state) {
-        state.reloading = true
+    set_reloading (state, payload) {
+        state.reloading = payload.reloading
     },
     add_tournament (state, payload) {
         let already = find_tournament(state, payload)
@@ -807,16 +804,17 @@ export default {
                 dispatch('load_tournaments'),
                 dispatch('load_styles')
             ])
-            commit('loaded')
+            commit('set_loading', { loading: false })
             resolve(true)
         })
     },
     init_one ({ state, commit, dispatch }, payload) {
-        if (payload.tournament === undefined) { return new Promise(resolve => resolve()) }
-        console.log("init_one called @"+state.route.path)
         let tournament = find_tournament(state, payload)
+        if (tournament.one_calling) { return new Promise(resolve => resolve(false)) }
+        console.log("init_one called @"+state.route.path)
         let usertype = state.auth.usertype
         return new Promise(async (resolve, reject) => {
+            commit('set_one_calling', { tournament, one_calling: true })
             dispatch('load_login_status'),
             await Promise.all([
                 dispatch('load_config', { tournament })
@@ -827,7 +825,8 @@ export default {
                 dispatch('load_raw_results', { tournament }),
                 dispatch('load_entities', { tournament })
             ])
-            commit('one_loaded', { tournament })
+            commit('set_one_calling', { tournament, one_calling: false })
+            commit('set_one_loading', { tournament, one_loading: false })
             resolve(true)
         })
     },
