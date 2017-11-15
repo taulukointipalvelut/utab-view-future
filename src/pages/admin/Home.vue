@@ -27,11 +27,11 @@
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
           el-form-item(label="Hidden")
             el-switch(v-model="dialog[type].form.model.user_defined_data.hidden", active-text="", inactive-text="", :default="false")
-          div(v-for="label_singular in ['audience', 'speaker', 'adjudicator']", :key="label_singular")
+          //div(v-for="label_singular in ['audience', 'speaker', 'adjudicator']", :key="label_singular")
             el-form-item(:label="capitalize(label_singular)+' Login Required'")
               el-switch(v-model="dialog[type].form.model.auth[label_singular].required", active-text="", inactive-text="", :default="false")
             el-form-item(:label="capitalize(label_singular)+' Login Key'", v-if="dialog[type].form.model.auth[label_singular].required")
-              el-input(v-model="dialog[type].form.model.auth[label_singular].key", placeholder="Input Key")
+              el-input(v-model="dialog[type].form.model.auth[label_singular].key", disabled)
       .dialog-footer(slot="footer")
         el-button(@click="dialog[type].visible = false") Cancel
         el-button(type="primary", :loading="dialog.create.loading", @click="on_create", v-if="type === 'create'") #[el-icon(name="plus", v-if="!dialog[type].loading")] Create
