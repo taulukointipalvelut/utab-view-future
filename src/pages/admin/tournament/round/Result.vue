@@ -14,7 +14,7 @@
           el-collapse(v-else, accordion, @change="collapse_value = $event")
             el-collapse-item.collapse-item(v-for="results in divided_results('team')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
               template(slot="title")
-                div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
+                .el-collapse-title
                   span.entity-name {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
                   el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', results)") #[el-icon(name="close")]
               el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id)", border)
