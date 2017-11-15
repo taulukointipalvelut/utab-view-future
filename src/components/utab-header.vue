@@ -187,6 +187,11 @@
           this.set_reloading({ reloading: false })
         }
       }
+    },
+    watch: {
+      '$route': function () {
+        this.dropdown(false)
+      }
     }
   }
 </script>
