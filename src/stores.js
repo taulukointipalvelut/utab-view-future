@@ -29,20 +29,25 @@ function treat_reponse (promise, commit) {
         })
 }
 
-function fetch_data (commit, method, url, data=null) {
-    let request = { method }
+function lighten_tournament (tournament) {
+    let dict = Object.assign({}, tournament)
     let unnecessary_keys = ['rounds', 'teams', 'adjudicators', 'speakers',
                             'venues', 'institutions', 'draws', 'raw_team_results',
                             'raw_speaker_results', 'raw_adjudicator_results',
                             'compiled_team_results', 'compiled_speaker_results',
-                            'compiled_adjudicator_results']
+                            'compiled_adjudicator_results', 'one_loading', 'one_calling',
+                            'one_reloading']
+
+    for (let key of unnecessary_keys) {
+        delete dict[key]
+    }
+    return dict
+}
+
+function fetch_data (commit, method, url, data=null) {
+    let request = { method }
     if (data !== null) {
         request.body = JSON.stringify(data)
-        if (request.body.hasOwnProperty('tournaments')) {
-            for (let key of unnecessary_keys) {
-                delete request.body.tournaments[key]
-            }
-        }
     }
     request.headers = {
       'Accept': 'application/json',
@@ -631,7 +636,7 @@ export default {
             .then(tournament => commit('delete_tournament', { tournament }))
       },
       send_update_tournament ({state, commit, dispatch}, payload) {
-         return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id, payload.tournament)
+         return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id, lighten_tournament(payload.tournament))
             .then(tournament => commit('add_or_update_tournament', { tournament }))
       },
       send_create_round ({state, commit, dispatch}, payload) {

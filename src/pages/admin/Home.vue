@@ -152,13 +152,13 @@ export default {
       tournament.style = this.styles.find(s => s.id === tournament.style_id)
       delete tournament.style_id
       let t = await this.send_create_tournament({ tournament })
-      for (let usertype of ['speaker', 'adjudicator', 'audience']) {
-        let username = t.id + usertype
-        let password = this.dialog.create.form.model.auth[usertype].key
-        if (this.dialog.create.form.model.auth[usertype].required) {
-          this.send_create_user({ tournament: { id: t.id }, username, password, usertype })
-        }
-      }
+      //for (let usertype of ['speaker', 'adjudicator', 'audience']) {
+      //  let username = t.id + usertype
+      //  let password = this.dialog.create.form.model.auth[usertype].key
+      //  if (this.dialog.create.form.model.auth[usertype].required) {
+      //    this.send_create_user({ tournament: { id: t.id }, username, password, usertype })
+      //  }
+      //}
       this.dialog.create.loading = false
       this.dialog.create.visible = false
     },
@@ -167,13 +167,13 @@ export default {
       const tournament = Object.assign({}, this.dialog.edit.form.model)
       tournament.style = this.styles.find(s => s.id === tournament.style_id)
       await this.send_update_tournament({ tournament })
-      for (let usertype of ['speaker', 'adjudicator', 'audience']) {
-        let username = tournament.id + usertype
-        let password = this.dialog.edit.form.model.auth[usertype].key
-        if (this.dialog.edit.form.model.auth[usertype].required) {
-          this.send_create_user({ tournament: { id: tournament.id }, username, password, usertype })
-        }
-      }
+      //for (let usertype of ['speaker', 'adjudicator', 'audience']) {
+      //  let username = tournament.id + usertype
+      //  let password = this.dialog.edit.form.model.auth[usertype].key
+      //  if (this.dialog.edit.form.model.auth[usertype].required) {
+      //    this.send_create_user({ tournament: { id: tournament.id }, username, password, usertype })
+      //  }
+      //}
       this.dialog.edit.loading = false
       this.dialog.edit.visible = false
     },
