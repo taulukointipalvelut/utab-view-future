@@ -1,5 +1,6 @@
 import Home from './Home'
-import Evaluation from './Evaluation'
+import Evaluation from './team/Index'
+import evaluation_routes from './team/routes'
 
 export default [{
     path: 'home',
@@ -8,7 +9,8 @@ export default [{
   }, {
     path: ':from_id_str',
     props: true,
-    component: Evaluation
+    component: Evaluation,
+    children: evaluation_routes
   }, {
     path: '',
     redirect: 'home'
