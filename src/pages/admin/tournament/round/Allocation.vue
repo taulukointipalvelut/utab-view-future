@@ -194,7 +194,7 @@ export default {
               adjudicator_allocation_algorithm: 'standard',
               adjudicator_allocation_algorithm_options: {
                 assign: 'high_to_high',
-                //filters: ['']
+                filters: ['by_conflict', 'by_institution', 'by_past', 'by_num', 'by_num_chair', 'by_strength']
               },
               numbers_of_adjudicators: {
                 chairs: 1,
