@@ -14,7 +14,13 @@ export default {
   computed: {
     ...mapGetters([
       'one_loading',
-      'one_reloading'
+      'one_reloading',
+      'target_tournament'
+    ])
+  },
+  methods: {
+    ...mapActions([
+      'init_one'
     ])
   }
 }

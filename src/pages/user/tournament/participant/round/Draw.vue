@@ -78,7 +78,6 @@ export default {
     ])
   },
   mounted () {
-    //this.init_draws({ tournament: this.target_tournament })
     this.init_one({ tournament: this.target_tournament })
   }
 }

@@ -132,7 +132,7 @@ export default {
       this.send_result({ score_sheet: this.score_sheet, tournament: this.target_tournament })
         .then(() => {
           this.$router.push({ query: { winner, side } })
-          return this.init_one({ tournament: this.target_tournament })
+          this.init_one({ tournament: this.target_tournament })
         })
         .then(() => {
           this.dialog.check.visible = false
