@@ -19,7 +19,7 @@
       el-table-column(:min-width="270")
         template(slot-scope="scope")
           .round-operations
-            el-button(size="small", @click="on_raw_result(scope.row)") #[el-icon(name="information")] Result
+            el-button(size="small", @click="on_raw_result(scope.row)") #[i.fa.fa-list-ol] Result
             el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
             el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
             el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")]
@@ -27,7 +27,7 @@
           //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
     .operations
       el-button.compiled(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
-      el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] &nbsp;Add New Round
+      el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] New Round
 
     legend Check-in
     el-tabs
@@ -59,7 +59,7 @@
                     template(slot-scope="scope")
                       el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
         .operations
-          el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] &nbsp;Add New {{ capitalize(label) }}
+          el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] New {{ capitalize(label) }}
 
     el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible")
       .dialog-body
@@ -114,7 +114,7 @@
         el-button(v-if="type==='create'", type="primary", :loading="dialog.round.create_loading", @click="on_create_round()") #[el-icon(name="plus", v-if="!dialog.round.loading")] Create
         el-button(v-if="type==='edit'", type="primary", :loading="dialog.round.edit_loading", @click="on_update_round()") OK
 
-    el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'Add New '+capitalize(label)", :visible.sync="dialog[label].visible", :key="label")
+    el-dialog(v-for="label in ['teams', 'adjudicators', 'venues', 'speakers', 'institutions']", :title="'New '+capitalize(label)", :visible.sync="dialog[label].visible", :key="label")
       .dialog-body
         h3 From csv File
         .load-file-container

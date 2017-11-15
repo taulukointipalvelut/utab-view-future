@@ -799,7 +799,6 @@ export default {
         let tournament = find_tournament(state, payload)
         if (tournament.one_calling) { return new Promise(resolve => resolve(false)) }
         console.log("init_one called @"+state.route.path)
-        let usertype = state.auth.usertype
         return new Promise(async (resolve, reject) => {
             commit('set_one_calling', { tournament, one_calling: true })
             dispatch('load_login_status'),
