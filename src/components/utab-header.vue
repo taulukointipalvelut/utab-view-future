@@ -4,29 +4,29 @@
       .header-container
         #title
           span.nav-icon
-            router-link(to="/"): i.fa.fa-home
+            router-link(to="/", @click.native="dropdown(false)"): i.fa.fa-home
           //h1: router-link(to="/") PDA
           h1: router-link(to="/")
           span.nav-collapse-arrow
-            button(@click="toggleDropdownMenu")
+            button(@click="dropdown(!nav_opened)")
               i.caret-collapse-toggle
         nav: ul
           li.spacer
           li(v-if="target_tournament")
-            router-link(v-if="tournament_href(target_tournament)", :to="tournament_href(target_tournament)") {{ target_tournament.name }}
+            router-link(v-if="tournament_href(target_tournament)", :to="tournament_href(target_tournament)", @click.native="dropdown(false)") {{ target_tournament.name }}
           li(v-if="target_tournament !== undefined && is_admin")
-            a(@click="on_edit_info") #[el-icon(name="message")]
+            a(@click="dropdown_wrapper(on_edit_info)") #[el-icon(name="message")]
           li
-            a(@click="reload") Reload #[el-icon(v-if="reloading", name="loading")] #[i.fa.fa-refresh(v-if="!reloading")]
+            a(@click="dropdown_wrapper(reload)") Reload #[el-icon(v-if="reloading", name="loading")] #[i.fa.fa-refresh(v-if="!reloading")]
           li(v-if="is_admin")
-            a(@click="on_logout") Sign-out #[i.fa.fa-sign-out]
+            a(@click="dropdown_wrapper(on_logout)") Sign-out #[i.fa.fa-sign-out]
           li(v-if="is_admin")
-            router-link(v-if="!is_user", :to="admin_href", @click.native="toggleDropdownMenu") {{ username }} #[el-icon(name="setting")]
+            router-link(v-if="!is_user", :to="admin_href", @click.native="dropdown(false)") {{ username }} #[el-icon(name="setting")]
             a(v-if="is_user") {{ username }}
           li(v-if="!is_admin")
-            router-link(:to="user_login_href", @click.native="toggleDropdownMenu") Sign-in #[i.fa.fa-sign-in]
+            router-link(:to="user_login_href", @click.native="dropdown(false)") Sign-in #[i.fa.fa-sign-in]
           li(v-if="!is_admin")
-            router-link(:to="signup_href", @click.native="toggleDropdownMenu") Register
+            router-link(:to="signup_href", @click.native="dropdown(false)") Register
 
     el-dialog.message-dialog(title="Tournament Information", :visible.sync="editor.visible", v-if="!one_loading")
       span You can use Markdown here. For further information, press ? button below.
@@ -101,7 +101,7 @@
         return { path: '/signup', query: { next: this.nextLoginPath } }
       },
       admin_href () {
-        return { path: '/admin', query: { next: this.nextLogoutPath } }
+        return { path: '/admin' }
       },
       nextLoginPath () {
         return this.next ?
@@ -136,6 +136,10 @@
         'logout',
         'send_update_tournament'
       ]),
+      dropdown_wrapper (f = () => {}) {
+        this.dropdown(false)
+        f()
+      },
       on_edit_info () {
         let tournament = this.target_tournament
         this.editor.text = tournament.user_defined_data.info ? tournament.user_defined_data.info.text : ''
@@ -161,8 +165,8 @@
         this.nav_opened = false
         location.href = this.menu_links[index]
       },
-      toggleDropdownMenu () {
-        this.nav_opened = !this.nav_opened
+      dropdown (val) {
+        this.nav_opened = val
       },
       url (target) {
         if (this.base_url.slice(-1) !== '/') {

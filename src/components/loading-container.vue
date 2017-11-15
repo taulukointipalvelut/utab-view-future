@@ -1,5 +1,5 @@
 <template lang="pug">
-  .loading-container(v-loading.fillscreen.lock="loading", element-loading-text="Loading...", :class="{ loading: loading }")
+  .loading-container(v-loading.fillscreen.lock="loading", element-loading-text="Loading...")
     .dummy-cover(v-show="loading")
     .router-view-content(v-show="!loading")
       slot
