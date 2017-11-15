@@ -519,9 +519,6 @@ export default {
     styles (state, payload) {
       state.styles = payload.styles
     },
-    clear_tournaments (state, payload) {
-      state.tournaments = []
-    },
     set_one_calling (state, payload) {
         let tournament = find_tournament(state, payload)
         tournament.one_calling = payload.one_calling
@@ -540,42 +537,39 @@ export default {
     set_reloading (state, payload) {
         state.reloading = payload.reloading
     },
-    add_tournament (state, payload) {
+    add_or_update_tournament (state, payload) {
         let already = find_tournament(state, payload)
-        let tournament = {
-          id: payload.tournament.id,
-          name: payload.tournament.name,
-          style: payload.tournament.style,
-          rounds: [],
-          teams: [],
-          adjudicators: [],
-          speakers: [],
-          venues: [],
-          institutions: [],
-          draws: [],
-          raw_team_results: [],
-          raw_speaker_results: [],
-          raw_adjudicator_results: [],
-          compiled_team_results: [],
-          compiled_speaker_results: [],
-          compiled_adjudicator_results: [],
-          one_loading: already === undefined ? true : false,
-          one_reloading: false,
-          auth: payload.tournament.auth,
-          user_defined_data: payload.tournament.user_defined_data
+        if (already !== undefined) {
+          Object.assign(already, payload.tournament)
+        } else {
+          let tournament = {
+            id: payload.tournament.id,
+            name: payload.tournament.name,
+            style: payload.tournament.style,
+            rounds: [],
+            teams: [],
+            adjudicators: [],
+            speakers: [],
+            venues: [],
+            institutions: [],
+            draws: [],
+            raw_team_results: [],
+            raw_speaker_results: [],
+            raw_adjudicator_results: [],
+            compiled_team_results: [],
+            compiled_speaker_results: [],
+            compiled_adjudicator_results: [],
+            one_loading: true,
+            one_calling: false,
+            one_reloading: false,
+            auth: payload.tournament.auth,
+            user_defined_data: payload.tournament.user_defined_data
+          }
+          state.tournaments.push(tournament)
         }
-        state.tournaments.push(tournament)
     },
     delete_tournament (state, payload) {
       state.tournaments = state.tournaments.filter(t => t.id !== payload.tournament.id)
-    },
-    update_tournament (state, payload) {
-      let tournament = find_tournament(state, payload)
-      for (let key in payload.tournament) {
-          if (tournament.hasOwnProperty(key)) {
-              tournament[key] = payload.tournament[key]
-          }
-      }
     },
     /* tournaments */
     draws: replace_factory('draws'),
@@ -634,7 +628,7 @@ export default {
          return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments', payload.tournament)
             .then(tournament => {
                 commit('add_auth_tournaments', { tournament })
-                commit('add_tournament', { tournament })
+                commit('add_or_update_tournament', { tournament })
                 return tournament
             })
       },
@@ -644,7 +638,7 @@ export default {
       },
       send_update_tournament ({state, commit, dispatch}, payload) {
          return fetch_data(commit, 'PUT', API_BASE_URL+'/tournaments/'+payload.tournament.id, payload.tournament)
-            .then(tournament => commit('update_tournament', { tournament }))
+            .then(tournament => commit('add_or_update_tournament', { tournament }))
       },
       send_create_round ({state, commit, dispatch}, payload) {
           return fetch_data(commit, 'POST', API_BASE_URL+'/tournaments/'+payload.tournament.id+'/rounds', payload.round)
@@ -722,8 +716,7 @@ export default {
       load_tournaments ({ commit }) {
         return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments')
             .then(function (tournaments) {
-                commit('clear_tournaments')
-                tournaments.map(t => commit('add_tournament', { tournament: t }))
+                tournaments.map(t => commit('add_or_update_tournament', { tournament: t }))
             })
     },
     load_styles ({ state, commit, dispatch }, payload) {
@@ -747,7 +740,7 @@ export default {
         let t = find_tournament(state, payload)
         return fetch_data(commit, 'GET', API_BASE_URL+'/tournaments/'+t.id)
                 .then(config => {
-                    commit('update_tournament', { tournament: config })
+                    commit('add_or_update_tournament', { tournament: config })
                 })
     },
     load_rounds ({ state, commit, dispatch }, payload) {
