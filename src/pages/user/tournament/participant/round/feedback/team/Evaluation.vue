@@ -14,13 +14,13 @@
             //span.ev-card-subtitle subtitle
           el-form
             el-form-item(label="Matter", required, v-if="target_round.user_defined_data.score_by_matter_manner")
-              number-box(v-model="result.matter", :min="1", :max="10", :step="1")
+              number-box(v-model="result.matter", :min="style.adjudicator_range.from", :max="style.adjudicator_range.to", :step="style.adjudicator_range.unit")
             el-form-item(label="Manner", required, v-if="target_round.user_defined_data.score_by_matter_manner")
-              number-box(v-model="result.manner", :min="1", :max="10", :step="1")
+              number-box(v-model="result.manner", :min="style.adjudicator_range.from", :max="style.adjudicator_range.to", :step="style.adjudicator_range.unit")
             el-form-item(label="Total", v-if="target_round.user_defined_data.score_by_matter_manner")
               input-label(:value="result.matter+result.manner")
             el-form-item(label="Score", required, v-if="!target_round.user_defined_data.score_by_matter_manner")
-              number-box(:value="result.matter+result.manner", @input="$event => { result.manner = $event/2; result.matter = $event/2 }", :min="1", :max="10", :step="1")
+              number-box(:value="result.matter+result.manner", @input="$event => { result.manner = $event/2; result.matter = $event/2 }", :min="style.adjudicator_range.from", :max="style.adjudicator_range.to", :step="style.adjudicator_range.unit")
             el-input(type="textarea", :rows="3", v-model="result.comment", :placeholder="'Write your comment for '+entity_name_by_id(result.id)+', if any'")
       section.buttons
         el-button(@click="on_prev") #[el-icon(name="arrow-left")] Back
@@ -88,7 +88,8 @@ export default {
       'target_round',
       'entity_by_id',
       'entity_name_by_id',
-      'evaluation_sheet_by_id'
+      'evaluation_sheet_by_id',
+      'style'
     ]),
     smartphone: smartphone,
     evaluation_sheet () {
@@ -152,8 +153,8 @@ export default {
         teams: this.evaluation_sheet.teams,
         is_chair: this.evaluation_sheet.chairs.includes(id),
         comment: '',
-        matter: 5,
-        manner: 5,
+        matter: this.style.adjudicator_range.default,
+        manner: this.style.adjudicator_range.default,
         evaluated: true
       })
     }
