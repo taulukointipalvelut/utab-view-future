@@ -14,13 +14,14 @@
                 el-icon(name="check")
           el-table-column(prop="from_id", label="Name")
             template(slot-scope="scope")
-              span {{ entity_name_by_id(scope.row.from_id) }} #[i.fa.fa-user-secret(v-if="scope.row.is_chair")]
+              span {{ entity_name_by_id(scope.row.from_id) }} #[i.fa.fa-user-o(v-if="scope.row.is_chair")]
           el-table-column(prop="venue", label="Venue", v-if="!smartphone")
             template(slot-scope="scope")
               span {{ entity_name_by_id(scope.row.venue) }}
           el-table-column(label="Time", v-if="!smartphone")
             template(slot-scope="scope")
               span {{ elapsed_time(scope.row.created) }}
+              span(v-if="scope.row.created === fastest_time") #[i.fa.fa-flag-checkered]
     section(v-else)
       p Score Sheets for {{ target_round.name }} are not available.
 </template>
@@ -37,7 +38,7 @@ export default {
     fastest_time () {
         let sheets_done = this.score_sheets.filter(s => s.done)
         if (sheets_done.length === 0) {
-            return null
+            return 0
         } else {
             let fastest = sheets_done.sort((ss1, ss2) => ss1.created.getTime() > ss2.created.getTime() ? 1 : -1)[0].created
             return fastest

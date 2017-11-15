@@ -20,6 +20,7 @@
         el-table-column(label="Time", v-if="!smartphone")
           template(slot-scope="scope")
             span {{ elapsed_time(scope.row.created) }}
+            span(v-if="scope.row.created === fastest_time") #[i.fa.fa-flag-checkered]
     section(v-else)
       p Evaluation Sheets for {{ target_round.name }} are not available.
 </template>
@@ -48,7 +49,7 @@ export default {
     fastest_time () {
       let sheets_done = this.evaluation_sheets.filter(e => e.done)
       if (sheets_done.length === 0) {
-        return null
+        return 0
       } else {
         let fastest = sheets_done.sort((es1, es2) => es1.created.getTime() > es2.created.getTime() ? 1 : -1)[0].created
         return fastest
