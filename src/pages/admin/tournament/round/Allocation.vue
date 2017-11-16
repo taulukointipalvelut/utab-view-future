@@ -218,18 +218,6 @@ export default {
       selected_adjudicator: null,
       selected_warning: null,
       selected_venue: null,
-      team_options: {
-        group: { name: 'team-list' },
-        animation: 100
-      },
-      adjudicator_options: {
-        group: { name: 'adjudicator-list' },
-        animation: 100
-      },
-      venue_options: {
-        group: { name: 'venue-list' },
-        animation: 100
-      },
       draw_adjusted: { r: parseInt(this.r_str, 10), allocation: [] },
       teams: [],
       adjudicators: [],
@@ -237,6 +225,27 @@ export default {
     }
   },
   computed: {
+    team_options () {
+      return {
+        disabled: this.locked,
+        group: { name: 'team-list' },
+        animation: 100
+      }
+    },
+    adjudicator_options () {
+      return {
+        disabled: this.locked,
+        group: { name: 'adjudicator-list' },
+        animation: 100
+      }
+    },
+    venue_options () {
+      return {
+        disabled: this.locked,
+        group: { name: 'venue-list' },
+        animation: 100
+      }
+    },
     locked () {
       if (this.target_draw === undefined || this.target_draw.user_defined_data === undefined) {
         return false
