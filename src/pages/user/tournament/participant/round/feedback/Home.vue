@@ -5,7 +5,7 @@
       h3 {{ target_round.name }} #[span(v-if="draw_time && draw_time.updated") , {{ draw_time.text }}]
     .progress
       el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
-    section(v-if="target_round.user_defined_data.team_allocation_opened && target_round.user_defined_data.adjudicator_allocation_opened")
+    section(v-if="draw_opened && allocation_opened")
       el-table(:data="evaluation_sheets", @current-change="on_select", :row-class-name="row_class_name", empty-text="No Evaluation Sheets are available")
         el-table-column(prop="done", label="", width="40", align="center")
           template(slot-scope="scope")
@@ -60,7 +60,9 @@ export default {
       'target_tournament',
       'draw_time',
       'entity_name_by_id',
-      'target_evaluation_sheets'
+      'target_evaluation_sheets',
+      'draw_opened',
+      'allocation_opened'
     ]),
     smartphone: smartphone,
     percentage (): number {

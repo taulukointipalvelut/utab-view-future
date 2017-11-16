@@ -86,9 +86,9 @@
             el-input(v-model="dialog.round[type+'_form'].model.name", :placeholder="'Round '+dialog.round[type+'_form'].model.r")
           el-form-item(label="Round Hidden", prop="hidden")
             el-switch(:default="false", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.hidden")
-          el-form-item(label="Draw Opened", prop="team_allocation_opened", v-if="!dialog.round[type+'_form'].model.user_defined_data.hidden")
+          //el-form-item(label="Draw Opened", prop="team_allocation_opened", v-if="!dialog.round[type+'_form'].model.user_defined_data.hidden")
             el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.team_allocation_opened")
-          el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened", v-if="!dialog.round[type+'_form'].model.user_defined_data.hidden")
+          //el-form-item(label="Allocation Opened", prop="adjudicator_allocation_opened", v-if="!dialog.round[type+'_form'].model.user_defined_data.hidden")
             el-switch(:default="true", active-text="", inactive-text="", v-model="dialog.round[type+'_form'].model.user_defined_data.adjudicator_allocation_opened")
           el-form-item(label="Judge evaluation from Judges", prop="evaluate_from_adjudicators")
             el-switch(:default="true", active-text="", inactive-text="", active-color="#13ce66", v-model="dialog.round[type+'_form'].model.user_defined_data.evaluate_from_adjudicators")
@@ -161,8 +161,8 @@ function dialog_generator () {
           r: '',
           user_defined_data: {
             hidden: false,
-            team_allocation_opened: true,
-            adjudicator_allocation_opened: true,
+            //team_allocation_opened: true,
+            //adjudicator_allocation_opened: true,
             evaluate_from_adjudicators: true,
             evaluate_from_teams: true,
             no_speaker_score: false,
@@ -181,8 +181,8 @@ function dialog_generator () {
           name: '',
           user_defined_data: {
             hidden: false,
-            team_allocation_opened: true,
-            adjudicator_allocation_opened: true,
+            //team_allocation_opened: true,
+            //adjudicator_allocation_opened: true,
             evaluate_from_adjudicators: true,
             evaluate_from_teams: true,
             no_speaker_score: false,
@@ -826,7 +826,7 @@ export default {
       padding 0
     div.el-collapse-item__wrap
       border-bottom 0
-      
+
   legend
     color rgba(0,0,0,.54)
     font-size 90%

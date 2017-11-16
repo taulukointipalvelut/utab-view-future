@@ -66,65 +66,68 @@
                     p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
                     p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
         .operations
-          el-button(@click="on_fix_draw", v-if="need_fix") Remove Unavailables
-          el-button(@click="on_clear_draw") Clear
-          el-button(@click="on_revert_draw") Revert
-          el-button(@click="on_edit_request") Request
-          el-button(type="primary", @click="on_send_allocation", :disabled="!sendable", :loading="submit_loading") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
-          el-button(@click="on_delete_draw", type="danger", :disabled="new_draw", :loading="delete_loading") Delete
-        legend Legend
-          el-row(:gutter="10", justify="space-between", style="width: 100%;")
-            el-col(v-for="class_label in Object.keys(warning_classes)", :key="class_label", :span="5")
-              div.legend-content(:class="warning_classes[class_label]", @mouseover="")
-                span {{ class_label }}
+          el-button(round, :type="!draw_opened ? 'info' : 'success'", @click="toggle('draw_opened')", :disabled="locked || allocation_changed || allocation_empty") #[i.fa.fa-eye(v-show="draw_opened")] #[i.fa.fa-eye-slash(v-show="!draw_opened")] Draw
+          el-button(round, :type="!allocation_opened ? 'info' : 'success'", @click="toggle('allocation_opened')", :disabled="locked || allocation_changed || allocation_empty") #[i.fa.fa-eye(v-show="allocation_opened")] #[i.fa.fa-eye-slash(v-show="!allocation_opened")] Allocation
+          el-button(@click="on_edit_request", :disabled="locked") #[i.fa.fa-paper-plane] Request
+          el-button(@click="on_fix_draw", v-if="need_fix", :disabled="locked") #[i.fa.fa-wrench] Fix
+          el-button(@click="on_clear_draw", :disabled="locked || (allocation_empty && !allocation_changed)") #[i.fa.fa-eraser] Clear
+          el-button(@click="on_revert_draw", :disabled="locked || !allocation_changed") #[i.fa.fa-undo] Revert
+          el-button(@click="toggle('locked')", v-if="target_draw !== undefined", :disabled="allocation_changed || allocation_empty") #[i.fa.fa-lock(v-show="locked")] #[i.fa.fa-unlock-alt(v-show="!locked")]
+          el-button(type="primary", @click="on_send_allocation", :disabled="!sendable || locked || !allocation_changed", :loading="submit_loading") #[i.fa.fa-floppy-o]
+          el-button(@click="on_delete_draw", type="danger", :disabled="allocation_empty || locked", :loading="delete_loading") #[i.fa.fa-trash-o]
     .page-footer
-      legend Waiting Adjudicators
-      .adj-list-container
-        draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options")
-          .draggable-item(v-for="id in adjudicators", :class="warn_item_adjudicator(id)")
-            el-popover(:open-delay="500", placement="right", trigger="click")
-              el-button.detail-button(slot="reference", @mouseover.native="selected_adjudicator = id", @mouseout.native="selected_adjudicator = null") {{ entity_name_by_id(id) }}
-              lazy-item
-                div(v-if="adjudicator_accessible(id)")
-                  p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
-                  p average: {{ compiled_adjudicator_result_by_id[id].average }}
-                  p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                  p institutions: {{ institution_names_by_adjudicator_id(id) }}
-                  p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
-                  p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
-                  p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
-                  p id: {{ id }}
-      legend Waiting Teams
-      .adj-list-container
-        draggable.adj-list.src(v-model="teams", :options="team_options")
-          .draggable-item(v-for="id in teams", :class="warn_item_team(id, '')")
-            el-popover(:open-delay="500", placement="right", trigger="click")
-              el-button.detail-button(slot="reference", @mouseover.native="selected_team = id", @mouseout.native="selected_team = null") {{ entity_name_by_id(id) }}
-              lazy-item
-                div(v-if="team_accessible(id)")
-                  p ranking: {{ compiled_team_result_by_id[id].ranking }}
-                  p win: {{ compiled_team_result_by_id[id].win }}
-                  p sum: {{ compiled_team_result_by_id[id].sum }}
-                  p margin: {{ compiled_team_result_by_id[id].margin }}
-                  p institutions: {{ institution_names_by_team_id(id) }}
-                  p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
-                  p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
-                  p speakers: {{ speaker_names_by_team_id(id) }}
-                  p id: {{ id }}
-      legend Waiting Venues
-      .adj-list-container
-        draggable.adj-list.src(v-model="venues", :options="venue_options")
-          .draggable-item(v-for="id in venues", :class="warn_item_venue(id)")
-            el-popover(:open-delay="500", placement="right", trigger="click")
-              el-button.detail-button(slot="reference", @mouseover.native="selected_venue = id", @mouseout.native="selected_venue = null") {{ entity_name_by_id(id) }}
-              lazy-item
-                div(v-if="entity_accessible(id)")
-                  p id: {{ id }}
-                  p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
+      .waiting-list-container
+        legend Waiting Adjudicators
+        .adj-list-container
+          draggable.adj-list.src(v-model="adjudicators", :options="adjudicator_options")
+            .draggable-item(v-for="id in adjudicators", :class="warn_item_adjudicator(id)")
+              el-popover(:open-delay="500", placement="right", trigger="click")
+                el-button.detail-button(slot="reference", @mouseover.native="selected_adjudicator = id", @mouseout.native="selected_adjudicator = null") {{ entity_name_by_id(id) }}
+                lazy-item
+                  div(v-if="adjudicator_accessible(id)")
+                    p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
+                    p average: {{ compiled_adjudicator_result_by_id[id].average }}
+                    p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
+                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                    p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
+                    p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
+                    p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
+                    p id: {{ id }}
+        legend Waiting Teams
+        .adj-list-container
+          draggable.adj-list.src(v-model="teams", :options="team_options")
+            .draggable-item(v-for="id in teams", :class="warn_item_team(id, '')")
+              el-popover(:open-delay="500", placement="right", trigger="click")
+                el-button.detail-button(slot="reference", @mouseover.native="selected_team = id", @mouseout.native="selected_team = null") {{ entity_name_by_id(id) }}
+                lazy-item
+                  div(v-if="team_accessible(id)")
+                    p ranking: {{ compiled_team_result_by_id[id].ranking }}
+                    p win: {{ compiled_team_result_by_id[id].win }}
+                    p sum: {{ compiled_team_result_by_id[id].sum }}
+                    p margin: {{ compiled_team_result_by_id[id].margin }}
+                    p institutions: {{ institution_names_by_team_id(id) }}
+                    p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
+                    p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
+                    p speakers: {{ speaker_names_by_team_id(id) }}
+                    p id: {{ id }}
+        legend Waiting Venues
+        .adj-list-container
+          draggable.adj-list.src(v-model="venues", :options="venue_options")
+            .draggable-item(v-for="id in venues", :class="warn_item_venue(id)")
+              el-popover(:open-delay="500", placement="right", trigger="click")
+                el-button.detail-button(slot="reference", @mouseover.native="selected_venue = id", @mouseout.native="selected_venue = null") {{ entity_name_by_id(id) }}
+                lazy-item
+                  div(v-if="entity_accessible(id)")
+                    p id: {{ id }}
+                    p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
+      .legend-list-container
+        legend Legend
+          div.legend-content(:class="warning_classes[class_label]", @mouseover="", v-for="class_label in Object.keys(warning_classes)", :key="class_label")
+            span {{ class_label }}
 
     el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible")
       el-tabs(v-model="dialog.draw.allocation_type")
-        el-tab-pane(v-for="label in (draw_temp !== null ? ['all', 'teams', 'adjudicators', 'venues'] : ['all', 'teams'])", :label="capitalize(label)", :key="label", :name="label")
+        el-tab-pane(v-for="label in (!allocation_empty || allocation_changed ? ['all', 'teams', 'adjudicators', 'venues'] : ['all', 'teams'])", :label="capitalize(label)", :key="label", :name="label")
           .dialog-body
             h3(v-if="label === 'adjudicators' || label === 'venues'", style="text-align: center;") Request allocation of {{ capitalize(label) }} with existing draw
             el-form(:model="dialog.draw.form.model", :rules="dialog.draw.form.rules")
@@ -170,9 +173,10 @@ export default {
   props: ['r_str'],
   data () {
     return {
+      allocation_changed: false,
+      allocation_empty: true,
       submit_loading: false,
       delete_loading: false,
-      allocation_loading: true,
       dialog: {
         draw: {
           allocation_type: 'all',
@@ -210,7 +214,6 @@ export default {
           }
         }
       },
-      new_draw: true,
       selected_team: null,
       selected_adjudicator: null,
       selected_warning: null,
@@ -230,15 +233,23 @@ export default {
       draw_adjusted: { r: parseInt(this.r_str, 10), allocation: [] },
       teams: [],
       adjudicators: [],
-      venues: [],
-      draw_temp: null
+      venues: []
     }
   },
   computed: {
+    locked () {
+      if (this.target_draw === undefined || this.target_draw.user_defined_data === undefined) {
+        return false
+      } else if (this.target_draw.user_defined_data.locked === undefined) {
+        return false
+      } else {
+        return this.target_draw.user_defined_data.locked
+      }
+    },
     need_fix () {
-      if (this.draw_temp !== null) {
+      if (!this.allocation_empty && this.target_draw !== undefined) {
           let available_team_ids = this.available_teams(this.r_str).map(t => t.id)
-          for (let square of this.draw_temp.allocation) {
+          for (let square of this.target_draw.allocation) {
             if (square.teams.gov !== null && !available_team_ids.includes(square.teams.gov)) {
               return true
             } else if (square.teams.opp !== null && !available_team_ids.includes(square.teams.opp)) {
@@ -252,10 +263,10 @@ export default {
     },
     warning_classes () {
       return {
-        'Same Institution': 'same-institution',
         'Already Judged': 'already-judged',
-        'Sided': 'sided',
         'Different Win': 'different-win',
+        'Same Institution': 'same-institution',
+        'Sided': 'sided',
         'Conflicts': 'conflicts',
         'Personal Conflicts': 'personal-conflicts',
         'Past Matched': 'past-matched'
@@ -273,7 +284,7 @@ export default {
       return true
     },
     suggested_action () {
-      if (this.new_draw) {
+      if (this.allocation_empty) {
         return 'save'
       } else {
         return 'update'
@@ -298,7 +309,9 @@ export default {
       'compiled_adjudicator_result_by_id',
       'round_name_by_r',
       'entities_es_unsubmitted',
-      'adjudicators_ss_unsubmitted'
+      'adjudicators_ss_unsubmitted',
+      'draw_opened',
+      'allocation_opened'
     ])
   },
   methods: {
@@ -318,13 +331,29 @@ export default {
                                   .filter(round => round.r < this.target_round.r)
                                   .map(round => round.r)
     },
+    async toggle (prop) {
+      let draw = Object.assign({}, this.target_draw)
+      if (draw.user_defined_data === undefined) {
+        draw.user_defined_data = {}
+        draw.user_defined_data[prop] = true
+      } else {
+        draw.user_defined_data[prop] = draw.user_defined_data[prop] !== undefined ? !draw.user_defined_data[prop] : true
+      }
+      await this.update_draw({ tournament: this.target_tournament, draw })
+    },
     on_clear_draw () {
-      this.draw_temp = null,
-      this.init_allocation(true)
+      this.init_allocation()
+      if (this.allocation_empty) {
+        this.$nextTick(() => { this.allocation_changed = false })
+      }
     },
     on_revert_draw () {
-      this.draw_temp = null,
-      this.init_allocation()
+      if (this.allocation_empty) {
+        this.init_allocation()
+      } else {
+        this.init_allocation(this.target_draw.allocation)
+      }
+      this.$nextTick(() => { this.allocation_changed = false })
     },
     on_fix_draw () {
       let new_allocation_temp = []
@@ -332,14 +361,13 @@ export default {
                               .concat(this.available_adjudicators(this.r_str)
                               .concat(this.available_venues(this.r_str)))
                               .map(e => e.id)
-      for (let square of this.draw_temp.allocation) {
+      for (let square of this.target_draw.allocation) {
         let ids = [square.venue, square.teams.gov, square.teams.opp].concat(square.chairs).concat(square.panels).concat(square.trainees)
         if (math.wrapped(ids, available_ids)) {
           new_allocation_temp.push(square)
         }
       }
-      this.draw_temp.allocation = new_allocation_temp
-      this.init_allocation()
+      this.init_allocation(new_allocation_temp)
     },
     async on_delete_draw () {
       const ans = await this.$confirm('Are you sure?')
@@ -350,10 +378,10 @@ export default {
           draw: this.target_draw
         }
         await this.send_delete_draw(payload)
+        this.allocation_empty = true
         this.delete_loading = false
-        this.draw_temp = null
-        this.new_draw = true
         this.init_allocation()
+        this.$nextTick(() => { this.allocation_changed = false })
       }
     },
     capitalize: math.capitalize,
@@ -695,7 +723,7 @@ export default {
           algorithm_options: model.team_allocation_algorithm_options,
         }
       } else if (allocation_type === 'adjudicators') {
-        draw = this.draw_temp
+        draw = this.convert_to_draw()
         options = {
           simple: model.simple,
           force: model.force,
@@ -704,7 +732,7 @@ export default {
           numbers_of_adjudicators: model.numbers_of_adjudicators
         }
       } else {
-        draw = this.draw_temp
+        draw = this.convert_to_draw()
         options = {
           simple: model.simple,
           force: model.force,
@@ -714,8 +742,7 @@ export default {
       options.by = this.dialog.draw.consider_all ? this.target_tournament.rounds.filter(round => round.r < this.target_round.r).map(round => round.r)
                                                  : this.dialog.draw.considering_rs
       return this.request_draw({ tournament, r_str: this.r_str, options, draw, allocation_type }).then((data) => {
-        this.draw_temp = data
-        this.init_allocation()
+        this.init_allocation(data.allocation)
         this.dialog.draw.loading = false
         this.dialog.draw.visible = false
       }).catch(() => {
@@ -733,8 +760,9 @@ export default {
         'save': this.submit_draw
       }
       return actions[action]({ tournament, draw }).then(() => {
-        this.new_draw = false
         this.submit_loading = false
+        this.allocation_empty = false
+        this.$nextTick(() => { this.allocation_changed = false })
       })
     },
     adjudicators_in_draw () {
@@ -758,22 +786,11 @@ export default {
       }
       return venues_in_draw
     },
-    init_allocation (clear=false) {
-        let draw = {}
+    init_allocation (allocation=[]) {
         let that = this
         let tournament = this.target_tournament
         this.draw_adjusted.allocation = []
 
-        if (this.draw_temp !== null) {
-            draw = this.draw_temp
-        } else if (this.target_draw !== undefined && !clear) {
-            draw = this.target_draw
-            this.draw_temp = draw
-        } else {
-            draw = { r: parseInt(this.r_str, 10), allocation: [] }
-            this.draw_temp = draw
-        }
-        let allocation = draw.allocation
         let sorted_allocation = allocation.slice().sort(function (a, b) {
           let venue1 = that.entity_by_id[a.venue]
           let venue2 = that.entity_by_id[b.venue]
@@ -819,9 +836,14 @@ export default {
     }
   },
   async mounted () {
-    this.new_draw = this.target_draw === undefined ? true : false
-    this.allocation_loading = true
-    this.init_allocation()
+    this.allocation_empty = this.target_draw === undefined ? true : false
+    if (!this.allocation_empty) {
+      this.init_allocation(this.target_draw.allocation)
+    } else {
+      this.init_allocation()
+    }
+    this.$nextTick(() => { this.allocation_changed = false })
+
     let request = {
       rs: this.target_tournament.rounds.filter(round => round.r < parseInt(this.r_str, 10)).map(round => round.r),
       options: { force: true }
@@ -830,7 +852,14 @@ export default {
       this.request_compiled_results({ tournament: this.target_tournament, label_singular: 'team', label: 'teams', request }),
       this.request_compiled_results({ tournament: this.target_tournament, label_singular: 'adjudicator',label: 'adjudicators', request })
     ])
-    this.allocation_loading = false
+  },
+  watch: {
+    'draw_adjusted.allocation': {
+      handler (n, v) {
+        this.allocation_changed = true
+      },
+      deep: true
+    }
   }
 }
 </script>
@@ -871,7 +900,7 @@ export default {
     padding-bottom 2vh
     border-top solid 2px gray
     padding-left 5%
-    padding-right 5%
+    //padding-right 5%
     padding-top 1%
     background rgb(240, 240, 240)
     overflow-y scroll
@@ -948,12 +977,6 @@ export default {
     background #ffffff
     transition all 1.5s
 
-  .legend-content
-    text-align center
-    opacity 0.8
-    color white
-    border-radius 4px
-
   .warning-button
     padding 0.2rem
 
@@ -980,6 +1003,30 @@ export default {
   .el-table .col-cell,
   .el-table th .cell
     padding 0 18px
+
+  .waiting-list-container
+    float left
+    width 70%
+
+  @media (min-width: 600px)
+    .legend-list-container
+      position fixed
+      right 0
+      height 100%
+      width 25%
+  @media (max-width: 600px)
+    .legend-list-container
+      float right
+      margin-left 5%
+      height 100%
+      width 25%
+
+  .legend-content
+    width 80%
+    text-align center
+    opacity 0.8
+    color white
+    border-radius 4px
 
   .adj-list
     margin 5px

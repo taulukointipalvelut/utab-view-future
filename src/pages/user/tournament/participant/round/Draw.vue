@@ -3,7 +3,7 @@
     section.page-header
       h1 {{ target_round.name }}
       h3(v-if="draw_time && draw_time.updated") {{ draw_time.text }}
-    section(v-if="team_allocation_opened && sorted_rows.length > 0")
+    section(v-if="draw_opened && sorted_rows.length > 0")
       el-table.draw(:data="sorted_rows", :row-class-name="payload => 'row-class-'+(payload.rowIndex%2)")
         el-table-column(label="Venue", align="center")
           template(slot-scope="scope")
@@ -14,13 +14,13 @@
         el-table-column(:label="smartphone ? style.side_labels_short['opp'] : style.side_labels['opp']", align="center")
           template(slot-scope="scope")
             .team-opp {{ entity_name_by_id(scope.row.teams.opp) }}
-        el-table-column.adjudicator-container(label="Chair", v-if="adjudicator_allocation_opened", align="center")
+        el-table-column.adjudicator-container(label="Chair", v-if="allocation_opened", align="center")
           template(slot-scope="scope")
             .adjudicator(v-for="id in scope.row.chairs") {{ entity_name_by_id(id) }}
-        el-table-column.adjudicator-container(label="Panel", v-if="adjudicator_allocation_opened", align="center")
+        el-table-column.adjudicator-container(label="Panel", v-if="allocation_opened", align="center")
           template(slot-scope="scope")
             .adjudicator(v-for="id in scope.row.panels") {{ entity_name_by_id(id) }}
-        el-table-column.adjudicator-container(label="Trainee", v-if="adjudicator_allocation_opened", align="center")
+        el-table-column.adjudicator-container(label="Trainee", v-if="allocation_opened", align="center")
           template(slot-scope="scope")
             .adjudicator(v-for="id in scope.row.trainees") {{ entity_name_by_id(id) }}
     section(v-else)
@@ -53,14 +53,6 @@ export default {
         }) : []
     },
     smartphone: smartphone,
-    team_allocation_opened () {
-      let round = this.target_round
-      return round ? round.user_defined_data.team_allocation_opened : false
-    },
-    adjudicator_allocation_opened () {
-      let round = this.target_round
-      return round ? round.user_defined_data.adjudicator_allocation_opened : false
-    },
     ...mapGetters([
       'access_detail',
       'entity_name_by_id',
@@ -69,7 +61,9 @@ export default {
       'draw_time',
       'style',
       'target_tournament',
-      'entity_by_id'
+      'entity_by_id',
+      'draw_opened',
+      'allocation_opened'
     ])
   }
 }

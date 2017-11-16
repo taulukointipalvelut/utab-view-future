@@ -3,7 +3,7 @@
     section.page-header
       h1 Score Sheet
       h3 {{ target_round.name }}
-    section(v-if="target_round.user_defined_data.team_allocation_opened && target_round.user_defined_data.adjudicator_allocation_opened")
+    section(v-if="draw_opened && allocation_opened")
       .progress
         el-progress(:text-inside="true", :stroke-width="18", :percentage="percentage", :status="success")
       section
@@ -48,7 +48,9 @@ export default {
       'target_score_sheets',
       'entity_name_by_id',
       'target_round',
-      'target_tournament'
+      'target_tournament',
+      'draw_opened',
+      'allocation_opened'
     ]),
     smartphone: smartphone,
     score_sheets () {

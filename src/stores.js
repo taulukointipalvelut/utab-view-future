@@ -225,6 +225,22 @@ export default {
     target_round (state, getters) {
         return getters.target_tournament.rounds.find(d => d.r === parseInt(state.route.params.r_str, 10))
     },
+    draw_opened (state, getters) {
+        let draw = getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str, 10))
+        if (draw === undefined || draw.user_defined_data === undefined || draw.user_defined_data.draw_opened === undefined) {
+            return false
+        } else {
+            return draw.user_defined_data.draw_opened
+        }
+    },
+    allocation_opened (state, getters) {
+        let draw = getters.target_tournament.draws.find(d => d.r === parseInt(state.route.params.r_str, 10))
+        if (draw === undefined || draw.user_defined_data === undefined || draw.user_defined_data.allocation_opened === undefined) {
+            return false
+        } else {
+            return draw.user_defined_data.allocation_opened
+        }
+    },
     target_score_sheets (state, getters) {
         let tournament = getters.target_tournament
         let all_score_sheets = {}
