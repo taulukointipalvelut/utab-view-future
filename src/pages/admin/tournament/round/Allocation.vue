@@ -67,7 +67,8 @@
                     p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
         .operations
           el-button(@click="on_fix_draw", v-if="need_fix") Remove Unavailables
-          el-button(@click="on_reset_draw") Reset
+          el-button(@click="on_clear_draw") Clear
+          el-button(@click="on_revert_draw") Revert
           el-button(@click="on_edit_request") Request
           el-button(type="primary", @click="on_send_allocation", :disabled="!sendable", :loading="submit_loading") #[el-icon(name="upload")] &nbsp;{{ suggested_action.charAt(0).toUpperCase() + suggested_action.slice(1) }}
           el-button(@click="on_delete_draw", type="danger", :disabled="new_draw", :loading="delete_loading") Delete
@@ -317,7 +318,11 @@ export default {
                                   .filter(round => round.r < this.target_round.r)
                                   .map(round => round.r)
     },
-    on_reset_draw () {
+    on_clear_draw () {
+      this.draw_temp = null,
+      this.init_allocation(true)
+    },
+    on_revert_draw () {
       this.draw_temp = null,
       this.init_allocation()
     },
@@ -753,7 +758,7 @@ export default {
       }
       return venues_in_draw
     },
-    init_allocation () {
+    init_allocation (clear=false) {
         let draw = {}
         let that = this
         let tournament = this.target_tournament
@@ -761,7 +766,7 @@ export default {
 
         if (this.draw_temp !== null) {
             draw = this.draw_temp
-        } else if (this.target_draw !== undefined) {
+        } else if (this.target_draw !== undefined && !clear) {
             draw = this.target_draw
             this.draw_temp = draw
         } else {
