@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "element-theme-default": "^1.4.9",
-    "element-ui": "^2.0.4",
+    "element-ui": "^2.0.5",
     "highcharts": "^6.0.2",
     "highcharts-exporting": "^0.1.2",
     "highcharts-more": "^0.1.2",
