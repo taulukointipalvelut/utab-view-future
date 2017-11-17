@@ -28,10 +28,10 @@
                         p win: {{ compiled_team_result_by_id[id].win }}
                         p sum: {{ compiled_team_result_by_id[id].sum }}
                         p margin: {{ compiled_team_result_by_id[id].margin }}
-                        p institutions: {{ institution_names_by_team_id(id) }}
+                        p institutions: {{ institution_names_by_id(id, r_str) }}
                         p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
                         p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
-                        p speakers: {{ speaker_names_by_team_id(id) }}
+                        p speakers: {{ speaker_names_by_team_id(id, r_str) }}
                         p id: {{ id }}
           el-table-column(v-for="label in ['chairs', 'panels', 'trainees']", :label="capitalize(label)", :key="label", align="center")
             template(slot-scope="scope")
@@ -43,8 +43,8 @@
                       div(v-if="adjudicator_accessible(id)")
                         p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
                         p average: {{ compiled_adjudicator_result_by_id[id].average }}
-                        p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                        p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                        p conflicts: {{ conflict_names_by_adjudicator_id(id, r_str) }}
+                        p institutions: {{ institution_names_by_id(id, r_str) }}
                         p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
                         p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
                         p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
@@ -96,8 +96,8 @@
                   div(v-if="adjudicator_accessible(id)")
                     p ranking: {{ compiled_adjudicator_result_by_id[id].ranking }}
                     p average: {{ compiled_adjudicator_result_by_id[id].average }}
-                    p conflicts: {{ conflict_names_by_adjudicator_id(id) }}
-                    p institutions: {{ institution_names_by_adjudicator_id(id) }}
+                    p conflicts: {{ conflict_names_by_adjudicator_id(id, r_str) }}
+                    p institutions: {{ institution_names_by_id(id, r_str) }}
                     p judged_teams: {{ compiled_adjudicator_result_by_id[id].judged_teams.map(entity_name_by_id).join(', ') }}
                     p judged: {{ compiled_adjudicator_result_by_id[id].num_experienced }}
                     p judged as chair: {{ compiled_adjudicator_result_by_id[id].num_experienced_chair }}
@@ -114,10 +114,10 @@
                     p win: {{ compiled_team_result_by_id[id].win }}
                     p sum: {{ compiled_team_result_by_id[id].sum }}
                     p margin: {{ compiled_team_result_by_id[id].margin }}
-                    p institutions: {{ institution_names_by_team_id(id) }}
+                    p institutions: {{ institution_names_by_id(id, r_str) }}
                     p opponents: {{ compiled_team_result_by_id[id].past_opponents.map(entity_name_by_id).join(', ') }}
                     p sides: {{ compiled_team_result_by_id[id].past_sides.join(', ') }}
-                    p speakers: {{ speaker_names_by_team_id(id) }}
+                    p speakers: {{ speaker_names_by_team_id(id, r_str) }}
                     p id: {{ id }}
         legend Waiting Venues
         .adj-list-container
@@ -198,17 +198,17 @@ export default {
   data () {
     return {
       team_filters: {
-        'by_strength': 'Power Pairing',
+        'by_strength': 'Power pairing',
         'by_side': 'No one side',
         'by_past_opponent': 'No past opponent',
-        'by_institution': 'No same team institutions'
+        'by_institution': 'No same institutions'
       },
       adjudicator_filters: {
         'by_conflict': 'No personal conflicts',
         'by_institution': 'No institution conflicts',
-        'by_past': 'No already watched Teams',
-        'by_num': 'Priority on less experienced adjudicators',
-        'by_num_chair': 'Priority on less chair adjudicators',
+        'by_past': 'No already watched',
+        'by_num': 'Priority on fewer judged',
+        'by_num_chair': 'Priority on fewer chaired',
         'by_strength': 'Scored adjudicators to scored teams'
       },
       allocation_changed: false,
@@ -363,6 +363,9 @@ export default {
       'tournaments'
     ]),
     ...mapGetters([
+      'speaker_names_by_team_id',
+      'institution_names_by_id',
+      'conflict_names_by_adjudicator_id',
       'style',
       'target_tournament',
       'entity_by_id',
@@ -563,22 +566,6 @@ export default {
     on_end () {
       this.selected_team = null
       this.selected_adjudicator = null
-    },
-    speaker_names_by_team_id (id) {
-      return this.access_detail(this.entity_by_id[id], this.r_str)
-        .speakers.map(this.entity_name_by_id).join(', ')
-    },
-    institution_names_by_team_id (id) {
-      return this.access_detail(this.entity_by_id[id], this.r_str).institutions
-        .map(this.entity_name_by_id).join(', ')
-    },
-    institution_names_by_adjudicator_id (id) {
-      return this.access_detail(this.entity_by_id[id], this.r_str).institutions
-        .map(this.entity_name_by_id).join(', ')
-    },
-    conflict_names_by_adjudicator_id (id) {
-      return this.access_detail(this.entity_by_id[id], this.r_str).conflicts
-        .map(this.entity_name_by_id).join(', ')
     },
     row_class({row}) {
       if (this.square_sendable(row)) {

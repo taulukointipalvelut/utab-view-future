@@ -446,6 +446,39 @@ export default {
             }
         }
     },
+    speaker_names_by_team_id (state, getters) {
+        return function (id, r_str=null) {
+            if (r_str === null) {
+                return getters.access_detail(getters.entity_by_id[id]).speakers
+                .map(getters.entity_name_by_id).join(', ')
+            } else {
+                return getters.access_detail(getters.entity_by_id[id], parseInt(r_str, 10)).speakers
+                .map(getters.entity_name_by_id).join(', ')
+            }
+        }
+    },
+    institution_names_by_id (state, getters) {
+        return function (id, r_str=null) {
+            if (r_str === null) {
+                return getters.access_detail(getters.entity_by_id[id]).institutions
+                .map(getters.entity_name_by_id).join(', ')
+            } else {
+                return getters.access_detail(getters.entity_by_id[id], parseInt(r_str, 10)).institutions
+                .map(getters.entity_name_by_id).join(', ')
+            }
+        }
+    },
+    conflict_names_by_adjudicator_id (state, getters) {
+        return function (id, r_str=null) {
+            if (r_str === null) {
+                return getters.access_detail(getters.entity_by_id[id]).conflicts
+                .map(getters.entity_name_by_id).join(', ')
+            } else {
+                return getters.access_detail(getters.entity_by_id[id], parseInt(r_str, 10)).conflicts
+                .map(getters.entity_name_by_id).join(', ')
+            }
+        }
+    },
     round_by_r: select_by_key_factory('rounds', 'r'),
     compiled_team_result_by_id: select_by_key_factory('compiled_team_results'),
     compiled_speaker_result_by_id: select_by_key_factory('compiled_speaker_results'),

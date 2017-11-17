@@ -225,6 +225,7 @@
     display none
 
   header.header-wrapper
+    opacity 0.9
     position fixed
     z-index 3
     background $primary-color

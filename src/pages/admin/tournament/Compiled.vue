@@ -14,9 +14,12 @@
               el-table-column(prop="id", label="Name", align="center", sortable)
                 template(slot-scope="scope")
                   span {{ entity_name_by_id(scope.row.id) }}
-              el-table-column(label="Team", align="center", sortable, v-if="label === 'speaker'")
+              el-table-column(label="Team", align="center", sortable, v-if="label === 'speakers'")
                 template(slot-scope="scope")
                   span {{ teams_by_speaker_id(scope.row.id).map(t => t.name).join(', ') }}
+              el-table-column(label="Institution", align="center", sortable, v-if="['teams', 'adjudicators'].includes(label)")
+                template(slot-scope="scope")
+                  span {{ institution_names_by_id(scope.row.id) }}
               el-table-column(prop="win", label="Win", align="center", sortable, v-if="label === 'teams'")
                 template(slot-scope="scope")
                   span {{ scope.row.win }}
@@ -269,6 +272,7 @@ export default {
     ]),
     ...mapGetters([
       'target_tournament',
+      'institution_names_by_id',
       'entity_name_by_id',
       'teams_by_speaker_id',
       'compiled_sub_prize_results'
