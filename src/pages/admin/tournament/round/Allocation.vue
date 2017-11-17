@@ -144,16 +144,27 @@
             el-form(:model="dialog.draw.form.model", :rules="dialog.draw.form.rules")
               el-form-item(label="Shuffle Venue", v-if="label === 'all' || label === 'venues'")
                 el-switch(active-text="", inactive-text="", v-model="dialog.draw.form.model.shuffle")
-              //el-form-item(label="Simple", prop="simple")
-                el-switch(active-text="", inactive-text="", v-model="dialog.draw.form.model.simple", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
-              el-form-item(label="Force", prop="force")
+              el-form-item(label="Ignore Tie", prop="force")
                 el-switch(active-text="", inactive-text="", v-model="dialog.draw.form.model.force", :disabled="label === 'venues' && dialog.draw.form.model.shuffle")
               el-form-item(label="Teaming algorithm", v-if="label === 'all' || label === 'teams'")
                 el-select(v-model="dialog.draw.form.model.team_allocation_algorithm")
                   el-option(v-for="algorithm in ['standard', 'strict']", :key="algorithm", :value="algorithm", :label="algorithm")
+              el-form-item(label="Teaming algorithm method", v-if="(label === 'all' || label === 'teams') && dialog.draw.form.model.team_allocation_algorithm === 'standard'")
+                el-select(v-model="dialog.draw.form.model.team_allocation_algorithm_options.method")
+                  el-option(v-for="method in ['straight', 'original', 'absolute', 'weighted']", :key="method", :value="method", :label="method")
+              el-form-item(label="Teaming algorithm filters", v-if="(label === 'all' || label === 'teams') && dialog.draw.form.model.team_allocation_algorithm === 'standard'")
+                draggable-list(:list="Object.keys(team_filters)", @change="dialog.draw.form.model.team_allocation_algorithm_options.filters=$event", :labels="team_filters")
               el-form-item(label="Allocation algorithm", v-if="label === 'all' || label === 'adjudicators'")
                 el-select(v-model="dialog.draw.form.model.adjudicator_allocation_algorithm")
                   el-option(v-for="algorithm in ['standard', 'traditional']", :key="algorithm", :value="algorithm", :label="algorithm")
+              el-form-item(label="Allocation algorithm method", v-if="(label === 'all' || label === 'adjudicators') && dialog.draw.form.model.adjudicator_allocation_algorithm === 'standard'")
+                el-select(v-model="dialog.draw.form.model.adjudicator_allocation_algorithm_options.method")
+                  el-option(v-for="method in ['straight', 'original', 'absolute', 'weighted']", :key="method", :value="method", :label="method")
+              el-form-item(label="Allocation algorithm filters", v-if="(label === 'all' || label === 'teams') && dialog.draw.form.model.adjudicator_allocation_algorithm === 'standard'")
+                draggable-list(:list="Object.keys(adjudicator_filters)", @change="dialog.draw.form.model.adjudicator_allocation_algorithm_options.filters=$event", :labels="adjudicator_filters")
+              el-form-item(label="Allocation algorithm assign method", v-if="(label === 'all' || label === 'adjudicators') && dialog.draw.form.model.adjudicator_allocation_algorithm === 'traditional'")
+                el-select(v-model="dialog.draw.form.model.adjudicator_allocation_algorithm_options.assign")
+                  el-option(v-for="assign in ['high_to_high', 'high_to_slight', 'middle_to_high', 'middle_to_slight']", :key="assign", :value="assign", :label="assign")
               el-form-item(v-for="sub_label in ['chairs', 'panels', 'trainees']", :key="sub_label", :label="capitalize(sub_label)+' per venue'", v-if="label === 'all' || label === 'adjudicators'")
                 el-input-number(v-model="dialog.draw.form.model.numbers_of_adjudicators[sub_label]", :min="{ chairs: 1, panels: 0, trainees: 0 }[sub_label]")
               el-form-item(label="Considering Rounds", v-if="['all', 'teams', 'adjudicators'].includes(label) || !dialog.draw.form.model.shuffle")
@@ -174,16 +185,32 @@ import utab_header from 'components/utab-header.vue'
 import draggable from 'vuedraggable'
 import math from 'assets/js/math.js'
 import lazy_item from 'components/lazy-item'
+import draggable_list from 'components/draggable-list'
 
 export default {
   components: {
     'utab-header': utab_header,
     'draggable': draggable,
-    'lazy-item': lazy_item
+    'lazy-item': lazy_item,
+    'draggable-list': draggable_list,
   },
   props: ['r_str'],
   data () {
     return {
+      team_filters: {
+        'by_strength': 'Power Pairing',
+        'by_side': 'No one side',
+        'by_past_opponent': 'No past opponent',
+        'by_institution': 'No same team institutions'
+      },
+      adjudicator_filters: {
+        'by_conflict': 'No personal conflicts',
+        'by_institution': 'No institution conflicts',
+        'by_past': 'No already watched Teams',
+        'by_num': 'Priority on less experienced adjudicators',
+        'by_num_chair': 'Priority on less chair adjudicators',
+        'by_strength': 'Scored adjudicators to scored teams'
+      },
       allocation_changed: false,
       allocation_empty: true,
       submit_loading: false,
@@ -210,6 +237,7 @@ export default {
               adjudicator_allocation_algorithm: 'standard',
               adjudicator_allocation_algorithm_options: {
                 assign: 'high_to_high',
+                method: 'straight',
                 filters: ['by_conflict', 'by_institution', 'by_past', 'by_num', 'by_num_chair', 'by_strength']
               },
               numbers_of_adjudicators: {
