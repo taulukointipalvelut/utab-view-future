@@ -5,11 +5,10 @@
     section
       legend Your Tournaments
       el-table(:data="available_tournaments", @row-click="on_select_tournament", empty-text="No Tournaments Available")
-        el-table-column(prop="id", label="ID", align="center", :min-width="150")
+        el-table-column(prop="style.name", label="Style", align="center", :min-width="100")
         el-table-column(label="Name", show-overflow-tooltip, align="center")
           template(slot-scope="scope")
             span(:class="{ 'tournament-hidden': scope.row.user_defined_data.hidden }") {{ scope.row.name }}
-        el-table-column(prop="style.name", label="Style", align="center", :min-width="100")
         el-table-column(align="right", :min-width="150")
           template(slot-scope="scope")
             el-button(size="small", @click="on_edit(scope.row)") #[el-icon(name="edit")]
@@ -25,8 +24,9 @@
           el-form-item(label="Style", prop="style_id")
             el-select(placeholder="Select style", v-model="dialog[type].form.model.style_id")
               el-option(v-for="style in styles", :key="style.id", :value="style.id", :label="style.name")
-          el-form-item(label="Hidden")
-            el-switch(v-model="dialog[type].form.model.user_defined_data.hidden", active-text="", inactive-text="", :default="false")
+          el-tooltip(content="Make tournament invisible to participants", :open-delay="500")
+            el-form-item(label="Hidden")
+              el-switch(v-model="dialog[type].form.model.user_defined_data.hidden", active-text="", inactive-text="", :default="false")
           //div(v-for="label_singular in ['audience', 'speaker', 'adjudicator']", :key="label_singular")
             el-form-item(:label="capitalize(label_singular)+' Login Required'")
               el-switch(v-model="dialog[type].form.model.auth[label_singular].required", active-text="", inactive-text="", :default="false")

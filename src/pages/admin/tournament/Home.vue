@@ -19,15 +19,20 @@
       el-table-column(:min-width="400")
         template(slot-scope="scope")
           .round-operations
-            el-button(size="small", @click="on_raw_result(scope.row)") #[i.fa.fa-list-ol] Result
-            el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
-            el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
+            el-tooltip(content="Edit & Remove Collected Raw Results", placement="top", :open-delay="500")
+              el-button(size="small", @click="on_raw_result(scope.row)") #[i.fa.fa-list-ol] Result
+            el-tooltip(content="Create & Edit Draw & Allocation", placement="top", :open-delay="500")
+              el-button(size="small", @click="on_allocation_round(scope.row)") #[el-icon(name="menu")] Allocation
+            el-tooltip(content="Configure Round", placement="top", :open-delay="500")
+              el-button(size="small", @click="on_edit_round(scope.row)") #[el-icon(name="edit")]
             el-button(size="small", type="danger", @click="on_send_delete_round(scope.row)") #[el-icon(name="close")]
           //el-button(size="mini", @click="on_next(1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r < target_tournament.total_round_num") #[el-icon(name="caret-bottom")]
           //el-button(size="mini", @click="on_next(-1)", style="width: 0.3rem; padding: 0; border: none; background: none;", v-if="scope.row.r === target_tournament.current_round_num && scope.row.r !== 1") #[el-icon(name="caret-top")]
     .operations
-      el-button(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
-      el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] New Round
+      el-tooltip(content="Summarize Rounds", placement="top", :open-delay="500")
+        el-button(:disabled="target_tournament.rounds.length === 0", @click='on_create_compile') Compile Results
+      el-tooltip(content="Add new Round", placement="top", :open-delay="500")
+        el-button(type="primary", @click="dialog.round.create_visible = true") #[el-icon(name="plus")] New Round
 
     legend Check-in
     el-tabs
@@ -59,7 +64,8 @@
                     template(slot-scope="scope")
                       el-button(type="primary", size="small", @click="on_save_detail(label, labels_singular[label])", :loading="collapsed[labels_singular[label]].loading") Save
         .operations
-          el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] New {{ capitalize(label) }}
+          el-tooltip(:content="'Create & Import '+capitalize(label)", placement="top", :open-delay="500")
+            el-button(type="primary", @click="dialog[label].visible = true") #[el-icon(name="plus")] New {{ capitalize(label) }}
 
     el-dialog(title="Compile Results", :visible.sync="dialog.compile.visible")
       .dialog-body

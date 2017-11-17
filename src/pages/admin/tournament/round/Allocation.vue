@@ -66,15 +66,24 @@
                     p(v-if="warning.teams.length > 0") teams: {{ warning.teams.map(entity_name_by_id).join(', ') }}
                     p(v-if="warning.adjudicators.length > 0") adjudicators: {{ warning.adjudicators.map(entity_name_by_id).join(', ') }}
         .operations
-          el-button(round, :type="!draw_opened ? 'info' : 'success'", @click="toggle('draw_opened')", :disabled="locked || allocation_changed || allocation_empty") #[i.fa.fa-eye(v-show="draw_opened")] #[i.fa.fa-eye-slash(v-show="!draw_opened")] Draw
-          el-button(round, :type="!allocation_opened ? 'info' : 'success'", @click="toggle('allocation_opened')", :disabled="locked || allocation_changed || allocation_empty") #[i.fa.fa-eye(v-show="allocation_opened")] #[i.fa.fa-eye-slash(v-show="!allocation_opened")] Allocation
-          el-button(@click="on_edit_request", :disabled="locked") #[i.fa.fa-paper-plane] Request
-          el-button(@click="on_fix_draw", v-if="need_fix", :disabled="locked") #[i.fa.fa-wrench] Fix
-          el-button(@click="on_clear_draw", :disabled="locked || (allocation_empty && !allocation_changed)") #[i.fa.fa-eraser] Clear
-          el-button(@click="on_revert_draw", :disabled="locked || !allocation_changed") #[i.fa.fa-undo] Revert
-          el-button(@click="toggle('locked')", v-if="target_draw !== undefined", :disabled="allocation_changed || allocation_empty") #[i.fa.fa-lock(v-show="locked")] #[i.fa.fa-unlock-alt(v-show="!locked")]
-          el-button(type="primary", @click="on_send_allocation", :disabled="!sendable || locked || !allocation_changed", :loading="submit_loading") #[i.fa.fa-floppy-o]
-          el-button(@click="on_delete_draw", type="danger", :disabled="allocation_empty || locked", :loading="delete_loading") #[i.fa.fa-trash-o]
+          el-tooltip(content="Release Draw", placement="top", :open-delay="500")
+            el-button(round, :type="!draw_opened ? 'info' : 'success'", @click="toggle('draw_opened')", :disabled="locked || allocation_changed || allocation_empty") #[i.fa.fa-eye(v-show="draw_opened")] #[i.fa.fa-eye-slash(v-show="!draw_opened")] Draw
+          el-tooltip(content="Release Adjudicator Allocation", placement="top", :open-delay="500")
+            el-button(round, :type="!allocation_opened ? 'info' : 'success'", @click="toggle('allocation_opened')", :disabled="locked || allocation_changed || allocation_empty") #[i.fa.fa-eye(v-show="allocation_opened")] #[i.fa.fa-eye-slash(v-show="!allocation_opened")] Allocation
+          el-tooltip(content="Request Draw & Allocation", placement="top", :open-delay="500")
+            el-button(@click="on_edit_request", :disabled="locked") #[i.fa.fa-paper-plane] Request
+          el-tooltip(content="Remove Unavailable", placement="top", :open-delay="500")
+            el-button(@click="on_fix_draw", v-if="need_fix", :disabled="locked") #[i.fa.fa-wrench] Fix
+          el-tooltip(content="Clear Draw & Allocation", placement="top", :open-delay="500")
+            el-button(@click="on_clear_draw", :disabled="locked || (allocation_empty && !allocation_changed)") #[i.fa.fa-eraser] Clear
+          el-tooltip(content="Revert Draw & Allocation to saved one in Server", placement="top", :open-delay="500")
+            el-button(@click="on_revert_draw", :disabled="locked || !allocation_changed") #[i.fa.fa-undo] Revert
+          el-tooltip(content="Lock operations on this Draw & Allocation", placement="top", :open-delay="500")
+            el-button(@click="toggle('locked')", v-if="target_draw !== undefined", :disabled="allocation_changed || allocation_empty") #[i.fa.fa-lock(v-show="locked")] #[i.fa.fa-unlock-alt(v-show="!locked")]
+          el-tooltip(content="Save Draw & Allocation to Server", placement="top", :open-delay="500")
+            el-button(type="primary", @click="on_send_allocation", :disabled="!sendable || locked || !allocation_changed", :loading="submit_loading") #[i.fa.fa-floppy-o]
+          el-tooltip(content="Remove Draw & Allocation from Server", placement="top", :open-delay="500")
+            el-button(@click="on_delete_draw", type="danger", :disabled="allocation_empty || locked", :loading="delete_loading") #[i.fa.fa-trash-o]
     .page-footer
       .waiting-list-container
         legend Waiting Adjudicators
@@ -122,8 +131,10 @@
                     p priority: {{ access_detail(entity_by_id[id], r_str).priority }}
       .legend-list-container
         legend Legend
-          div.legend-content(:class="warning_classes[class_label]", @mouseover="", v-for="class_label in Object.keys(warning_classes)", :key="class_label")
-            span {{ class_label }}
+            div(v-for="class_label in Object.keys(warning_classes)", :key="class_label")
+              el-tooltip(:content="warning_classes[class_label].tooltip", placement="top", :open-delay="500")
+                .legend-content(:class="warning_classes[class_label].class")
+                  span {{ class_label }}
 
     el-dialog(title="Request Draw", :visible.sync="dialog.draw.visible")
       el-tabs(v-model="dialog.draw.allocation_type")
@@ -272,13 +283,34 @@ export default {
     },
     warning_classes () {
       return {
-        'Already Judged': 'already-judged',
-        'Different Win': 'different-win',
-        'Same Institution': 'same-institution',
-        'Sided': 'sided',
-        'Conflicts': 'conflicts',
-        'Personal Conflicts': 'personal-conflicts',
-        'Past Matched': 'past-matched'
+        'Already Judged': {
+          class: 'already-judged',
+          tooltip: 'The adjudicator has already watched the teams before'
+        },
+        'Different Win': {
+          class: 'different-win',
+          tooltip: 'Two teams have different win points'
+        },
+        'Same Institution': {
+          class: 'same-institution',
+          tooltip: 'Teams(Adjudicators) have the same institutions'
+        },
+        'Sided': {
+          class: 'sided',
+          tooltip: 'The team has experienced the same side too much'
+        },
+        'Conflicts': {
+          class: 'conflicts',
+          tooltip: 'The adjudicator has institution conflicts to the teams'
+        },
+        'Personal Conflicts': {
+          class: 'personal-conflicts',
+          tooltip: 'The adjudicator has personal conflicts to the teams'
+        },
+        'Past Matched': {
+          class: 'past-matched',
+          tooltip: 'Two teams have already matched before'
+        }
       }
     },
     sendable () {

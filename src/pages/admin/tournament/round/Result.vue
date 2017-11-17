@@ -4,20 +4,18 @@
       h1 {{ target_tournament.name }}
     p(v-if="adjudicators_ss_unsubmitted(r_str).length > 0") These adjudicators have not sent the score sheets: #[font(size="4", color="red") {{ adjudicators_ss_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
     p(v-if="entities_es_unsubmitted(r_str).length > 0") These adjudicators/teams have not sent the evaluation sheets: #[font(size="4", color="red") {{ entities_es_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
-    el-radio-group.sort-wrapper(v-model="sort_by")
-      el-radio-button.sort-option(label="sender") Sort by sender
-      el-radio-button.sort-option(label="target") Sort by target
+    el-switch.sort-wrapper(v-model="sort_by_sender", active-text="Sort by Sender", inactive-text="Sort by Target")
     el-tabs
       el-tab-pane(label="Collected raw Team results")
         section
           span(v-if="raw_team_results_by_r(r_str).length === 0") No team results are collected.
           el-collapse(v-else, accordion, @change="collapse_value = $event")
-            el-collapse-item.collapse-item(v-for="results in divided_results('team')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
+            el-collapse-item.collapse-item(v-for="results in divided_results('team')", :key="sort_by_sender ? results[0].from_id : results[0].id", :name="sort_by_sender ? results[0].from_id : results[0].id")
               template(slot="title")
                 .el-collapse-title
-                  span.entity-name {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                  span.entity-name {{ entity_name_by_id(sort_by_sender ? results[0].from_id : results[0].id) }}
                   el-button.delete(size="small", type="danger", @click="on_delete('teams', 'team', results)") #[el-icon(name="close")]
-              el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id)", border)
+              el-table.inner-table(:data="results", v-if="collapse_value === (sort_by_sender ? results[0].from_id : results[0].id)", border)
                 el-table-column(prop="id", label="Name", align="center", sortable)
                   template(slot-scope="scope")
                     span {{ entity_name_by_id(scope.row.id) }}
@@ -38,12 +36,12 @@
         section
           span(v-if="raw_speaker_results_by_r(r_str).length === 0") No speaker results are collected.
           el-collapse(v-else, accordion, @change="collapse_value = $event")
-            el-collapse-item.collapse-item(v-for="results in divided_results('speaker')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
+            el-collapse-item.collapse-item(v-for="results in divided_results('speaker')", :key="sort_by_sender ? results[0].from_id : results[0].id", :name="sort_by_sender ? results[0].from_id : results[0].id")
               template(slot="title")
-                div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
-                  span.entity-name {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                .el-collapse-title
+                  span.entity-name {{ entity_name_by_id(sort_by_sender ? results[0].from_id : results[0].id) }}
                   el-button.delete(size="small", type="danger", @click="on_delete('speakers', 'speaker', results)") #[el-icon(name="close")]
-              el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ", border)
+              el-table.inner-table(:data="results", v-if="collapse_value === (sort_by_sender ? results[0].from_id : results[0].id) ", border)
                 el-table-column(prop="id", label="Name", align="center", sortable)
                   template(slot-scope="scope")
                     span {{ entity_name_by_id(scope.row.id) }}
@@ -73,12 +71,12 @@
         section
           span(v-if="raw_adjudicator_results_by_r(r_str).length === 0") No adjudicator results are collected.
           el-collapse(v-else, accordion, @change="collapse_value = $event")
-            el-collapse-item.collapse-item(v-for="results in divided_results('adjudicator')", :key="sort_by === 'sender' ? results[0].from_id : results[0].id", :name="sort_by === 'sender' ? results[0].from_id : results[0].id")
+            el-collapse-item.collapse-item(v-for="results in divided_results('adjudicator')", :key="sort_by_sender ? results[0].from_id : results[0].id", :name="sort_by_sender ? results[0].from_id : results[0].id")
               template(slot="title")
-                div(style="width: 90%; display: inline-flex; justify-content: space-between; align-items: center;")
-                  span.entity-name {{ entity_name_by_id(sort_by === 'sender' ? results[0].from_id : results[0].id) }}
+                .el-collapse-title
+                  span.entity-name {{ entity_name_by_id(sort_by_sender ? results[0].from_id : results[0].id) }}
                   el-button.delete(size="small", type="danger", @click="on_delete('adjudicators', 'adjudicator', results)") #[el-icon(name="close")]
-              el-table.inner-table(:data="results", v-if="collapse_value === (sort_by === 'sender' ? results[0].from_id : results[0].id) ", border)
+              el-table.inner-table(:data="results", v-if="collapse_value === (sort_by_sender ? results[0].from_id : results[0].id) ", border)
                 el-table-column(prop="id", label="Name", align="center", sortable)
                   template(slot-scope="scope")
                     span {{ entity_name_by_id(scope.row.id) }}
@@ -149,7 +147,7 @@ export default {
   data () {
     return {
       collapse_value: null,
-      sort_by: 'sender',
+      sort_by_sender: true,
       dialog: {
         team_result: {
           form: {
@@ -199,7 +197,7 @@ export default {
   computed: {
     divided_results () {
       return label_singular => {
-        let key = this.sort_by === 'sender' ? 'from_id' : 'id'
+        let key = this.sort_by_sender ? 'from_id' : 'id'
         let results = this['raw_'+label_singular+'_results_by_r'](this.r_str)
         let groups = Array.from(new Set(results.map(r => r[key]))).sort((id1, id2) => this.entity_name_by_id(id1).localeCompare(this.entity_name_by_id(id2)))
         let divided_results = []
