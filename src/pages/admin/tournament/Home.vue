@@ -379,8 +379,7 @@ export default {
       'send_create_entities',
       'send_delete_entity',
       'send_update_entity',
-      'send_update_round',
-      'request_compiled_results'
+      'send_update_round'
     ]),
     async handle_files (label, label_singular, evt) {
       this.dialog[label].visible = false
@@ -596,34 +595,11 @@ export default {
       this.collapsed[label_singular].loading = false
     },
     on_compile () {
-      let tournament = this.target_tournament
       let model = this.dialog.compile.form.model
-      this.dialog.compile.loading = true
-      let _payload = {
-        tournament,
-        request: {
-          rs: model.rs,
-          options: {
-            simple: model.simple
-          }
-        }
-      }
-      let payloads = []
-      let labels = ['adjudicators', 'speakers', 'teams']
-      for (let label of labels) {
-        let payload = Object.assign({}, _payload)
-        payload.label = label
-        payload.label_singular = this.labels_singular[label]
-        payloads.push(payload)
-      }
-
-      Promise.all(payloads.map(this.request_compiled_results))
-        .then(() => {
-          this.dialog.compile.loading = false
-          this.dialog.compile.visible = false
-          this.$router.push({
-            path: 'result'
-          })
+      this.dialog.compile.visible = false
+      this.$router.push({
+        path: 'result',
+        query: { rs: model.rs, simple: model.simple }
       })
     },
     async on_create (label, model0=undefined, force=false) {

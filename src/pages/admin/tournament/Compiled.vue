@@ -2,8 +2,9 @@
   .router-view-content
     section.page-header
       h1 {{ target_tournament.name }}
-    p(v-if="target_tournament.compiled_team_results.length === 0 && target_tournament.compiled_speaker_results.length === 0 && target_tournament.compiled_adjudicator_results.length === 0") No results are collected or Please recompile results.
-    el-tabs.results-tabs(v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
+    p(v-if="!compiling && target_tournament.compiled_team_results.length === 0 && target_tournament.compiled_speaker_results.length === 0 && target_tournament.compiled_adjudicator_results.length === 0") No results are collected.
+    p(v-if="compiling") Processing...
+    el-tabs.results-tabs(v-if="!compiling && (target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0)")
       el-tab-pane(v-for="label in ['teams', 'speakers', 'adjudicators']", :key="label", :label="capitalize(labels_singular[label])+' Results'", v-if="label === 'teams' || (label === 'speakers' && !without_speakers) || (label === 'adjudicators' && !without_adjudicators)")
         el-tabs.result-tabs(type="border-card")
           el-tab-pane(label="Slides")
@@ -174,6 +175,7 @@ export default {
   props: ['r_str'],
   data () {
     return {
+      compiling: true,
       labels_singular: {
         teams: 'team',
         speakers: 'speaker',
@@ -292,6 +294,9 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      'request_compiled_results'
+    ]),
     round: math.round,
     capitalize: math.capitalize,
     on_configure_slide (label_singular) {
@@ -349,6 +354,31 @@ export default {
       link.click()
       return csv
     }
+  },
+  async mounted () {
+    this.compiling = true
+    let tournament = this.target_tournament
+    let rs = this.$route.query.rs.map(r => parseInt(r, 10))
+    let simple = this.$route.query.simple
+    let _payload = {
+      tournament,
+      request: {
+        rs,
+        options: {
+          simple
+        }
+      }
+    }
+    let payloads = []
+    let labels = ['adjudicators', 'speakers', 'teams']
+    for (let label of labels) {
+      let payload = Object.assign({}, _payload)
+      payload.label = label
+      payload.label_singular = this.labels_singular[label]
+      payloads.push(payload)
+    }
+    await Promise.all(payloads.map(this.request_compiled_results))
+    this.compiling = false
   }
 }
 </script>
