@@ -6,6 +6,20 @@
     el-tabs.results-tabs(v-if="target_tournament.compiled_team_results.length > 0 || target_tournament.compiled_speaker_results.length > 0")
       el-tab-pane(v-for="label in ['teams', 'speakers', 'adjudicators']", :key="label", :label="capitalize(labels_singular[label])+' Results'", v-if="label === 'teams' || (label === 'speakers' && !without_speakers) || (label === 'adjudicators' && !without_adjudicators)")
         el-tabs.result-tabs(type="border-card")
+          el-tab-pane(label="Slides")
+            slides(:label="label", v-if="slides[label].configured", :tournament="target_tournament", :max_ranking_rewarded="slides[label].max_ranking_rewarded", :credit="slides[label].credit", :type="slides[label].type", @close="slides[label].configured=false")
+            el-card(v-if="!slides[label].configured").slide-config-card
+              el-form
+                el-form-item(:label="'Max '+capitalize(label)+' Rewarded'")
+                  el-input-number(v-model="slides[label].max_ranking_rewarded", :min="1")
+                el-form-item(label="Credit")
+                  el-input(v-model="slides[label].credit")
+                el-form-item(label="Type")
+                  el-select(v-model="slides[label].type")
+                    el-option(label="Listed", value="listed")
+                    el-option(label="Pretty", value="pretty")
+            .operation-button-container(v-if="!slides[label].configured")
+              el-button.operation-button(size="small", type="primary", @click="slides[label].configured=true") #[el-icon(name="picture")] Start
           el-tab-pane(label="Table")
             el-table(:data="target_tournament['compiled_'+labels_singular[label]+'_results'].slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)")
               el-table-column(prop="ranking", label="Ranking", align="center", sortable)
@@ -49,20 +63,6 @@
                   span {{ scope.row.comments.join(', ') }}
             .operation-button-container
               el-button.operation-button(@click="on_download_results(label)") Download {{ capitalize(labels_singular[label]) }} Results
-          el-tab-pane(label="Slides")
-            slides(:label="label", v-if="slides[label].configured", :tournament="target_tournament", :max_ranking_rewarded="slides[label].max_ranking_rewarded", :credit="slides[label].credit", :type="slides[label].type", @close="slides[label].configured=false")
-            el-card(v-if="!slides[label].configured").slide-config-card
-              el-form
-                el-form-item(:label="'Max '+capitalize(label)+' Rewarded'")
-                  el-input-number(v-model="slides[label].max_ranking_rewarded", :min="1")
-                el-form-item(label="Credit")
-                  el-input(v-model="slides[label].credit")
-                el-form-item(label="Type")
-                  el-select(v-model="slides[label].type")
-                    el-option(label="Listed", value="listed")
-                    el-option(label="Pretty", value="pretty")
-            .operation-button-container(v-if="!slides[label].configured")
-              el-button.operation-button(size="small", type="primary", @click="slides[label].configured=true") #[el-icon(name="picture")] Start
           el-tab-pane(label="Score Graph", v-if="label === 'adjudicators' || !without_speakers")
             lazy-item
               score-change(:id="label", :results="target_tournament['compiled_'+labels_singular[label]+'_results']", :tournament="target_tournament", :marker="label === 'teams' ? { key: 'win', value: 1 } : { key: '', value: undefined }", :score="detail_score[label]")
@@ -78,6 +78,20 @@
 
       el-tab-pane(v-for="sub_prize in ['best', 'poi']", :label="{best: 'Best Debater Results', poi: 'POI Results'}[sub_prize]", :key="sub_prize", v-if="sub_prize_enabled[sub_prize] && !without_speakers")
         el-tabs.result-tabs(type="border-card")
+          el-tab-pane(label="Slides")
+            slides(v-if="slides[sub_prize].configured", :label="sub_prize", :tournament="target_tournament", :max_ranking_rewarded="slides[sub_prize].max_ranking_rewarded", :credit="slides[sub_prize].credit", :type="slides[sub_prize].type", @close="slides[sub_prize].configured=false")
+            el-card(v-if="!slides[sub_prize].configured").slide-config-card
+              el-form
+                el-form-item(label="Max Speakers Rewarded")
+                  el-input-number(v-model="slides[sub_prize].max_ranking_rewarded", :min="1")
+                el-form-item(label="Credit")
+                  el-input(v-model="slides[sub_prize].credit")
+                el-form-item(label="Type")
+                  el-select(v-model="slides[sub_prize].type")
+                    el-option(label="Listed", value="listed")
+                    el-option(label="Pretty", value="pretty")
+            .operation-button-container(v-if="!slides[sub_prize].configured")
+              el-button.operation-button(size="small", type="primary", @click="slides[sub_prize].configured=true") #[el-icon(name="picture")] {{ !slides[sub_prize].configured ? 'Start' : 'Cancel' }}
           el-tab-pane(label="Table")
             el-table(:data="compiled_sub_prize_results(sub_prize)")
               el-table-column(prop="ranking", label="Ranking", align="center", sortable)
@@ -94,20 +108,6 @@
                   span {{ round(scope.row[sub_prize]) }}
             .operation-button-container
               el-button.operation-button(@click="on_download_sub_prize_results(sub_prize, {best: 'Total Best Speaker', poi: 'Total POI'}[sub_prize])") Download {{ {best: 'Best Debater', poi: 'POI'}[sub_prize] }} Results
-          el-tab-pane(label="Slides")
-            slides(v-if="slides[sub_prize].configured", :label="sub_prize", :tournament="target_tournament", :max_ranking_rewarded="slides[sub_prize].max_ranking_rewarded", :credit="slides[sub_prize].credit", :type="slides[sub_prize].type", @close="slides[sub_prize].configured=false")
-            el-card(v-if="!slides[sub_prize].configured").slide-config-card
-              el-form
-                el-form-item(label="Max Speakers Rewarded")
-                  el-input-number(v-model="slides[sub_prize].max_ranking_rewarded", :min="1")
-                el-form-item(label="Credit")
-                  el-input(v-model="slides[sub_prize].credit")
-                el-form-item(label="Type")
-                  el-select(v-model="slides[sub_prize].type")
-                    el-option(label="Listed", value="listed")
-                    el-option(label="Pretty", value="pretty")
-            .operation-button-container(v-if="!slides[sub_prize].configured")
-              el-button.operation-button(size="small", type="primary", @click="slides[sub_prize].configured=true") #[el-icon(name="picture")] {{ !slides[sub_prize].configured ? 'Start' : 'Cancel' }}
 
       el-tab-pane(label="Fairness")
         el-tabs.result-tabs(type="border-card")
@@ -120,7 +120,7 @@
           el-tab-pane(label="Gov Margin", v-if="!without_speakers")
             lazy-item
               side-margin-heatmap(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
-          el-tab-pane(label="Winers")
+          el-tab-pane(label="Winners")
             lazy-item
               side-pie-chart(:results="target_tournament.compiled_team_results", :tournament="target_tournament", v-for="round in target_tournament.rounds", :round="round", :key="round.r", :id="round.r.toString()")
 
