@@ -847,13 +847,7 @@ export default {
         let tournament = this.target_tournament
         this.draw_adjusted.allocation = []
 
-        let sorted_allocation = allocation.slice().sort(function (a, b) {
-          let venue1 = that.entity_by_id[a.venue]
-          let venue2 = that.entity_by_id[b.venue]
-          let pr1 = venue1 !== undefined ? that.access_detail(venue1, that.r_str).priority : 1
-          let pr2 = venue2 !== undefined ? that.access_detail(venue2, that.r_str).priority : 1
-          return pr1 > pr2 ? 1 : -1
-        })
+        let sorted_allocation = allocation.slice().sort((a, b) => a.id > b.id ? 1 : -1)
 
         let c = 0
 
