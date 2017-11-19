@@ -359,7 +359,7 @@ export default {
     this.compiling = true
     let tournament = this.target_tournament
     let rs = this.$route.query.rs.map(r => parseInt(r, 10))
-    let simple = this.$route.query.simple
+    let simple = this.$route.query.simple === 'true'
     let _payload = {
       tournament,
       request: {
