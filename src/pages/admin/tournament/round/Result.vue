@@ -4,7 +4,8 @@
       h1 {{ target_tournament.name }}
     p(v-if="adjudicators_ss_unsubmitted(r_str).length > 0") These adjudicators have not sent the score sheets: #[font(size="4", color="red") {{ adjudicators_ss_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
     p(v-if="entities_es_unsubmitted(r_str).length > 0") These adjudicators/teams have not sent the evaluation sheets: #[font(size="4", color="red") {{ entities_es_unsubmitted(r_str).map(entity_name_by_id).join(", ") }}]
-    el-switch.sort-wrapper(v-model="sort_by_sender", active-text="Sort by Sender", inactive-text="Sort by Target")
+    .sort-wrapper
+      el-switch(v-model="sort_by_sender", active-text="Sort by Sender", inactive-text="Sort by Target", active-color="#409EFF", inactive-color="#409EFF")
     el-tabs
       el-tab-pane(label="Collected raw Team results")
         section
@@ -355,7 +356,6 @@ export default {
     margin-bottom 0
 
   .sort-wrapper
-    margin 0
     display flex
     justify-content flex-end
 
