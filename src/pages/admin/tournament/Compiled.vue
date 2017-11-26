@@ -349,7 +349,8 @@ export default {
       for (let result of results.slice().sort((r1, r2) => r1.ranking > r2.ranking ? 1 : -1)) {
         csv += labels.map(label => result[label]).join(',') + '\n'
       }
-      link.href = URL.createObjectURL(new Blob([csv], {type: 'text/plain'}))
+      let bom = new Uint8Array([0xEF, 0xBB, 0xBF])
+      link.href = URL.createObjectURL(new Blob([bom, csv], {type: 'text/plain'}))
       link.download = filename
       link.click()
       return csv
