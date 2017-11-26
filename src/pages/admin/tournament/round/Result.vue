@@ -289,16 +289,16 @@ export default {
       for (let result of organized_results) {
         result.name = this.entity_name_by_id(result.id)
         result.from_name = this.entity_name_by_id(result.from_id)
-        result.teams = result.judged_teams.map(this.entity_name_by_id).join(' ')
+        //result.teams = result.judged_teams.map(this.entity_name_by_id).join(' ')
         result.score = result.score
         result.matter = result.user_defined_data.matter
         result.manner = result.user_defined_data.manner
         result.comment = result.comment
       }
-      let headers = this.target_round.user_defined_data.score_by_matter_manner ? ['Name', 'Judged Teams', 'Score', 'Matter', 'Manner', 'Comment', 'From']
-                                                                               : ['Name', 'Judged Teams', 'Score', 'Comment', 'From']
-      let contents = this.target_round.user_defined_data.score_by_matter_manner ? ['name', 'teams', 'score', 'comment', 'from_name']
-                                                                                : []
+      let headers = this.target_round.user_defined_data.score_by_matter_manner ? ['Name', 'Score', 'Matter', 'Manner', 'Comment', 'From']
+                                                                               : ['Name', 'Score', 'Comment', 'From']
+      let contents = this.target_round.user_defined_data.score_by_matter_manner ? ['name', 'score', 'matter', 'manner', 'comment', 'from_name']
+                                                                                : ['name', 'score', 'comment', 'from_name']
       this.download_results_as_csv('raw_adjudicator_results_in_round_'+this.r_str+'.csv', organized_results, contents, headers)
     },
     on_download_raw_speaker_results () {
