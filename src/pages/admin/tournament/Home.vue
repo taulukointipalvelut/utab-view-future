@@ -43,8 +43,10 @@
           el-collapse-item.outer-collapse-item(v-for="entity in target_tournament[label].slice().sort((e1, e2) => e1.name.localeCompare(e2.name))", :key="entity.id", :name="entity.id")
             template(slot="title")
               .el-collapse-title
-                span #[flexible-input(:loading="input_loading(entity.id)", :text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, $event)", @start="flexible_input.identity=entity.id")]
+                span #[flexible-input(:loading="input_loading(entity.id)", :text="entity_name_by_id(entity.id)", @text-update="on_update(label, labels_singular[label], entity, { name: $event })", @start="flexible_input.identity=entity.id")]
                 el-button(size="small", type="danger", @click="on_delete(label, labels_singular[label], entity)") #[el-icon(name="close")]
+            .preev(v-if="label==='adjudicators'")
+              span Preev: #[flexible-input(:loading="input_loading(entity.id)", :text="entity.preev", type="number", @text-update="on_update(label, labels_singular[label], entity, { preev: $event })")]
             el-collapse.inner-collapse(accordion, @change="on_collapse(labels_singular[label], entity, $event)", v-if="parseInt(outer_collapse[labels_singular[label]], 10) === entity.id && ['venues', 'teams', 'adjudicators'].includes(label)")
               el-collapse-item.inner-collapse-item(v-for="detail in entity.details.slice().sort((d1, d2) => d1.r > d2.r ? 1 : -1)", :key="detail.r", :name="detail.r", v-if="target_tournament.rounds.map(round => round.r).includes(detail.r)")
                 template(slot="title")
@@ -130,6 +132,8 @@
             el-switch(:default="true", active-text="", inactive-text="", v-model="dialog[label].form.model.available")
           el-form-item(label="Priority", prop="priority", v-if="label==='venues'")
             el-input-number(:min="1", v-model="dialog.venues.form.model.priority")
+          el-form-item(label="Preev", prop="preev", v-if="label==='adjudicators'")
+            el-input(type="number", v-model.number="dialog.adjudicators.form.model.preev")
           el-form-item(v-for="sub_label in sub_labels_list[label]", :label="capitalize(sub_label)", :prop="sub_label", :key="sub_label", v-if="['teams', 'adjudicators', 'venues'].includes(label)")
             el-select(multiple, v-model="dialog[label].form.model[sub_label]")
               el-option(v-for="sub_entity in data_to_select(sub_label)", :key="sub_entity.id", :label="sub_entity.name", :value="sub_entity.id")
@@ -219,6 +223,7 @@ function dialog_generator () {
       form: {
         model: {
           name: '',
+          preev: 0,
           available: true,
           institutions: [],
           conflicts: []
@@ -315,6 +320,7 @@ export default {
         adjudicator: {
           loading: false,
           id: null,
+          preev: null,
           detail: {
             r: null,
             available: false,
@@ -497,6 +503,7 @@ export default {
         } else if (label_singular === 'adjudicator') {
           this.collapsed[label_singular].detail.institutions = this.access_detail(entity, r).institutions.slice()
           this.collapsed[label_singular].detail.conflicts = this.access_detail(entity, r).conflicts.slice()
+          this.collapsed[label_singular].preev = entity.preev
         } else if (label_singular === 'venue') {
           this.collapsed[label_singular].detail.priority = this.access_detail(entity, r).priority
         }
@@ -626,9 +633,9 @@ export default {
       this.dialog[label].visible = false
       return data[0]
     },
-    async on_update (label, label_singular, entity, name) {
+    async on_update (label, label_singular, entity, set) {
       const tournament = this.target_tournament
-      let dict = { id: entity.id, name }
+      let dict = { id: entity.id, ...set }
       let payload = {
         tournament,
         label,
@@ -753,6 +760,11 @@ export default {
 
   div.info-card.admin
     margin-top 2rem
+
+  .preev
+    width 100%
+    display flex
+    justify-content space-around
 
   .load-file-container
     display flex

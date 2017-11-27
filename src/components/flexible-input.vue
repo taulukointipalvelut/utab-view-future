@@ -1,7 +1,8 @@
 <template lang="pug">
   div(@click="on_click").flexible-wrapper
     span.flexible-span(v-show="!editing") {{ inner_text }}
-    input.flexible-input(ref="input", v-show="editing", v-model="inner_text", @keyup.esc="restore_default", @keydown.enter="update", @blur="restore_default", spellcheck="false")
+    input.flexible-input(ref="input", v-show="editing", v-model="inner_text", @keyup.esc="restore_default", @keydown.enter="update", @blur="restore_default", spellcheck="false", v-if="type!=='number'")
+    input.flexible-input(ref="input", v-show="editing", v-model.number="inner_text", @keyup.esc="restore_default", @keydown.enter="update", @blur="restore_default", spellcheck="false", v-if="type==='number'")
     el-icon.edit-icon(name="edit", v-show="!editing && !loading")
     el-icon.edit-icon(name="loading", v-show="loading")
     //el-icon(name="check", v-if="editing", style="color: red;")
@@ -11,12 +12,14 @@
   export default {
     name: "flexible-input",
     props: {
-      text: {
-        type: String
-      },
+      text: '',
       loading: {
         type: Boolean,
         default: false
+      },
+      type: {
+        type: String,
+        default: 'string'
       }
     },
     data () {
@@ -27,7 +30,7 @@
       }
     },
     mounted () {
-      this.inner_text = this.text
+      this.inner_text = this.type === 'number' ? Number(this.text) : this.text.toString()
     },
     methods: {
       on_click () {
