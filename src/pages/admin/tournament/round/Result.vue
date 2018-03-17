@@ -281,7 +281,7 @@ export default {
         result.from_name = this.entity_name_by_id(result.from_id)
         result.opponents_name = result.opponents.map(this.entity_name_by_id).join(' ')
       }
-      this.download_results_as_csv('raw_team_results_in_round_'+this.r_str+'.csv', organized_results, ['name', 'win', 'side', 'opponents_name', 'from_name'], ['Name', 'Win', 'Side', 'Opponents', 'From'])
+      this.download_results_as_csv('raw_team_results_in_round_'+this.r_str+'.csv', organized_results, ['name', 'win', 'opponents_name', 'from_name'], ['Name', 'Win', 'Opponents', 'From'])
     },
     on_download_raw_adjudicator_results () {
       let results = this.raw_adjudicator_results_by_r(this.r_str)
